@@ -94,11 +94,19 @@ export async function POST(request: Request) {
 
     await logger.success(kraPayload, result, branches.id, kraEndpoint)
 
+    const transformedData = (result.data || []).map((item: any) => ({
+      item_cls_cd: item.itemClsCd,
+      item_cls_nm: item.itemClsNm,
+      item_cls_lvl: item.itemClsLvl,
+      tax_ty_cd: item.taxTyCd,
+      use_yn: item.useYn || "Y",
+    }))
+
     return NextResponse.json({
       resultCd: "000",
       resultMsg: "Successfully pulled item classifications from KRA",
       resultDt: new Date().toISOString(),
-      data: result.data || [],
+      data: transformedData,
     })
   } catch (error: any) {
     console.error("[v0] Get item classifications error:", error.message)

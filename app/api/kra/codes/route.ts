@@ -101,11 +101,19 @@ export async function POST(request: Request) {
 
     await logger.success(kraPayload, result, branches.id, kraEndpoint)
 
+    const transformedData = (result.data || []).map((item: any) => ({
+      cd_cls: item.cdCls,
+      cd: item.cd,
+      cd_nm: item.cdNm,
+      cd_desc: item.cdDesc,
+      use_yn: item.useYn || "Y",
+    }))
+
     return NextResponse.json({
       resultCd: "000",
       resultMsg: "Successfully pulled code list from KRA",
       resultDt: new Date().toISOString(),
-      data: result.data || [],
+      data: transformedData,
     })
   } catch (error: any) {
     console.error("[v0] Get codes error:", error.message)

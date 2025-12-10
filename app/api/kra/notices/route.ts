@@ -93,11 +93,19 @@ export async function POST(request: Request) {
 
     await logger.success(kraPayload, result, branches.id, kraEndpoint)
 
+    const transformedData = (result.data || []).map((item: any) => ({
+      notce_no: item.notceNo,
+      title: item.title,
+      cont: item.cont,
+      dtl_url: item.dtlUrl,
+      last_req_dt: item.regrDt,
+    }))
+
     return NextResponse.json({
       resultCd: "000",
       resultMsg: "Successfully pulled notices from KRA",
       resultDt: new Date().toISOString(),
-      data: result.data || [],
+      data: transformedData,
     })
   } catch (error: any) {
     console.error("[v0] Get notices error:", error.message)
