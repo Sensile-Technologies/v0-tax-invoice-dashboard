@@ -267,9 +267,14 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       return
     }
 
+    // Get fuel type from the selected tank
+    const selectedTank = tanks.find((t) => t.id === selectedTankForDispenser)
+    const fuelType = selectedTank?.fuel_type || "Petrol"
+
     const { error } = await supabase.from("dispensers").insert({
       branch_id: branchId,
       dispenser_number: nextDispenserNumber,
+      fuel_type: fuelType,
       status: "active",
     })
 
