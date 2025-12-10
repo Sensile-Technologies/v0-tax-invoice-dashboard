@@ -611,11 +611,18 @@ async function POST(request) {
             }
         }
         await logger.success(kraPayload, result, branches.id, kraEndpoint);
+        const transformedData = (result.data || []).map((item)=>({
+                notce_no: item.notceNo,
+                title: item.title,
+                cont: item.cont,
+                dtl_url: item.dtlUrl,
+                last_req_dt: item.regrDt
+            }));
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             resultCd: "000",
             resultMsg: "Successfully pulled notices from KRA",
             resultDt: new Date().toISOString(),
-            data: result.data || []
+            data: transformedData
         });
     } catch (error) {
         console.error("[v0] Get notices error:", error.message);

@@ -611,11 +611,18 @@ async function POST(request) {
             }
         }
         await logger.success(kraPayload, result, branches.id, kraEndpoint);
+        const transformedData = (result.data || []).map((item)=>({
+                item_cls_cd: item.itemClsCd,
+                item_cls_nm: item.itemClsNm,
+                item_cls_lvl: item.itemClsLvl,
+                tax_ty_cd: item.taxTyCd,
+                use_yn: item.useYn || "Y"
+            }));
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             resultCd: "000",
             resultMsg: "Successfully pulled item classifications from KRA",
             resultDt: new Date().toISOString(),
-            data: result.data || []
+            data: transformedData
         });
     } catch (error) {
         console.error("[v0] Get item classifications error:", error.message);

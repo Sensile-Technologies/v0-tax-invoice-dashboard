@@ -596,10 +596,30 @@ async function POST(request) {
             throw new Error(`KRA API error: ${response.status} ${response.statusText} - ${JSON.stringify(result)}`);
         }
         console.log("[v0] Parsed result keys:", Object.keys(result));
+        // Flatten the nested clsList structure from KRA API
+        const flattenedCodes = [];
+        const clsList = result.data?.clsList || [];
+        for (const cls of clsList){
+            const dtlList = cls.dtlList || [];
+            for (const item of dtlList){
+                flattenedCodes.push({
+                    cdCls: cls.cdCls,
+                    cdClsNm: cls.cdClsNm,
+                    cd: item.cd,
+                    cdNm: item.cdNm,
+                    cdDesc: item.cdDesc,
+                    useYn: item.useYn || "Y",
+                    userDfnCd1: item.userDfnCd1,
+                    userDfnCd2: item.userDfnCd2,
+                    userDfnCd3: item.userDfnCd3
+                });
+            }
+        }
+        console.log("[v0] Flattened", flattenedCodes.length, "code list items");
         // Save to local database
-        if (result.data && Array.isArray(result.data)) {
-            console.log("[v0] Saving", result.data.length, "code list items to database");
-            for (const item of result.data){
+        if (flattenedCodes.length > 0) {
+            console.log("[v0] Saving", flattenedCodes.length, "code list items to database");
+            for (const item of flattenedCodes){
                 await supabase.from("code_lists").upsert({
                     cd_cls: item.cdCls,
                     cd: item.cd,
@@ -616,7 +636,7 @@ async function POST(request) {
             }
         }
         await logger.success(kraPayload, result, branches.id, kraEndpoint);
-        const transformedData = (result.data || []).map((item)=>({
+        const transformedData = flattenedCodes.map((item)=>({
                 cd_cls: item.cdCls,
                 cd: item.cd,
                 cd_nm: item.cdNm,
