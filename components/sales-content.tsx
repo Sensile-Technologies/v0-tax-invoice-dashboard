@@ -193,7 +193,7 @@ export function SalesContent() {
         if (error) throw error
 
         setLoyaltyCustomers(
-          (data || []).map((c) => ({
+          (data || []).map((c: any) => ({
             id: c.id,
             name: c.cust_nm || "",
             pin: c.cust_tin || "",
@@ -310,7 +310,7 @@ export function SalesContent() {
 
       let calculatedMeterReading = selectedNozzle?.initial_meter_reading || 0
       if (previousSales && previousSales.length > 0) {
-        const totalPreviousSales = previousSales.reduce((sum, sale) => sum + Number(sale.quantity), 0)
+        const totalPreviousSales = previousSales.reduce((sum: number, sale: any) => sum + Number(sale.quantity), 0)
         calculatedMeterReading += totalPreviousSales
       }
       const totalAmount = Number.parseFloat(saleForm.amount)

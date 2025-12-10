@@ -2996,104 +2996,164 @@ function createQueryBuilder(table) {
     let whereConditions = [];
     let selectColumns = '*';
     let singleResult = false;
+    let pendingInsertData = null;
+    let pendingUpdateData = null;
+    let pendingDelete = false;
+    const executeInsert = async ()=>{
+        try {
+            const response = await fetch(`/api/db/${table}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: pendingInsertData
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) return {
+                data: null,
+                error: {
+                    message: result.error
+                }
+            };
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const executeUpdate = async ()=>{
+        try {
+            const response = await fetch(`/api/db/${table}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: pendingUpdateData,
+                    where: whereConditions
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) return {
+                data: null,
+                error: {
+                    message: result.error
+                }
+            };
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const executeDelete = async ()=>{
+        try {
+            const response = await fetch(`/api/db/${table}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    where: whereConditions
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) return {
+                data: null,
+                error: {
+                    message: result.error
+                }
+            };
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const executeSelect = async ()=>{
+        try {
+            const params = new URLSearchParams();
+            whereConditions.forEach((cond, i)=>{
+                params.append(`filter_${i}`, `${cond.column}:${cond.operator}:${cond.value}`);
+            });
+            if (singleResult) params.append('single', 'true');
+            const response = await fetch(`/api/db/${table}?${params.toString()}`);
+            const result = await response.json();
+            if (!response.ok) {
+                return {
+                    data: null,
+                    error: {
+                        message: result.error
+                    }
+                };
+            }
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const execute = async ()=>{
+        if (pendingInsertData !== null) {
+            return executeInsert();
+        } else if (pendingUpdateData !== null) {
+            return executeUpdate();
+        } else if (pendingDelete) {
+            return executeDelete();
+        } else {
+            return executeSelect();
+        }
+    };
     const builder = {
         select: (columns = '*')=>{
             selectColumns = columns;
             return builder;
         },
-        insert: async (data)=>{
-            try {
-                const response = await fetch(`/api/db/${table}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        data
-                    })
-                });
-                const result = await response.json();
-                if (!response.ok) return {
-                    data: null,
-                    error: {
-                        message: result.error
-                    }
-                };
-                return {
-                    data: result,
-                    error: null
-                };
-            } catch (error) {
-                return {
-                    data: null,
-                    error: {
-                        message: error.message
-                    }
-                };
-            }
+        insert: (data)=>{
+            pendingInsertData = data;
+            return builder;
         },
-        update: async (data)=>{
-            try {
-                const response = await fetch(`/api/db/${table}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        data,
-                        where: whereConditions
-                    })
-                });
-                const result = await response.json();
-                if (!response.ok) return {
-                    data: null,
-                    error: {
-                        message: result.error
-                    }
-                };
-                return {
-                    data: result,
-                    error: null
-                };
-            } catch (error) {
-                return {
-                    data: null,
-                    error: {
-                        message: error.message
-                    }
-                };
-            }
+        update: (data)=>{
+            pendingUpdateData = data;
+            return builder;
         },
-        delete: async ()=>{
-            try {
-                const response = await fetch(`/api/db/${table}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        where: whereConditions
-                    })
-                });
-                const result = await response.json();
-                if (!response.ok) return {
-                    data: null,
-                    error: {
-                        message: result.error
-                    }
-                };
-                return {
-                    data: result,
-                    error: null
-                };
-            } catch (error) {
-                return {
-                    data: null,
-                    error: {
-                        message: error.message
-                    }
-                };
-            }
+        delete: ()=>{
+            pendingDelete = true;
+            return builder;
         },
         eq: (column, value)=>{
             whereConditions.push({
@@ -3157,41 +3217,8 @@ function createQueryBuilder(table) {
         limit: (count)=>{
             return builder;
         },
-        then: async (resolve, reject)=>{
-            try {
-                const params = new URLSearchParams();
-                whereConditions.forEach((cond, i)=>{
-                    params.append(`filter_${i}`, `${cond.column}:${cond.operator}:${cond.value}`);
-                });
-                if (singleResult) params.append('single', 'true');
-                const response = await fetch(`/api/db/${table}?${params.toString()}`);
-                const result = await response.json();
-                if (!response.ok) {
-                    resolve({
-                        data: null,
-                        error: {
-                            message: result.error
-                        }
-                    });
-                    return;
-                }
-                const data = singleResult ? result[0] || null : result;
-                resolve({
-                    data,
-                    error: null
-                });
-            } catch (error) {
-                if (reject) {
-                    reject(error);
-                } else {
-                    resolve({
-                        data: null,
-                        error: {
-                            message: error.message
-                        }
-                    });
-                }
-            }
+        then: (onfulfilled, onrejected)=>{
+            return execute().then(onfulfilled, onrejected);
         }
     };
     return builder;
