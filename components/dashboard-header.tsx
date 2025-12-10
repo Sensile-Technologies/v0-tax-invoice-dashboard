@@ -95,11 +95,13 @@ export function DashboardHeader({
     setSelectedBranch(branchId)
     if (branchId === "hq") {
       localStorage.removeItem("selectedBranch")
+      setCurrentBranchName("Headquarters")
       router.push("/headquarters")
     } else {
       const branch = branches.find((b) => b.id === branchId)
       if (branch) {
         localStorage.setItem("selectedBranch", JSON.stringify(branch))
+        setCurrentBranchName(branch.name)
         router.push(`/sales?branch=${branchId}`)
       }
       if (onBranchChange) {

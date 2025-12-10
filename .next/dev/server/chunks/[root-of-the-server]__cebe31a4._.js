@@ -594,9 +594,12 @@ async function POST(request) {
         if (!response.ok) {
             throw new Error(`KRA API error: ${response.status} ${response.statusText} - ${JSON.stringify(result)}`);
         }
-        if (result.data && Array.isArray(result.data)) {
-            console.log("[v0] Saving", result.data.length, "item classifications to database");
-            for (const item of result.data){
+        // Extract itemClsList from nested structure
+        const itemClsList = result.data?.itemClsList || [];
+        console.log("[v0] Found", itemClsList.length, "item classifications");
+        if (itemClsList.length > 0) {
+            console.log("[v0] Saving", itemClsList.length, "item classifications to database");
+            for (const item of itemClsList){
                 await supabase.from("item_classifications").upsert({
                     item_cls_cd: item.itemClsCd,
                     item_cls_nm: item.itemClsNm,
@@ -611,7 +614,7 @@ async function POST(request) {
             }
         }
         await logger.success(kraPayload, result, branches.id, kraEndpoint);
-        const transformedData = (result.data || []).map((item)=>({
+        const transformedData = itemClsList.map((item)=>({
                 item_cls_cd: item.itemClsCd,
                 item_cls_nm: item.itemClsNm,
                 item_cls_lvl: item.itemClsLvl,
