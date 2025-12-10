@@ -100,16 +100,8 @@ export default function HeadquartersPage() {
 
   const fetchBranches = async () => {
     try {
-      setIsLoadingBranches(true) // Changed from setLoadingBranches to setIsLoadingBranches
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/branches?status=eq.active&select=*`, // Changed query params
-        {
-          headers: {
-            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-          },
-        },
-      )
+      setIsLoadingBranches(true)
+      const response = await fetch("/api/branches/list")
 
       if (response.ok) {
         const data = await response.json()
@@ -117,7 +109,6 @@ export default function HeadquartersPage() {
           id: branch.id,
           name: branch.name,
           location: branch.location,
-          // Capitalize status
           status: branch.status.charAt(0).toUpperCase() + branch.status.slice(1),
           revenue: branch.monthly_revenue || 4250000,
           monthToDateRevenue: branch.mtd_revenue || 2450000,
@@ -132,7 +123,7 @@ export default function HeadquartersPage() {
           bhfId: branch.bhf_id,
           tankConfig: branch.tank_config || {},
           storageIndices: branch.storage_indices || [],
-          device_token: branch.device_token, // Added device_token here
+          device_token: branch.device_token,
         }))
         setBranches(formattedBranches)
       } else {

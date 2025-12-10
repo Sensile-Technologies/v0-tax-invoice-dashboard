@@ -60,15 +60,7 @@ export function DashboardHeader({
 
   const fetchBranches = async () => {
     try {
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://bavgyhbpgpkabcpzlgsv.supabase.co"
-      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-
-      const response = await fetch(`${supabaseUrl}/rest/v1/branches?select=id,name,status&status=eq.active`, {
-        headers: {
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-        },
-      })
+      const response = await fetch("/api/branches/list")
 
       if (response.ok) {
         const data = await response.json()
@@ -82,7 +74,9 @@ export function DashboardHeader({
         ]
         setBranches(branchList)
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error fetching branches:", error)
+    }
   }
 
   const handleBranchChange = (branchId: string) => {

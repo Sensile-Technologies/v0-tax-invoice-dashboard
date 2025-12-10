@@ -49,3 +49,5 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
   - Migrated from external Supabase to local Replit PostgreSQL
   - Created Supabase-compatible wrapper for local database
   - Applied full database schema with all tables and indexes
+  - Inserted sample data: 3 branches, 3 staff, 4 tanks, 4 dispensers, 4 fuel prices, 3 customers, 3 items
+  - Created API routes for database access (/api/branches/list, /api/db/[table])

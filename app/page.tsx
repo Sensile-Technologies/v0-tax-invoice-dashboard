@@ -23,24 +23,8 @@ export default function BranchDetails() {
       }
 
       try {
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-        if (!supabaseUrl || !supabaseKey) {
-          console.error("Missing Supabase environment variables")
-          setLoading(false)
-          return
-        }
-
         const branchName = branchParam.split("-").join(" ")
-        const url = `${supabaseUrl}/rest/v1/branches?name=ilike.*${branchName}*&select=*`
-
-        const response = await fetch(url, {
-          headers: {
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-          },
-        })
+        const response = await fetch(`/api/branches/list?name=${encodeURIComponent(branchName)}`)
 
         if (response.ok) {
           const data = await response.json()
