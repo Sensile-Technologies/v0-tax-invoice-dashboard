@@ -2294,6 +2294,308 @@ function TabsContent({ className, ...props }) {
 }
 ;
 }),
+"[project]/lib/supabase/client.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "createClient",
+    ()=>createClient
+]);
+"use client";
+function createClient() {
+    return {
+        from: (table)=>createQueryBuilder(table),
+        auth: createAuthClient()
+    };
+}
+function createQueryBuilder(table) {
+    let whereConditions = [];
+    let selectColumns = '*';
+    let singleResult = false;
+    let pendingInsertData = null;
+    let pendingUpdateData = null;
+    let pendingDelete = false;
+    const executeInsert = async ()=>{
+        try {
+            const response = await fetch(`/api/db/${table}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: pendingInsertData
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) return {
+                data: null,
+                error: {
+                    message: result.error
+                }
+            };
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const executeUpdate = async ()=>{
+        try {
+            const response = await fetch(`/api/db/${table}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: pendingUpdateData,
+                    where: whereConditions
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) return {
+                data: null,
+                error: {
+                    message: result.error
+                }
+            };
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const executeDelete = async ()=>{
+        try {
+            const response = await fetch(`/api/db/${table}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    where: whereConditions
+                })
+            });
+            const result = await response.json();
+            if (!response.ok) return {
+                data: null,
+                error: {
+                    message: result.error
+                }
+            };
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const executeSelect = async ()=>{
+        try {
+            const params = new URLSearchParams();
+            whereConditions.forEach((cond, i)=>{
+                params.append(`filter_${i}`, `${cond.column}:${cond.operator}:${cond.value}`);
+            });
+            if (singleResult) params.append('single', 'true');
+            const response = await fetch(`/api/db/${table}?${params.toString()}`);
+            const result = await response.json();
+            if (!response.ok) {
+                return {
+                    data: null,
+                    error: {
+                        message: result.error
+                    }
+                };
+            }
+            const data = singleResult ? result[0] || null : result;
+            return {
+                data,
+                error: null
+            };
+        } catch (error) {
+            return {
+                data: null,
+                error: {
+                    message: error.message
+                }
+            };
+        }
+    };
+    const execute = async ()=>{
+        if (pendingInsertData !== null) {
+            return executeInsert();
+        } else if (pendingUpdateData !== null) {
+            return executeUpdate();
+        } else if (pendingDelete) {
+            return executeDelete();
+        } else {
+            return executeSelect();
+        }
+    };
+    const builder = {
+        select: (columns = '*')=>{
+            selectColumns = columns;
+            return builder;
+        },
+        insert: (data)=>{
+            pendingInsertData = data;
+            return builder;
+        },
+        update: (data)=>{
+            pendingUpdateData = data;
+            return builder;
+        },
+        delete: ()=>{
+            pendingDelete = true;
+            return builder;
+        },
+        eq: (column, value)=>{
+            whereConditions.push({
+                column,
+                operator: '=',
+                value
+            });
+            return builder;
+        },
+        neq: (column, value)=>{
+            whereConditions.push({
+                column,
+                operator: '!=',
+                value
+            });
+            return builder;
+        },
+        gt: (column, value)=>{
+            whereConditions.push({
+                column,
+                operator: '>',
+                value
+            });
+            return builder;
+        },
+        gte: (column, value)=>{
+            whereConditions.push({
+                column,
+                operator: '>=',
+                value
+            });
+            return builder;
+        },
+        lt: (column, value)=>{
+            whereConditions.push({
+                column,
+                operator: '<',
+                value
+            });
+            return builder;
+        },
+        lte: (column, value)=>{
+            whereConditions.push({
+                column,
+                operator: '<=',
+                value
+            });
+            return builder;
+        },
+        single: ()=>{
+            singleResult = true;
+            return builder;
+        },
+        maybeSingle: ()=>{
+            singleResult = true;
+            return builder;
+        },
+        order: (column, options)=>{
+            return builder;
+        },
+        limit: (count)=>{
+            return builder;
+        },
+        then: (onfulfilled, onrejected)=>{
+            return execute().then(onfulfilled, onrejected);
+        }
+    };
+    return builder;
+}
+function createAuthClient() {
+    return {
+        getUser: async ()=>{
+            return {
+                data: {
+                    user: null
+                },
+                error: null
+            };
+        },
+        getSession: async ()=>{
+            return {
+                data: {
+                    session: null
+                },
+                error: null
+            };
+        },
+        signInWithPassword: async (credentials)=>{
+            return {
+                data: {
+                    user: null,
+                    session: null
+                },
+                error: {
+                    message: 'Local auth not implemented'
+                }
+            };
+        },
+        signUp: async (credentials)=>{
+            return {
+                data: {
+                    user: null,
+                    session: null
+                },
+                error: {
+                    message: 'Local auth not implemented'
+                }
+            };
+        },
+        signOut: async ()=>{
+            return {
+                error: null
+            };
+        },
+        onAuthStateChange: (callback)=>{
+            return {
+                data: {
+                    subscription: {
+                        unsubscribe: ()=>{}
+                    }
+                }
+            };
+        }
+    };
+}
+}),
 "[project]/lib/currency-utils.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
@@ -2336,8 +2638,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/button.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/tabs.tsx [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/download.js [app-ssr] (ecmascript) <export default as Download>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/supabase/client.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$currency$2d$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/currency-utils.ts [app-ssr] (ecmascript)");
 "use client";
+;
 ;
 ;
 ;
@@ -2360,50 +2664,50 @@ function RunningBalanceReportPage() {
         const fetchData = async ()=>{
             try {
                 setLoading(true);
-                const supabase = createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-                const selectedBranchId = localStorage.getItem("selectedBranch");
+                const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createClient"])();
+                const selectedBranchData = localStorage.getItem("selectedBranch");
+                const selectedBranchId = selectedBranchData ? JSON.parse(selectedBranchData).id : null;
                 if (!selectedBranchId) {
                     console.error("[v0] No branch selected");
                     loadPlaceholderData();
                     setLoading(false);
                     return;
                 }
-                // Fetch shifts data without staff join
-                const { data: shifts, error: shiftsError } = await supabase.from("shifts").select(`
-            id,
-            start_time,
-            end_time,
-            opening_cash,
-            closing_cash,
-            total_sales,
-            staff_id,
-            sales (
-              payment_method,
-              total_amount
-            )
-          `).eq("branch_id", selectedBranchId).order("start_time", {
-                    ascending: true
-                });
+                // Fetch shifts data
+                const { data: shifts, error: shiftsError } = await supabase.from("shifts").select("*").eq("branch_id", selectedBranchId);
                 if (shiftsError) throw shiftsError;
                 if (!shifts || shifts.length === 0) {
                     loadPlaceholderData();
                     setLoading(false);
                     return;
                 }
-                // Fetch staff data separately
-                const staffIds = [
-                    ...new Set(shifts.map((s)=>s.staff_id).filter(Boolean))
-                ];
-                const { data: staffData } = await supabase.from("staff").select("id, full_name").in("id", staffIds);
+                // Fetch sales data for this branch
+                const { data: salesData } = await supabase.from("sales").select("*").eq("branch_id", selectedBranchId);
+                // Fetch staff data
+                const { data: staffData } = await supabase.from("staff").select("*").eq("branch_id", selectedBranchId);
                 // Create a map of staff_id to full_name
                 const staffMap = new Map((staffData || []).map((s)=>[
                         s.id,
                         s.full_name
                     ]));
+                // Group sales by shift_id
+                const salesByShift = (salesData || []).reduce((acc, sale)=>{
+                    if (!acc[sale.shift_id]) acc[sale.shift_id] = [];
+                    acc[sale.shift_id].push(sale);
+                    return acc;
+                }, {});
+                // Attach sales to shifts
+                const shiftsWithSales = shifts.map((shift)=>({
+                        ...shift,
+                        opening_cash: Number(shift.opening_cash) || 0,
+                        closing_cash: Number(shift.closing_cash) || 0,
+                        total_sales: Number(shift.total_sales) || 0,
+                        sales: salesByShift[shift.id] || []
+                    })).sort((a, b)=>new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
                 const balanceEntries = [];
                 let runningBalance = 0;
-                if (shifts && shifts.length > 0) {
-                    const firstShift = shifts[0];
+                if (shiftsWithSales && shiftsWithSales.length > 0) {
+                    const firstShift = shiftsWithSales[0];
                     runningBalance = firstShift.opening_cash || 0;
                     balanceEntries.push({
                         date: new Date(firstShift.start_time).toLocaleDateString(),
@@ -2415,20 +2719,21 @@ function RunningBalanceReportPage() {
                         paymentMethod: "All"
                     });
                 }
-                shifts?.forEach((shift)=>{
+                shiftsWithSales?.forEach((shift)=>{
                     const shiftDate = new Date(shift.start_time).toLocaleDateString();
+                    const endTime = shift.end_time ? new Date(shift.end_time).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }) : "Ongoing";
                     const shiftTime = `${new Date(shift.start_time).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit"
-                    })} - ${new Date(shift.end_time).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    })}`;
+                    })} - ${endTime}`;
                     const staffName = staffMap.get(shift.staff_id) || "Unknown Staff";
                     const paymentMethodTotals = {};
                     shift.sales?.forEach((sale)=>{
                         const method = sale.payment_method || "Cash";
-                        paymentMethodTotals[method] = (paymentMethodTotals[method] || 0) + (sale.total_amount || 0);
+                        paymentMethodTotals[method] = (paymentMethodTotals[method] || 0) + (Number(sale.total_amount) || 0);
                     });
                     Object.entries(paymentMethodTotals).forEach(([method, amount])=>{
                         runningBalance += amount;
@@ -2445,8 +2750,8 @@ function RunningBalanceReportPage() {
                 });
                 const totalDebit = balanceEntries.reduce((sum, entry)=>sum + entry.debit, 0);
                 const totalCredit = balanceEntries.reduce((sum, entry)=>sum + entry.credit, 0);
-                if (shifts && shifts.length > 0) {
-                    const lastShift = shifts[shifts.length - 1];
+                if (shiftsWithSales && shiftsWithSales.length > 0) {
+                    const lastShift = shiftsWithSales[shiftsWithSales.length - 1];
                     balanceEntries.push({
                         date: new Date(lastShift.end_time || lastShift.start_time).toLocaleDateString(),
                         shift: "Closing",
@@ -2661,12 +2966,12 @@ function RunningBalanceReportPage() {
                     children: "No transactions found"
                 }, void 0, false, {
                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                    lineNumber: 377,
+                    lineNumber: 385,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                lineNumber: 376,
+                lineNumber: 384,
                 columnNumber: 9
             }, this);
         }
@@ -2689,7 +2994,7 @@ function RunningBalanceReportPage() {
                                     children: "Date"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 398,
+                                    lineNumber: 406,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2697,7 +3002,7 @@ function RunningBalanceReportPage() {
                                     children: "Shift"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 399,
+                                    lineNumber: 407,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2705,7 +3010,7 @@ function RunningBalanceReportPage() {
                                     children: "User/Staff"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 400,
+                                    lineNumber: 408,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2713,7 +3018,7 @@ function RunningBalanceReportPage() {
                                     children: "Payment Method"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 401,
+                                    lineNumber: 409,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2721,7 +3026,7 @@ function RunningBalanceReportPage() {
                                     children: "Debit"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 402,
+                                    lineNumber: 410,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2729,7 +3034,7 @@ function RunningBalanceReportPage() {
                                     children: "Credit"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 403,
+                                    lineNumber: 411,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2737,18 +3042,18 @@ function RunningBalanceReportPage() {
                                     children: "Balance"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 404,
+                                    lineNumber: 412,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                            lineNumber: 397,
+                            lineNumber: 405,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                        lineNumber: 396,
+                        lineNumber: 404,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -2761,7 +3066,7 @@ function RunningBalanceReportPage() {
                                         children: openingEntry.date
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 410,
+                                        lineNumber: 418,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2769,7 +3074,7 @@ function RunningBalanceReportPage() {
                                         children: openingEntry.shift
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 411,
+                                        lineNumber: 419,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2777,7 +3082,7 @@ function RunningBalanceReportPage() {
                                         children: openingEntry.user
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 412,
+                                        lineNumber: 420,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2785,7 +3090,7 @@ function RunningBalanceReportPage() {
                                         children: openingEntry.paymentMethod
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 413,
+                                        lineNumber: 421,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2793,7 +3098,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(openingEntry.debit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 414,
+                                        lineNumber: 422,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2801,7 +3106,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(openingEntry.credit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 415,
+                                        lineNumber: 423,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2809,13 +3114,13 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(openingEntry.balance)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 416,
+                                        lineNumber: 424,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                lineNumber: 409,
+                                lineNumber: 417,
                                 columnNumber: 15
                             }, this),
                             transactionEntries.map((entry, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -2826,7 +3131,7 @@ function RunningBalanceReportPage() {
                                             children: entry.date
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 422,
+                                            lineNumber: 430,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2834,7 +3139,7 @@ function RunningBalanceReportPage() {
                                             children: entry.shift
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 423,
+                                            lineNumber: 431,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2842,7 +3147,7 @@ function RunningBalanceReportPage() {
                                             children: entry.user
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 424,
+                                            lineNumber: 432,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2850,7 +3155,7 @@ function RunningBalanceReportPage() {
                                             children: entry.paymentMethod
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 425,
+                                            lineNumber: 433,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2858,7 +3163,7 @@ function RunningBalanceReportPage() {
                                             children: formatCurrency(entry.debit)
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 426,
+                                            lineNumber: 434,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2866,7 +3171,7 @@ function RunningBalanceReportPage() {
                                             children: formatCurrency(entry.credit)
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 427,
+                                            lineNumber: 435,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2874,13 +3179,13 @@ function RunningBalanceReportPage() {
                                             children: formatCurrency(entry.balance)
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 428,
+                                            lineNumber: 436,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, index, true, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 421,
+                                    lineNumber: 429,
                                     columnNumber: 15
                                 }, this)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -2892,7 +3197,7 @@ function RunningBalanceReportPage() {
                                         children: "Totals"
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 433,
+                                        lineNumber: 441,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2900,7 +3205,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(totalDebit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 436,
+                                        lineNumber: 444,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2908,7 +3213,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(totalCredit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 437,
+                                        lineNumber: 445,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2916,13 +3221,13 @@ function RunningBalanceReportPage() {
                                         children: "-"
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 438,
+                                        lineNumber: 446,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                lineNumber: 432,
+                                lineNumber: 440,
                                 columnNumber: 13
                             }, this),
                             closingEntry && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -2933,7 +3238,7 @@ function RunningBalanceReportPage() {
                                         children: closingEntry.date
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 443,
+                                        lineNumber: 451,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2941,7 +3246,7 @@ function RunningBalanceReportPage() {
                                         children: closingEntry.shift
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 444,
+                                        lineNumber: 452,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2949,7 +3254,7 @@ function RunningBalanceReportPage() {
                                         children: closingEntry.user
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 445,
+                                        lineNumber: 453,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2957,7 +3262,7 @@ function RunningBalanceReportPage() {
                                         children: closingEntry.paymentMethod
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 446,
+                                        lineNumber: 454,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2965,7 +3270,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(closingEntry.debit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 447,
+                                        lineNumber: 455,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2973,7 +3278,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(closingEntry.credit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 448,
+                                        lineNumber: 456,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2981,30 +3286,30 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(closingEntry.balance)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 449,
+                                        lineNumber: 457,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                lineNumber: 442,
+                                lineNumber: 450,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                        lineNumber: 407,
+                        lineNumber: 415,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                lineNumber: 395,
+                lineNumber: 403,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/payments/running-balance/page.tsx",
-            lineNumber: 394,
+            lineNumber: 402,
             columnNumber: 7
         }, this);
     };
@@ -3070,7 +3375,7 @@ function RunningBalanceReportPage() {
                                     children: "Date"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 523,
+                                    lineNumber: 531,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3078,7 +3383,7 @@ function RunningBalanceReportPage() {
                                     children: "Transaction ID"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 524,
+                                    lineNumber: 532,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3086,7 +3391,7 @@ function RunningBalanceReportPage() {
                                     children: "Source"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 525,
+                                    lineNumber: 533,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3094,7 +3399,7 @@ function RunningBalanceReportPage() {
                                     children: "Debit"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 526,
+                                    lineNumber: 534,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3102,18 +3407,18 @@ function RunningBalanceReportPage() {
                                     children: "Balance"
                                 }, void 0, false, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 527,
+                                    lineNumber: 535,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                            lineNumber: 522,
+                            lineNumber: 530,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                        lineNumber: 521,
+                        lineNumber: 529,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3126,7 +3431,7 @@ function RunningBalanceReportPage() {
                                         children: openingRow.date
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 533,
+                                        lineNumber: 541,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3134,7 +3439,7 @@ function RunningBalanceReportPage() {
                                         children: openingRow.transactionId
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 534,
+                                        lineNumber: 542,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3142,7 +3447,7 @@ function RunningBalanceReportPage() {
                                         children: openingRow.source
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 535,
+                                        lineNumber: 543,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3150,7 +3455,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(openingRow.debit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 536,
+                                        lineNumber: 544,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3158,13 +3463,13 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(openingRow.balance)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 537,
+                                        lineNumber: 545,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                lineNumber: 532,
+                                lineNumber: 540,
                                 columnNumber: 13
                             }, this),
                             transactionRows.map((entry, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3175,7 +3480,7 @@ function RunningBalanceReportPage() {
                                             children: entry.date
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 543,
+                                            lineNumber: 551,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3183,7 +3488,7 @@ function RunningBalanceReportPage() {
                                             children: entry.transactionId
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 544,
+                                            lineNumber: 552,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3191,7 +3496,7 @@ function RunningBalanceReportPage() {
                                             children: entry.source
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 545,
+                                            lineNumber: 553,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3199,7 +3504,7 @@ function RunningBalanceReportPage() {
                                             children: formatCurrency(entry.debit)
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 546,
+                                            lineNumber: 554,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3207,13 +3512,13 @@ function RunningBalanceReportPage() {
                                             children: formatCurrency(entry.balance)
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 547,
+                                            lineNumber: 555,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, index, true, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 542,
+                                    lineNumber: 550,
                                     columnNumber: 15
                                 }, this)),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3225,27 +3530,27 @@ function RunningBalanceReportPage() {
                                         children: "Totals:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 553,
+                                        lineNumber: 561,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                         className: "py-3 px-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 556,
+                                        lineNumber: 564,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                         className: "py-3 px-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 557,
+                                        lineNumber: 565,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                lineNumber: 552,
+                                lineNumber: 560,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3256,7 +3561,7 @@ function RunningBalanceReportPage() {
                                         children: closingRow.date
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 562,
+                                        lineNumber: 570,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3264,7 +3569,7 @@ function RunningBalanceReportPage() {
                                         children: closingRow.transactionId
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 563,
+                                        lineNumber: 571,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3272,7 +3577,7 @@ function RunningBalanceReportPage() {
                                         children: closingRow.source
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 564,
+                                        lineNumber: 572,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3280,7 +3585,7 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(closingRow.debit)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 565,
+                                        lineNumber: 573,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3288,30 +3593,30 @@ function RunningBalanceReportPage() {
                                         children: formatCurrency(closingRow.balance)
                                     }, void 0, false, {
                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                        lineNumber: 566,
+                                        lineNumber: 574,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                lineNumber: 561,
+                                lineNumber: 569,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                        lineNumber: 530,
+                        lineNumber: 538,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                lineNumber: 520,
+                lineNumber: 528,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/payments/running-balance/page.tsx",
-            lineNumber: 519,
+            lineNumber: 527,
             columnNumber: 7
         }, this);
     };
@@ -3323,7 +3628,7 @@ function RunningBalanceReportPage() {
                 onToggle: ()=>setSidebarCollapsed(!sidebarCollapsed)
             }, void 0, false, {
                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                lineNumber: 576,
+                lineNumber: 584,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3331,7 +3636,7 @@ function RunningBalanceReportPage() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$dashboard$2d$header$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardHeader"], {}, void 0, false, {
                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                        lineNumber: 579,
+                        lineNumber: 587,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -3348,12 +3653,12 @@ function RunningBalanceReportPage() {
                                                 children: "Running Balance Report"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                lineNumber: 585,
+                                                lineNumber: 593,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 584,
+                                            lineNumber: 592,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3362,7 +3667,7 @@ function RunningBalanceReportPage() {
                                                 children: "Loading..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                lineNumber: 589,
+                                                lineNumber: 597,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tabs"], {
                                                 value: activePaymentMethod,
@@ -3379,7 +3684,7 @@ function RunningBalanceReportPage() {
                                                                             children: method
                                                                         }, method, false, {
                                                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                                            lineNumber: 595,
+                                                                            lineNumber: 603,
                                                                             columnNumber: 27
                                                                         }, this)),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3387,7 +3692,7 @@ function RunningBalanceReportPage() {
                                                                         children: "All Payment Methods"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                                        lineNumber: 599,
+                                                                        lineNumber: 607,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3395,13 +3700,13 @@ function RunningBalanceReportPage() {
                                                                         children: "Bank Account Statement"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                                        lineNumber: 600,
+                                                                        lineNumber: 608,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                                lineNumber: 593,
+                                                                lineNumber: 601,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3419,20 +3724,20 @@ function RunningBalanceReportPage() {
                                                                         className: "h-4 w-4 mr-2"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                                        lineNumber: 614,
+                                                                        lineNumber: 622,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     "Export"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                                lineNumber: 603,
+                                                                lineNumber: 611,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                        lineNumber: 592,
+                                                        lineNumber: 600,
                                                         columnNumber: 21
                                                     }, this),
                                                     paymentMethods.map((method)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3440,7 +3745,7 @@ function RunningBalanceReportPage() {
                                                             children: renderTable(method)
                                                         }, method, false, {
                                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                            lineNumber: 620,
+                                                            lineNumber: 628,
                                                             columnNumber: 23
                                                         }, this)),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3448,7 +3753,7 @@ function RunningBalanceReportPage() {
                                                         children: renderTable("All")
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                        lineNumber: 625,
+                                                        lineNumber: 633,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3456,24 +3761,24 @@ function RunningBalanceReportPage() {
                                                         children: renderBankAccountStatement()
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                        lineNumber: 626,
+                                                        lineNumber: 634,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                                                lineNumber: 591,
+                                                lineNumber: 599,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 587,
+                                            lineNumber: 595,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 583,
+                                    lineNumber: 591,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -3485,40 +3790,40 @@ function RunningBalanceReportPage() {
                                             children: "Sensile Technologies East Africa Ltd"
                                         }, void 0, false, {
                                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                                            lineNumber: 633,
+                                            lineNumber: 641,
                                             columnNumber: 26
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/payments/running-balance/page.tsx",
-                                    lineNumber: 632,
+                                    lineNumber: 640,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/payments/running-balance/page.tsx",
-                            lineNumber: 582,
+                            lineNumber: 590,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/payments/running-balance/page.tsx",
-                        lineNumber: 581,
+                        lineNumber: 589,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/payments/running-balance/page.tsx",
-                lineNumber: 578,
+                lineNumber: 586,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/payments/running-balance/page.tsx",
-        lineNumber: 575,
+        lineNumber: 583,
         columnNumber: 5
     }, this);
 }
 }),
 ];
 
-//# sourceMappingURL=_47b4c446._.js.map
+//# sourceMappingURL=_d77c7406._.js.map

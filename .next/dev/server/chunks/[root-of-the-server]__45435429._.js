@@ -592,11 +592,17 @@ async function POST(request) {
             throw new Error(`Failed to parse backend response as JSON: ${responseText.substring(0, 200)}`);
         }
         if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error("The notices endpoint is not available on the KRA backend server. This feature may not be supported by your current backend configuration.");
+            }
             throw new Error(`KRA API error: ${response.status} ${response.statusText} - ${JSON.stringify(result)}`);
         }
-        if (result.data && Array.isArray(result.data)) {
-            console.log("[v0] Saving", result.data.length, "notices to database");
-            for (const item of result.data){
+        // Extract noticeList from nested structure (similar to other KRA endpoints)
+        const noticeList = result.data?.noticeList || result.data?.notcList || (Array.isArray(result.data) ? result.data : []);
+        console.log("[v0] Found", noticeList.length, "notices");
+        if (noticeList.length > 0) {
+            console.log("[v0] Saving", noticeList.length, "notices to database");
+            for (const item of noticeList){
                 await supabase.from("notices").insert({
                     branch_id: branches.id,
                     tin: kraPayload.tin,
@@ -611,7 +617,7 @@ async function POST(request) {
             }
         }
         await logger.success(kraPayload, result, branches.id, kraEndpoint);
-        const transformedData = (result.data || []).map((item)=>({
+        const transformedData = noticeList.map((item)=>({
                 notce_no: item.notceNo,
                 title: item.title,
                 cont: item.cont,

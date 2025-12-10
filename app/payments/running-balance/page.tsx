@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Download } from "lucide-react"
-import { createBrowserClient } from "@supabase/ssr"
+import { createClient } from "@/lib/supabase/client"
 import { useCurrency } from "@/lib/currency-utils"
 
 interface RunningBalanceEntry {
@@ -42,11 +42,9 @@ export default function RunningBalanceReportPage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const supabase = createBrowserClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        )
-        const selectedBranchId = localStorage.getItem("selectedBranch")
+        const supabase = createClient()
+        const selectedBranchData = localStorage.getItem("selectedBranch")
+        const selectedBranchId = selectedBranchData ? JSON.parse(selectedBranchData).id : null
 
         if (!selectedBranchId) {
           console.error("[v0] No branch selected")
@@ -55,26 +53,11 @@ export default function RunningBalanceReportPage() {
           return
         }
 
-        // Fetch shifts data without staff join
+        // Fetch shifts data
         const { data: shifts, error: shiftsError } = await supabase
           .from("shifts")
-          .select(
-            `
-            id,
-            start_time,
-            end_time,
-            opening_cash,
-            closing_cash,
-            total_sales,
-            staff_id,
-            sales (
-              payment_method,
-              total_amount
-            )
-          `,
-          )
+          .select("*")
           .eq("branch_id", selectedBranchId)
-          .order("start_time", { ascending: true })
 
         if (shiftsError) throw shiftsError
 
@@ -84,18 +67,42 @@ export default function RunningBalanceReportPage() {
           return
         }
 
-        // Fetch staff data separately
-        const staffIds = [...new Set(shifts.map((s: any) => s.staff_id).filter(Boolean))]
-        const { data: staffData } = await supabase.from("staff").select("id, full_name").in("id", staffIds)
+        // Fetch sales data for this branch
+        const { data: salesData } = await supabase
+          .from("sales")
+          .select("*")
+          .eq("branch_id", selectedBranchId)
+
+        // Fetch staff data
+        const { data: staffData } = await supabase
+          .from("staff")
+          .select("*")
+          .eq("branch_id", selectedBranchId)
 
         // Create a map of staff_id to full_name
         const staffMap = new Map((staffData || []).map((s: any) => [s.id, s.full_name]))
 
+        // Group sales by shift_id
+        const salesByShift = (salesData || []).reduce((acc: any, sale: any) => {
+          if (!acc[sale.shift_id]) acc[sale.shift_id] = []
+          acc[sale.shift_id].push(sale)
+          return acc
+        }, {})
+
+        // Attach sales to shifts
+        const shiftsWithSales = shifts.map((shift: any) => ({
+          ...shift,
+          opening_cash: Number(shift.opening_cash) || 0,
+          closing_cash: Number(shift.closing_cash) || 0,
+          total_sales: Number(shift.total_sales) || 0,
+          sales: salesByShift[shift.id] || []
+        })).sort((a: any, b: any) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+
         const balanceEntries: RunningBalanceEntry[] = []
         let runningBalance = 0
 
-        if (shifts && shifts.length > 0) {
-          const firstShift = shifts[0]
+        if (shiftsWithSales && shiftsWithSales.length > 0) {
+          const firstShift = shiftsWithSales[0]
           runningBalance = firstShift.opening_cash || 0
           balanceEntries.push({
             date: new Date(firstShift.start_time).toLocaleDateString(),
@@ -108,21 +115,22 @@ export default function RunningBalanceReportPage() {
           })
         }
 
-        shifts?.forEach((shift: any) => {
+        shiftsWithSales?.forEach((shift: any) => {
           const shiftDate = new Date(shift.start_time).toLocaleDateString()
+          const endTime = shift.end_time ? new Date(shift.end_time).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }) : "Ongoing"
           const shiftTime = `${new Date(shift.start_time).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
-          })} - ${new Date(shift.end_time).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}`
+          })} - ${endTime}`
           const staffName = staffMap.get(shift.staff_id) || "Unknown Staff"
 
           const paymentMethodTotals: { [key: string]: number } = {}
           shift.sales?.forEach((sale: any) => {
             const method = sale.payment_method || "Cash"
-            paymentMethodTotals[method] = (paymentMethodTotals[method] || 0) + (sale.total_amount || 0)
+            paymentMethodTotals[method] = (paymentMethodTotals[method] || 0) + (Number(sale.total_amount) || 0)
           })
 
           Object.entries(paymentMethodTotals).forEach(([method, amount]) => {
@@ -130,7 +138,7 @@ export default function RunningBalanceReportPage() {
             balanceEntries.push({
               date: shiftDate,
               shift: shiftTime,
-              user: staffName,
+              user: staffName as string,
               debit: amount,
               credit: 0,
               balance: runningBalance,
@@ -142,8 +150,8 @@ export default function RunningBalanceReportPage() {
         const totalDebit = balanceEntries.reduce((sum, entry) => sum + entry.debit, 0)
         const totalCredit = balanceEntries.reduce((sum, entry) => sum + entry.credit, 0)
 
-        if (shifts && shifts.length > 0) {
-          const lastShift = shifts[shifts.length - 1]
+        if (shiftsWithSales && shiftsWithSales.length > 0) {
+          const lastShift = shiftsWithSales[shiftsWithSales.length - 1]
           balanceEntries.push({
             date: new Date(lastShift.end_time || lastShift.start_time).toLocaleDateString(),
             shift: "Closing",
