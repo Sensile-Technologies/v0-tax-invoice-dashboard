@@ -4148,15 +4148,15 @@ function SalesContent() {
             }
             const selectedNozzle = nozzles.find((n)=>n.id === saleForm.nozzle_id);
             const { data: previousSales, error: salesError } = await supabase.from("sales").select("quantity").eq("nozzle_id", saleForm.nozzle_id);
-            let calculatedMeterReading = selectedNozzle?.initial_meter_reading || 0;
+            let calculatedMeterReading = Number(selectedNozzle?.initial_meter_reading) || 0;
             if (previousSales && previousSales.length > 0) {
                 const totalPreviousSales = previousSales.reduce((sum, sale)=>sum + Number(sale.quantity), 0);
-                calculatedMeterReading += totalPreviousSales;
+                calculatedMeterReading = calculatedMeterReading + totalPreviousSales;
             }
             const totalAmount = Number.parseFloat(saleForm.amount);
             const unitPrice = Number.parseFloat(fuelPrice.price);
             const quantity = totalAmount / unitPrice;
-            calculatedMeterReading += quantity;
+            calculatedMeterReading = calculatedMeterReading + quantity;
             const { data, error } = await supabase.from("sales").insert({
                 branch_id: branchId,
                 shift_id: currentShift.id,

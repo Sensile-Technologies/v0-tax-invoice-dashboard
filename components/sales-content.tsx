@@ -308,15 +308,15 @@ export function SalesContent() {
         .select("quantity")
         .eq("nozzle_id", saleForm.nozzle_id)
 
-      let calculatedMeterReading = selectedNozzle?.initial_meter_reading || 0
+      let calculatedMeterReading = Number(selectedNozzle?.initial_meter_reading) || 0
       if (previousSales && previousSales.length > 0) {
         const totalPreviousSales = previousSales.reduce((sum: number, sale: any) => sum + Number(sale.quantity), 0)
-        calculatedMeterReading += totalPreviousSales
+        calculatedMeterReading = calculatedMeterReading + totalPreviousSales
       }
       const totalAmount = Number.parseFloat(saleForm.amount)
       const unitPrice = Number.parseFloat(fuelPrice.price)
       const quantity = totalAmount / unitPrice
-      calculatedMeterReading += quantity
+      calculatedMeterReading = calculatedMeterReading + quantity
 
       const { data, error } = await supabase
         .from("sales")
