@@ -1,0 +1,303 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { RefreshCw, Trash2, Download, Filter } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { DashboardHeader } from "@/components/dashboard-header"
+import { DashboardSidebar } from "@/components/dashboard-sidebar"
+
+interface ApiLog {
+  id: string
+  endpoint: string
+  method: string
+  payload: any
+  response: any
+  status_code: number
+  error: string | null
+  duration_ms: number
+  created_at: string
+  user_agent: string | null
+}
+
+export default function LogsPage() {
+  const [logs, setLogs] = useState<ApiLog[]>([])
+  const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedLog, setSelectedLog] = useState<ApiLog | null>(null)
+
+  const fetchLogs = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch("/api/logs")
+      const data = await response.json()
+      setLogs(data.logs || [])
+    } catch (error) {
+      console.error("Error fetching logs:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchLogs()
+  }, [])
+
+  const filteredLogs = logs.filter((log) => {
+    const matchesFilter =
+      filter === "all" ||
+      (filter === "success" && log.status_code >= 200 && log.status_code < 300) ||
+      (filter === "error" && (log.status_code >= 400 || log.error))
+
+    const matchesSearch =
+      !searchTerm ||
+      log.endpoint.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.method.toLowerCase().includes(searchTerm.toLowerCase())
+
+    return matchesFilter && matchesSearch
+  })
+
+  const handleClearLogs = async () => {
+    if (!confirm("Are you sure you want to clear all logs?")) return
+
+    try {
+      await fetch("/api/logs", { method: "DELETE" })
+      fetchLogs()
+    } catch (error) {
+      console.error("Error clearing logs:", error)
+    }
+  }
+
+  const handleExport = () => {
+    const dataStr = JSON.stringify(filteredLogs, null, 2)
+    const dataBlob = new Blob([dataStr], { type: "application/json" })
+    const url = URL.createObjectURL(dataBlob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `api-logs-${new Date().toISOString()}.json`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const getStatusBadge = (statusCode: number, error: string | null) => {
+    if (error) {
+      return <Badge variant="destructive">Error</Badge>
+    }
+    if (statusCode >= 200 && statusCode < 300) {
+      return <Badge className="bg-green-600">Success</Badge>
+    }
+    if (statusCode >= 400) {
+      return <Badge variant="destructive">{statusCode}</Badge>
+    }
+    return <Badge variant="secondary">{statusCode}</Badge>
+  }
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar />
+      <div className="flex-1">
+        <DashboardHeader />
+        <main className="p-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>API Logs</CardTitle>
+                  <CardDescription>
+                    Track all backend API calls with payloads, responses, and performance metrics
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
+                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                    Refresh
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleExport}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleClearLogs}>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Filters */}
+              <div className="flex gap-4 mb-6">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Search by endpoint or method..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <Select value={filter} onValueChange={setFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Requests</SelectItem>
+                    <SelectItem value="success">Success Only</SelectItem>
+                    <SelectItem value="error">Errors Only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Logs Table */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="overflow-x-auto max-h-[600px]">
+                  <Table>
+                    <TableHeader className="bg-muted sticky top-0">
+                      <TableRow>
+                        <TableHead>Timestamp</TableHead>
+                        <TableHead>Method</TableHead>
+                        <TableHead>Endpoint</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {loading ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                            Loading logs...
+                          </TableCell>
+                        </TableRow>
+                      ) : filteredLogs.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                            No logs found
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredLogs.map((log) => (
+                          <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50">
+                            <TableCell className="font-mono text-xs">
+                              {new Date(log.created_at).toLocaleString()}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{log.method}</Badge>
+                            </TableCell>
+                            <TableCell className="font-mono text-sm max-w-[300px] truncate">{log.endpoint}</TableCell>
+                            <TableCell>{getStatusBadge(log.status_code, log.error)}</TableCell>
+                            <TableCell className="text-muted-foreground">
+                              {log.duration_ms ? `${log.duration_ms}ms` : "-"}
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm" onClick={() => setSelectedLog(log)}>
+                                View Details
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* Log Details Modal */}
+              {selectedLog && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                  <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>Log Details</CardTitle>
+                          <CardDescription className="font-mono text-xs mt-1">{selectedLog.endpoint}</CardDescription>
+                        </div>
+                        <Button variant="ghost" onClick={() => setSelectedLog(null)}>
+                          Close
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="overflow-y-auto max-h-[calc(90vh-120px)]">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-semibold mb-2">Request Info</h3>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Method:</span>{" "}
+                              <Badge variant="outline">{selectedLog.method}</Badge>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Status:</span>{" "}
+                              {getStatusBadge(selectedLog.status_code, selectedLog.error)}
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Duration:</span> {selectedLog.duration_ms}ms
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Timestamp:</span>{" "}
+                              {new Date(selectedLog.created_at).toLocaleString()}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="font-semibold mb-2">Endpoints</h3>
+                          <div className="space-y-2 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Middleware Endpoint:</span>
+                              <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
+                                {selectedLog.endpoint}
+                              </pre>
+                            </div>
+                            {selectedLog.user_agent && (
+                              <div>
+                                <span className="text-muted-foreground">External KRA Endpoint:</span>
+                                <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
+                                  {selectedLog.user_agent}
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {selectedLog.payload && (
+                          <div>
+                            <h3 className="font-semibold mb-2">Payload</h3>
+                            <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
+                              {JSON.stringify(selectedLog.payload, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+
+                        {selectedLog.response && (
+                          <div>
+                            <h3 className="font-semibold mb-2">Response</h3>
+                            <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
+                              {JSON.stringify(selectedLog.response, null, 2)}
+                            </pre>
+                          </div>
+                        )}
+
+                        {selectedLog.error && (
+                          <div>
+                            <h3 className="font-semibold mb-2 text-destructive">Error</h3>
+                            <pre className="bg-destructive/10 p-4 rounded-lg overflow-x-auto text-xs text-destructive">
+                              {selectedLog.error}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    </div>
+  )
+}
