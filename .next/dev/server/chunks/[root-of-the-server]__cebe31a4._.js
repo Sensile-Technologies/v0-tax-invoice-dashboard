@@ -527,7 +527,7 @@ function createApiLogger(endpoint, method = "POST") {
 }
 __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
-"[project]/app/api/kra/codes/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
+"[project]/app/api/kra/items/classifications/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
 return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
@@ -548,7 +548,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 async function POST(request) {
-    const logger = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createApiLogger"])("/api/kra/codes", "POST");
+    const logger = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createApiLogger"])("/api/kra/items/classifications", "POST");
     let kraPayload = null;
     let kraEndpoint = "";
     try {
@@ -565,8 +565,8 @@ async function POST(request) {
             bhfId: branches.bhf_id,
             lastReqDt: "20180328000000"
         };
-        console.log("[v0] Pulling code list with payload:", kraPayload);
-        kraEndpoint = `${backendUrl}/code/selectCodes`;
+        console.log("[v0] Pulling item classifications with payload:", kraPayload);
+        kraEndpoint = `${backendUrl}/itemClass/selectItemsClass`;
         console.log("[v0] Calling KRA API:", kraEndpoint);
         const controller = new AbortController();
         const timeoutId = setTimeout(()=>controller.abort(), 30000);
@@ -580,7 +580,6 @@ async function POST(request) {
             signal: controller.signal
         };
         const response = await fetch(kraEndpoint, fetchOptions).finally(()=>clearTimeout(timeoutId));
-        console.log("[v0] KRA API response status:", response.status);
         const responseText = await response.text();
         console.log("[v0] KRA API raw response:", responseText.substring(0, 500));
         if (responseText.trim().startsWith("<!DOCTYPE") || responseText.trim().startsWith("<html")) {
@@ -595,36 +594,31 @@ async function POST(request) {
         if (!response.ok) {
             throw new Error(`KRA API error: ${response.status} ${response.statusText} - ${JSON.stringify(result)}`);
         }
-        console.log("[v0] Parsed result keys:", Object.keys(result));
-        // Save to local database
         if (result.data && Array.isArray(result.data)) {
-            console.log("[v0] Saving", result.data.length, "code list items to database");
+            console.log("[v0] Saving", result.data.length, "item classifications to database");
             for (const item of result.data){
-                await supabase.from("code_lists").upsert({
-                    cd_cls: item.cdCls,
-                    cd: item.cd,
-                    cd_nm: item.cdNm,
-                    cd_desc: item.cdDesc,
+                await supabase.from("item_classifications").upsert({
+                    item_cls_cd: item.itemClsCd,
+                    item_cls_nm: item.itemClsNm,
+                    item_cls_lvl: item.itemClsLvl,
+                    tax_ty_cd: item.taxTyCd,
+                    mjr_tg_yn: item.mjrTgYn,
                     use_yn: item.useYn || "Y",
-                    user_dfn_cd1: item.userDfnCd1,
-                    user_dfn_cd2: item.userDfnCd2,
-                    user_dfn_cd3: item.userDfnCd3,
                     last_req_dt: new Date()
                 }, {
-                    onConflict: "cd_cls,cd"
+                    onConflict: "item_cls_cd"
                 });
             }
         }
         await logger.success(kraPayload, result, branches.id, kraEndpoint);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             resultCd: "000",
-            resultMsg: "Successfully pulled code list from KRA",
+            resultMsg: "Successfully pulled item classifications from KRA",
             resultDt: new Date().toISOString(),
             data: result.data || []
         });
     } catch (error) {
-        console.error("[v0] Get codes error:", error.message);
-        console.error("[v0] Full error:", error);
+        console.error("[v0] Get item classifications error:", error.message);
         let errorMessage = error.message;
         if (error.message.includes("fetch failed") || error.name === "FetchError") {
             errorMessage = "Failed to connect to KRA backend. Common causes:\n" + "1. Backend server may not be running or accessible\n" + "2. URL/Port configuration may be incorrect\n" + "3. Network/firewall may be blocking the connection\n" + "4. Check if backend requires HTTP or HTTPS\n\n" + "Current configuration: " + kraEndpoint;
@@ -632,7 +626,8 @@ async function POST(request) {
         const errorResponse = {
             resultCd: "999",
             resultMsg: errorMessage,
-            resultDt: new Date().toISOString()
+            resultDt: new Date().toISOString(),
+            data: []
         };
         await logger.error(kraPayload, error, 500, undefined, kraEndpoint);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(errorResponse, {
@@ -644,4 +639,4 @@ __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
 ];
 
-//# sourceMappingURL=%5Broot-of-the-server%5D__e915180b._.js.map
+//# sourceMappingURL=%5Broot-of-the-server%5D__cebe31a4._.js.map

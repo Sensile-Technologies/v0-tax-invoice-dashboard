@@ -35,6 +35,12 @@ const mod = __turbopack_context__.x("next/dist/shared/lib/no-fallback-error.exte
 
 module.exports = mod;
 }),
+"[externals]/next/dist/server/app-render/after-task-async-storage.external.js [external] (next/dist/server/app-render/after-task-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/app-render/after-task-async-storage.external.js", () => require("next/dist/server/app-render/after-task-async-storage.external.js"));
+
+module.exports = mod;
+}),
 "[externals]/pg [external] (pg, esm_import)", ((__turbopack_context__) => {
 "use strict";
 
@@ -453,189 +459,72 @@ function createAuthClient() {
 }
 __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
-"[externals]/next/dist/server/app-render/after-task-async-storage.external.js [external] (next/dist/server/app-render/after-task-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
-
-const mod = __turbopack_context__.x("next/dist/server/app-render/after-task-async-storage.external.js", () => require("next/dist/server/app-render/after-task-async-storage.external.js"));
-
-module.exports = mod;
-}),
-"[project]/lib/api-logger.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
+"[project]/app/api/logs/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
 return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
 
 __turbopack_context__.s([
-    "createApiLogger",
-    ()=>createApiLogger,
-    "logApiCall",
-    ()=>logApiCall
+    "DELETE",
+    ()=>DELETE,
+    "GET",
+    ()=>GET
 ]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/supabase/server.ts [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
 ]);
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
-async function logApiCall(entry) {
+;
+async function GET(request) {
     try {
         const supabase = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createClient"])();
-        await supabase.from("api_logs").insert({
-            endpoint: entry.endpoint,
-            method: entry.method,
-            payload: entry.payload || null,
-            response: entry.response || null,
-            status_code: entry.statusCode || null,
-            error: entry.error || null,
-            duration_ms: entry.durationMs || null,
-            branch_id: entry.branchId || null,
-            user_agent: entry.externalEndpoint || null
+        const { data: logs, error } = await supabase.from("api_logs").select("*").order("created_at", {
+            ascending: false
+        }).limit(500);
+        if (error) {
+            console.error("[v0] Error fetching logs:", error);
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: error.message
+            }, {
+                status: 500
+            });
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            logs
         });
     } catch (error) {
-        console.error("[v0] Failed to log API call:", error);
+        console.error("[v0] Error in logs API:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Internal server error"
+        }, {
+            status: 500
+        });
     }
 }
-function createApiLogger(endpoint, method = "POST") {
-    const startTime = Date.now();
-    return {
-        success: async (payload, response, branchId, externalEndpoint)=>{
-            const duration = Date.now() - startTime;
-            await logApiCall({
-                endpoint,
-                method,
-                payload,
-                response,
-                statusCode: 200,
-                durationMs: duration,
-                branchId,
-                externalEndpoint
-            });
-        },
-        error: async (payload, error, statusCode = 500, branchId, externalEndpoint)=>{
-            const duration = Date.now() - startTime;
-            await logApiCall({
-                endpoint,
-                method,
-                payload,
-                error: error?.message || String(error),
-                statusCode,
-                durationMs: duration,
-                branchId,
-                externalEndpoint
-            });
-        }
-    };
-}
-__turbopack_async_result__();
-} catch(e) { __turbopack_async_result__(e); } }, false);}),
-"[project]/app/api/kra/codes/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
-"use strict";
-
-return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
-
-__turbopack_context__.s([
-    "POST",
-    ()=>POST
-]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/supabase/server.ts [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/api-logger.ts [app-route] (ecmascript)");
-var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
-    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__,
-    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
-]);
-[__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
-;
-;
-;
-async function POST(request) {
-    const logger = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createApiLogger"])("/api/kra/codes", "POST");
-    let kraPayload = null;
-    let kraEndpoint = "";
+async function DELETE(request) {
     try {
         const supabase = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$supabase$2f$server$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["createClient"])();
-        let backendUrl = request.headers.get("x-backend-url") || "http://20.224.40.56:8088";
-        backendUrl = backendUrl.replace(/\/$/, "");
-        console.log("[v0] Backend URL:", backendUrl);
-        const { data: branches } = await supabase.from("branches").select("id, bhf_id, name").eq("name", "Thika Greens").limit(1).single();
-        if (!branches || !branches.bhf_id) {
-            throw new Error("Thika Greens branch not found. Please configure it first.");
+        const { error } = await supabase.from("api_logs").delete().neq("id", "00000000-0000-0000-0000-000000000000") // Delete all
+        ;
+        if (error) {
+            console.error("[v0] Error clearing logs:", error);
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: error.message
+            }, {
+                status: 500
+            });
         }
-        kraPayload = {
-            tin: "P052344628B",
-            bhfId: branches.bhf_id,
-            lastReqDt: "20180328000000"
-        };
-        console.log("[v0] Pulling code list with payload:", kraPayload);
-        kraEndpoint = `${backendUrl}/code/selectCodes`;
-        console.log("[v0] Calling KRA API:", kraEndpoint);
-        const controller = new AbortController();
-        const timeoutId = setTimeout(()=>controller.abort(), 30000);
-        const fetchOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json"
-            },
-            body: JSON.stringify(kraPayload),
-            signal: controller.signal
-        };
-        const response = await fetch(kraEndpoint, fetchOptions).finally(()=>clearTimeout(timeoutId));
-        console.log("[v0] KRA API response status:", response.status);
-        const responseText = await response.text();
-        console.log("[v0] KRA API raw response:", responseText.substring(0, 500));
-        if (responseText.trim().startsWith("<!DOCTYPE") || responseText.trim().startsWith("<html")) {
-            throw new Error(`Backend returned HTML instead of JSON. This usually means the endpoint doesn't exist or there's a routing error. Response: ${responseText.substring(0, 200)}`);
-        }
-        let result;
-        try {
-            result = JSON.parse(responseText);
-        } catch (parseError) {
-            throw new Error(`Failed to parse backend response as JSON: ${responseText.substring(0, 200)}`);
-        }
-        if (!response.ok) {
-            throw new Error(`KRA API error: ${response.status} ${response.statusText} - ${JSON.stringify(result)}`);
-        }
-        console.log("[v0] Parsed result keys:", Object.keys(result));
-        // Save to local database
-        if (result.data && Array.isArray(result.data)) {
-            console.log("[v0] Saving", result.data.length, "code list items to database");
-            for (const item of result.data){
-                await supabase.from("code_lists").upsert({
-                    cd_cls: item.cdCls,
-                    cd: item.cd,
-                    cd_nm: item.cdNm,
-                    cd_desc: item.cdDesc,
-                    use_yn: item.useYn || "Y",
-                    user_dfn_cd1: item.userDfnCd1,
-                    user_dfn_cd2: item.userDfnCd2,
-                    user_dfn_cd3: item.userDfnCd3,
-                    last_req_dt: new Date()
-                }, {
-                    onConflict: "cd_cls,cd"
-                });
-            }
-        }
-        await logger.success(kraPayload, result, branches.id, kraEndpoint);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            resultCd: "000",
-            resultMsg: "Successfully pulled code list from KRA",
-            resultDt: new Date().toISOString(),
-            data: result.data || []
+            success: true
         });
     } catch (error) {
-        console.error("[v0] Get codes error:", error.message);
-        console.error("[v0] Full error:", error);
-        let errorMessage = error.message;
-        if (error.message.includes("fetch failed") || error.name === "FetchError") {
-            errorMessage = "Failed to connect to KRA backend. Common causes:\n" + "1. Backend server may not be running or accessible\n" + "2. URL/Port configuration may be incorrect\n" + "3. Network/firewall may be blocking the connection\n" + "4. Check if backend requires HTTP or HTTPS\n\n" + "Current configuration: " + kraEndpoint;
-        }
-        const errorResponse = {
-            resultCd: "999",
-            resultMsg: errorMessage,
-            resultDt: new Date().toISOString()
-        };
-        await logger.error(kraPayload, error, 500, undefined, kraEndpoint);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(errorResponse, {
+        console.error("[v0] Error in logs delete API:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Internal server error"
+        }, {
             status: 500
         });
     }
@@ -644,4 +533,4 @@ __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
 ];
 
-//# sourceMappingURL=%5Broot-of-the-server%5D__e915180b._.js.map
+//# sourceMappingURL=%5Broot-of-the-server%5D__16887545._.js.map

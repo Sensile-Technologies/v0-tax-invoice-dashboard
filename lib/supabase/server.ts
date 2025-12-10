@@ -1,13 +1,40 @@
 import { query, queryOne, execute } from '../db/client';
 
+interface QueryResult<T = any> {
+  data: T | null;
+  error: { message: string } | null;
+}
+
+interface QueryBuilder extends PromiseLike<QueryResult> {
+  select: (columns?: string) => QueryBuilder;
+  insert: (data: any | any[]) => Promise<QueryResult>;
+  update: (data: any) => Promise<QueryResult>;
+  delete: () => Promise<QueryResult>;
+  upsert: (data: any | any[], options?: { onConflict?: string }) => Promise<QueryResult>;
+  eq: (column: string, value: any) => QueryBuilder;
+  neq: (column: string, value: any) => QueryBuilder;
+  gt: (column: string, value: any) => QueryBuilder;
+  gte: (column: string, value: any) => QueryBuilder;
+  lt: (column: string, value: any) => QueryBuilder;
+  lte: (column: string, value: any) => QueryBuilder;
+  like: (column: string, value: any) => QueryBuilder;
+  ilike: (column: string, value: any) => QueryBuilder;
+  is: (column: string, value: any) => QueryBuilder;
+  in: (column: string, values: any[]) => QueryBuilder;
+  order: (column: string, options?: { ascending?: boolean }) => QueryBuilder;
+  limit: (count: number) => QueryBuilder;
+  single: () => QueryBuilder;
+  maybeSingle: () => QueryBuilder;
+}
+
 export async function createClient() {
   return {
-    from: (table: string) => createQueryBuilder(table),
+    from: (table: string): QueryBuilder => createQueryBuilder(table),
     auth: createAuthClient(),
   };
 }
 
-function createQueryBuilder(table: string) {
+function createQueryBuilder(table: string): QueryBuilder {
   let selectColumns = '*';
   let whereConditions: { column: string; operator: string; value: any }[] = [];
   let orderByColumn: string | null = null;
@@ -216,7 +243,7 @@ function createQueryBuilder(table: string) {
     },
   };
   
-  return builder;
+  return builder as QueryBuilder;
 }
 
 function createAuthClient() {
