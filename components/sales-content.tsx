@@ -227,7 +227,16 @@ export function SalesContent() {
       if (error) {
         console.error("Error fetching sales:", error)
       } else {
-        setSales(salesData || [])
+        // Convert numeric string values to actual numbers for proper calculations
+        const processedSales = (salesData || []).map((sale: any) => ({
+          ...sale,
+          quantity: Number(sale.quantity) || 0,
+          unit_price: Number(sale.unit_price) || 0,
+          total_amount: Number(sale.total_amount) || 0,
+          meter_reading_after: Number(sale.meter_reading_after) || 0,
+          loyalty_points_earned: Number(sale.loyalty_points_earned) || 0,
+        }))
+        setSales(processedSales)
       }
     } catch (error) {
       console.error("Error fetching sales:", error)
