@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server"
+import { Pool } from "pg"
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
 
 export async function POST(request: Request) {
   try {
@@ -16,43 +21,42 @@ export async function POST(request: Request) {
       local_tax_office,
       device_token,
       storage_indices,
+      user_id,
     } = body
 
-    // Insert branch into database using fetch to Supabase REST API
-    const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/branches`, {
-      method: "POST",
-      headers: {
-        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-        "Content-Type": "application/json",
-        Prefer: "return=representation",
-      },
-      body: JSON.stringify({
-        name,
-        location,
-        address,
-        manager,
-        email,
-        phone,
-        bhf_id,
-        county,
-        local_tax_office,
-        device_token,
-        storage_indices,
-        status: status || "active",
-      }),
-    })
+    const client = await pool.connect()
 
-    if (!response.ok) {
-      const error = await response.text()
-      console.error("[v0] Error creating branch:", error)
-      return NextResponse.json({ error: "Failed to create branch", details: error }, { status: 500 })
+    try {
+      const id = crypto.randomUUID()
+
+      const result = await client.query(
+        `INSERT INTO branches (id, user_id, name, bhf_id, location, address, county, local_tax_office, manager, email, phone, status, device_token, storage_indices, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())
+         RETURNING *`,
+        [
+          id,
+          user_id || null,
+          name,
+          bhf_id || null,
+          location || null,
+          address || null,
+          county || null,
+          local_tax_office || null,
+          manager || null,
+          email || null,
+          phone || null,
+          status || "active",
+          device_token || null,
+          storage_indices ? JSON.stringify(storage_indices) : null,
+        ]
+      )
+
+      const branch = result.rows[0]
+
+      return NextResponse.json({ success: true, branch })
+    } finally {
+      client.release()
     }
-
-    const branches = await response.json()
-    const branch = branches[0]
-
-    return NextResponse.json({ success: true, branch })
   } catch (error) {
     console.error("[v0] Error in branch creation:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

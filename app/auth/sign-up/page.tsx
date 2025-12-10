@@ -55,6 +55,8 @@ export default function SignUpPage() {
       })
       if (signUpError) throw new Error(signUpError.message || "Sign up failed")
 
+      const userId = data?.user?.id
+
       const branchResponse = await fetch("/api/branches/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,28 +70,31 @@ export default function SignUpPage() {
           email: managerEmail,
           phone: managerPhone,
           status: "active",
+          user_id: userId,
         }),
       })
 
       if (!branchResponse.ok) {
-        throw new Error("Failed to create first branch")
+        const errorData = await branchResponse.json().catch(() => ({}))
+        throw new Error(errorData.error || "Failed to create first branch")
       }
 
-      const backendResponse = await fetch("/api/branches/register-backend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: branchName,
-          location: address,
-          county,
-          city: branchLocation,
-        }),
-      })
+      const branchResult = await branchResponse.json()
 
-      const backendResult = await backendResponse.json()
-
-      if (!backendResponse.ok || !backendResult.success) {
-        throw new Error(backendResult.error || "Backend registration failed")
+      try {
+        await fetch("/api/branches/register-backend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            branchId: branchResult.branch?.id,
+            name: branchName,
+            location: address,
+            county,
+            city: branchLocation,
+          }),
+        })
+      } catch (backendError) {
+        console.log("[v0] Backend registration skipped:", backendError)
       }
 
       router.push("/auth/sign-up-success")

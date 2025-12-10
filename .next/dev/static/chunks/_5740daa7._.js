@@ -446,6 +446,7 @@ function SignUpPage() {
                 phone: phoneNumber
             });
             if (signUpError) throw new Error(signUpError.message || "Sign up failed");
+            const userId = data?.user?.id;
             const branchResponse = await fetch("/api/branches/create", {
                 method: "POST",
                 headers: {
@@ -460,27 +461,31 @@ function SignUpPage() {
                     manager: managerName,
                     email: managerEmail,
                     phone: managerPhone,
-                    status: "active"
+                    status: "active",
+                    user_id: userId
                 })
             });
             if (!branchResponse.ok) {
-                throw new Error("Failed to create first branch");
+                const errorData = await branchResponse.json().catch(()=>({}));
+                throw new Error(errorData.error || "Failed to create first branch");
             }
-            const backendResponse = await fetch("/api/branches/register-backend", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    name: branchName,
-                    location: address,
-                    county,
-                    city: branchLocation
-                })
-            });
-            const backendResult = await backendResponse.json();
-            if (!backendResponse.ok || !backendResult.success) {
-                throw new Error(backendResult.error || "Backend registration failed");
+            const branchResult = await branchResponse.json();
+            try {
+                await fetch("/api/branches/register-backend", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        branchId: branchResult.branch?.id,
+                        name: branchName,
+                        location: address,
+                        county,
+                        city: branchLocation
+                    })
+                });
+            } catch (backendError) {
+                console.log("[v0] Backend registration skipped:", backendError);
             }
             router.push("/auth/sign-up-success");
         } catch (error) {
@@ -513,20 +518,20 @@ function SignUpPage() {
                         priority: true
                     }, void 0, false, {
                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                        lineNumber: 119,
+                        lineNumber: 124,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "absolute inset-0 bg-blue-900/30"
                     }, void 0, false, {
                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                        lineNumber: 126,
+                        lineNumber: 131,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                lineNumber: 118,
+                lineNumber: 123,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -545,12 +550,12 @@ function SignUpPage() {
                                     className: "rounded-full"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/sign-up/page.tsx",
-                                    lineNumber: 133,
+                                    lineNumber: 138,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                lineNumber: 132,
+                                lineNumber: 137,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
@@ -558,7 +563,7 @@ function SignUpPage() {
                                 children: "Flow360"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                lineNumber: 135,
+                                lineNumber: 140,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -566,7 +571,7 @@ function SignUpPage() {
                                 children: step === 1 ? "Create your account" : "Setup your first branch"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                lineNumber: 136,
+                                lineNumber: 141,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -576,26 +581,26 @@ function SignUpPage() {
                                         className: `h-2 w-2 rounded-full ${step === 1 ? "bg-primary" : "bg-gray-300"}`
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 140,
+                                        lineNumber: 145,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: `h-2 w-2 rounded-full ${step === 2 ? "bg-primary" : "bg-gray-300"}`
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 141,
+                                        lineNumber: 146,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                lineNumber: 139,
+                                lineNumber: 144,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                        lineNumber: 131,
+                        lineNumber: 136,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -615,7 +620,7 @@ function SignUpPage() {
                                                 children: "Email"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 154,
+                                                lineNumber: 159,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -628,13 +633,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 155,
+                                                lineNumber: 160,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 153,
+                                        lineNumber: 158,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -645,7 +650,7 @@ function SignUpPage() {
                                                 children: "Phone Number"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 166,
+                                                lineNumber: 171,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -657,13 +662,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 167,
+                                                lineNumber: 172,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 165,
+                                        lineNumber: 170,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -674,7 +679,7 @@ function SignUpPage() {
                                                 children: "Username"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 177,
+                                                lineNumber: 182,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -687,13 +692,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 178,
+                                                lineNumber: 183,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 176,
+                                        lineNumber: 181,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -704,7 +709,7 @@ function SignUpPage() {
                                                 children: "Password"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 189,
+                                                lineNumber: 194,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -717,13 +722,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 190,
+                                                lineNumber: 195,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 188,
+                                        lineNumber: 193,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -734,7 +739,7 @@ function SignUpPage() {
                                                 children: "Confirm Password"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 201,
+                                                lineNumber: 206,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -747,13 +752,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 202,
+                                                lineNumber: 207,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 200,
+                                        lineNumber: 205,
                                         columnNumber: 15
                                     }, this),
                                     error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -761,7 +766,7 @@ function SignUpPage() {
                                         children: error
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 212,
+                                        lineNumber: 217,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -770,13 +775,13 @@ function SignUpPage() {
                                         children: "Next"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 213,
+                                        lineNumber: 218,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                lineNumber: 146,
+                                lineNumber: 151,
                                 columnNumber: 13
                             }, this) : /* Added branch details form step */ /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
                                 onSubmit: handleSignUp,
@@ -790,7 +795,7 @@ function SignUpPage() {
                                                 children: "Branch Name"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 221,
+                                                lineNumber: 226,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -803,13 +808,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 222,
+                                                lineNumber: 227,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 220,
+                                        lineNumber: 225,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -820,7 +825,7 @@ function SignUpPage() {
                                                 children: "Location/City"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 233,
+                                                lineNumber: 238,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -833,13 +838,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 234,
+                                                lineNumber: 239,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 232,
+                                        lineNumber: 237,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -850,7 +855,7 @@ function SignUpPage() {
                                                 children: "BHF ID"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 245,
+                                                lineNumber: 250,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -863,13 +868,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 246,
+                                                lineNumber: 251,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 244,
+                                        lineNumber: 249,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -880,7 +885,7 @@ function SignUpPage() {
                                                 children: "County"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 257,
+                                                lineNumber: 262,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -893,13 +898,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 258,
+                                                lineNumber: 263,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 256,
+                                        lineNumber: 261,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -910,7 +915,7 @@ function SignUpPage() {
                                                 children: "Physical Address"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 269,
+                                                lineNumber: 274,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -923,13 +928,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 270,
+                                                lineNumber: 275,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 268,
+                                        lineNumber: 273,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -940,7 +945,7 @@ function SignUpPage() {
                                                 children: "Manager Name"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 281,
+                                                lineNumber: 286,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -953,13 +958,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 282,
+                                                lineNumber: 287,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 280,
+                                        lineNumber: 285,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -970,7 +975,7 @@ function SignUpPage() {
                                                 children: "Manager Email"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 293,
+                                                lineNumber: 298,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -983,13 +988,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 294,
+                                                lineNumber: 299,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 292,
+                                        lineNumber: 297,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1000,7 +1005,7 @@ function SignUpPage() {
                                                 children: "Manager Phone"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 305,
+                                                lineNumber: 310,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1013,13 +1018,13 @@ function SignUpPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 306,
+                                                lineNumber: 311,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 304,
+                                        lineNumber: 309,
                                         columnNumber: 15
                                     }, this),
                                     error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1027,7 +1032,7 @@ function SignUpPage() {
                                         children: error
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 316,
+                                        lineNumber: 321,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1041,7 +1046,7 @@ function SignUpPage() {
                                                 children: "Back"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 318,
+                                                lineNumber: 323,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1051,19 +1056,19 @@ function SignUpPage() {
                                                 children: isLoading ? "Creating..." : "Complete Setup"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 326,
+                                                lineNumber: 331,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 317,
+                                        lineNumber: 322,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                lineNumber: 219,
+                                lineNumber: 224,
                                 columnNumber: 13
                             }, this),
                             step === 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -1073,7 +1078,7 @@ function SignUpPage() {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"], {}, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 336,
+                                                lineNumber: 341,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1081,13 +1086,13 @@ function SignUpPage() {
                                                 children: "OR"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 337,
+                                                lineNumber: 342,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 335,
+                                        lineNumber: 340,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1106,7 +1111,7 @@ function SignUpPage() {
                                                         d: "M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                        lineNumber: 350,
+                                                        lineNumber: 355,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -1114,7 +1119,7 @@ function SignUpPage() {
                                                         d: "M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                        lineNumber: 354,
+                                                        lineNumber: 359,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -1122,7 +1127,7 @@ function SignUpPage() {
                                                         d: "M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                        lineNumber: 358,
+                                                        lineNumber: 363,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -1130,20 +1135,20 @@ function SignUpPage() {
                                                         d: "M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                        lineNumber: 362,
+                                                        lineNumber: 367,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                                lineNumber: 349,
+                                                lineNumber: 354,
                                                 columnNumber: 17
                                             }, this),
                                             "Continue with Google"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 342,
+                                        lineNumber: 347,
                                         columnNumber: 15
                                     }, this)
                                 ]
@@ -1159,31 +1164,31 @@ function SignUpPage() {
                                         children: "Sign in"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                                        lineNumber: 374,
+                                        lineNumber: 379,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                                lineNumber: 372,
+                                lineNumber: 377,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/sign-up/page.tsx",
-                        lineNumber: 144,
+                        lineNumber: 149,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/sign-up/page.tsx",
-                lineNumber: 130,
+                lineNumber: 135,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/auth/sign-up/page.tsx",
-        lineNumber: 116,
+        lineNumber: 121,
         columnNumber: 5
     }, this);
 }
