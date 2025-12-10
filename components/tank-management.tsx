@@ -236,13 +236,11 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
     console.log("[v0] Starting to add dispenser for branch:", branchId)
 
-    // Fetch the highest existing dispenser number for this branch
+    // Fetch all existing dispensers for this branch
     const { data: existingDispensers, error: fetchError } = await supabase
       .from("dispensers")
-      .select("dispenser_number")
+      .select("*")
       .eq("branch_id", branchId)
-      .order("dispenser_number", { ascending: false })
-      .limit(1)
 
     if (fetchError) {
       console.error("[v0] Error fetching dispensers:", fetchError)
@@ -251,21 +249,12 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     }
 
     console.log("[v0] Existing dispensers:", existingDispensers)
-    const nextDispenserNumber = existingDispensers.length > 0 ? existingDispensers[0].dispenser_number + 1 : 1
+    
+    // Find the highest dispenser number manually
+    const dispenserNumbers = (existingDispensers || []).map((d: any) => Number(d.dispenser_number) || 0)
+    const maxNumber = dispenserNumbers.length > 0 ? Math.max(...dispenserNumbers) : 0
+    const nextDispenserNumber = maxNumber + 1
     console.log("[v0] Next dispenser number:", nextDispenserNumber)
-
-    const { data: duplicateCheck } = await supabase
-      .from("dispensers")
-      .select("id")
-      .eq("branch_id", branchId)
-      .eq("dispenser_number", nextDispenserNumber)
-      .single()
-
-    if (duplicateCheck) {
-      console.error("[v0] Dispenser number already exists:", nextDispenserNumber)
-      toast.error(`Dispenser ${nextDispenserNumber} already exists for this branch`)
-      return
-    }
 
     // Get fuel type from the selected tank
     const selectedTank = tanks.find((t) => t.id === selectedTankForDispenser)
