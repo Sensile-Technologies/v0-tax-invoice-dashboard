@@ -1,12 +1,12 @@
 # Flow360 - Business Management Dashboard
 
 ## Overview
-Flow360 is a Next.js 16 business management application with features for sales, purchases, inventory, payments, customers, staff management, and reports. It appears to be designed for fuel station management with integration points for KRA (Kenya Revenue Authority) TIMS and Flow360 backend APIs.
+Flow360 is a Next.js 16 business management application for fuel station management with features for sales, purchases, inventory, payments, customers, staff management, and reports. Includes integration points for KRA (Kenya Revenue Authority) TIMS.
 
 ## Tech Stack
 - **Framework**: Next.js 16.0.7 with React 19
 - **Styling**: Tailwind CSS 4.x with shadcn/ui components
-- **Database**: Supabase (external service)
+- **Database**: Supabase (external service) + Replit PostgreSQL (local schema backup)
 - **Authentication**: Supabase Auth
 - **UI Components**: Radix UI primitives
 - **Charts**: Recharts
@@ -25,13 +25,23 @@ Flow360 is a Next.js 16 business management application with features for sales,
 - **Build**: `npm run build`
 - **Start**: `npm run start`
 
-## Configuration
-- Uses environment variables for Supabase connection
-- Requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for database connection
-- Backend configuration in `/lib/backend-config.ts`
+## Required Environment Variables
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
+
+## Database Schema
+The local Replit PostgreSQL database has the full schema with tables for:
+- Users, Branches, Staff
+- Fuel management (Tanks, Dispensers, Nozzles, Fuel Prices)
+- Sales and Shifts
+- Customers and Loyalty
+- Items and Inventory
+- KRA TIMS integration tables
+- API logging
 
 ## Recent Changes
 - 2024-12-10: Initial Replit environment setup
   - Configured Next.js for Replit proxy compatibility
   - Set up development workflow on port 5000
   - Added deployment configuration for autoscale
+  - Created local PostgreSQL database with full schema
