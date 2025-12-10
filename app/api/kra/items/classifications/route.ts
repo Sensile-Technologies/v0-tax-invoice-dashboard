@@ -19,17 +19,17 @@ export async function POST(request: Request) {
     const { data: branches } = await supabase
       .from("branches")
       .select("id, bhf_id, name")
-      .eq("bhf_id", "03")
+      .eq("name", "Thika Greens")
       .limit(1)
       .single()
 
     if (!branches || !branches.bhf_id) {
-      throw new Error("Thika Greens branch (BHF ID: 03) not found. Please configure it first.")
+      throw new Error("Thika Greens branch not found. Please configure it first.")
     }
 
     kraPayload = {
       tin: "P052344628B",
-      bhfId: "03",
+      bhfId: branches.bhf_id,
       lastReqDt: "20180328000000",
     }
 

@@ -1,10 +1,6 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/kra/codes/route.js")
-R.c("server/chunks/node_modules_next_3c734001._.js")
-R.c("server/chunks/node_modules_@supabase_realtime-js_dist_module_306ac729._.js")
-R.c("server/chunks/node_modules_@supabase_storage-js_dist_module_473cf4b8._.js")
-R.c("server/chunks/node_modules_@supabase_auth-js_dist_module_d4605ced._.js")
-R.c("server/chunks/node_modules_b2383b72._.js")
-R.c("server/chunks/[root-of-the-server]__40b87361._.js")
+R.c("server/chunks/node_modules_next_0adfd023._.js")
+R.c("server/chunks/[root-of-the-server]__e915180b._.js")
 R.c("server/chunks/_next-internal_server_app_api_kra_codes_route_actions_5efa7023.js")
 R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/kra/codes/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
 module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/kra/codes/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

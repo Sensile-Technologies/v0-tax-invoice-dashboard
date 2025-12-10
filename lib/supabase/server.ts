@@ -85,6 +85,34 @@ function createQueryBuilder(table: string) {
         return { data: null, error: { message: error.message } };
       }
     },
+    upsert: async (data: any | any[], options?: { onConflict?: string }) => {
+      const rows = Array.isArray(data) ? data : [data];
+      if (rows.length === 0) return { data: [], error: null };
+      
+      const columns = Object.keys(rows[0]);
+      const values = rows.map((row, i) => 
+        `(${columns.map((_, j) => `$${i * columns.length + j + 1}`).join(', ')})`
+      ).join(', ');
+      const params = rows.flatMap(row => columns.map(col => row[col]));
+      
+      const conflictColumns = options?.onConflict || 'id';
+      const updateColumns = columns.filter(c => !conflictColumns.split(',').includes(c));
+      const updateClause = updateColumns.map(c => `${c} = EXCLUDED.${c}`).join(', ');
+      
+      try {
+        let sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES ${values}`;
+        if (updateClause) {
+          sql += ` ON CONFLICT (${conflictColumns}) DO UPDATE SET ${updateClause}`;
+        } else {
+          sql += ` ON CONFLICT (${conflictColumns}) DO NOTHING`;
+        }
+        sql += ' RETURNING *';
+        const result = await query(sql, params);
+        return { data: result, error: null };
+      } catch (error: any) {
+        return { data: null, error: { message: error.message } };
+      }
+    },
     eq: (column: string, value: any) => {
       whereConditions.push({ column, operator: '=', value });
       return builder;
