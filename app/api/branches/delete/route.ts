@@ -1,30 +1,26 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { Pool } from "pg"
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
 
 export async function POST(request: NextRequest) {
   try {
     const { branchId } = await request.json()
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-    if (!supabaseUrl || !serviceRoleKey) {
-      return NextResponse.json({ error: "Missing Supabase configuration" }, { status: 500 })
+    if (!branchId) {
+      return NextResponse.json({ error: "Branch ID is required" }, { status: 400 })
     }
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/branches?id=eq.${branchId}`, {
-      method: "DELETE",
-      headers: {
-        apikey: serviceRoleKey,
-        Authorization: `Bearer ${serviceRoleKey}`,
-      },
-    })
+    const client = await pool.connect()
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`Failed to delete branch: ${errorText}`)
+    try {
+      await client.query("DELETE FROM branches WHERE id = $1", [branchId])
+      return NextResponse.json({ success: true })
+    } finally {
+      client.release()
     }
-
-    return NextResponse.json({ success: true })
   } catch (error) {
     console.error("[Branch Delete Error]:", error)
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 })
