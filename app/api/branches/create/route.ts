@@ -29,6 +29,28 @@ export async function POST(request: Request) {
     try {
       const id = crypto.randomUUID()
 
+      let finalBhfId = bhf_id
+
+      if (bhf_id) {
+        const existingBhf = await client.query(
+          "SELECT id FROM branches WHERE bhf_id = $1",
+          [bhf_id]
+        )
+        if (existingBhf.rows.length > 0) {
+          const maxBhf = await client.query(
+            "SELECT bhf_id FROM branches ORDER BY bhf_id DESC LIMIT 1"
+          )
+          const maxNum = maxBhf.rows.length > 0 ? parseInt(maxBhf.rows[0].bhf_id, 10) : 0
+          finalBhfId = String(maxNum + 1).padStart(2, '0')
+        }
+      } else {
+        const maxBhf = await client.query(
+          "SELECT bhf_id FROM branches ORDER BY bhf_id DESC LIMIT 1"
+        )
+        const maxNum = maxBhf.rows.length > 0 ? parseInt(maxBhf.rows[0].bhf_id, 10) : 0
+        finalBhfId = String(maxNum + 1).padStart(2, '0')
+      }
+
       const result = await client.query(
         `INSERT INTO branches (id, user_id, name, bhf_id, location, address, county, local_tax_office, manager, email, phone, status, device_token, storage_indices, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())
@@ -37,7 +59,7 @@ export async function POST(request: Request) {
           id,
           user_id || null,
           name,
-          bhf_id || null,
+          finalBhfId,
           location || null,
           address || null,
           county || null,
