@@ -1076,7 +1076,7 @@ export function SalesContent() {
                             {dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "-"}
                           </TableCell>
                           <TableCell className="p-2">{sale.fuel_type}</TableCell>
-                          <TableCell className="p-2 text-right">{sale.quantity.toFixed(2)}</TableCell>
+                          <TableCell className="p-2 text-right">{Number(sale.quantity).toFixed(2)}</TableCell>
                           <TableCell className="p-2 text-right">{formatCurrency(sale.unit_price)}</TableCell>
                           <TableCell className="p-2 text-right font-medium">
                             {formatCurrency(sale.total_amount)}
@@ -1106,7 +1106,7 @@ export function SalesContent() {
                             )}
                           </TableCell>
                           <TableCell className="p-2 text-right">
-                            {sale.meter_reading_after ? sale.meter_reading_after.toFixed(2) : "-"}
+                            {sale.meter_reading_after ? Number(sale.meter_reading_after).toFixed(2) : "-"}
                           </TableCell>
                           <TableCell className="p-2 text-center">
                             <Badge variant={getStatusBadgeVariant(sale.transmission_status || "pending")}>

@@ -55,7 +55,7 @@ export default function ConfigurationPage() {
       if (tanksError) {
         console.error("Error fetching tanks:", tanksError)
       } else {
-        const fuelTypes = [...new Set(tanksData?.map((tank) => tank.fuel_type) || [])]
+        const fuelTypes = [...new Set(tanksData?.map((tank: any) => tank.fuel_type as string) || [])] as string[]
         setAvailableFuelTypes(fuelTypes)
       }
 
@@ -570,7 +570,7 @@ export default function ConfigurationPage() {
                                 {dispenser ? `Dispenser ${dispenser.dispenser_number}` : "Unknown"} - {nozzle.fuel_type}
                               </p>
                               <p className="text-xs text-slate-400 mt-1">
-                                Initial Reading: {nozzle.initial_meter_reading?.toFixed(3) || "0.000"} L
+                                Initial Reading: {Number(nozzle.initial_meter_reading || 0).toFixed(3)} L
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
