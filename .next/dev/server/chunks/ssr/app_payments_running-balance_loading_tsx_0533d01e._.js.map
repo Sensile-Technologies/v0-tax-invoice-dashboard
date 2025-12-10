@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/payments/running-balance/loading.tsx"],"sourcesContent":["export default function Loading() {\n  return (\n    <div className=\"flex h-screen items-center justify-center bg-slate-50\">\n      <div className=\"text-center\">\n        <div className=\"inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent\" />\n        <p className=\"mt-4 text-slate-600\">Loading running balance report...</p>\n      </div>\n    </div>\n  )\n}\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAI,WAAU;;8BACb,8OAAC;oBAAI,WAAU;;;;;;8BACf,8OAAC;oBAAE,WAAU;8BAAsB;;;;;;;;;;;;;;;;;AAI3C"}}]
+}
