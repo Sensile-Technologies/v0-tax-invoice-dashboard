@@ -57,7 +57,7 @@ const mod = __turbopack_context__.x("crypto", () => require("crypto"));
 
 module.exports = mod;
 }),
-"[project]/app/api/auth/signup/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
+"[project]/app/api/auth/signin/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
 return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
@@ -81,11 +81,11 @@ const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$exter
 });
 async function POST(request) {
     try {
-        const { email, password, data, branch } = await request.json();
-        if (!email || !password) {
+        const { email, password, username } = await request.json();
+        if (!password || !email && !username) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: {
-                    message: "Email and password are required"
+                    message: "Email/username and password are required"
                 }
             }, {
                 status: 400
@@ -93,72 +93,64 @@ async function POST(request) {
         }
         const client = await pool.connect();
         try {
-            await client.query("BEGIN");
-            const existingUser = await client.query("SELECT id FROM users WHERE email = $1", [
-                email
-            ]);
-            if (existingUser.rows.length > 0) {
-                await client.query("ROLLBACK");
+            let user;
+            if (email) {
+                const result = await client.query("SELECT id, email, username, password_hash FROM users WHERE email = $1", [
+                    email
+                ]);
+                user = result.rows[0];
+            } else {
+                const result = await client.query("SELECT id, email, username, password_hash FROM users WHERE username = $1", [
+                    username
+                ]);
+                user = result.rows[0];
+            }
+            if (!user) {
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                     error: {
-                        message: "User with this email already exists"
+                        message: "Invalid credentials"
                     }
                 }, {
-                    status: 400
+                    status: 401
                 });
             }
-            const passwordHash = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].hash(password, 10);
-            const userId = crypto.randomUUID();
-            await client.query(`INSERT INTO users (id, email, username, phone_number, password_hash, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`, [
-                userId,
-                email,
-                data?.username || null,
-                data?.phone || null,
-                passwordHash
-            ]);
-            let createdBranch = null;
-            if (branch) {
-                const branchId = crypto.randomUUID();
-                const bhfId = "01";
-                const branchResult = await client.query(`INSERT INTO branches (id, user_id, name, bhf_id, location, address, county, local_tax_office, manager, email, phone, status, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'active', NOW(), NOW())
-           RETURNING *`, [
-                    branchId,
-                    userId,
-                    branch.name,
-                    bhfId,
-                    branch.location || null,
-                    branch.address || null,
-                    branch.county || null,
-                    branch.local_tax_office || null,
-                    branch.manager || null,
-                    branch.email || null,
-                    branch.phone || null
-                ]);
-                createdBranch = branchResult.rows[0];
+            if (!user.password_hash) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: {
+                        message: "Password not set for this account"
+                    }
+                }, {
+                    status: 401
+                });
             }
-            await client.query("COMMIT");
+            const isValid = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].compare(password, user.password_hash);
+            if (!isValid) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: {
+                        message: "Invalid credentials"
+                    }
+                }, {
+                    status: 401
+                });
+            }
+            const token = crypto.randomUUID();
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                access_token: token,
+                refresh_token: crypto.randomUUID(),
                 user: {
-                    id: userId,
-                    email,
-                    username: data?.username
-                },
-                branch: createdBranch,
-                message: "User created successfully"
+                    id: user.id,
+                    email: user.email,
+                    username: user.username
+                }
             });
-        } catch (txError) {
-            await client.query("ROLLBACK");
-            throw txError;
         } finally{
             client.release();
         }
     } catch (error) {
-        console.error("[API] Sign up error:", error);
+        console.error("[API] Sign in error:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: {
-                message: "Failed to create user"
+                message: "Failed to sign in"
             }
         }, {
             status: 500
@@ -169,4 +161,4 @@ __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
 ];
 
-//# sourceMappingURL=%5Broot-of-the-server%5D__8d494fe0._.js.map
+//# sourceMappingURL=%5Broot-of-the-server%5D__7c4d5fd3._.js.map
