@@ -1343,15 +1343,11 @@ __turbopack_context__.s([
     "signUp",
     ()=>signUp
 ]);
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
-const supabaseUrl = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 async function signUp(email, password, metadata) {
-    const response = await fetch(`${supabaseUrl}/auth/v1/signup`, {
+    const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            apikey: supabaseAnonKey
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
             email,
@@ -1366,44 +1362,22 @@ async function signUp(email, password, metadata) {
     };
 }
 async function signIn(identifier, password) {
-    let email = identifier;
-    // Check if identifier is a username (not an email)
-    if (!identifier.includes("@")) {
-        // Look up email by username in the users table
-        const usersResponse = await fetch(`${supabaseUrl}/rest/v1/users?username=eq.${encodeURIComponent(identifier)}&select=email`, {
-            headers: {
-                apikey: supabaseAnonKey,
-                Authorization: `Bearer ${supabaseAnonKey}`
-            }
-        });
-        const users = await usersResponse.json();
-        if (users && users.length > 0) {
-            email = users[0].email;
-        } else {
-            return {
-                data: {},
-                error: {
-                    message: "Username not found"
-                }
-            };
-        }
-    }
-    const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+    const isEmail = identifier.includes("@");
+    const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            apikey: supabaseAnonKey
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            email,
+            email: isEmail ? identifier : undefined,
+            username: isEmail ? undefined : identifier,
             password
         })
     });
     const data = await response.json();
     if (data.access_token) {
-        // Store tokens in cookies
-        document.cookie = `sb-access-token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
-        document.cookie = `sb-refresh-token=${data.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}`; // 30 days
+        document.cookie = `sb-access-token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+        document.cookie = `sb-refresh-token=${data.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}`;
     }
     return {
         data,
@@ -1413,59 +1387,19 @@ async function signIn(identifier, password) {
 async function signOut() {
     document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    const response = await fetch(`${supabaseUrl}/auth/v1/logout`, {
-        method: "POST",
-        headers: {
-            apikey: supabaseAnonKey
-        }
-    });
     return {
         error: null
     };
 }
 async function signInWithGoogle() {
-    const redirectUrl = `${window.location.origin}/auth/callback`;
-    const response = await fetch(`${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${redirectUrl}`, {
-        method: "GET",
-        headers: {
-            apikey: supabaseAnonKey
-        }
-    });
-    window.location.href = response.url;
+    throw new Error("Google sign-in is not available with local authentication");
 }
 async function getCurrentUserRole() {
     const accessToken = document.cookie.split("; ").find((row)=>row.startsWith("sb-access-token="))?.split("=")[1];
     if (!accessToken) {
         return null;
     }
-    try {
-        // Get user from auth
-        const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
-            headers: {
-                apikey: supabaseAnonKey,
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-        const userData = await userResponse.json();
-        if (!userData || !userData.id) {
-            return null;
-        }
-        // Get staff record to find role
-        const staffResponse = await fetch(`${supabaseUrl}/rest/v1/staff?auth_user_id=eq.${userData.id}&select=role`, {
-            headers: {
-                apikey: supabaseAnonKey,
-                Authorization: `Bearer ${accessToken}`
-            }
-        });
-        const staff = await staffResponse.json();
-        if (staff && staff.length > 0) {
-            return staff[0].role;
-        }
-        return null;
-    } catch (error) {
-        console.error("[v0] Error fetching user role:", error);
-        return null;
-    }
+    return null;
 }
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
