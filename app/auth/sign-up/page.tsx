@@ -49,44 +49,40 @@ export default function SignUpPage() {
     setError(null)
 
     try {
-      const { data, error: signUpError } = await signUp(email, password, {
-        username,
-        phone: phoneNumber,
-      })
-      if (signUpError) throw new Error(signUpError.message || "Sign up failed")
-
-      const userId = data?.user?.id
-
-      const branchResponse = await fetch("/api/branches/create", {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: branchName,
-          location: branchLocation,
-          bhf_id: bhfId,
-          county,
-          address,
-          manager: managerName,
-          email: managerEmail,
-          phone: managerPhone,
-          status: "active",
-          user_id: userId,
+          email,
+          password,
+          data: {
+            username,
+            phone: phoneNumber,
+          },
+          branch: {
+            name: branchName,
+            location: branchLocation,
+            county,
+            address,
+            manager: managerName,
+            email: managerEmail,
+            phone: managerPhone,
+          },
         }),
       })
 
-      if (!branchResponse.ok) {
-        const errorData = await branchResponse.json().catch(() => ({}))
-        throw new Error(errorData.error || "Failed to create first branch")
-      }
+      const result = await response.json()
 
-      const branchResult = await branchResponse.json()
+      if (!response.ok || result.error) {
+        throw new Error(result.error?.message || "Sign up failed")
+      }
 
       try {
         await fetch("/api/branches/register-backend", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            branchId: branchResult.branch?.id,
+            branchId: result.branch?.id,
             name: branchName,
             location: address,
             county,
