@@ -122,11 +122,19 @@ async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const name = searchParams.get("name");
+        const userId = searchParams.get("user_id");
         let sql = "SELECT * FROM branches WHERE status = 'active'";
         const params = [];
+        let paramIndex = 1;
+        if (userId) {
+            sql += ` AND user_id = $${paramIndex}`;
+            params.push(userId);
+            paramIndex++;
+        }
         if (name) {
-            sql += " AND LOWER(name) LIKE LOWER($1)";
+            sql += ` AND LOWER(name) LIKE LOWER($${paramIndex})`;
             params.push(`%${name}%`);
+            paramIndex++;
         }
         sql += " ORDER BY name";
         const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, params);

@@ -35,6 +35,9 @@ export async function signIn(identifier: string, password: string) {
   if (data.access_token) {
     document.cookie = `sb-access-token=${data.access_token}; path=/; max-age=${60 * 60 * 24 * 7}`
     document.cookie = `sb-refresh-token=${data.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}`
+    if (data.user) {
+      localStorage.setItem("currentUser", JSON.stringify(data.user))
+    }
   }
 
   return { data, error: data.error || null }
@@ -43,7 +46,20 @@ export async function signIn(identifier: string, password: string) {
 export async function signOut() {
   document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
   document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+  localStorage.removeItem("currentUser")
+  localStorage.removeItem("selectedBranch")
   return { error: null }
+}
+
+export function getCurrentUser() {
+  if (typeof window === "undefined") return null
+  const userStr = localStorage.getItem("currentUser")
+  if (!userStr) return null
+  try {
+    return JSON.parse(userStr)
+  } catch {
+    return null
+  }
 }
 
 export async function signInWithGoogle() {

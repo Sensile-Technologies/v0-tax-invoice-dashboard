@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { signOut } from "@/lib/auth/client"
+import { signOut, getCurrentUser } from "@/lib/auth/client"
 import { useRouter } from "next/navigation"
 
 interface DashboardHeaderProps {
@@ -72,7 +72,10 @@ export function DashboardHeader({
 
   const fetchBranches = async () => {
     try {
-      const response = await fetch("/api/branches/list")
+      const currentUser = getCurrentUser()
+      const userId = currentUser?.id
+      const url = userId ? `/api/branches/list?user_id=${userId}` : "/api/branches/list"
+      const response = await fetch(url)
 
       if (response.ok) {
         const data = await response.json()
