@@ -49,10 +49,22 @@ export function DashboardHeader({
     { id: 1, title: "Notification 1", message: "This is the first notification", time: "10:00 AM", unread: true },
     { id: 2, title: "Notification 2", message: "This is the second notification", time: "11:00 AM", unread: false },
   ])
-  const storedBranch = typeof window !== "undefined" ? localStorage.getItem("selectedBranch") : null
-  const parsedBranch = storedBranch ? JSON.parse(storedBranch) : null
-  const currentBranchName = parsedBranch?.name || branches.find((b) => b.id === selectedBranch)?.name || "Headquarters"
+  const [currentBranchName, setCurrentBranchName] = useState("Headquarters")
   const router = useRouter()
+
+  useEffect(() => {
+    const storedBranch = localStorage.getItem("selectedBranch")
+    if (storedBranch) {
+      try {
+        const parsedBranch = JSON.parse(storedBranch)
+        if (parsedBranch?.name) {
+          setCurrentBranchName(parsedBranch.name)
+        }
+      } catch (e) {
+        console.error("Error parsing stored branch:", e)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     fetchBranches()

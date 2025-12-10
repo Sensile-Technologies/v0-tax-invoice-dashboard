@@ -77,11 +77,34 @@ export async function POST(request: Request) {
 
     console.log("[v0] Parsed result keys:", Object.keys(result))
 
-    // Save to local database
-    if (result.data && Array.isArray(result.data)) {
-      console.log("[v0] Saving", result.data.length, "code list items to database")
+    // Flatten the nested clsList structure from KRA API
+    const flattenedCodes: any[] = []
+    const clsList = result.data?.clsList || []
+    
+    for (const cls of clsList) {
+      const dtlList = cls.dtlList || []
+      for (const item of dtlList) {
+        flattenedCodes.push({
+          cdCls: cls.cdCls,
+          cdClsNm: cls.cdClsNm,
+          cd: item.cd,
+          cdNm: item.cdNm,
+          cdDesc: item.cdDesc,
+          useYn: item.useYn || "Y",
+          userDfnCd1: item.userDfnCd1,
+          userDfnCd2: item.userDfnCd2,
+          userDfnCd3: item.userDfnCd3,
+        })
+      }
+    }
 
-      for (const item of result.data) {
+    console.log("[v0] Flattened", flattenedCodes.length, "code list items")
+
+    // Save to local database
+    if (flattenedCodes.length > 0) {
+      console.log("[v0] Saving", flattenedCodes.length, "code list items to database")
+
+      for (const item of flattenedCodes) {
         await supabase.from("code_lists").upsert(
           {
             cd_cls: item.cdCls,
@@ -101,7 +124,7 @@ export async function POST(request: Request) {
 
     await logger.success(kraPayload, result, branches.id, kraEndpoint)
 
-    const transformedData = (result.data || []).map((item: any) => ({
+    const transformedData = flattenedCodes.map((item: any) => ({
       cd_cls: item.cdCls,
       cd: item.cd,
       cd_nm: item.cdNm,
