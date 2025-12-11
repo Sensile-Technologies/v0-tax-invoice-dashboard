@@ -58,7 +58,11 @@ export async function POST(request: Request) {
     
     let subtotal = 0
     if (line_items && Array.isArray(line_items)) {
-      subtotal = line_items.reduce((sum: number, item: any) => sum + (item.quantity * item.unit_price), 0)
+      subtotal = line_items.reduce((sum: number, item: any) => {
+        const lineSubtotal = item.quantity * item.unit_price
+        const discountAmount = lineSubtotal * ((item.discount || 0) / 100)
+        return sum + (lineSubtotal - discountAmount)
+      }, 0)
     }
     const taxAmount = subtotal * 0.16
     const totalAmount = subtotal + taxAmount
@@ -74,13 +78,49 @@ export async function POST(request: Request) {
 
     if (line_items && Array.isArray(line_items)) {
       for (const item of line_items) {
+        const lineSubtotal = item.quantity * item.unit_price
+        const discountAmount = lineSubtotal * ((item.discount || 0) / 100)
+        const lineAmount = lineSubtotal - discountAmount
         await query(
-          `INSERT INTO invoice_line_items (invoice_id, description, quantity, unit_price, tax_rate, amount)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [invoice.id, item.description, item.quantity, item.unit_price, item.tax_rate || 16, item.quantity * item.unit_price]
+          `INSERT INTO invoice_line_items (invoice_id, description, quantity, unit_price, tax_rate, amount, discount)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+          [invoice.id, item.description, item.quantity, item.unit_price, item.tax_rate || 16, lineAmount, item.discount || 0]
         )
       }
     }
+
+    const vendorResult = await query(`SELECT name, email FROM vendors WHERE id = $1`, [vendor_id])
+    const vendor = vendorResult[0]
+
+    if (vendor) {
+      const userResult = await query(`SELECT id FROM users WHERE email = $1`, [vendor.email])
+      const vendorUser = userResult[0]
+      
+      if (vendorUser) {
+        await query(
+          `INSERT INTO notifications (user_id, type, title, message, reference_id)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [
+            vendorUser.id,
+            'invoice',
+            'New Invoice',
+            `Invoice ${invoiceNumber} for KES ${totalAmount.toLocaleString()} has been created`,
+            invoice.id
+          ]
+        )
+      }
+    }
+
+    await query(
+      `INSERT INTO notifications (user_id, type, title, message, reference_id)
+       VALUES (NULL, $1, $2, $3, $4)`,
+      [
+        'invoice',
+        'Invoice Created',
+        `Invoice ${invoiceNumber} for ${vendor?.name || 'Unknown'} - KES ${totalAmount.toLocaleString()}`,
+        invoice.id
+      ]
+    )
 
     return NextResponse.json(invoice)
   } catch (error: any) {

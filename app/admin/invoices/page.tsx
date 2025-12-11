@@ -261,7 +261,8 @@ export default function InvoicesPage() {
         product_type: product.product_type,
         quantity: isSubscription ? 12 : 1,
         unit_price: Number(product.default_amount),
-        tax_rate: 16
+        tax_rate: 16,
+        discount: 0
       }]
     })
   }
@@ -411,7 +412,11 @@ export default function InvoicesPage() {
 
   const pendingInvoices = invoices.filter(i => i.status === "pending" || i.status === "partial")
 
-  const lineItemsTotal = newInvoice.line_items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0)
+  const lineItemsTotal = newInvoice.line_items.reduce((sum, item) => {
+    const subtotal = item.quantity * item.unit_price
+    const discountAmount = subtotal * ((item.discount || 0) / 100)
+    return sum + (subtotal - discountAmount)
+  }, 0)
 
   if (loading) {
     return (
@@ -479,7 +484,7 @@ export default function InvoicesPage() {
                   Create Invoice
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Create Invoice</DialogTitle>
                   <DialogDescription>Generate a new invoice for a vendor</DialogDescription>
@@ -585,72 +590,88 @@ export default function InvoicesPage() {
                           <tr>
                             <th className="text-left p-3 text-sm font-medium">Description</th>
                             <th className="text-left p-3 text-sm font-medium w-24">Type</th>
-                            <th className="text-right p-3 text-sm font-medium w-20">Qty</th>
-                            <th className="text-right p-3 text-sm font-medium w-32">Unit Price</th>
+                            <th className="text-right p-3 text-sm font-medium w-16">Qty</th>
+                            <th className="text-right p-3 text-sm font-medium w-28">Unit Price</th>
+                            <th className="text-right p-3 text-sm font-medium w-24">Discount %</th>
                             <th className="text-right p-3 text-sm font-medium w-28">Amount</th>
-                            <th className="p-3 w-16"></th>
+                            <th className="p-3 w-12"></th>
                           </tr>
                         </thead>
                         <tbody>
-                          {newInvoice.line_items.map((item, index) => (
-                            <tr key={index} className="border-t">
-                              <td className="p-2">
-                                <Input
-                                  value={item.description}
-                                  onChange={(e) => handleUpdateLineItem(index, "description", e.target.value)}
-                                  className="h-8"
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Badge variant="outline" className="text-xs">
-                                  {getProductTypeLabel(item.product_type)}
-                                </Badge>
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  type="number"
-                                  value={item.quantity}
-                                  onChange={(e) => handleUpdateLineItem(index, "quantity", Number(e.target.value))}
-                                  className="h-8 text-right"
-                                  min={1}
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  type="number"
-                                  value={item.unit_price}
-                                  onChange={(e) => handleUpdateLineItem(index, "unit_price", Number(e.target.value))}
-                                  className="h-8 text-right"
-                                  min={0}
-                                />
-                              </td>
-                              <td className="p-3 text-right font-medium">
-                                {formatCurrency(item.quantity * item.unit_price)}
-                              </td>
-                              <td className="p-2">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRemoveLineItem(index)}
-                                  className="text-red-600 hover:text-red-800 h-8 w-8 p-0"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
+                          {newInvoice.line_items.map((item, index) => {
+                            const discountAmount = (item.quantity * item.unit_price) * ((item.discount || 0) / 100)
+                            const lineTotal = (item.quantity * item.unit_price) - discountAmount
+                            return (
+                              <tr key={index} className="border-t">
+                                <td className="p-2">
+                                  <Input
+                                    value={item.description}
+                                    onChange={(e) => handleUpdateLineItem(index, "description", e.target.value)}
+                                    className="h-8"
+                                  />
+                                </td>
+                                <td className="p-2">
+                                  <Badge variant="outline" className="text-xs">
+                                    {getProductTypeLabel(item.product_type)}
+                                  </Badge>
+                                </td>
+                                <td className="p-2">
+                                  <Input
+                                    type="number"
+                                    value={item.quantity}
+                                    onChange={(e) => handleUpdateLineItem(index, "quantity", Number(e.target.value))}
+                                    className="h-8 text-right"
+                                    min={1}
+                                  />
+                                </td>
+                                <td className="p-2">
+                                  <Input
+                                    type="number"
+                                    value={item.unit_price}
+                                    onChange={(e) => handleUpdateLineItem(index, "unit_price", Number(e.target.value))}
+                                    className="h-8 text-right"
+                                    min={0}
+                                  />
+                                </td>
+                                <td className="p-2">
+                                  <Input
+                                    type="number"
+                                    value={item.discount || 0}
+                                    onChange={(e) => handleUpdateLineItem(index, "discount", Number(e.target.value))}
+                                    className="h-8 text-right"
+                                    min={0}
+                                    max={100}
+                                    placeholder="0"
+                                  />
+                                </td>
+                                <td className="p-3 text-right font-medium">
+                                  {formatCurrency(lineTotal)}
+                                </td>
+                                <td className="p-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveLineItem(index)}
+                                    className="text-red-600 hover:text-red-800 h-8 w-8 p-0"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            )
+                          })}
                           <tr className="border-t bg-slate-50">
-                            <td colSpan={4} className="p-3 text-right font-medium">Subtotal</td>
+                            <td colSpan={5} className="p-3 text-right font-medium">Subtotal</td>
                             <td className="p-3 text-right font-bold">{formatCurrency(lineItemsTotal)}</td>
                             <td></td>
                           </tr>
                           <tr className="bg-slate-50">
-                            <td colSpan={4} className="p-3 text-right font-medium">VAT (16%)</td>
+                            <td colSpan={5} className="p-3 text-right font-medium">VAT (16%)</td>
                             <td className="p-3 text-right font-bold">{formatCurrency(lineItemsTotal * 0.16)}</td>
                             <td></td>
                           </tr>
                           <tr className="bg-blue-50">
-                            <td colSpan={4} className="p-3 text-right font-bold text-blue-900">Total</td>
+                            <td colSpan={5} className="p-3 text-right font-bold text-blue-900">Total</td>
                             <td className="p-3 text-right font-bold text-blue-900">{formatCurrency(lineItemsTotal * 1.16)}</td>
                             <td></td>
                           </tr>
