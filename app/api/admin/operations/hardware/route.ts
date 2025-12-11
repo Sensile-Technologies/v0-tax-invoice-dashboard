@@ -7,12 +7,12 @@ export async function GET() {
       SELECT 
         h.id, h.serial_number, h.hardware_type as device_type, h.branch_id, h.status,
         h.assigned_to, h.assigned_date as assigned_at, h.created_at,
-        b.bhf_nm as branch_name,
-        m.name as merchant_name,
+        b.name as branch_name,
+        v.name as merchant_name,
         u.username as assigned_user_name
       FROM hardware h
       LEFT JOIN branches b ON h.branch_id = b.id
-      LEFT JOIN merchants m ON b.vendor_id = m.id
+      LEFT JOIN vendors v ON b.vendor_id = v.id
       LEFT JOIN users u ON h.assigned_to = u.id
       ORDER BY h.created_at DESC
     `)
@@ -28,11 +28,13 @@ export async function POST(request: NextRequest) {
   try {
     const { serial_number, device_type, status, branch_id, assigned_to } = await request.json()
 
+    const assignedDate = branch_id ? new Date() : null
+
     const result = await query(`
       INSERT INTO hardware (serial_number, hardware_type, status, branch_id, assigned_to, assigned_date)
-      VALUES ($1, $2, $3, $4, $5, CASE WHEN $4 IS NOT NULL THEN NOW() ELSE NULL END)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
-    `, [serial_number, device_type, status || 'active', branch_id || null, assigned_to || null])
+    `, [serial_number, device_type, status || 'active', branch_id || null, assigned_to || null, assignedDate])
 
     return NextResponse.json(result[0])
   } catch (error) {

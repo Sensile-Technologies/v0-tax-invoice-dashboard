@@ -43,10 +43,10 @@ export async function PUT(request: NextRequest) {
 
     // Check if a branch exists with this company name (case-insensitive)
     const branchResult = await query(`
-      SELECT b.id, b.name, m.business_name as merchant_name
+      SELECT b.id, b.name, v.name as merchant_name
       FROM branches b
-      JOIN merchants m ON b.merchant_id = m.id
-      WHERE LOWER(b.name) = LOWER($1) OR LOWER(m.business_name) = LOWER($1)
+      JOIN vendors v ON b.vendor_id = v.id
+      WHERE LOWER(b.name) = LOWER($1) OR LOWER(v.name) = LOWER($1)
       LIMIT 1
     `, [companyName])
 

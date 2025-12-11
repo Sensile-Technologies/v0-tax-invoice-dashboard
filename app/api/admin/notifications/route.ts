@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const overdueRecurring = await query(`
       SELECT i.id, i.invoice_number, v.name as merchant_name, i.next_invoice_date, i.total_amount
       FROM invoices i
-      LEFT JOIN merchants v ON i.vendor_id = v.id
+      LEFT JOIN vendors v ON i.vendor_id = v.id
       WHERE i.is_recurring = true 
         AND i.next_invoice_date <= CURRENT_DATE
         AND i.status != 'cancelled'
