@@ -42,6 +42,13 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-11: Sales Management & Billing Enhancements
+  - Added Sales Management page with 5-stage lead pipeline (Contact → Negotiation → Demo → Contracting → Onboarding)
+  - Created sales team management with lead assignment and performance tracking
+  - Added Products/Services configuration tab in Billing page for managing billable items
+  - Changed invoice product selection from button grid to searchable dropdown for better UX
+  - New API routes: /api/admin/sales-people, /api/admin/leads, /api/admin/billing-products
+
 - 2024-12-10: Initial Replit environment setup
   - Configured Next.js for Replit proxy compatibility
   - Set up development workflow on port 5000
