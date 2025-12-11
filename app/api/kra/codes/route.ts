@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { query } from "@/lib/db/client"
 import { NextResponse } from "next/server"
 import { createApiLogger } from "@/lib/api-logger"
 
@@ -9,27 +9,24 @@ export async function POST(request: Request) {
   let kraEndpoint = ""
 
   try {
-    const supabase = await createClient()
-
     let backendUrl = request.headers.get("x-backend-url") || "http://20.224.40.56:8088"
     backendUrl = backendUrl.replace(/\/$/, "")
 
     console.log("[v0] Backend URL:", backendUrl)
 
-    const { data: branches } = await supabase
-      .from("branches")
-      .select("id, bhf_id, name")
-      .eq("name", "Thika Greens")
-      .limit(1)
-      .single()
+    const branches = await query(
+      "SELECT id, bhf_id, name FROM branches WHERE status = 'active' LIMIT 1"
+    )
 
-    if (!branches || !branches.bhf_id) {
-      throw new Error("Thika Greens branch not found. Please configure it first.")
+    if (!branches || branches.length === 0 || !branches[0].bhf_id) {
+      throw new Error("No active branch found. Please configure a branch first.")
     }
+
+    const branch = branches[0]
 
     kraPayload = {
       tin: "P052344628B",
-      bhfId: branches.bhf_id,
+      bhfId: branch.bhf_id,
       lastReqDt: "20180328000000",
     }
 
@@ -77,7 +74,6 @@ export async function POST(request: Request) {
 
     console.log("[v0] Parsed result keys:", Object.keys(result))
 
-    // Flatten the nested clsList structure from KRA API
     const flattenedCodes: any[] = []
     const clsList = result.data?.clsList || []
     
@@ -100,29 +96,27 @@ export async function POST(request: Request) {
 
     console.log("[v0] Flattened", flattenedCodes.length, "code list items")
 
-    // Save to local database
     if (flattenedCodes.length > 0) {
       console.log("[v0] Saving", flattenedCodes.length, "code list items to database")
 
       for (const item of flattenedCodes) {
-        await supabase.from("code_lists").upsert(
-          {
-            cd_cls: item.cdCls,
-            cd: item.cd,
-            cd_nm: item.cdNm,
-            cd_desc: item.cdDesc,
-            use_yn: item.useYn || "Y",
-            user_dfn_cd1: item.userDfnCd1,
-            user_dfn_cd2: item.userDfnCd2,
-            user_dfn_cd3: item.userDfnCd3,
-            last_req_dt: new Date(),
-          },
-          { onConflict: "cd_cls,cd" },
+        await query(
+          `INSERT INTO code_lists (cd_cls, cd, cd_nm, cd_desc, use_yn, user_dfn_cd1, user_dfn_cd2, user_dfn_cd3, last_req_dt)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+           ON CONFLICT (cd_cls, cd) DO UPDATE SET
+             cd_nm = EXCLUDED.cd_nm,
+             cd_desc = EXCLUDED.cd_desc,
+             use_yn = EXCLUDED.use_yn,
+             user_dfn_cd1 = EXCLUDED.user_dfn_cd1,
+             user_dfn_cd2 = EXCLUDED.user_dfn_cd2,
+             user_dfn_cd3 = EXCLUDED.user_dfn_cd3,
+             last_req_dt = NOW()`,
+          [item.cdCls, item.cd, item.cdNm, item.cdDesc, item.useYn || "Y", item.userDfnCd1, item.userDfnCd2, item.userDfnCd3]
         )
       }
     }
 
-    await logger.success(kraPayload, result, branches.id, kraEndpoint)
+    await logger.success(kraPayload, result, branch.id, kraEndpoint)
 
     const transformedData = flattenedCodes.map((item: any) => ({
       cd_cls: item.cdCls,
