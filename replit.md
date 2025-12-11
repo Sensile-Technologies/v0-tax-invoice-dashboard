@@ -42,12 +42,19 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-11: UI and Workflow Enhancements
+  - Changed admin top nav bar background to blue (bg-blue-600)
+  - Removed "Settings" text from nav, kept gear icon next to bell icon
+  - Added notifications for recurring invoices that are due
+  - Fixed Signup vs Onboarding workflow: Signup Requests show leads at 'onboarding' stage, Onboarding Requests show leads at 'signed_up' stage
+  - Enhanced Hardware add form with all fields (serial, type, status, assigned to)
+  - Added 3-dot menu actions (Edit, Reassign) on hardware table
+
 - 2024-12-11: Invoice & Operations Enhancements
   - Invoice form now captures "Billed To" contact information
   - Multi-branch selection for invoices using checkboxes
   - PDF export includes billed_to_contact in Bill To section
   - Hardware tab enhanced with table display and bulk assignment functionality
-  - Onboarding Requests now pulls leads at 'onboarding' stage from pipeline
   - Database: Added billed_to_contact column to invoices, created invoice_branches table
 
 - 2024-12-11: Operations Dashboard & Merchant Terminology

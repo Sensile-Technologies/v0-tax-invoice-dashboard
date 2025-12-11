@@ -122,7 +122,9 @@ return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, _
 
 __turbopack_context__.s([
     "GET",
-    ()=>GET
+    ()=>GET,
+    "PUT",
+    ()=>PUT
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/lib/db/index.ts [app-route] (ecmascript) <locals>");
@@ -141,20 +143,48 @@ async function GET() {
         l.id as lead_id,
         l.company_name,
         l.contact_name,
-        l.email,
-        l.phone,
-        l.status,
+        l.contact_email as email,
+        l.contact_phone as phone,
+        l.stage as status,
         l.created_at,
         sp.name as sales_person_name
       FROM leads l
       LEFT JOIN sales_people sp ON l.assigned_to = sp.id
-      WHERE l.status = 'onboarding'
+      WHERE l.stage = 'onboarding'
       ORDER BY l.created_at DESC
     `);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result);
     } catch (error) {
         console.error("Error fetching signup requests:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
+    }
+}
+async function PUT(request) {
+    try {
+        const { lead_id } = await request.json();
+        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      UPDATE leads 
+      SET stage = 'signed_up', updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `, [
+            lead_id
+        ]);
+        if (result.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Lead not found"
+            }, {
+                status: 404
+            });
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
+    } catch (error) {
+        console.error("Error updating signup:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Failed to mark as signed up"
+        }, {
+            status: 500
+        });
     }
 }
 __turbopack_async_result__();

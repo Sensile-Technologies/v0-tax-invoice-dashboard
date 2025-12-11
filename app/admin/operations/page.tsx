@@ -34,8 +34,14 @@ import {
 } from "@/components/ui/table"
 import { 
   Settings2, HardDrive, UserPlus, ClipboardList, Search, 
-  Plus, Building2, Server, Check, AlertCircle, ExternalLink
+  Plus, Building2, Server, Check, AlertCircle, ExternalLink, MoreHorizontal, Pencil
 } from "lucide-react"
+import {
+  DropdownMenu as ActionsMenu,
+  DropdownMenuContent as ActionsMenuContent,
+  DropdownMenuItem as ActionsMenuItem,
+  DropdownMenuTrigger as ActionsMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
@@ -46,6 +52,8 @@ interface Hardware {
   branch_id: string | null
   branch_name: string | null
   merchant_name: string | null
+  assigned_to: string | null
+  assigned_user_name: string | null
   status: string
   assigned_at: string | null
   created_at: string
@@ -67,7 +75,6 @@ interface OnboardingRequest {
 }
 
 interface SignupRequest {
-  id: string
   lead_id: string
   company_name: string
   contact_name: string
@@ -98,8 +105,16 @@ export default function OperationsPage() {
   const [bulkAssignBranch, setBulkAssignBranch] = useState("")
   const [newHardware, setNewHardware] = useState({
     serial_number: "",
-    device_type: "token"
+    device_type: "token",
+    status: "active",
+    branch_id: "",
+    assigned_to: ""
   })
+  const [editHardwareDialogOpen, setEditHardwareDialogOpen] = useState(false)
+  const [editHardware, setEditHardware] = useState<Hardware | null>(null)
+  const [editMerchant, setEditMerchant] = useState("")
+  const [addMerchant, setAddMerchant] = useState("")
+  const [addBranches, setAddBranches] = useState<any[]>([])
   const [configData, setConfigData] = useState({
     device_token: "",
     bhf_id: "",
@@ -157,17 +172,68 @@ export default function OperationsPage() {
       const response = await fetch("/api/admin/operations/hardware", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newHardware)
+        body: JSON.stringify({
+          serial_number: newHardware.serial_number,
+          device_type: newHardware.device_type,
+          status: newHardware.status,
+          branch_id: newHardware.branch_id || null,
+          assigned_to: newHardware.assigned_to || null
+        })
       })
 
       if (!response.ok) throw new Error("Failed to add hardware")
 
       toast.success("Hardware added successfully")
       setHardwareDialogOpen(false)
-      setNewHardware({ serial_number: "", device_type: "token" })
+      setNewHardware({ serial_number: "", device_type: "token", status: "active", branch_id: "", assigned_to: "" })
+      setAddMerchant("")
+      setAddBranches([])
       fetchData()
     } catch (error) {
       toast.error("Failed to add hardware")
+    }
+  }
+
+  const handleEditHardware = async () => {
+    if (!editHardware) return
+
+    try {
+      const response = await fetch("/api/admin/operations/hardware", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editHardware.id,
+          serial_number: editHardware.serial_number,
+          device_type: editHardware.device_type,
+          status: editHardware.status
+        })
+      })
+
+      if (!response.ok) throw new Error("Failed to update hardware")
+
+      toast.success("Hardware updated successfully")
+      setEditHardwareDialogOpen(false)
+      setEditHardware(null)
+      fetchData()
+    } catch (error) {
+      toast.error("Failed to update hardware")
+    }
+  }
+
+  const handleMarkSignedUp = async (leadId: string) => {
+    try {
+      const response = await fetch("/api/admin/operations/signups", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead_id: leadId })
+      })
+
+      if (!response.ok) throw new Error("Failed to mark as signed up")
+
+      toast.success("Lead marked as signed up and moved to onboarding")
+      fetchData()
+    } catch (error) {
+      toast.error("Failed to mark as signed up")
     }
   }
 
@@ -439,14 +505,14 @@ export default function OperationsPage() {
                     Add Hardware
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-w-lg">
                   <DialogHeader>
                     <DialogTitle>Add Hardware</DialogTitle>
                     <DialogDescription>Register a new hardware device</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label>Serial Number</Label>
+                      <Label>Serial Number *</Label>
                       <Input
                         value={newHardware.serial_number}
                         onChange={(e) => setNewHardware({ ...newHardware, serial_number: e.target.value })}
@@ -469,6 +535,62 @@ export default function OperationsPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label>Status</Label>
+                      <Select
+                        value={newHardware.status}
+                        onValueChange={(v) => setNewHardware({ ...newHardware, status: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Assign to Merchant (Optional)</Label>
+                      <Select
+                        value={addMerchant}
+                        onValueChange={(v) => {
+                          setAddMerchant(v)
+                          setNewHardware({ ...newHardware, branch_id: "" })
+                          fetch(`/api/admin/vendors/${v}/branches`)
+                            .then(res => res.json())
+                            .then(data => setAddBranches(Array.isArray(data) ? data : []))
+                            .catch(() => setAddBranches([]))
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select merchant" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {merchants.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {addMerchant && (
+                      <div className="space-y-2">
+                        <Label>Assign to Branch (Optional)</Label>
+                        <Select
+                          value={newHardware.branch_id}
+                          onValueChange={(v) => setNewHardware({ ...newHardware, branch_id: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select branch" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {addBranches.map((b) => (
+                              <SelectItem key={b.id} value={b.id}>{b.bhf_nm || b.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                     <Button onClick={handleAddHardware} className="w-full">
                       Add Hardware
                     </Button>
@@ -531,18 +653,33 @@ export default function OperationsPage() {
                       </TableCell>
                       <TableCell>{format(new Date(hw.created_at), "MMM d, yyyy")}</TableCell>
                       <TableCell className="text-right">
-                        {hw.status === 'available' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedHardware(hw)
-                              setAssignDialogOpen(true)
-                            }}
-                          >
-                            Assign
-                          </Button>
-                        )}
+                        <ActionsMenu>
+                          <ActionsMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </ActionsMenuTrigger>
+                          <ActionsMenuContent align="end">
+                            <ActionsMenuItem
+                              onClick={() => {
+                                setEditHardware(hw)
+                                setEditHardwareDialogOpen(true)
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Edit
+                            </ActionsMenuItem>
+                            <ActionsMenuItem
+                              onClick={() => {
+                                setSelectedHardware(hw)
+                                setAssignDialogOpen(true)
+                              }}
+                            >
+                              <Building2 className="h-4 w-4 mr-2" />
+                              {hw.branch_id ? 'Reassign' : 'Assign'}
+                            </ActionsMenuItem>
+                          </ActionsMenuContent>
+                        </ActionsMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -603,8 +740,8 @@ export default function OperationsPage() {
           {onboardingRequests.length === 0 && (
             <div className="text-center py-12">
               <ClipboardList className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500">No leads pending onboarding</p>
-              <p className="text-sm text-slate-400 mt-2">Leads at the "onboarding" stage in the pipeline will appear here</p>
+              <p className="text-slate-500">No leads pending onboarding configuration</p>
+              <p className="text-sm text-slate-400 mt-2">Leads that have signed up will appear here for configuration</p>
             </div>
           )}
         </TabsContent>
@@ -614,7 +751,7 @@ export default function OperationsPage() {
             <div className="space-y-4">
               <h2 className="text-lg font-semibold">Pending Signups (Onboarding Stage)</h2>
               {signupRequests.map((request) => (
-                <Card key={request.id}>
+                <Card key={request.lead_id}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
@@ -632,10 +769,16 @@ export default function OperationsPage() {
                           </div>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Contact
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Contact
+                        </Button>
+                        <Button size="sm" onClick={() => handleMarkSignedUp(request.lead_id)}>
+                          <Check className="h-4 w-4 mr-2" />
+                          Signed Up
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -786,6 +929,60 @@ export default function OperationsPage() {
               Save Configuration
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editHardwareDialogOpen} onOpenChange={setEditHardwareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Hardware</DialogTitle>
+            <DialogDescription>Update hardware device details</DialogDescription>
+          </DialogHeader>
+          {editHardware && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Serial Number</Label>
+                <Input
+                  value={editHardware.serial_number}
+                  onChange={(e) => setEditHardware({ ...editHardware, serial_number: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Device Type</Label>
+                <Select
+                  value={editHardware.device_type}
+                  onValueChange={(v) => setEditHardware({ ...editHardware, device_type: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="token">Hardware Token</SelectItem>
+                    <SelectItem value="printer">Fiscal Printer</SelectItem>
+                    <SelectItem value="terminal">POS Terminal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select
+                  value={editHardware.status}
+                  onValueChange={(v) => setEditHardware({ ...editHardware, status: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={handleEditHardware} className="w-full">
+                Save Changes
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

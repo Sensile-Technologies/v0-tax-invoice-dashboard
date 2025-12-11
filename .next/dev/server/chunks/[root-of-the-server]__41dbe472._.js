@@ -138,17 +138,25 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 async function GET() {
     try {
+        // Get leads at 'signed_up' stage - these are the leads that have signed up and need onboarding configuration
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       SELECT 
-        o.id, o.type, o.merchant_id, o.branch_id, o.status, o.created_at,
-        v.name as merchant_name,
-        b.bhf_nm as branch_name
-      FROM onboarding_requests o
-      LEFT JOIN vendors v ON o.merchant_id = v.id
-      LEFT JOIN branches b ON o.branch_id = b.id
-      ORDER BY 
-        CASE WHEN o.status = 'pending' THEN 0 ELSE 1 END,
-        o.created_at DESC
+        l.id,
+        'lead' as type,
+        NULL as merchant_id,
+        NULL as branch_id,
+        l.company_name as merchant_name,
+        NULL as branch_name,
+        l.stage as status,
+        l.contact_name,
+        l.contact_email,
+        l.contact_phone,
+        l.created_at,
+        sp.name as sales_person_name
+      FROM leads l
+      LEFT JOIN sales_people sp ON l.assigned_to = sp.id
+      WHERE l.stage = 'signed_up'
+      ORDER BY l.created_at DESC
     `);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result);
     } catch (error) {
@@ -158,28 +166,24 @@ async function GET() {
 }
 async function PUT(request) {
     try {
-        const { id, branch_id, device_token, bhf_id, server_address, server_port } = await request.json();
-        if (branch_id) {
-            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-        UPDATE branches 
-        SET device_token = $1, bhf_id = $2, server_address = $3, server_port = $4
-        WHERE id = $5
-      `, [
-                device_token,
-                bhf_id,
-                server_address,
-                server_port,
-                branch_id
-            ]);
-        }
+        const { id, device_token, bhf_id, server_address, server_port, notes } = await request.json();
+        // Mark the lead as onboarded (completed)
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      UPDATE onboarding_requests 
-      SET status = 'completed', updated_at = NOW()
+      UPDATE leads 
+      SET stage = 'onboarded', notes = COALESCE(notes, '') || $2, updated_at = NOW()
       WHERE id = $1
       RETURNING *
     `, [
-            id
+            id,
+            notes ? `\n\nOnboarding Configuration:\nDevice Token: ${device_token}\nBHF ID: ${bhf_id}\nServer: ${server_address}:${server_port}` : ''
         ]);
+        if (result.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Lead not found"
+            }, {
+                status: 404
+            });
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
     } catch (error) {
         console.error("Error updating onboarding request:", error);

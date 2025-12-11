@@ -117,15 +117,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/operations", label: "Operations", icon: Settings2, roles: ["admin"] },
     { href: "/admin/tickets", label: "Support Tickets", icon: Ticket, roles: ["admin"] },
     { href: "/admin/invoices", label: "Billing", icon: FileText, roles: ["admin"] },
-    { href: "/admin/settings", label: "Settings", icon: Settings, roles: ["admin"] },
-  ]
+      ]
 
   const navItems = allNavItems.filter(item => item.roles.includes(user?.role || ""))
   const unreadCount = notifications.filter(n => !n.is_read).length
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-slate-900 text-white shadow-lg">
+      <header className="bg-blue-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
@@ -140,7 +139,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:text-white hover:bg-blue-700 transition-colors"
                   >
                     <item.icon className="h-4 w-4" />
                     {item.label}
@@ -151,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white hover:bg-slate-800 relative">
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-blue-700 relative">
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-xs">
@@ -185,9 +184,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white hover:bg-blue-700"
+                onClick={() => router.push("/admin/settings")}
+                aria-label="Settings"
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="text-white hover:bg-slate-800">
+                  <Button variant="ghost" className="text-white hover:bg-blue-700">
                     <Users className="h-4 w-4 mr-2" />
                     {user?.username || user?.email}
                     {user?.role === "sales" && (

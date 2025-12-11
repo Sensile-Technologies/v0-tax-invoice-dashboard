@@ -6,6 +6,37 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("user_id")
 
+    // Check for recurring invoices that are due and create notifications if needed
+    const overdueRecurring = await query(`
+      SELECT i.id, i.invoice_number, v.name as merchant_name, i.next_invoice_date, i.total_amount
+      FROM invoices i
+      LEFT JOIN merchants v ON i.vendor_id = v.id
+      WHERE i.is_recurring = true 
+        AND i.next_invoice_date <= CURRENT_DATE
+        AND i.status != 'cancelled'
+    `)
+
+    // Create notifications for overdue recurring invoices if they don't exist
+    for (const invoice of overdueRecurring) {
+      const existingNotification = await query(`
+        SELECT id FROM notifications 
+        WHERE reference_id = $1 
+          AND type = 'recurring_invoice_due'
+          AND DATE(created_at) = CURRENT_DATE
+      `, [invoice.id])
+
+      if (existingNotification.length === 0) {
+        await query(`
+          INSERT INTO notifications (user_id, type, title, message, reference_id)
+          VALUES (NULL, 'recurring_invoice_due', $1, $2, $3)
+        `, [
+          `Recurring Invoice Due: ${invoice.invoice_number}`,
+          `Recurring invoice for ${invoice.merchant_name || 'Unknown'} is due. Amount: KES ${Number(invoice.total_amount || 0).toLocaleString()}`,
+          invoice.id
+        ])
+      }
+    }
+
     const result = await query(`
       SELECT * FROM notifications 
       WHERE user_id = $1 OR user_id IS NULL

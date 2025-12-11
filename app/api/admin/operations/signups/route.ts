@@ -25,3 +25,25 @@ export async function GET() {
     return NextResponse.json([])
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { lead_id } = await request.json()
+
+    const result = await query(`
+      UPDATE leads 
+      SET stage = 'signed_up', updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `, [lead_id])
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: "Lead not found" }, { status: 404 })
+    }
+
+    return NextResponse.json(result[0])
+  } catch (error) {
+    console.error("Error updating signup:", error)
+    return NextResponse.json({ error: "Failed to mark as signed up" }, { status: 500 })
+  }
+}

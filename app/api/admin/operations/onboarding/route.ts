@@ -3,7 +3,7 @@ import { query } from "@/lib/db"
 
 export async function GET() {
   try {
-    // Get leads at 'onboarding' stage - these are the leads that need onboarding configuration
+    // Get leads at 'signed_up' stage - these are the leads that have signed up and need onboarding configuration
     const result = await query(`
       SELECT 
         l.id,
@@ -20,7 +20,7 @@ export async function GET() {
         sp.name as sales_person_name
       FROM leads l
       LEFT JOIN sales_people sp ON l.assigned_to = sp.id
-      WHERE l.stage = 'onboarding'
+      WHERE l.stage = 'signed_up'
       ORDER BY l.created_at DESC
     `)
     
