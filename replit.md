@@ -43,7 +43,8 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 
 ## Recent Changes
 - 2024-12-11: UI and Workflow Enhancements
-  - Changed admin top nav bar background to blue (bg-blue-600)
+  - Changed admin top nav bar background to night sky blue (#0a1628)
+  - Updated logo to use Flow360 circular logo image (public/flow360-logo.png)
   - Removed "Settings" text from nav, kept gear icon next to bell icon
   - Added notifications for recurring invoices that are due
   - Fixed Signup vs Onboarding workflow: Signup Requests show leads at 'onboarding' stage, Onboarding Requests show leads at 'signed_up' stage

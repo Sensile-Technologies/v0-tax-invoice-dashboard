@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import { 
   LayoutDashboard, 
   Users, 
@@ -124,14 +125,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-blue-600 text-white shadow-lg">
+      <header className="bg-[#0a1628] text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
               <Link href="/admin" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">F</span>
-                </div>
+                <Image 
+                  src="/flow360-logo.png" 
+                  alt="Flow360 Logo" 
+                  width={32} 
+                  height={32}
+                  className="w-8 h-8"
+                />
                 <span className="font-bold text-lg">Flow360 Core</span>
               </Link>
               <nav className="hidden md:flex items-center gap-1">
@@ -139,7 +144,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:text-white hover:bg-blue-700 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-700 transition-colors"
                   >
                     <item.icon className="h-4 w-4" />
                     {item.label}
@@ -150,7 +155,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white hover:bg-blue-700 relative">
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-slate-700 relative">
                     <Bell className="h-5 w-5" />
                     {unreadCount > 0 && (
                       <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-xs">
@@ -187,7 +192,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-white hover:bg-blue-700"
+                className="text-white hover:bg-slate-700"
                 onClick={() => router.push("/admin/settings")}
                 aria-label="Settings"
               >
@@ -195,7 +200,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="text-white hover:bg-blue-700">
+                  <Button variant="ghost" className="text-white hover:bg-slate-700">
                     <Users className="h-4 w-4 mr-2" />
                     {user?.username || user?.email}
                     {user?.role === "sales" && (

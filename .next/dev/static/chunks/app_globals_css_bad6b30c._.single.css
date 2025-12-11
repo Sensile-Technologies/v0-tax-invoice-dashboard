@@ -3437,6 +3437,10 @@
     background-color: var(--my-color);
   }
 
+  .bg-\[\#0a1628\] {
+    background-color: #0a1628;
+  }
+
   .bg-\[\#0088cc\] {
     background-color: #08c;
   }
@@ -4850,10 +4854,6 @@
     .text-black\/70 {
       color: color-mix(in oklab, var(--color-black) 70%, transparent);
     }
-  }
-
-  .text-blue-100 {
-    color: var(--color-blue-100);
   }
 
   .text-blue-600 {
@@ -6373,6 +6373,12 @@
   @media (hover: hover) {
     .hover\:bg-slate-50:hover {
       background-color: var(--color-slate-50);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-slate-700:hover {
+      background-color: var(--color-slate-700);
     }
   }
 
