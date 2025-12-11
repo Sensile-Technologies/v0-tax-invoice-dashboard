@@ -64,6 +64,8 @@ interface OnboardingRequest {
   type: string
   merchant_id: string | null
   merchant_name: string
+  trading_name: string | null
+  kra_pin: string | null
   branch_id: string | null
   branch_name: string | null
   status: string
@@ -727,6 +729,16 @@ export default function OperationsPage() {
                           <span className="font-semibold">{request.merchant_name}</span>
                           <Badge className="bg-orange-100 text-orange-700">Pending Onboarding</Badge>
                         </div>
+                        {request.trading_name && (
+                          <div className="text-sm text-slate-600">
+                            Trading Name: {request.trading_name}
+                          </div>
+                        )}
+                        {request.kra_pin && (
+                          <div className="text-sm text-slate-600">
+                            KRA PIN: {request.kra_pin}
+                          </div>
+                        )}
                         <div className="text-sm text-slate-500">
                           {request.contact_name && `Contact: ${request.contact_name}`}
                           {request.contact_email && ` - ${request.contact_email}`}
@@ -901,11 +913,22 @@ export default function OperationsPage() {
           <DialogHeader>
             <DialogTitle>Configure Onboarding</DialogTitle>
             <DialogDescription>
-              Assign device token, BHF ID, and server settings for {selectedRequest?.merchant_name}
+              Configure device settings for {selectedRequest?.merchant_name}
               {selectedRequest?.branch_name && ` - ${selectedRequest.branch_name}`}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {(selectedRequest?.trading_name || selectedRequest?.kra_pin) && (
+              <div className="bg-slate-50 p-3 rounded-lg space-y-1">
+                <div className="text-sm font-medium text-slate-700">Business Details</div>
+                {selectedRequest?.trading_name && (
+                  <div className="text-sm text-slate-600">Trading Name: <span className="font-medium">{selectedRequest.trading_name}</span></div>
+                )}
+                {selectedRequest?.kra_pin && (
+                  <div className="text-sm text-slate-600">KRA PIN: <span className="font-medium">{selectedRequest.kra_pin}</span></div>
+                )}
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Device Token</Label>
               <Input

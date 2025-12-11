@@ -41,6 +41,8 @@ import { format } from "date-fns"
 interface Lead {
   id: string
   company_name: string
+  trading_name: string
+  kra_pin: string
   contact_name: string
   contact_email: string
   contact_phone: string
@@ -97,6 +99,8 @@ export default function SalesPage() {
 
   const [newLead, setNewLead] = useState({
     company_name: "",
+    trading_name: "",
+    kra_pin: "",
     contact_name: "",
     contact_email: "",
     contact_phone: "",
@@ -226,6 +230,8 @@ export default function SalesPage() {
   const resetLeadForm = () => {
     setNewLead({
       company_name: "",
+      trading_name: "",
+      kra_pin: "",
       contact_name: "",
       contact_email: "",
       contact_phone: "",
@@ -248,6 +254,8 @@ export default function SalesPage() {
     setEditingLead(lead)
     setNewLead({
       company_name: lead.company_name,
+      trading_name: lead.trading_name || "",
+      kra_pin: lead.kra_pin || "",
       contact_name: lead.contact_name || "",
       contact_email: lead.contact_email || "",
       contact_phone: lead.contact_phone || "",
@@ -406,6 +414,24 @@ export default function SalesPage() {
                         value={newLead.company_name}
                         onChange={(e) => setNewLead({ ...newLead, company_name: e.target.value })}
                         placeholder="Acme Corp"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Trading Name</Label>
+                      <Input
+                        value={newLead.trading_name}
+                        onChange={(e) => setNewLead({ ...newLead, trading_name: e.target.value })}
+                        placeholder="Acme Trading"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>KRA PIN</Label>
+                      <Input
+                        value={newLead.kra_pin}
+                        onChange={(e) => setNewLead({ ...newLead, kra_pin: e.target.value })}
+                        placeholder="A123456789X"
                       />
                     </div>
                     <div className="space-y-2">

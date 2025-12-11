@@ -1297,12 +1297,12 @@ function OperationsPage() {
                 className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
             }, void 0, false, {
                 fileName: "[project]/app/admin/operations/page.tsx",
-                lineNumber: 411,
+                lineNumber: 413,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/admin/operations/page.tsx",
-            lineNumber: 410,
+            lineNumber: 412,
             columnNumber: 7
         }, this);
     }
@@ -1318,7 +1318,7 @@ function OperationsPage() {
                             children: "Operations"
                         }, void 0, false, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 420,
+                            lineNumber: 422,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1326,18 +1326,18 @@ function OperationsPage() {
                             children: "Manage hardware, onboarding, and merchant signups"
                         }, void 0, false, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 421,
+                            lineNumber: 423,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/admin/operations/page.tsx",
-                    lineNumber: 419,
+                    lineNumber: 421,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/admin/operations/page.tsx",
-                lineNumber: 418,
+                lineNumber: 420,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -1353,14 +1353,14 @@ function OperationsPage() {
                                         className: "h-4 w-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 428,
+                                        lineNumber: 430,
                                         columnNumber: 13
                                     }, this),
                                     "Hardware"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 427,
+                                lineNumber: 429,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1370,7 +1370,7 @@ function OperationsPage() {
                                         className: "h-4 w-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 432,
+                                        lineNumber: 434,
                                         columnNumber: 13
                                     }, this),
                                     "Onboarding Requests",
@@ -1379,13 +1379,13 @@ function OperationsPage() {
                                         children: onboardingRequests.length
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 435,
+                                        lineNumber: 437,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 431,
+                                lineNumber: 433,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1395,7 +1395,7 @@ function OperationsPage() {
                                         className: "h-4 w-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 439,
+                                        lineNumber: 441,
                                         columnNumber: 13
                                     }, this),
                                     "Signup Requests",
@@ -1404,19 +1404,19 @@ function OperationsPage() {
                                         children: signupRequests.length
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 442,
+                                        lineNumber: 444,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 438,
+                                lineNumber: 440,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/admin/operations/page.tsx",
-                        lineNumber: 426,
+                        lineNumber: 428,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1433,7 +1433,7 @@ function OperationsPage() {
                                                 className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 450,
+                                                lineNumber: 452,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1443,13 +1443,13 @@ function OperationsPage() {
                                                 className: "pl-10"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 451,
+                                                lineNumber: 453,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 449,
+                                        lineNumber: 451,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1468,7 +1468,7 @@ function OperationsPage() {
                                                                     className: "h-4 w-4 mr-2"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 463,
+                                                                    lineNumber: 465,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 "Assign ",
@@ -1477,12 +1477,12 @@ function OperationsPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 462,
+                                                            lineNumber: 464,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 461,
+                                                        lineNumber: 463,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogContent"], {
@@ -1493,7 +1493,7 @@ function OperationsPage() {
                                                                         children: "Assign Hardware to Branch"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 469,
+                                                                        lineNumber: 471,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -1504,13 +1504,13 @@ function OperationsPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 470,
+                                                                        lineNumber: 472,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 468,
+                                                                lineNumber: 470,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1523,7 +1523,7 @@ function OperationsPage() {
                                                                                 children: "Merchant"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 474,
+                                                                                lineNumber: 476,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1539,12 +1539,12 @@ function OperationsPage() {
                                                                                             placeholder: "Select merchant"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 484,
+                                                                                            lineNumber: 486,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 483,
+                                                                                        lineNumber: 485,
                                                                                         columnNumber: 27
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1553,24 +1553,24 @@ function OperationsPage() {
                                                                                                 children: m.name
                                                                                             }, m.id, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 488,
+                                                                                                lineNumber: 490,
                                                                                                 columnNumber: 31
                                                                                             }, this))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 486,
+                                                                                        lineNumber: 488,
                                                                                         columnNumber: 27
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 475,
+                                                                                lineNumber: 477,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 473,
+                                                                        lineNumber: 475,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     bulkAssignMerchant && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1580,7 +1580,7 @@ function OperationsPage() {
                                                                                 children: "Branch"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 495,
+                                                                                lineNumber: 497,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1592,12 +1592,12 @@ function OperationsPage() {
                                                                                             placeholder: "Select branch"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 501,
+                                                                                            lineNumber: 503,
                                                                                             columnNumber: 31
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 500,
+                                                                                        lineNumber: 502,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1606,24 +1606,24 @@ function OperationsPage() {
                                                                                                 children: b.bhf_nm || b.name
                                                                                             }, b.id, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 505,
+                                                                                                lineNumber: 507,
                                                                                                 columnNumber: 33
                                                                                             }, this))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 503,
+                                                                                        lineNumber: 505,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 496,
+                                                                                lineNumber: 498,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 494,
+                                                                        lineNumber: 496,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1633,25 +1633,25 @@ function OperationsPage() {
                                                                         children: "Assign to Branch"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 511,
+                                                                        lineNumber: 513,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 472,
+                                                                lineNumber: 474,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 467,
+                                                        lineNumber: 469,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 460,
+                                                lineNumber: 462,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -1666,19 +1666,19 @@ function OperationsPage() {
                                                                     className: "h-4 w-4 mr-2"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 521,
+                                                                    lineNumber: 523,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 "Add Hardware"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 520,
+                                                            lineNumber: 522,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 519,
+                                                        lineNumber: 521,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogContent"], {
@@ -1690,20 +1690,20 @@ function OperationsPage() {
                                                                         children: "Add Hardware"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 527,
+                                                                        lineNumber: 529,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                                                         children: "Register a new hardware device"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 528,
+                                                                        lineNumber: 530,
                                                                         columnNumber: 21
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 526,
+                                                                lineNumber: 528,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1716,7 +1716,7 @@ function OperationsPage() {
                                                                                 children: "Serial Number *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 532,
+                                                                                lineNumber: 534,
                                                                                 columnNumber: 23
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1728,13 +1728,13 @@ function OperationsPage() {
                                                                                 placeholder: "SN-XXXX-XXXX"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 533,
+                                                                                lineNumber: 535,
                                                                                 columnNumber: 23
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 531,
+                                                                        lineNumber: 533,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1744,7 +1744,7 @@ function OperationsPage() {
                                                                                 children: "Device Type *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 540,
+                                                                                lineNumber: 542,
                                                                                 columnNumber: 23
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1757,12 +1757,12 @@ function OperationsPage() {
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 546,
+                                                                                            lineNumber: 548,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 545,
+                                                                                        lineNumber: 547,
                                                                                         columnNumber: 25
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1772,7 +1772,7 @@ function OperationsPage() {
                                                                                                 children: "Hardware Token"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 549,
+                                                                                                lineNumber: 551,
                                                                                                 columnNumber: 27
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1780,7 +1780,7 @@ function OperationsPage() {
                                                                                                 children: "Fiscal Printer"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 550,
+                                                                                                lineNumber: 552,
                                                                                                 columnNumber: 27
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1788,25 +1788,25 @@ function OperationsPage() {
                                                                                                 children: "POS Terminal"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 551,
+                                                                                                lineNumber: 553,
                                                                                                 columnNumber: 27
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 548,
+                                                                                        lineNumber: 550,
                                                                                         columnNumber: 25
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 541,
+                                                                                lineNumber: 543,
                                                                                 columnNumber: 23
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 539,
+                                                                        lineNumber: 541,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1816,7 +1816,7 @@ function OperationsPage() {
                                                                                 children: "Status"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 556,
+                                                                                lineNumber: 558,
                                                                                 columnNumber: 23
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1829,12 +1829,12 @@ function OperationsPage() {
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 562,
+                                                                                            lineNumber: 564,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 561,
+                                                                                        lineNumber: 563,
                                                                                         columnNumber: 25
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1844,7 +1844,7 @@ function OperationsPage() {
                                                                                                 children: "Active"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 565,
+                                                                                                lineNumber: 567,
                                                                                                 columnNumber: 27
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1852,25 +1852,25 @@ function OperationsPage() {
                                                                                                 children: "Inactive"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 566,
+                                                                                                lineNumber: 568,
                                                                                                 columnNumber: 27
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 564,
+                                                                                        lineNumber: 566,
                                                                                         columnNumber: 25
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 557,
+                                                                                lineNumber: 559,
                                                                                 columnNumber: 23
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 555,
+                                                                        lineNumber: 557,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1880,7 +1880,7 @@ function OperationsPage() {
                                                                                 children: "Merchant *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 571,
+                                                                                lineNumber: 573,
                                                                                 columnNumber: 23
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1899,12 +1899,12 @@ function OperationsPage() {
                                                                                             placeholder: "Select merchant"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 584,
+                                                                                            lineNumber: 586,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 583,
+                                                                                        lineNumber: 585,
                                                                                         columnNumber: 25
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1913,24 +1913,24 @@ function OperationsPage() {
                                                                                                 children: m.name
                                                                                             }, m.id, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 588,
+                                                                                                lineNumber: 590,
                                                                                                 columnNumber: 29
                                                                                             }, this))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 586,
+                                                                                        lineNumber: 588,
                                                                                         columnNumber: 25
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 572,
+                                                                                lineNumber: 574,
                                                                                 columnNumber: 23
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 570,
+                                                                        lineNumber: 572,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1940,7 +1940,7 @@ function OperationsPage() {
                                                                                 children: "Branch *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 594,
+                                                                                lineNumber: 596,
                                                                                 columnNumber: 23
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1956,12 +1956,12 @@ function OperationsPage() {
                                                                                             placeholder: addMerchant ? "Select branch" : "Select merchant first"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 601,
+                                                                                            lineNumber: 603,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 600,
+                                                                                        lineNumber: 602,
                                                                                         columnNumber: 25
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1970,24 +1970,24 @@ function OperationsPage() {
                                                                                                 children: b.name
                                                                                             }, b.id, false, {
                                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                                lineNumber: 605,
+                                                                                                lineNumber: 607,
                                                                                                 columnNumber: 29
                                                                                             }, this))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                        lineNumber: 603,
+                                                                                        lineNumber: 605,
                                                                                         columnNumber: 25
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 595,
+                                                                                lineNumber: 597,
                                                                                 columnNumber: 23
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 593,
+                                                                        lineNumber: 595,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1996,37 +1996,37 @@ function OperationsPage() {
                                                                         children: "Add Hardware"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 610,
+                                                                        lineNumber: 612,
                                                                         columnNumber: 21
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 530,
+                                                                lineNumber: 532,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 525,
+                                                        lineNumber: 527,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 518,
+                                                lineNumber: 520,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 458,
+                                        lineNumber: 460,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 448,
+                                lineNumber: 450,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2050,47 +2050,47 @@ function OperationsPage() {
                                                                 }
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 625,
+                                                                lineNumber: 627,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 624,
+                                                            lineNumber: 626,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                             children: "Serial Number"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 636,
+                                                            lineNumber: 638,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                             children: "Device Type"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 637,
+                                                            lineNumber: 639,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                             children: "Status"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 638,
+                                                            lineNumber: 640,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                             children: "Assigned To"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 639,
+                                                            lineNumber: 641,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                             children: "Date Added"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 640,
+                                                            lineNumber: 642,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2098,18 +2098,18 @@ function OperationsPage() {
                                                             children: "Actions"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 641,
+                                                            lineNumber: 643,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 623,
+                                                    lineNumber: 625,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 622,
+                                                lineNumber: 624,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -2121,12 +2121,12 @@ function OperationsPage() {
                                                                     onCheckedChange: ()=>toggleHardwareSelection(hw.id)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 649,
+                                                                    lineNumber: 651,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 647,
+                                                                lineNumber: 649,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2134,7 +2134,7 @@ function OperationsPage() {
                                                                 children: hw.serial_number
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 655,
+                                                                lineNumber: 657,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2142,7 +2142,7 @@ function OperationsPage() {
                                                                 children: hw.device_type
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 656,
+                                                                lineNumber: 658,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2151,12 +2151,12 @@ function OperationsPage() {
                                                                     children: hw.status
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 658,
+                                                                    lineNumber: 660,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 657,
+                                                                lineNumber: 659,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2167,7 +2167,7 @@ function OperationsPage() {
                                                                             children: hw.branch_name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                            lineNumber: 663,
+                                                                            lineNumber: 665,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         hw.merchant_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2175,32 +2175,32 @@ function OperationsPage() {
                                                                             children: hw.merchant_name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                            lineNumber: 664,
+                                                                            lineNumber: 666,
                                                                             columnNumber: 50
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 662,
+                                                                    lineNumber: 664,
                                                                     columnNumber: 27
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                     className: "text-slate-400",
                                                                     children: "-"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 667,
+                                                                    lineNumber: 669,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 660,
+                                                                lineNumber: 662,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(new Date(hw.created_at), "MMM d, yyyy")
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 670,
+                                                                lineNumber: 672,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2216,17 +2216,17 @@ function OperationsPage() {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                    lineNumber: 675,
+                                                                                    lineNumber: 677,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 674,
+                                                                                lineNumber: 676,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                            lineNumber: 673,
+                                                                            lineNumber: 675,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -2242,14 +2242,14 @@ function OperationsPage() {
                                                                                             className: "h-4 w-4 mr-2"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 685,
+                                                                                            lineNumber: 687,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         "Edit"
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                    lineNumber: 679,
+                                                                                    lineNumber: 681,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2262,58 +2262,58 @@ function OperationsPage() {
                                                                                             className: "h-4 w-4 mr-2"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                            lineNumber: 694,
+                                                                                            lineNumber: 696,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         hw.branch_id ? 'Reassign' : 'Assign'
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                    lineNumber: 688,
+                                                                                    lineNumber: 690,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                            lineNumber: 678,
+                                                                            lineNumber: 680,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 672,
+                                                                    lineNumber: 674,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 671,
+                                                                lineNumber: 673,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, hw.id, true, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 646,
+                                                        lineNumber: 648,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 644,
+                                                lineNumber: 646,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 621,
+                                        lineNumber: 623,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 620,
+                                    lineNumber: 622,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 619,
+                                lineNumber: 621,
                                 columnNumber: 11
                             }, this),
                             filteredHardware.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2323,7 +2323,7 @@ function OperationsPage() {
                                         className: "h-12 w-12 text-slate-300 mx-auto mb-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 709,
+                                        lineNumber: 711,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2331,19 +2331,19 @@ function OperationsPage() {
                                         children: "No hardware registered yet"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 710,
+                                        lineNumber: 712,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 708,
+                                lineNumber: 710,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/admin/operations/page.tsx",
-                        lineNumber: 447,
+                        lineNumber: 449,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2368,12 +2368,12 @@ function OperationsPage() {
                                                                     className: "h-5 w-5 text-orange-600"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                                    lineNumber: 723,
+                                                                    lineNumber: 725,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 722,
+                                                                lineNumber: 724,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2386,7 +2386,7 @@ function OperationsPage() {
                                                                                 children: request.merchant_name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 727,
+                                                                                lineNumber: 729,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -2394,14 +2394,36 @@ function OperationsPage() {
                                                                                 children: "Pending Onboarding"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 728,
+                                                                                lineNumber: 730,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 726,
+                                                                        lineNumber: 728,
                                                                         columnNumber: 25
+                                                                    }, this),
+                                                                    request.trading_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "text-sm text-slate-600",
+                                                                        children: [
+                                                                            "Trading Name: ",
+                                                                            request.trading_name
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/admin/operations/page.tsx",
+                                                                        lineNumber: 733,
+                                                                        columnNumber: 27
+                                                                    }, this),
+                                                                    request.kra_pin && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "text-sm text-slate-600",
+                                                                        children: [
+                                                                            "KRA PIN: ",
+                                                                            request.kra_pin
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/admin/operations/page.tsx",
+                                                                        lineNumber: 738,
+                                                                        columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                         className: "text-sm text-slate-500",
@@ -2412,7 +2434,7 @@ function OperationsPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 730,
+                                                                        lineNumber: 742,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2423,19 +2445,19 @@ function OperationsPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 735,
+                                                                        lineNumber: 747,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 725,
+                                                                lineNumber: 727,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 721,
+                                                        lineNumber: 723,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2448,35 +2470,35 @@ function OperationsPage() {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 747,
+                                                                lineNumber: 759,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Configure"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 741,
+                                                        lineNumber: 753,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 720,
+                                                lineNumber: 722,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 719,
+                                            lineNumber: 721,
                                             columnNumber: 17
                                         }, this)
                                     }, request.id, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 718,
+                                        lineNumber: 720,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 716,
+                                lineNumber: 718,
                                 columnNumber: 11
                             }, this),
                             onboardingRequests.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2486,7 +2508,7 @@ function OperationsPage() {
                                         className: "h-12 w-12 text-slate-300 mx-auto mb-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 758,
+                                        lineNumber: 770,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2494,7 +2516,7 @@ function OperationsPage() {
                                         children: "No leads pending onboarding configuration"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 759,
+                                        lineNumber: 771,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2502,19 +2524,19 @@ function OperationsPage() {
                                         children: "Leads that have signed up will appear here for configuration"
                                     }, void 0, false, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 760,
+                                        lineNumber: 772,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                lineNumber: 757,
+                                lineNumber: 769,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/admin/operations/page.tsx",
-                        lineNumber: 715,
+                        lineNumber: 717,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2531,7 +2553,7 @@ function OperationsPage() {
                                             children: "Pending Signups (Onboarding Stage)"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 768,
+                                            lineNumber: 780,
                                             columnNumber: 15
                                         }, this),
                                         signupRequests.map((request)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2549,12 +2571,12 @@ function OperationsPage() {
                                                                             className: "h-5 w-5 text-blue-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                                            lineNumber: 775,
+                                                                            lineNumber: 787,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 774,
+                                                                        lineNumber: 786,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2564,7 +2586,7 @@ function OperationsPage() {
                                                                                 children: request.company_name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 778,
+                                                                                lineNumber: 790,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2576,7 +2598,7 @@ function OperationsPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 779,
+                                                                                lineNumber: 791,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2587,19 +2609,19 @@ function OperationsPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 782,
+                                                                                lineNumber: 794,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 777,
+                                                                        lineNumber: 789,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 773,
+                                                                lineNumber: 785,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2613,14 +2635,14 @@ function OperationsPage() {
                                                                                 className: "h-4 w-4 mr-2"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 790,
+                                                                                lineNumber: 802,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             "Contact"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 789,
+                                                                        lineNumber: 801,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2631,36 +2653,36 @@ function OperationsPage() {
                                                                                 className: "h-4 w-4 mr-2"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 794,
+                                                                                lineNumber: 806,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             "Move to Onboarding"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 793,
+                                                                        lineNumber: 805,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 788,
+                                                                lineNumber: 800,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 772,
+                                                        lineNumber: 784,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 771,
+                                                    lineNumber: 783,
                                                     columnNumber: 19
                                                 }, this)
                                             }, request.lead_id, false, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 770,
+                                                lineNumber: 782,
                                                 columnNumber: 17
                                             }, this)),
                                         signupRequests.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2670,7 +2692,7 @@ function OperationsPage() {
                                                     className: "h-12 w-12 text-slate-300 mx-auto mb-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 805,
+                                                    lineNumber: 817,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2678,19 +2700,19 @@ function OperationsPage() {
                                                     children: "No pending signup requests"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 806,
+                                                    lineNumber: 818,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 804,
+                                            lineNumber: 816,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 767,
+                                    lineNumber: 779,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2702,20 +2724,20 @@ function OperationsPage() {
                                                         children: "Signup Instructions"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 814,
+                                                        lineNumber: 826,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                         children: "Guide for merchants on how to sign up"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 815,
+                                                        lineNumber: 827,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 813,
+                                                lineNumber: 825,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2731,7 +2753,7 @@ function OperationsPage() {
                                                                         children: "Step 1: Account Creation"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 821,
+                                                                        lineNumber: 833,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ol", {
@@ -2741,33 +2763,33 @@ function OperationsPage() {
                                                                                 children: "Go to the Flow360 portal"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 823,
+                                                                                lineNumber: 835,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                                                 children: 'Click on "Sign Up" or "Register"'
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 824,
+                                                                                lineNumber: 836,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                                                 children: "Fill in company details (Name, KRA PIN, Email, Phone)"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 825,
+                                                                                lineNumber: 837,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 822,
+                                                                        lineNumber: 834,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 820,
+                                                                lineNumber: 832,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2777,7 +2799,7 @@ function OperationsPage() {
                                                                         children: "Step 2: Branch Setup"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 829,
+                                                                        lineNumber: 841,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ol", {
@@ -2787,33 +2809,33 @@ function OperationsPage() {
                                                                                 children: "Log in to the dashboard"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 831,
+                                                                                lineNumber: 843,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                                                 children: 'Navigate to "Branches" section'
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 832,
+                                                                                lineNumber: 844,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                                                 children: "Add each fuel station location"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 833,
+                                                                                lineNumber: 845,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 830,
+                                                                        lineNumber: 842,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 828,
+                                                                lineNumber: 840,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2823,7 +2845,7 @@ function OperationsPage() {
                                                                         children: "Step 3: Operations Configuration"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 837,
+                                                                        lineNumber: 849,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ol", {
@@ -2833,33 +2855,33 @@ function OperationsPage() {
                                                                                 children: "Contact Operations team for Device Token, BHF ID"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 839,
+                                                                                lineNumber: 851,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                                                 children: "Receive Server Address and Port"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 840,
+                                                                                lineNumber: 852,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                                                 children: "Configuration done by Operations team"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 841,
+                                                                                lineNumber: 853,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 838,
+                                                                        lineNumber: 850,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 836,
+                                                                lineNumber: 848,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2869,7 +2891,7 @@ function OperationsPage() {
                                                                         children: "Support"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 845,
+                                                                        lineNumber: 857,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -2879,70 +2901,70 @@ function OperationsPage() {
                                                                                 children: "Email: support@flow360.co.ke"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 847,
+                                                                                lineNumber: 859,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                                                 children: "Phone: +254 700 000 000"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                                lineNumber: 848,
+                                                                                lineNumber: 860,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                                        lineNumber: 846,
+                                                                        lineNumber: 858,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                                lineNumber: 844,
+                                                                lineNumber: 856,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 819,
+                                                        lineNumber: 831,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 818,
+                                                    lineNumber: 830,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/admin/operations/page.tsx",
-                                                lineNumber: 817,
+                                                lineNumber: 829,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                        lineNumber: 812,
+                                        lineNumber: 824,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 811,
+                                    lineNumber: 823,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 766,
+                            lineNumber: 778,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/admin/operations/page.tsx",
-                        lineNumber: 765,
+                        lineNumber: 777,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/admin/operations/page.tsx",
-                lineNumber: 425,
+                lineNumber: 427,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -2956,7 +2978,7 @@ function OperationsPage() {
                                     children: "Assign Hardware"
                                 }, void 0, false, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 863,
+                                    lineNumber: 875,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -2967,13 +2989,13 @@ function OperationsPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 864,
+                                    lineNumber: 876,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 862,
+                            lineNumber: 874,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2986,7 +3008,7 @@ function OperationsPage() {
                                             children: "Merchant"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 870,
+                                            lineNumber: 882,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -2997,12 +3019,12 @@ function OperationsPage() {
                                                         placeholder: "Select merchant"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 873,
+                                                        lineNumber: 885,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 872,
+                                                    lineNumber: 884,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3011,24 +3033,24 @@ function OperationsPage() {
                                                             children: m.name
                                                         }, m.id, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 877,
+                                                            lineNumber: 889,
                                                             columnNumber: 21
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 875,
+                                                    lineNumber: 887,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 871,
+                                            lineNumber: 883,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 869,
+                                    lineNumber: 881,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3038,7 +3060,7 @@ function OperationsPage() {
                                             children: "Branch"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 883,
+                                            lineNumber: 895,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3049,12 +3071,12 @@ function OperationsPage() {
                                                         placeholder: "Select branch"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 886,
+                                                        lineNumber: 898,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 885,
+                                                    lineNumber: 897,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3063,41 +3085,41 @@ function OperationsPage() {
                                                             children: b.bhf_nm
                                                         }, b.id, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 890,
+                                                            lineNumber: 902,
                                                             columnNumber: 21
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 888,
+                                                    lineNumber: 900,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 884,
+                                            lineNumber: 896,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 882,
+                                    lineNumber: 894,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 868,
+                            lineNumber: 880,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/admin/operations/page.tsx",
-                    lineNumber: 861,
+                    lineNumber: 873,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/admin/operations/page.tsx",
-                lineNumber: 860,
+                lineNumber: 872,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3111,29 +3133,82 @@ function OperationsPage() {
                                     children: "Configure Onboarding"
                                 }, void 0, false, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 902,
+                                    lineNumber: 914,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: [
-                                        "Assign device token, BHF ID, and server settings for ",
+                                        "Configure device settings for ",
                                         selectedRequest?.merchant_name,
                                         selectedRequest?.branch_name && ` - ${selectedRequest.branch_name}`
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 903,
+                                    lineNumber: 915,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 901,
+                            lineNumber: 913,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "space-y-4 py-4",
                             children: [
+                                (selectedRequest?.trading_name || selectedRequest?.kra_pin) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "bg-slate-50 p-3 rounded-lg space-y-1",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "text-sm font-medium text-slate-700",
+                                            children: "Business Details"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/admin/operations/page.tsx",
+                                            lineNumber: 923,
+                                            columnNumber: 17
+                                        }, this),
+                                        selectedRequest?.trading_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "text-sm text-slate-600",
+                                            children: [
+                                                "Trading Name: ",
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: "font-medium",
+                                                    children: selectedRequest.trading_name
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/admin/operations/page.tsx",
+                                                    lineNumber: 925,
+                                                    columnNumber: 73
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/admin/operations/page.tsx",
+                                            lineNumber: 925,
+                                            columnNumber: 19
+                                        }, this),
+                                        selectedRequest?.kra_pin && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "text-sm text-slate-600",
+                                            children: [
+                                                "KRA PIN: ",
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: "font-medium",
+                                                    children: selectedRequest.kra_pin
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/admin/operations/page.tsx",
+                                                    lineNumber: 928,
+                                                    columnNumber: 68
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/admin/operations/page.tsx",
+                                            lineNumber: 928,
+                                            columnNumber: 19
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/app/admin/operations/page.tsx",
+                                    lineNumber: 922,
+                                    columnNumber: 15
+                                }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "space-y-2",
                                     children: [
@@ -3141,7 +3216,7 @@ function OperationsPage() {
                                             children: "Device Token"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 910,
+                                            lineNumber: 933,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3153,13 +3228,13 @@ function OperationsPage() {
                                             placeholder: "Enter device token"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 911,
+                                            lineNumber: 934,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 909,
+                                    lineNumber: 932,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3169,7 +3244,7 @@ function OperationsPage() {
                                             children: "BHF ID (Branch Fiscal ID)"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 918,
+                                            lineNumber: 941,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3181,13 +3256,13 @@ function OperationsPage() {
                                             placeholder: "e.g., 01"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 919,
+                                            lineNumber: 942,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 917,
+                                    lineNumber: 940,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3200,7 +3275,7 @@ function OperationsPage() {
                                                     children: "Server Address"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 927,
+                                                    lineNumber: 950,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3212,13 +3287,13 @@ function OperationsPage() {
                                                     placeholder: "api.kra.go.ke"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 928,
+                                                    lineNumber: 951,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 926,
+                                            lineNumber: 949,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3228,7 +3303,7 @@ function OperationsPage() {
                                                     children: "Server Port"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 935,
+                                                    lineNumber: 958,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3240,19 +3315,19 @@ function OperationsPage() {
                                                     placeholder: "8080"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 936,
+                                                    lineNumber: 959,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 934,
+                                            lineNumber: 957,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 925,
+                                    lineNumber: 948,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3263,31 +3338,31 @@ function OperationsPage() {
                                             className: "h-4 w-4 mr-2"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 944,
+                                            lineNumber: 967,
                                             columnNumber: 15
                                         }, this),
                                         "Save Configuration"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 943,
+                                    lineNumber: 966,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 908,
+                            lineNumber: 920,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/admin/operations/page.tsx",
-                    lineNumber: 900,
+                    lineNumber: 912,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/admin/operations/page.tsx",
-                lineNumber: 899,
+                lineNumber: 911,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3301,20 +3376,20 @@ function OperationsPage() {
                                     children: "Edit Hardware"
                                 }, void 0, false, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 954,
+                                    lineNumber: 977,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Update hardware device details"
                                 }, void 0, false, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 955,
+                                    lineNumber: 978,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 953,
+                            lineNumber: 976,
                             columnNumber: 11
                         }, this),
                         editHardware && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3327,7 +3402,7 @@ function OperationsPage() {
                                             children: "Serial Number"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 960,
+                                            lineNumber: 983,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3338,13 +3413,13 @@ function OperationsPage() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 961,
+                                            lineNumber: 984,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 959,
+                                    lineNumber: 982,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3354,7 +3429,7 @@ function OperationsPage() {
                                             children: "Device Type"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 967,
+                                            lineNumber: 990,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3367,12 +3442,12 @@ function OperationsPage() {
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 973,
+                                                        lineNumber: 996,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 972,
+                                                    lineNumber: 995,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3382,7 +3457,7 @@ function OperationsPage() {
                                                             children: "Hardware Token"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 976,
+                                                            lineNumber: 999,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3390,7 +3465,7 @@ function OperationsPage() {
                                                             children: "Fiscal Printer"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 977,
+                                                            lineNumber: 1000,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3398,25 +3473,25 @@ function OperationsPage() {
                                                             children: "POS Terminal"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 978,
+                                                            lineNumber: 1001,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 975,
+                                                    lineNumber: 998,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 968,
+                                            lineNumber: 991,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 966,
+                                    lineNumber: 989,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3426,7 +3501,7 @@ function OperationsPage() {
                                             children: "Status"
                                         }, void 0, false, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 983,
+                                            lineNumber: 1006,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3439,12 +3514,12 @@ function OperationsPage() {
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                         fileName: "[project]/app/admin/operations/page.tsx",
-                                                        lineNumber: 989,
+                                                        lineNumber: 1012,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 988,
+                                                    lineNumber: 1011,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3454,7 +3529,7 @@ function OperationsPage() {
                                                             children: "Active"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 992,
+                                                            lineNumber: 1015,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3462,25 +3537,25 @@ function OperationsPage() {
                                                             children: "Inactive"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                                            lineNumber: 993,
+                                                            lineNumber: 1016,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                                    lineNumber: 991,
+                                                    lineNumber: 1014,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/admin/operations/page.tsx",
-                                            lineNumber: 984,
+                                            lineNumber: 1007,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 982,
+                                    lineNumber: 1005,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3489,30 +3564,30 @@ function OperationsPage() {
                                     children: "Save Changes"
                                 }, void 0, false, {
                                     fileName: "[project]/app/admin/operations/page.tsx",
-                                    lineNumber: 997,
+                                    lineNumber: 1020,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/admin/operations/page.tsx",
-                            lineNumber: 958,
+                            lineNumber: 981,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/admin/operations/page.tsx",
-                    lineNumber: 952,
+                    lineNumber: 975,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/admin/operations/page.tsx",
-                lineNumber: 951,
+                lineNumber: 974,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/admin/operations/page.tsx",
-        lineNumber: 417,
+        lineNumber: 419,
         columnNumber: 5
     }, this);
 }

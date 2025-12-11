@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { 
-      company_name, 
+      company_name,
+      trading_name,
+      kra_pin,
       contact_name, 
       contact_email, 
       contact_phone, 
@@ -48,13 +50,13 @@ export async function POST(request: NextRequest) {
 
     const result = await query(`
       INSERT INTO leads (
-        company_name, contact_name, contact_email, contact_phone, 
+        company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone, 
         stage, assigned_to, notes, expected_value, expected_close_date, source
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `, [
-      company_name, contact_name, contact_email, contact_phone,
+      company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone,
       stage || 'contact', assigned_to || null, notes, expected_value, expected_close_date, source
     ])
 
@@ -70,7 +72,9 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { 
       id,
-      company_name, 
+      company_name,
+      trading_name,
+      kra_pin,
       contact_name, 
       contact_email, 
       contact_phone, 
@@ -84,13 +88,13 @@ export async function PUT(request: NextRequest) {
 
     const result = await query(`
       UPDATE leads 
-      SET company_name = $1, contact_name = $2, contact_email = $3, contact_phone = $4,
-          stage = $5, assigned_to = $6, notes = $7, expected_value = $8, 
-          expected_close_date = $9, source = $10, updated_at = NOW()
-      WHERE id = $11
+      SET company_name = $1, trading_name = $2, kra_pin = $3, contact_name = $4, 
+          contact_email = $5, contact_phone = $6, stage = $7, assigned_to = $8, 
+          notes = $9, expected_value = $10, expected_close_date = $11, source = $12, updated_at = NOW()
+      WHERE id = $13
       RETURNING *
     `, [
-      company_name, contact_name, contact_email, contact_phone,
+      company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone,
       stage, assigned_to || null, notes, expected_value, expected_close_date, source, id
     ])
 
