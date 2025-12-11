@@ -1,6 +1,4 @@
 {
-  "/api/branch/config/route": "app/api/branch/config/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
   "/page": "app/page.js"
 }

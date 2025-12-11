@@ -6419,6 +6419,12 @@
   }
 
   @media (hover: hover) {
+    .hover\:text-amber-800:hover {
+      color: var(--color-amber-800);
+    }
+  }
+
+  @media (hover: hover) {
     .hover\:text-blue-900:hover {
       color: var(--color-blue-900);
     }

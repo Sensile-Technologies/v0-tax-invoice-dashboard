@@ -27,7 +27,7 @@ import {
   Plus, Search, Building2, User, Mail, Phone, 
   Calendar, DollarSign, Users, TrendingUp,
   MessageSquare, Presentation, FileSignature, UserCheck,
-  ArrowRight, MoreVertical, Edit2, Trash2
+  ArrowRight, MoreVertical, Edit2, Archive
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -174,16 +174,16 @@ export default function SalesPage() {
     }
   }
 
-  const handleDeleteLead = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this lead?")) return
+  const handleArchiveLead = async (id: string) => {
+    if (!confirm("Are you sure you want to archive this lead? It will be hidden from the pipeline.")) return
 
     try {
-      const response = await fetch(`/api/admin/leads?id=${id}`, { method: "DELETE" })
-      if (!response.ok) throw new Error("Failed to delete lead")
-      toast.success("Lead deleted")
+      const response = await fetch(`/api/admin/leads?id=${id}&action=archive`, { method: "DELETE" })
+      if (!response.ok) throw new Error("Failed to archive lead")
+      toast.success("Lead archived successfully")
       fetchLeads()
     } catch (error) {
-      toast.error("Failed to delete lead")
+      toast.error("Failed to archive lead")
     }
   }
 
@@ -601,11 +601,11 @@ export default function SalesPage() {
                                   </DropdownMenuItem>
                                 ))}
                                 <DropdownMenuItem 
-                                  onClick={() => handleDeleteLead(lead.id)}
-                                  className="text-red-600"
+                                  onClick={() => handleArchiveLead(lead.id)}
+                                  className="text-amber-600"
                                 >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Delete
+                                  <Archive className="h-4 w-4 mr-2" />
+                                  Archive
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -718,10 +718,10 @@ export default function SalesPage() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          onClick={() => handleDeleteLead(lead.id)}
-                          className="text-red-600 hover:text-red-800"
+                          onClick={() => handleArchiveLead(lead.id)}
+                          className="text-amber-600 hover:text-amber-800"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Archive className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>

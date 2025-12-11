@@ -6,18 +6,34 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const stage = searchParams.get("stage")
 
+    const includeArchived = searchParams.get("include_archived") === "true"
+    
     let sql = `
       SELECT 
         l.*,
         sp.name as assigned_to_name
       FROM leads l
       LEFT JOIN sales_people sp ON l.assigned_to = sp.id
+      WHERE (l.is_archived = false OR l.is_archived IS NULL)
     `
     const params: any[] = []
+    let paramIndex = 1
+
+    if (includeArchived) {
+      sql = `
+        SELECT 
+          l.*,
+          sp.name as assigned_to_name
+        FROM leads l
+        LEFT JOIN sales_people sp ON l.assigned_to = sp.id
+        WHERE 1=1
+      `
+    }
 
     if (stage && stage !== "all") {
-      sql += ` WHERE l.stage = $1`
+      sql += ` AND l.stage = $${paramIndex}`
       params.push(stage)
+      paramIndex++
     }
 
     sql += ` ORDER BY l.created_at DESC`
@@ -109,11 +125,21 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")
+    const action = searchParams.get("action")
 
+    if (action === "archive") {
+      // Archive the lead instead of deleting
+      const result = await query(`
+        UPDATE leads SET is_archived = true, updated_at = NOW() WHERE id = $1 RETURNING *
+      `, [id])
+      return NextResponse.json({ success: true, archived: true, lead: result[0] })
+    }
+
+    // Hard delete (kept for backward compatibility but not used in UI)
     await query(`DELETE FROM leads WHERE id = $1`, [id])
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error("Error deleting lead:", error)
-    return NextResponse.json({ error: "Failed to delete lead" }, { status: 500 })
+    console.error("Error deleting/archiving lead:", error)
+    return NextResponse.json({ error: "Failed to process lead" }, { status: 500 })
   }
 }

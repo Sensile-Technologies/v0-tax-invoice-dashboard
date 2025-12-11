@@ -637,6 +637,20 @@ async function POST(request) {
                     item.userDfnCd2,
                     item.userDfnCd3
                 ]);
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO kra_codelists (bhf_id, cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, NOW())
+           ON CONFLICT (bhf_id, cd_cls, cd) DO UPDATE SET
+             cd_nm = EXCLUDED.cd_nm,
+             cd_desc = EXCLUDED.cd_desc,
+             use_yn = EXCLUDED.use_yn,
+             updated_at = NOW()`, [
+                    branch.bhf_id,
+                    item.cdCls,
+                    item.cd,
+                    item.cdNm,
+                    item.cdDesc,
+                    item.useYn || "Y"
+                ]);
             }
         }
         await logger.success(kraPayload, result, branch.id, kraEndpoint);
