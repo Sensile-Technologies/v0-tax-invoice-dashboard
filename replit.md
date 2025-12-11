@@ -48,6 +48,7 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
   - Removed "Settings" text from nav, kept gear icon next to bell icon
   - Added notifications for recurring invoices that are due
   - Fixed Signup vs Onboarding workflow: Signup Requests show leads at 'onboarding' stage, Onboarding Requests show leads at 'signed_up' stage
+  - "Move to Onboarding" button verifies a branch/merchant exists with the company name before allowing the move
   - Enhanced Hardware add form with all fields (serial, type, status, assigned to)
   - Added 3-dot menu actions (Edit, Reassign) on hardware table
 

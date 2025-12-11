@@ -1,9 +1,4 @@
 {
-  "/admin/page": "app/admin/page.js",
-  "/api/admin/dashboard/route": "app/api/admin/dashboard/route.js",
-  "/api/admin/notifications/route": "app/api/admin/notifications/route.js",
-  "/api/auth/signin/route": "app/api/auth/signin/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
   "/page": "app/page.js"
 }

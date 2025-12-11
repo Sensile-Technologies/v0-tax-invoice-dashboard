@@ -228,12 +228,21 @@ export default function OperationsPage() {
         body: JSON.stringify({ lead_id: leadId })
       })
 
-      if (!response.ok) throw new Error("Failed to mark as signed up")
+      const data = await response.json()
 
-      toast.success("Lead marked as signed up and moved to onboarding")
+      if (!response.ok) {
+        if (data.message) {
+          toast.error(data.message)
+        } else {
+          toast.error(data.error || "Failed to move to onboarding")
+        }
+        return
+      }
+
+      toast.success("Branch verified! Lead moved to Onboarding Requests")
       fetchData()
     } catch (error) {
-      toast.error("Failed to mark as signed up")
+      toast.error("Failed to move to onboarding")
     }
   }
 
@@ -776,7 +785,7 @@ export default function OperationsPage() {
                         </Button>
                         <Button size="sm" onClick={() => handleMarkSignedUp(request.lead_id)}>
                           <Check className="h-4 w-4 mr-2" />
-                          Signed Up
+                          Move to Onboarding
                         </Button>
                       </div>
                     </div>
