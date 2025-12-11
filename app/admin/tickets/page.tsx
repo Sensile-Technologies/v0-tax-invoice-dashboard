@@ -84,9 +84,10 @@ export default function TicketsPage() {
     try {
       const response = await fetch("/api/admin/vendors")
       const data = await response.json()
-      setVendors(data)
+      setVendors(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching vendors:", error)
+      setVendors([])
     }
   }
 
@@ -94,9 +95,10 @@ export default function TicketsPage() {
     try {
       const response = await fetch("/api/db/ticket_categories")
       const data = await response.json()
-      setCategories(data)
+      setCategories(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching categories:", error)
+      setCategories([])
     }
   }
 

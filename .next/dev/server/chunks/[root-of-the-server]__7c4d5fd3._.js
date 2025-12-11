@@ -95,12 +95,12 @@ async function POST(request) {
         try {
             let user;
             if (email) {
-                const result = await client.query("SELECT id, email, username, password_hash FROM users WHERE email = $1", [
+                const result = await client.query("SELECT u.id, u.email, u.username, u.password_hash, u.role, v.id as vendor_id, v.name as vendor_name FROM users u LEFT JOIN vendors v ON v.email = u.email WHERE u.email = $1", [
                     email
                 ]);
                 user = result.rows[0];
             } else {
-                const result = await client.query("SELECT id, email, username, password_hash FROM users WHERE username = $1", [
+                const result = await client.query("SELECT u.id, u.email, u.username, u.password_hash, u.role, v.id as vendor_id, v.name as vendor_name FROM users u LEFT JOIN vendors v ON v.email = u.email WHERE u.username = $1", [
                     username
                 ]);
                 user = result.rows[0];
@@ -140,7 +140,10 @@ async function POST(request) {
                 user: {
                     id: user.id,
                     email: user.email,
-                    username: user.username
+                    username: user.username,
+                    role: user.role || 'vendor',
+                    vendor_id: user.vendor_id,
+                    vendor_name: user.vendor_name
                 }
             });
         } finally{

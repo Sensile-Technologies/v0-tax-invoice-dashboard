@@ -1,4 +1,16 @@
 {
+  "/admin/invoices/page": "app/admin/invoices/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/settings/page": "app/admin/settings/page.js",
+  "/admin/tickets/page": "app/admin/tickets/page.js",
+  "/admin/vendors/page": "app/admin/vendors/page.js",
+  "/api/admin/dashboard/route": "app/api/admin/dashboard/route.js",
+  "/api/admin/invoices/route": "app/api/admin/invoices/route.js",
+  "/api/admin/tickets/route": "app/api/admin/tickets/route.js",
+  "/api/admin/vendors/route": "app/api/admin/vendors/route.js",
+  "/api/auth/signin/route": "app/api/auth/signin/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
+  "/api/db/[table]/route": "app/api/db/[table]/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
   "/page": "app/page.js"
 }
