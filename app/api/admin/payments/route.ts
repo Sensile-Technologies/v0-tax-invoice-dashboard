@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       JOIN vendors v ON i.vendor_id = v.id
       ORDER BY p.created_at DESC
     `)
-    return NextResponse.json(result.rows)
+    return NextResponse.json(result)
   } catch (error) {
     console.error("Error fetching payments:", error)
     return NextResponse.json({ error: "Failed to fetch payments" }, { status: 500 })
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       WHERE id = $2
     `, [amount, invoice_id])
 
-    return NextResponse.json(result.rows[0])
+    return NextResponse.json(result[0])
   } catch (error) {
     console.error("Error creating payment:", error)
     return NextResponse.json({ error: "Failed to create payment" }, { status: 500 })

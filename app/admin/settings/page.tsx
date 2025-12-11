@@ -6,9 +6,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Settings, Server, CreditCard, Bell, Shield } from "lucide-react"
+import { Settings, Server, CreditCard, Bell, Shield, Store, Building2 } from "lucide-react"
 import { toast } from "sonner"
+
+interface ConnectedBranch {
+  id: string
+  bhf_id: string
+  bhf_nm: string
+  vendor_name: string
+  vendor_id: string
+  status: string
+}
 
 export default function SettingsPage() {
   const [backendConfig, setBackendConfig] = useState({
@@ -25,6 +35,8 @@ export default function SettingsPage() {
     ticketAlerts: true,
     invoiceReminders: true
   })
+  const [connectedBranches, setConnectedBranches] = useState<ConnectedBranch[]>([])
+  const [loadingBranches, setLoadingBranches] = useState(true)
 
   useEffect(() => {
     const savedConfig = localStorage.getItem("backendConfig")
@@ -33,7 +45,21 @@ export default function SettingsPage() {
         setBackendConfig(JSON.parse(savedConfig))
       } catch (e) {}
     }
+    fetchConnectedBranches()
   }, [])
+
+  const fetchConnectedBranches = async () => {
+    try {
+      const response = await fetch("/api/admin/branches")
+      const data = await response.json()
+      setConnectedBranches(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error("Error fetching branches:", error)
+      setConnectedBranches([])
+    } finally {
+      setLoadingBranches(false)
+    }
+  }
 
   const handleSaveBackendConfig = () => {
     localStorage.setItem("backendConfig", JSON.stringify(backendConfig))
@@ -50,6 +76,13 @@ export default function SettingsPage() {
     toast.success("Notification settings saved")
   }
 
+  const vendorGroups = connectedBranches.reduce((groups: Record<string, ConnectedBranch[]>, branch) => {
+    const key = branch.vendor_name || "Unknown"
+    if (!groups[key]) groups[key] = []
+    groups[key].push(branch)
+    return groups
+  }, {})
+
   return (
     <div className="space-y-6">
       <div>
@@ -62,6 +95,10 @@ export default function SettingsPage() {
           <TabsTrigger value="server" className="gap-2">
             <Server className="h-4 w-4" />
             Server
+          </TabsTrigger>
+          <TabsTrigger value="branches" className="gap-2">
+            <Store className="h-4 w-4" />
+            Branches
           </TabsTrigger>
           <TabsTrigger value="billing" className="gap-2">
             <CreditCard className="h-4 w-4" />
@@ -107,6 +144,74 @@ export default function SettingsPage() {
               <div className="pt-4">
                 <Button onClick={handleSaveBackendConfig}>Save Configuration</Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="branches">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Connected Branches</span>
+                <Badge variant="outline" className="text-lg px-3 py-1">
+                  {connectedBranches.length} Total
+                </Badge>
+              </CardTitle>
+              <CardDescription>All branches connected to the platform with their BHF-IDs</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loadingBranches ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : connectedBranches.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <Store className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No branches connected yet</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {Object.entries(vendorGroups).map(([vendorName, branches]) => (
+                    <div key={vendorName} className="space-y-3">
+                      <div className="flex items-center gap-2 text-sm font-medium text-slate-700">
+                        <Building2 className="h-4 w-4" />
+                        {vendorName}
+                        <Badge variant="secondary" className="ml-2">
+                          {branches.length} branch{branches.length !== 1 ? 'es' : ''}
+                        </Badge>
+                      </div>
+                      <div className="grid gap-2 pl-6">
+                        {branches.map((branch) => (
+                          <div
+                            key={branch.id}
+                            className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-green-100 rounded flex items-center justify-center">
+                                <Store className="h-4 w-4 text-green-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium">{branch.bhf_nm}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge variant="outline" className="font-mono bg-white">
+                                BHF-ID: {branch.bhf_id}
+                              </Badge>
+                              <Badge 
+                                variant={branch.status === 'active' ? 'default' : 'secondary'}
+                                className={branch.status === 'active' ? 'bg-green-100 text-green-800' : ''}
+                              >
+                                {branch.status || 'active'}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
