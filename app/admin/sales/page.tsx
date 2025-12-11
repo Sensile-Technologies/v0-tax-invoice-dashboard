@@ -93,6 +93,7 @@ export default function SalesPage() {
   const [search, setSearch] = useState("")
   const [stageFilter, setStageFilter] = useState("all")
   const [leadDialogOpen, setLeadDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [salesPersonDialogOpen, setSalesPersonDialogOpen] = useState(false)
   const [editingLead, setEditingLead] = useState<Lead | null>(null)
   const [editingSalesPerson, setEditingSalesPerson] = useState<SalesPerson | null>(null)
@@ -100,7 +101,11 @@ export default function SalesPage() {
   const [leadForOnboarding, setLeadForOnboarding] = useState<Lead | null>(null)
   const [contractFile, setContractFile] = useState<File | null>(null)
   const [uploadingContract, setUploadingContract] = useState(false)
+  const [editStage, setEditStage] = useState("")
+  const [editContractFile, setEditContractFile] = useState<File | null>(null)
+  const [savingLead, setSavingLead] = useState(false)
   const contractInputRef = useRef<HTMLInputElement>(null)
+  const editContractInputRef = useRef<HTMLInputElement>(null)
 
   const [newLead, setNewLead] = useState({
     company_name: "",
@@ -295,6 +300,8 @@ export default function SalesPage() {
 
   const openEditLead = (lead: Lead) => {
     setEditingLead(lead)
+    setEditStage(lead.stage)
+    setEditContractFile(null)
     setNewLead({
       company_name: lead.company_name,
       trading_name: lead.trading_name || "",
@@ -309,9 +316,71 @@ export default function SalesPage() {
       expected_close_date: lead.expected_close_date || "",
       source: lead.source || ""
     })
-    setTimeout(() => {
-      setLeadDialogOpen(true)
-    }, 100)
+    setEditDialogOpen(true)
+  }
+
+  const handleSaveEditedLead = async () => {
+    if (!editingLead) return
+
+    const isChangingToOnboarding = editStage === "onboarding" && editingLead.stage !== "onboarding"
+    
+    if (isChangingToOnboarding && !editContractFile) {
+      toast.error("Contract upload is required when moving to Onboarding stage")
+      return
+    }
+
+    setSavingLead(true)
+    try {
+      let contractUrl = null
+
+      if (editContractFile) {
+        const formData = new FormData()
+        formData.append("file", editContractFile)
+        formData.append("lead_id", editingLead.id)
+        formData.append("company_name", newLead.company_name)
+
+        const uploadRes = await fetch("/api/admin/leads/upload-contract", {
+          method: "POST",
+          body: formData
+        })
+
+        if (!uploadRes.ok) {
+          throw new Error("Failed to upload contract")
+        }
+
+        const uploadData = await uploadRes.json()
+        contractUrl = uploadData.contract_url
+      }
+
+      const updateData: Record<string, unknown> = {
+        ...newLead,
+        stage: editStage,
+        expected_value: newLead.expected_value ? parseFloat(newLead.expected_value) : null
+      }
+
+      if (contractUrl) {
+        updateData.contract_url = contractUrl
+      }
+
+      const res = await fetch(`/api/admin/leads?id=${editingLead.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData)
+      })
+
+      if (!res.ok) throw new Error("Failed to update lead")
+
+      toast.success("Lead updated successfully")
+      setEditDialogOpen(false)
+      setEditingLead(null)
+      setEditContractFile(null)
+      resetLeadForm()
+      fetchLeads()
+    } catch (error) {
+      toast.error("Failed to update lead")
+    } finally {
+      setSavingLead(false)
+    }
   }
 
   const openEditSalesPerson = (person: SalesPerson) => {
@@ -599,62 +668,33 @@ export default function SalesPage() {
             </Dialog>
           </div>
 
-          <div className="grid grid-cols-5 gap-4 overflow-x-auto">
+          <div className="flex gap-4 overflow-x-auto pb-4">
             {STAGES.map((stage) => {
               const stageLeads = getLeadsByStage(stage.id)
               const StageIcon = stage.icon
               return (
-                <div key={stage.id} className="min-w-[280px]">
-                  <div className={`${stage.color} text-white px-4 py-2 rounded-t-lg flex items-center justify-between`}>
+                <div key={stage.id} className="flex-shrink-0 w-[240px]">
+                  <div className={`${stage.color} text-white px-3 py-2 rounded-t-lg flex items-center justify-between`}>
                     <div className="flex items-center gap-2">
                       <StageIcon className="h-4 w-4" />
-                      <span className="font-medium">{stage.label}</span>
+                      <span className="font-medium text-sm">{stage.label}</span>
                     </div>
-                    <Badge variant="secondary" className="bg-white/20 text-white">
+                    <Badge variant="secondary" className="bg-white/20 text-white text-xs">
                       {stageLeads.length}
                     </Badge>
                   </div>
                   <div className="bg-slate-100 p-2 rounded-b-lg min-h-[400px] space-y-2">
                     {stageLeads.map((lead) => (
-                      <Card key={lead.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                      <Card 
+                        key={lead.id} 
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => openEditLead(lead)}
+                      >
                         <CardContent className="p-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-medium text-sm">{lead.company_name}</h4>
-                              {lead.contact_name && (
-                                <p className="text-xs text-slate-500">{lead.contact_name}</p>
-                              )}
-                            </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                  <MoreVertical className="h-3 w-3" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => openEditLead(lead)}>
-                                  <Edit2 className="h-4 w-4 mr-2" />
-                                  Edit
-                                </DropdownMenuItem>
-                                {STAGES.filter(s => s.id !== lead.stage).map((s) => (
-                                  <DropdownMenuItem 
-                                    key={s.id} 
-                                    onClick={() => handleUpdateStage(lead, s.id)}
-                                  >
-                                    <ArrowRight className="h-4 w-4 mr-2" />
-                                    Move to {s.label}
-                                  </DropdownMenuItem>
-                                ))}
-                                <DropdownMenuItem 
-                                  onClick={() => handleArchiveLead(lead.id)}
-                                  className="text-amber-600"
-                                >
-                                  <Archive className="h-4 w-4 mr-2" />
-                                  Archive
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          <h4 className="font-medium text-sm truncate">{lead.company_name}</h4>
+                          {lead.contact_name && (
+                            <p className="text-xs text-slate-500 truncate">{lead.contact_name}</p>
+                          )}
                           {Number(lead.expected_value) > 0 && (
                             <p className="text-xs text-green-600 font-medium mt-2">
                               {formatCurrency(Number(lead.expected_value))}
@@ -663,7 +703,7 @@ export default function SalesPage() {
                           {lead.assigned_to_name && (
                             <div className="flex items-center gap-1 mt-2">
                               <User className="h-3 w-3 text-slate-400" />
-                              <span className="text-xs text-slate-500">{lead.assigned_to_name}</span>
+                              <span className="text-xs text-slate-500 truncate">{lead.assigned_to_name}</span>
                             </div>
                           )}
                         </CardContent>
@@ -972,6 +1012,220 @@ export default function SalesPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editDialogOpen} onOpenChange={(open) => {
+        setEditDialogOpen(open)
+        if (!open) {
+          setEditingLead(null)
+          setEditContractFile(null)
+          resetLeadForm()
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Lead</DialogTitle>
+            <DialogDescription>Update lead information and stage</DialogDescription>
+          </DialogHeader>
+          {editingLead && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Company Name *</Label>
+                  <Input
+                    value={newLead.company_name}
+                    onChange={(e) => setNewLead({ ...newLead, company_name: e.target.value })}
+                    placeholder="Acme Corp"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Trading Name</Label>
+                  <Input
+                    value={newLead.trading_name}
+                    onChange={(e) => setNewLead({ ...newLead, trading_name: e.target.value })}
+                    placeholder="Acme Trading"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>KRA PIN</Label>
+                  <Input
+                    value={newLead.kra_pin}
+                    onChange={(e) => setNewLead({ ...newLead, kra_pin: e.target.value })}
+                    placeholder="A123456789X"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Contact Name</Label>
+                  <Input
+                    value={newLead.contact_name}
+                    onChange={(e) => setNewLead({ ...newLead, contact_name: e.target.value })}
+                    placeholder="John Doe"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    value={newLead.contact_email}
+                    onChange={(e) => setNewLead({ ...newLead, contact_email: e.target.value })}
+                    placeholder="john@acme.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input
+                    value={newLead.contact_phone}
+                    onChange={(e) => setNewLead({ ...newLead, contact_phone: e.target.value })}
+                    placeholder="+254 7XX XXX XXX"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Stage</Label>
+                  <Select
+                    value={editStage}
+                    onValueChange={(v) => setEditStage(v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STAGES.map((stage) => (
+                        <SelectItem key={stage.id} value={stage.id}>
+                          {stage.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Assigned To</Label>
+                  <Select
+                    value={newLead.assigned_to}
+                    onValueChange={(v) => setNewLead({ ...newLead, assigned_to: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select sales person" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {salesPeople.filter(s => s.is_active).map((person) => (
+                        <SelectItem key={person.id} value={person.id}>
+                          {person.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Expected Value (KES)</Label>
+                  <Input
+                    type="number"
+                    value={newLead.expected_value}
+                    onChange={(e) => setNewLead({ ...newLead, expected_value: e.target.value })}
+                    placeholder="100000"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Source</Label>
+                  <Select
+                    value={newLead.source}
+                    onValueChange={(v) => setNewLead({ ...newLead, source: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SOURCES.map((source) => (
+                        <SelectItem key={source} value={source}>
+                          {source}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Notes</Label>
+                <Textarea
+                  value={newLead.notes}
+                  onChange={(e) => setNewLead({ ...newLead, notes: e.target.value })}
+                  placeholder="Additional notes about this lead..."
+                  rows={3}
+                />
+              </div>
+
+              {editStage === "onboarding" && editingLead.stage !== "onboarding" && (
+                <div className="space-y-2 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                  <Label className="text-amber-800">Contract Document Required *</Label>
+                  <p className="text-sm text-amber-600 mb-2">
+                    A signed contract is required when moving to Onboarding stage.
+                  </p>
+                  <div 
+                    className="border-2 border-dashed border-amber-300 rounded-lg p-4 text-center cursor-pointer hover:border-amber-500 transition-colors bg-white"
+                    onClick={() => editContractInputRef.current?.click()}
+                  >
+                    <input
+                      type="file"
+                      ref={editContractInputRef}
+                      className="hidden"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) setEditContractFile(file)
+                      }}
+                    />
+                    {editContractFile ? (
+                      <div className="flex items-center justify-center gap-2 text-green-600">
+                        <FileText className="h-6 w-6" />
+                        <div className="text-left">
+                          <p className="font-medium text-sm">{editContractFile.name}</p>
+                          <p className="text-xs text-slate-500">
+                            {(editContractFile.size / 1024).toFixed(1)} KB
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-amber-600">
+                        <Upload className="h-6 w-6 mx-auto mb-1" />
+                        <p className="font-medium text-sm">Click to upload contract</p>
+                        <p className="text-xs">PDF, DOC, or DOCX</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => {
+                    setEditDialogOpen(false)
+                    setEditingLead(null)
+                    setEditContractFile(null)
+                    resetLeadForm()
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={handleSaveEditedLead}
+                  disabled={savingLead}
+                >
+                  {savingLead ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
