@@ -30,27 +30,68 @@ export default function SecuritySettingsPage() {
   const [isTestingConnection, setIsTestingConnection] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "success" | "error">("idle")
   const [connectionDetails, setConnectionDetails] = useState<any>(null)
+  const [currentBranchId, setCurrentBranchId] = useState<string | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
-    fetchBranchConfig()
-  }, [])
-
-  const fetchBranchConfig = async () => {
-    try {
-      const response = await fetch("/api/branch/config")
-      if (response.ok) {
-        const data = await response.json()
-        setBranchConfig(data)
-        setBackendUrl(data.server_address || "")
-        setBackendPort(data.server_port || "")
+    const initBranchConfig = async () => {
+      let branchId: string | null = null
+      
+      // First try to get from localStorage
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (storedBranch) {
+        try {
+          const branch = JSON.parse(storedBranch)
+          if (branch && branch.id) {
+            branchId = branch.id
+          }
+        } catch (e) {
+          console.error("Error parsing stored branch:", e)
+        }
       }
-    } catch (error) {
-      console.error("Error fetching branch config:", error)
-    } finally {
+      
+      // If no stored branch, fetch user's branches from API
+      if (!branchId) {
+        try {
+          const storedUser = localStorage.getItem("user")
+          if (storedUser) {
+            const user = JSON.parse(storedUser)
+            if (user && user.id) {
+              const response = await fetch(`/api/branches/list?user_id=${user.id}`)
+              if (response.ok) {
+                const branches = await response.json()
+                if (branches.length > 0) {
+                  branchId = branches[0].id
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching branches:", error)
+        }
+      }
+      
+      // Fetch branch config if we have a branch ID
+      if (branchId) {
+        setCurrentBranchId(branchId)
+        try {
+          const response = await fetch(`/api/branch/config?branch_id=${branchId}`)
+          if (response.ok) {
+            const data = await response.json()
+            setBranchConfig(data)
+            setBackendUrl(data.server_address || "")
+            setBackendPort(data.server_port || "")
+          }
+        } catch (error) {
+          console.error("Error fetching branch config:", error)
+        }
+      }
+      
       setIsLoading(false)
     }
-  }
+    
+    initBranchConfig()
+  }, [])
 
   const handleSaveConfiguration = async () => {
     if (!backendUrl) {
@@ -81,7 +122,10 @@ export default function SecuritySettingsPage() {
     }
 
     try {
-      const response = await fetch("/api/branch/config", {
+      const url = currentBranchId 
+        ? `/api/branch/config?branch_id=${currentBranchId}` 
+        : "/api/branch/config"
+      const response = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

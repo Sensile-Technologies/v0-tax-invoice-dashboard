@@ -138,10 +138,12 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 ;
-async function GET() {
+async function GET(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const branchIdParam = searchParams.get("branch_id");
         const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
-        const branchId = cookieStore.get("branch_id")?.value;
+        const branchId = branchIdParam || cookieStore.get("branch_id")?.value;
         if (!branchId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "No branch selected"
@@ -177,8 +179,10 @@ async function GET() {
 }
 async function PUT(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const branchIdParam = searchParams.get("branch_id");
         const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
-        const branchId = cookieStore.get("branch_id")?.value;
+        const branchId = branchIdParam || cookieStore.get("branch_id")?.value;
         if (!branchId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "No branch selected"

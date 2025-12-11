@@ -172,16 +172,18 @@ async function GET() {
 async function PUT(request) {
     try {
         const { id, device_token, bhf_id, server_address, server_port } = await request.json();
-        // Update the branch with onboarding configuration (device token, bhf_id, etc.)
+        // Update the branch with onboarding configuration (device token, bhf_id, server address/port)
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       UPDATE branches 
-      SET device_token = $2, bhf_id = $3, updated_at = NOW()
+      SET device_token = $2, bhf_id = $3, server_address = $4, server_port = $5, updated_at = NOW()
       WHERE id = $1
       RETURNING *
     `, [
             id,
             device_token,
-            bhf_id
+            bhf_id,
+            server_address || null,
+            server_port || null
         ]);
         if (result.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

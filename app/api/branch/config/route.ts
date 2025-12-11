@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
 import { cookies } from "next/headers"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const branchIdParam = searchParams.get("branch_id")
+    
     const cookieStore = await cookies()
-    const branchId = cookieStore.get("branch_id")?.value
+    const branchId = branchIdParam || cookieStore.get("branch_id")?.value
 
     if (!branchId) {
       return NextResponse.json({ error: "No branch selected" }, { status: 400 })
@@ -32,8 +35,11 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const branchIdParam = searchParams.get("branch_id")
+    
     const cookieStore = await cookies()
-    const branchId = cookieStore.get("branch_id")?.value
+    const branchId = branchIdParam || cookieStore.get("branch_id")?.value
 
     if (!branchId) {
       return NextResponse.json({ error: "No branch selected" }, { status: 400 })

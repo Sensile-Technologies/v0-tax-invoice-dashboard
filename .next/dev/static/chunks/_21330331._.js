@@ -2592,15 +2592,51 @@ function SecuritySettingsPage() {
     const [isTestingConnection, setIsTestingConnection] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [connectionStatus, setConnectionStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("idle");
     const [connectionDetails, setConnectionDetails] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [currentBranchId, setCurrentBranchId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const { toast } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"])();
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "SecuritySettingsPage.useEffect": ()=>{
-            fetchBranchConfig();
+            const initBranchConfig = {
+                "SecuritySettingsPage.useEffect.initBranchConfig": async ()=>{
+                    const storedBranch = localStorage.getItem("selectedBranch");
+                    if (storedBranch) {
+                        try {
+                            const branch = JSON.parse(storedBranch);
+                            setCurrentBranchId(branch.id);
+                            fetchBranchConfig(branch.id);
+                            return;
+                        } catch  {
+                        // Fall through to fetch from API
+                        }
+                    }
+                    // If no stored branch, fetch user's branches from API
+                    try {
+                        const storedUser = localStorage.getItem("user");
+                        if (storedUser) {
+                            const user = JSON.parse(storedUser);
+                            const response = await fetch(`/api/branches/list?user_id=${user.id}`);
+                            if (response.ok) {
+                                const branches = await response.json();
+                                if (branches.length > 0) {
+                                    setCurrentBranchId(branches[0].id);
+                                    fetchBranchConfig(branches[0].id);
+                                    return;
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error fetching branches:", error);
+                    }
+                    setIsLoading(false);
+                }
+            }["SecuritySettingsPage.useEffect.initBranchConfig"];
+            initBranchConfig();
         }
     }["SecuritySettingsPage.useEffect"], []);
-    const fetchBranchConfig = async ()=>{
+    const fetchBranchConfig = async (branchId)=>{
         try {
-            const response = await fetch("/api/branch/config");
+            const url = branchId ? `/api/branch/config?branch_id=${branchId}` : "/api/branch/config";
+            const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
                 setBranchConfig(data);
@@ -2640,7 +2676,8 @@ function SecuritySettingsPage() {
             return;
         }
         try {
-            const response = await fetch("/api/branch/config", {
+            const url = currentBranchId ? `/api/branch/config?branch_id=${currentBranchId}` : "/api/branch/config";
+            const response = await fetch(url, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -2741,7 +2778,7 @@ function SecuritySettingsPage() {
                 onToggle: ()=>setSidebarCollapsed(!sidebarCollapsed)
             }, void 0, false, {
                 fileName: "[project]/app/security-settings/page.tsx",
-                lineNumber: 187,
+                lineNumber: 227,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2749,7 +2786,7 @@ function SecuritySettingsPage() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$dashboard$2d$header$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DashboardHeader"], {}, void 0, false, {
                         fileName: "[project]/app/security-settings/page.tsx",
-                        lineNumber: 189,
+                        lineNumber: 229,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2767,14 +2804,14 @@ function SecuritySettingsPage() {
                                                     className: "h-8 w-8"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 194,
+                                                    lineNumber: 234,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Security Settings"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 193,
+                                            lineNumber: 233,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2782,13 +2819,13 @@ function SecuritySettingsPage() {
                                             children: "Configure backend connection and security preferences"
                                         }, void 0, false, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 197,
+                                            lineNumber: 237,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/security-settings/page.tsx",
-                                    lineNumber: 192,
+                                    lineNumber: 232,
                                     columnNumber: 13
                                 }, this),
                                 branchConfig && (branchConfig.bhf_id || branchConfig.device_token) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2803,14 +2840,14 @@ function SecuritySettingsPage() {
                                                             className: "h-5 w-5"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 204,
+                                                            lineNumber: 244,
                                                             columnNumber: 21
                                                         }, this),
                                                         "Branch Credentials"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 203,
+                                                    lineNumber: 243,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -2818,13 +2855,13 @@ function SecuritySettingsPage() {
                                                     children: "KRA TIMS credentials assigned to this branch"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 207,
+                                                    lineNumber: 247,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 202,
+                                            lineNumber: 242,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2841,7 +2878,7 @@ function SecuritySettingsPage() {
                                                                     children: "BHF ID (Branch Fiscal ID)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                    lineNumber: 214,
+                                                                    lineNumber: 254,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2851,7 +2888,7 @@ function SecuritySettingsPage() {
                                                                             className: "h-4 w-4 text-blue-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                            lineNumber: 216,
+                                                                            lineNumber: 256,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2859,19 +2896,19 @@ function SecuritySettingsPage() {
                                                                             children: branchConfig.bhf_id || "Not assigned"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                            lineNumber: 217,
+                                                                            lineNumber: 257,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                    lineNumber: 215,
+                                                                    lineNumber: 255,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 213,
+                                                            lineNumber: 253,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2882,7 +2919,7 @@ function SecuritySettingsPage() {
                                                                     children: "Device Token"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                    lineNumber: 221,
+                                                                    lineNumber: 261,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2892,7 +2929,7 @@ function SecuritySettingsPage() {
                                                                             className: "h-4 w-4 text-blue-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                            lineNumber: 223,
+                                                                            lineNumber: 263,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2900,25 +2937,25 @@ function SecuritySettingsPage() {
                                                                             children: branchConfig.device_token ? `${branchConfig.device_token.substring(0, 8)}...${branchConfig.device_token.substring(branchConfig.device_token.length - 4)}` : "Not assigned"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                            lineNumber: 224,
+                                                                            lineNumber: 264,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                    lineNumber: 222,
+                                                                    lineNumber: 262,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 220,
+                                                            lineNumber: 260,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 212,
+                                                    lineNumber: 252,
                                                     columnNumber: 19
                                                 }, this),
                                                 branchConfig.trading_name && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2929,7 +2966,7 @@ function SecuritySettingsPage() {
                                                             children: "Trading Name:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 234,
+                                                            lineNumber: 274,
                                                             columnNumber: 23
                                                         }, this),
                                                         " ",
@@ -2937,7 +2974,7 @@ function SecuritySettingsPage() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 233,
+                                                    lineNumber: 273,
                                                     columnNumber: 21
                                                 }, this),
                                                 branchConfig.kra_pin && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2948,7 +2985,7 @@ function SecuritySettingsPage() {
                                                             children: "KRA PIN:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 239,
+                                                            lineNumber: 279,
                                                             columnNumber: 23
                                                         }, this),
                                                         " ",
@@ -2956,19 +2993,19 @@ function SecuritySettingsPage() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 238,
+                                                    lineNumber: 278,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 211,
+                                            lineNumber: 251,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/security-settings/page.tsx",
-                                    lineNumber: 201,
+                                    lineNumber: 241,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2982,7 +3019,7 @@ function SecuritySettingsPage() {
                                                     className: "h-5 w-5 text-amber-600 mt-0.5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 249,
+                                                    lineNumber: 289,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2992,7 +3029,7 @@ function SecuritySettingsPage() {
                                                             children: "HTTPS Required for KRA TIMS"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 251,
+                                                            lineNumber: 291,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3005,14 +3042,14 @@ function SecuritySettingsPage() {
                                                                     children: "https://"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                    lineNumber: 254,
+                                                                    lineNumber: 294,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 " protocol."
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 252,
+                                                            lineNumber: 292,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3024,35 +3061,35 @@ function SecuritySettingsPage() {
                                                                     children: "https://20.224.40.56:8088"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                    lineNumber: 257,
+                                                                    lineNumber: 297,
                                                                     columnNumber: 32
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 256,
+                                                            lineNumber: 296,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 250,
+                                                    lineNumber: 290,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 248,
+                                            lineNumber: 288,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/security-settings/page.tsx",
-                                        lineNumber: 247,
+                                        lineNumber: 287,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/security-settings/page.tsx",
-                                    lineNumber: 246,
+                                    lineNumber: 286,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3067,27 +3104,27 @@ function SecuritySettingsPage() {
                                                             className: "h-5 w-5"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                            lineNumber: 267,
+                                                            lineNumber: 307,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Backend Configuration"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 266,
+                                                    lineNumber: 306,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                     children: "Configure the backend server URL and port for KRA TIMS integration and other services"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 270,
+                                                    lineNumber: 310,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 265,
+                                            lineNumber: 305,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3097,7 +3134,7 @@ function SecuritySettingsPage() {
                                                 children: "Loading configuration..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                lineNumber: 276,
+                                                lineNumber: 316,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                 children: [
@@ -3112,7 +3149,7 @@ function SecuritySettingsPage() {
                                                                         children: "Backend URL *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 281,
+                                                                        lineNumber: 321,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3124,7 +3161,7 @@ function SecuritySettingsPage() {
                                                                         className: "rounded-lg"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 282,
+                                                                        lineNumber: 322,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3132,13 +3169,13 @@ function SecuritySettingsPage() {
                                                                         children: "Enter the full URL with HTTPS protocol (e.g., https://20.224.40.56:8088). KRA TIMS requires HTTPS."
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 290,
+                                                                        lineNumber: 330,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 280,
+                                                                lineNumber: 320,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3149,7 +3186,7 @@ function SecuritySettingsPage() {
                                                                         children: "Backend Port (Optional)"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 296,
+                                                                        lineNumber: 336,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3161,7 +3198,7 @@ function SecuritySettingsPage() {
                                                                         className: "rounded-lg"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 297,
+                                                                        lineNumber: 337,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3169,13 +3206,13 @@ function SecuritySettingsPage() {
                                                                         children: "Optional: Specify a custom port if your backend uses a non-standard port"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 305,
+                                                                        lineNumber: 345,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 295,
+                                                                lineNumber: 335,
                                                                 columnNumber: 23
                                                             }, this),
                                                             connectionDetails && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3189,7 +3226,7 @@ function SecuritySettingsPage() {
                                                                                     className: "h-5 w-5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                                    lineNumber: 321,
+                                                                                    lineNumber: 361,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3200,7 +3237,7 @@ function SecuritySettingsPage() {
                                                                                             children: "Connection successful"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                                            lineNumber: 323,
+                                                                                            lineNumber: 363,
                                                                                             columnNumber: 35
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3212,13 +3249,13 @@ function SecuritySettingsPage() {
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                                            lineNumber: 324,
+                                                                                            lineNumber: 364,
                                                                                             columnNumber: 35
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                                    lineNumber: 322,
+                                                                                    lineNumber: 362,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
@@ -3228,7 +3265,7 @@ function SecuritySettingsPage() {
                                                                                     className: "h-5 w-5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                                    lineNumber: 329,
+                                                                                    lineNumber: 369,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3239,7 +3276,7 @@ function SecuritySettingsPage() {
                                                                                             children: "Connection failed"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                                            lineNumber: 331,
+                                                                                            lineNumber: 371,
                                                                                             columnNumber: 35
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3247,20 +3284,20 @@ function SecuritySettingsPage() {
                                                                                             children: connectionDetails.error
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/security-settings/page.tsx",
-                                                                                            lineNumber: 332,
+                                                                                            lineNumber: 372,
                                                                                             columnNumber: 35
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                                                    lineNumber: 330,
+                                                                                    lineNumber: 370,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 312,
+                                                                        lineNumber: 352,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     connectionDetails.success && connectionDetails.data && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3271,7 +3308,7 @@ function SecuritySettingsPage() {
                                                                                 children: "Server Response:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                                lineNumber: 340,
+                                                                                lineNumber: 380,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
@@ -3279,25 +3316,25 @@ function SecuritySettingsPage() {
                                                                                 children: typeof connectionDetails.data === "string" ? connectionDetails.data.substring(0, 500) : JSON.stringify(connectionDetails.data, null, 2).substring(0, 500)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                                lineNumber: 341,
+                                                                                lineNumber: 381,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 339,
+                                                                        lineNumber: 379,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 311,
+                                                                lineNumber: 351,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 279,
+                                                        lineNumber: 319,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3309,7 +3346,7 @@ function SecuritySettingsPage() {
                                                                 children: "Save Configuration"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 353,
+                                                                lineNumber: 393,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3320,7 +3357,7 @@ function SecuritySettingsPage() {
                                                                 children: isTestingConnection ? "Testing..." : "Test Connection"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 356,
+                                                                lineNumber: 396,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3330,13 +3367,13 @@ function SecuritySettingsPage() {
                                                                 children: "Reset to Default"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 364,
+                                                                lineNumber: 404,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 352,
+                                                        lineNumber: 392,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3347,7 +3384,7 @@ function SecuritySettingsPage() {
                                                                 children: "Current Configuration"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 374,
+                                                                lineNumber: 414,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3360,7 +3397,7 @@ function SecuritySettingsPage() {
                                                                                 children: "URL:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                                lineNumber: 377,
+                                                                                lineNumber: 417,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             " ",
@@ -3368,7 +3405,7 @@ function SecuritySettingsPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 376,
+                                                                        lineNumber: 416,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3378,7 +3415,7 @@ function SecuritySettingsPage() {
                                                                                 children: "Port:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                                lineNumber: 380,
+                                                                                lineNumber: 420,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             " ",
@@ -3386,7 +3423,7 @@ function SecuritySettingsPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 379,
+                                                                        lineNumber: 419,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3396,7 +3433,7 @@ function SecuritySettingsPage() {
                                                                                 children: "Full Endpoint:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                                lineNumber: 383,
+                                                                                lineNumber: 423,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             " ",
@@ -3417,32 +3454,32 @@ function SecuritySettingsPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                                        lineNumber: 382,
+                                                                        lineNumber: 422,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                                lineNumber: 375,
+                                                                lineNumber: 415,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 373,
+                                                        lineNumber: 413,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true)
                                         }, void 0, false, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 274,
+                                            lineNumber: 314,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/security-settings/page.tsx",
-                                    lineNumber: 264,
+                                    lineNumber: 304,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3454,20 +3491,20 @@ function SecuritySettingsPage() {
                                                     children: "Usage Notes"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 410,
+                                                    lineNumber: 450,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                     children: "Important information about backend configuration"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/security-settings/page.tsx",
-                                                    lineNumber: 411,
+                                                    lineNumber: 451,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 409,
+                                            lineNumber: 449,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3478,86 +3515,86 @@ function SecuritySettingsPage() {
                                                         children: "The backend URL is used for KRA TIMS integration and other external services"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 415,
+                                                        lineNumber: 455,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Make sure your backend server is running and accessible before testing the connection"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 416,
+                                                        lineNumber: 456,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Port is optional and only needed if your backend uses a non-standard port"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 417,
+                                                        lineNumber: 457,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Configuration is stored in the database and will persist across sessions"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 418,
+                                                        lineNumber: 458,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Test the connection after saving to ensure the configuration is correct"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 419,
+                                                        lineNumber: 459,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "BHF ID and Device Token are assigned during the onboarding process"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/security-settings/page.tsx",
-                                                        lineNumber: 420,
+                                                        lineNumber: 460,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/security-settings/page.tsx",
-                                                lineNumber: 414,
+                                                lineNumber: 454,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/security-settings/page.tsx",
-                                            lineNumber: 413,
+                                            lineNumber: 453,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/security-settings/page.tsx",
-                                    lineNumber: 408,
+                                    lineNumber: 448,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/security-settings/page.tsx",
-                            lineNumber: 191,
+                            lineNumber: 231,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/security-settings/page.tsx",
-                        lineNumber: 190,
+                        lineNumber: 230,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/security-settings/page.tsx",
-                lineNumber: 188,
+                lineNumber: 228,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/security-settings/page.tsx",
-        lineNumber: 186,
+        lineNumber: 226,
         columnNumber: 5
     }, this);
 }
-_s(SecuritySettingsPage, "VyEgVI4sC2aQDMj/0F04VDk3rkA=", false, function() {
+_s(SecuritySettingsPage, "79G6Men4q1mOH8EepY4DNrtA83w=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"]
     ];
