@@ -121,13 +121,15 @@ async function POST(request) {
             if (branch) {
                 const branchId = crypto.randomUUID();
                 const bhfId = "01";
-                const branchResult = await client.query(`INSERT INTO branches (id, user_id, name, bhf_id, location, address, county, local_tax_office, manager, email, phone, status, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 'active', NOW(), NOW())
+                const branchResult = await client.query(`INSERT INTO branches (id, user_id, name, bhf_id, trading_name, kra_pin, location, address, county, local_tax_office, manager, email, phone, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'active', NOW(), NOW())
            RETURNING *`, [
                     branchId,
                     userId,
                     branch.name,
                     bhfId,
+                    branch.trading_name || null,
+                    branch.kra_pin || null,
                     branch.location || null,
                     branch.address || null,
                     branch.county || null,

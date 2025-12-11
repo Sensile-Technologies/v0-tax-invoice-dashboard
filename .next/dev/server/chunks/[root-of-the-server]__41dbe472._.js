@@ -146,6 +146,8 @@ async function GET() {
         NULL as merchant_id,
         NULL as branch_id,
         l.company_name as merchant_name,
+        l.trading_name,
+        l.kra_pin,
         NULL as branch_name,
         l.stage as status,
         l.contact_name,

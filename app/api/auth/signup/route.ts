@@ -73,6 +73,24 @@ export async function POST(request: Request) {
         createdBranch = branchResult.rows[0]
       }
 
+      // Also create a lead entry so this signup appears in the onboarding requests queue
+      if (branch) {
+        const leadId = crypto.randomUUID()
+        await client.query(
+          `INSERT INTO leads (id, company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone, stage, source, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, 'signed_up', 'website_signup', NOW(), NOW())`,
+          [
+            leadId,
+            branch.name,
+            branch.trading_name || null,
+            branch.kra_pin || null,
+            branch.manager || null,
+            branch.email || email,
+            branch.phone || null,
+          ]
+        )
+      }
+
       await client.query("COMMIT")
 
       return NextResponse.json({
