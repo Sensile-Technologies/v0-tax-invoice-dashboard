@@ -37,6 +37,7 @@ export async function signIn(identifier: string, password: string) {
     document.cookie = `sb-refresh-token=${data.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}`
     if (data.user) {
       localStorage.setItem("currentUser", JSON.stringify(data.user))
+      localStorage.setItem("user", JSON.stringify(data.user))
     }
   }
 
@@ -47,13 +48,14 @@ export async function signOut() {
   document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
   document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
   localStorage.removeItem("currentUser")
+  localStorage.removeItem("user")
   localStorage.removeItem("selectedBranch")
   return { error: null }
 }
 
 export function getCurrentUser() {
   if (typeof window === "undefined") return null
-  const userStr = localStorage.getItem("currentUser")
+  const userStr = localStorage.getItem("currentUser") || localStorage.getItem("user")
   if (!userStr) return null
   try {
     return JSON.parse(userStr)
@@ -62,19 +64,16 @@ export function getCurrentUser() {
   }
 }
 
+export function isAdmin() {
+  const user = getCurrentUser()
+  return user?.role === "admin"
+}
+
 export async function signInWithGoogle() {
   throw new Error("Google sign-in is not available with local authentication")
 }
 
 export async function getCurrentUserRole(): Promise<string | null> {
-  const accessToken = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("sb-access-token="))
-    ?.split("=")[1]
-
-  if (!accessToken) {
-    return null
-  }
-
-  return null
+  const user = getCurrentUser()
+  return user?.role || null
 }

@@ -30,7 +30,11 @@ export default function LoginPage() {
       if (error) throw new Error(error.message || "Login failed")
 
       if (data.access_token) {
-        router.push("/")
+        if (data.user?.role === "admin") {
+          router.push("/admin")
+        } else {
+          router.push("/")
+        }
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
