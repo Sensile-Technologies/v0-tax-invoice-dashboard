@@ -23,7 +23,8 @@ export default function SignUpPage() {
 
   const [branchName, setBranchName] = useState("")
   const [branchLocation, setBranchLocation] = useState("")
-  const [bhfId, setBhfId] = useState("")
+  const [tradingName, setTradingName] = useState("")
+  const [kraPin, setKraPin] = useState("")
   const [county, setCounty] = useState("")
   const [address, setAddress] = useState("")
   const [managerName, setManagerName] = useState("")
@@ -62,6 +63,8 @@ export default function SignUpPage() {
           branch: {
             name: branchName,
             location: branchLocation,
+            trading_name: tradingName,
+            kra_pin: kraPin,
             county,
             address,
             manager: managerName,
@@ -243,14 +246,26 @@ export default function SignUpPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bhfId">BHF ID</Label>
+                <Label htmlFor="tradingName">Trading Name</Label>
                 <Input
-                  id="bhfId"
+                  id="tradingName"
                   type="text"
-                  placeholder="BHF-12345"
+                  placeholder="ABC Fuel Station"
                   required
-                  value={bhfId}
-                  onChange={(e) => setBhfId(e.target.value)}
+                  value={tradingName}
+                  onChange={(e) => setTradingName(e.target.value)}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kraPin">KRA PIN</Label>
+                <Input
+                  id="kraPin"
+                  type="text"
+                  placeholder="P051234567X"
+                  required
+                  value={kraPin}
+                  onChange={(e) => setKraPin(e.target.value)}
                   className="rounded-xl"
                 />
               </div>
