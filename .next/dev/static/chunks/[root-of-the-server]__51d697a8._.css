@@ -3477,6 +3477,10 @@
     border-color: var(--color-red-200);
   }
 
+  .border-slate-200 {
+    border-color: var(--color-slate-200);
+  }
+
   .border-slate-300 {
     border-color: var(--color-slate-300);
   }
@@ -6355,6 +6359,12 @@
       --tw-scale-y: 105%;
       --tw-scale-z: 105%;
       scale: var(--tw-scale-x) var(--tw-scale-y);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:border-blue-500:hover {
+      border-color: var(--color-blue-500);
     }
   }
 

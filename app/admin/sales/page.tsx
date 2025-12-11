@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -27,7 +27,7 @@ import {
   Plus, Search, Building2, User, Mail, Phone, 
   Calendar, DollarSign, Users, TrendingUp,
   MessageSquare, Presentation, FileSignature, UserCheck,
-  ArrowRight, MoreVertical, Edit2, Archive
+  ArrowRight, MoreVertical, Edit2, Archive, Upload, FileText
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -96,6 +96,11 @@ export default function SalesPage() {
   const [salesPersonDialogOpen, setSalesPersonDialogOpen] = useState(false)
   const [editingLead, setEditingLead] = useState<Lead | null>(null)
   const [editingSalesPerson, setEditingSalesPerson] = useState<SalesPerson | null>(null)
+  const [contractDialogOpen, setContractDialogOpen] = useState(false)
+  const [leadForOnboarding, setLeadForOnboarding] = useState<Lead | null>(null)
+  const [contractFile, setContractFile] = useState<File | null>(null)
+  const [uploadingContract, setUploadingContract] = useState(false)
+  const contractInputRef = useRef<HTMLInputElement>(null)
 
   const [newLead, setNewLead] = useState({
     company_name: "",
@@ -188,6 +193,13 @@ export default function SalesPage() {
   }
 
   const handleUpdateStage = async (lead: Lead, newStage: string) => {
+    if (newStage === "onboarding") {
+      setLeadForOnboarding(lead)
+      setContractFile(null)
+      setContractDialogOpen(true)
+      return
+    }
+
     try {
       const response = await fetch("/api/admin/leads", {
         method: "PUT",
@@ -200,6 +212,37 @@ export default function SalesPage() {
       fetchLeads()
     } catch (error) {
       toast.error("Failed to update stage")
+    }
+  }
+
+  const handleContractUpload = async () => {
+    if (!contractFile || !leadForOnboarding) {
+      toast.error("Please select a contract file")
+      return
+    }
+
+    setUploadingContract(true)
+    try {
+      const formData = new FormData()
+      formData.append("contract", contractFile)
+      formData.append("leadId", leadForOnboarding.id)
+
+      const response = await fetch("/api/admin/leads/upload-contract", {
+        method: "POST",
+        body: formData
+      })
+
+      if (!response.ok) throw new Error("Failed to upload contract")
+
+      toast.success("Contract uploaded and lead moved to Onboarding")
+      setContractDialogOpen(false)
+      setContractFile(null)
+      setLeadForOnboarding(null)
+      fetchLeads()
+    } catch (error) {
+      toast.error("Failed to upload contract")
+    } finally {
+      setUploadingContract(false)
     }
   }
 
@@ -855,6 +898,80 @@ export default function SalesPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={contractDialogOpen} onOpenChange={(open) => {
+        setContractDialogOpen(open)
+        if (!open) {
+          setContractFile(null)
+          setLeadForOnboarding(null)
+        }
+      }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload Contract</DialogTitle>
+            <DialogDescription>
+              A signed contract is required to move {leadForOnboarding?.company_name} to the Onboarding stage.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Contract Document *</Label>
+              <div 
+                className="border-2 border-dashed border-slate-200 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
+                onClick={() => contractInputRef.current?.click()}
+              >
+                <input
+                  type="file"
+                  ref={contractInputRef}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) setContractFile(file)
+                  }}
+                />
+                {contractFile ? (
+                  <div className="flex items-center justify-center gap-2 text-green-600">
+                    <FileText className="h-8 w-8" />
+                    <div className="text-left">
+                      <p className="font-medium">{contractFile.name}</p>
+                      <p className="text-xs text-slate-500">
+                        {(contractFile.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-slate-500">
+                    <Upload className="h-8 w-8 mx-auto mb-2" />
+                    <p className="font-medium">Click to upload contract</p>
+                    <p className="text-xs">PDF, DOC, or DOCX (max 10MB)</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  setContractDialogOpen(false)
+                  setContractFile(null)
+                  setLeadForOnboarding(null)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="flex-1"
+                onClick={handleContractUpload}
+                disabled={!contractFile || uploadingContract}
+              >
+                {uploadingContract ? "Uploading..." : "Upload & Move to Onboarding"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
