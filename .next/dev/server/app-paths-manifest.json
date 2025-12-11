@@ -1,22 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/admin/invoices/page": "app/admin/invoices/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/sales/page": "app/admin/sales/page.js",
-  "/admin/settings/page": "app/admin/settings/page.js",
-  "/admin/vendors/page": "app/admin/vendors/page.js",
-  "/api/admin/branches/route": "app/api/admin/branches/route.js",
-  "/api/admin/dashboard/route": "app/api/admin/dashboard/route.js",
-  "/api/admin/invoices/route": "app/api/admin/invoices/route.js",
-  "/api/admin/leads/route": "app/api/admin/leads/route.js",
-  "/api/admin/payments/route": "app/api/admin/payments/route.js",
-  "/api/admin/sales-people/route": "app/api/admin/sales-people/route.js",
-  "/api/admin/vendors/[id]/branches/route": "app/api/admin/vendors/[id]/branches/route.js",
-  "/api/admin/vendors/[id]/invoices/route": "app/api/admin/vendors/[id]/invoices/route.js",
-  "/api/admin/vendors/route": "app/api/admin/vendors/route.js",
-  "/api/auth/signin/route": "app/api/auth/signin/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/db/[table]/route": "app/api/db/[table]/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
   "/page": "app/page.js"
 }
