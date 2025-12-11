@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { vendor_id, branch_id, issue_date, due_date, notes, line_items, created_by } = body
+    const { vendor_id, branch_id, branch_ids, billed_to_contact, issue_date, due_date, notes, line_items, created_by } = body
 
     if (!vendor_id) {
       return NextResponse.json({ error: "Vendor is required" }, { status: 400 })
@@ -67,14 +67,27 @@ export async function POST(request: Request) {
     const taxAmount = subtotal * 0.16
     const totalAmount = subtotal + taxAmount
 
+    // Use first branch_id from branch_ids array if available, otherwise use branch_id
+    const primaryBranchId = (branch_ids && branch_ids.length > 0) ? branch_ids[0] : branch_id
+
     const result = await query(
-      `INSERT INTO invoices (invoice_number, vendor_id, branch_id, issue_date, due_date, subtotal, tax_amount, total_amount, notes, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO invoices (invoice_number, vendor_id, branch_id, billed_to_contact, issue_date, due_date, subtotal, tax_amount, total_amount, notes, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [invoiceNumber, vendor_id, branch_id, issue_date || new Date(), due_date, subtotal, taxAmount, totalAmount, notes, created_by]
+      [invoiceNumber, vendor_id, primaryBranchId, billed_to_contact, issue_date || new Date(), due_date, subtotal, taxAmount, totalAmount, notes, created_by]
     )
 
     const invoice = result[0]
+
+    // Insert all selected branches into invoice_branches junction table
+    if (branch_ids && Array.isArray(branch_ids) && branch_ids.length > 0) {
+      for (const branchId of branch_ids) {
+        await query(
+          `INSERT INTO invoice_branches (invoice_id, branch_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          [invoice.id, branchId]
+        )
+      }
+    }
 
     if (line_items && Array.isArray(line_items)) {
       for (const item of line_items) {

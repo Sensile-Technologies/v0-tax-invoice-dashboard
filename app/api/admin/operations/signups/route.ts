@@ -8,14 +8,14 @@ export async function GET() {
         l.id as lead_id,
         l.company_name,
         l.contact_name,
-        l.email,
-        l.phone,
-        l.status,
+        l.contact_email as email,
+        l.contact_phone as phone,
+        l.stage as status,
         l.created_at,
         sp.name as sales_person_name
       FROM leads l
       LEFT JOIN sales_people sp ON l.assigned_to = sp.id
-      WHERE l.status = 'onboarding'
+      WHERE l.stage = 'onboarding'
       ORDER BY l.created_at DESC
     `)
     

@@ -42,6 +42,14 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-11: Invoice & Operations Enhancements
+  - Invoice form now captures "Billed To" contact information
+  - Multi-branch selection for invoices using checkboxes
+  - PDF export includes billed_to_contact in Bill To section
+  - Hardware tab enhanced with table display and bulk assignment functionality
+  - Onboarding Requests now pulls leads at 'onboarding' stage from pipeline
+  - Database: Added billed_to_contact column to invoices, created invoice_branches table
+
 - 2024-12-11: Operations Dashboard & Merchant Terminology
   - Renamed "Vendors" to "Merchants" throughout the application
   - Added Operations page with 3 tabs: Hardware, Onboarding Requests, Signup Requests

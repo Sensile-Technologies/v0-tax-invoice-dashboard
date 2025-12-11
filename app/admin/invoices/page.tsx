@@ -96,12 +96,15 @@ export default function InvoicesPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [newInvoice, setNewInvoice] = useState({
     vendor_id: "",
+    billed_to_contact: "",
+    branch_ids: [] as string[],
     due_date: "",
     notes: "",
     is_recurring: false,
     recurring_interval: "annually",
     line_items: [] as any[]
   })
+  const [branches, setBranches] = useState<any[]>([])
   const [newPayment, setNewPayment] = useState({
     invoice_id: "",
     amount: 0,
@@ -211,6 +214,9 @@ export default function InvoicesPage() {
       doc.setFontSize(10)
       doc.setTextColor(60, 60, 60)
       doc.text(invoice.merchant_name || 'N/A', 14, 92)
+      if (invoiceDetail.billed_to_contact) {
+        doc.text(invoiceDetail.billed_to_contact, 14, 98)
+      }
       
       const lineItems = invoiceDetail.line_items || []
       const tableData = lineItems.map((item: any) => {
@@ -467,12 +473,26 @@ export default function InvoicesPage() {
   const resetInvoiceForm = () => {
     setNewInvoice({
       vendor_id: "",
+      billed_to_contact: "",
+      branch_ids: [],
       due_date: "",
       notes: "",
       is_recurring: false,
       recurring_interval: "annually",
       line_items: []
     })
+    setBranches([])
+  }
+
+  const fetchBranches = async (merchantId: string) => {
+    try {
+      const response = await fetch(`/api/admin/vendors/${merchantId}/branches`)
+      const data = await response.json()
+      setBranches(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error("Error fetching branches:", error)
+      setBranches([])
+    }
   }
 
   const resetPaymentForm = () => {
@@ -607,7 +627,10 @@ export default function InvoicesPage() {
                       <Label>Merchant</Label>
                       <Select
                         value={newInvoice.vendor_id}
-                        onValueChange={(v) => setNewInvoice({ ...newInvoice, vendor_id: v })}
+                        onValueChange={(v) => {
+                          setNewInvoice({ ...newInvoice, vendor_id: v, branch_ids: [] })
+                          fetchBranches(v)
+                        }}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select merchant" />
@@ -626,6 +649,53 @@ export default function InvoicesPage() {
                         value={newInvoice.due_date}
                         onChange={(e) => setNewInvoice({ ...newInvoice, due_date: e.target.value })}
                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Billed To (Contact)</Label>
+                      <Input
+                        value={newInvoice.billed_to_contact}
+                        onChange={(e) => setNewInvoice({ ...newInvoice, billed_to_contact: e.target.value })}
+                        placeholder="Enter contact name, email, or address"
+                      />
+                      <p className="text-xs text-slate-500">This will appear on the invoice as "Billed To"</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Branches (Optional)</Label>
+                      <div className="border rounded-md p-2 max-h-32 overflow-y-auto">
+                        {branches.length > 0 ? (
+                          branches.map((branch) => (
+                            <div key={branch.id} className="flex items-center space-x-2 py-1">
+                              <Checkbox
+                                id={`branch-${branch.id}`}
+                                checked={newInvoice.branch_ids.includes(branch.id)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setNewInvoice({
+                                      ...newInvoice,
+                                      branch_ids: [...newInvoice.branch_ids, branch.id]
+                                    })
+                                  } else {
+                                    setNewInvoice({
+                                      ...newInvoice,
+                                      branch_ids: newInvoice.branch_ids.filter(id => id !== branch.id)
+                                    })
+                                  }
+                                }}
+                              />
+                              <label htmlFor={`branch-${branch.id}`} className="text-sm">
+                                {branch.bhf_nm || branch.name}
+                              </label>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-sm text-slate-400 py-2">
+                            {newInvoice.vendor_id ? "No branches found" : "Select a merchant first"}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 

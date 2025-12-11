@@ -23,6 +23,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { 
   Settings2, HardDrive, UserPlus, ClipboardList, Search, 
   Plus, Building2, Server, Check, AlertCircle, ExternalLink
@@ -45,11 +54,15 @@ interface Hardware {
 interface OnboardingRequest {
   id: string
   type: string
-  merchant_id: string
+  merchant_id: string | null
   merchant_name: string
   branch_id: string | null
   branch_name: string | null
   status: string
+  contact_name: string | null
+  contact_email: string | null
+  contact_phone: string | null
+  sales_person_name: string | null
   created_at: string
 }
 
@@ -79,6 +92,10 @@ export default function OperationsPage() {
   const [configDialogOpen, setConfigDialogOpen] = useState(false)
   const [selectedHardware, setSelectedHardware] = useState<Hardware | null>(null)
   const [selectedRequest, setSelectedRequest] = useState<OnboardingRequest | null>(null)
+  const [selectedHardwareIds, setSelectedHardwareIds] = useState<string[]>([])
+  const [bulkAssignDialogOpen, setBulkAssignDialogOpen] = useState(false)
+  const [bulkAssignMerchant, setBulkAssignMerchant] = useState("")
+  const [bulkAssignBranch, setBulkAssignBranch] = useState("")
   const [newHardware, setNewHardware] = useState({
     serial_number: "",
     device_type: "token"
@@ -174,6 +191,54 @@ export default function OperationsPage() {
       toast.error("Failed to assign hardware")
     }
   }
+
+  const handleBulkAssign = async () => {
+    if (selectedHardwareIds.length === 0 || !bulkAssignBranch) {
+      toast.error("Please select hardware and a branch")
+      return
+    }
+
+    try {
+      let successCount = 0
+      let failCount = 0
+      
+      for (const hwId of selectedHardwareIds) {
+        const response = await fetch("/api/admin/operations/hardware", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: hwId, branch_id: bulkAssignBranch })
+        })
+        
+        if (response.ok) {
+          successCount++
+        } else {
+          failCount++
+        }
+      }
+
+      if (failCount > 0) {
+        toast.warning(`${successCount} device(s) assigned, ${failCount} failed`)
+      } else {
+        toast.success(`${successCount} device(s) assigned successfully`)
+      }
+      
+      setBulkAssignDialogOpen(false)
+      setSelectedHardwareIds([])
+      setBulkAssignMerchant("")
+      setBulkAssignBranch("")
+      fetchData()
+    } catch (error) {
+      toast.error("Failed to assign hardware")
+    }
+  }
+
+  const toggleHardwareSelection = (hwId: string) => {
+    setSelectedHardwareIds(prev =>
+      prev.includes(hwId) ? prev.filter(id => id !== hwId) : [...prev, hwId]
+    )
+  }
+
+  const availableHardware = hardware.filter(h => h.status === 'available')
 
   const handleConfigureOnboarding = async () => {
     if (!selectedRequest) return
@@ -283,8 +348,8 @@ export default function OperationsPage() {
           <TabsTrigger value="onboarding">
             <ClipboardList className="h-4 w-4 mr-2" />
             Onboarding Requests
-            {onboardingRequests.filter(r => r.status === 'pending').length > 0 && (
-              <Badge className="ml-2 bg-orange-500">{onboardingRequests.filter(r => r.status === 'pending').length}</Badge>
+            {onboardingRequests.length > 0 && (
+              <Badge className="ml-2 bg-orange-500">{onboardingRequests.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="signups">
@@ -307,89 +372,184 @@ export default function OperationsPage() {
                 className="pl-10"
               />
             </div>
-            <Dialog open={hardwareDialogOpen} onOpenChange={setHardwareDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Hardware
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Hardware</DialogTitle>
-                  <DialogDescription>Register a new hardware device</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label>Serial Number</Label>
-                    <Input
-                      value={newHardware.serial_number}
-                      onChange={(e) => setNewHardware({ ...newHardware, serial_number: e.target.value })}
-                      placeholder="SN-XXXX-XXXX"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Device Type</Label>
-                    <Select
-                      value={newHardware.device_type}
-                      onValueChange={(v) => setNewHardware({ ...newHardware, device_type: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="token">Hardware Token</SelectItem>
-                        <SelectItem value="printer">Fiscal Printer</SelectItem>
-                        <SelectItem value="terminal">POS Terminal</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button onClick={handleAddHardware} className="w-full">
+            <div className="flex gap-2">
+              {selectedHardwareIds.length > 0 && (
+                <Dialog open={bulkAssignDialogOpen} onOpenChange={setBulkAssignDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      Assign {selectedHardwareIds.length} Device(s)
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Assign Hardware to Branch</DialogTitle>
+                      <DialogDescription>Assign {selectedHardwareIds.length} selected device(s) to a branch</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Merchant</Label>
+                        <Select
+                          value={bulkAssignMerchant}
+                          onValueChange={(v) => {
+                            setBulkAssignMerchant(v)
+                            setBulkAssignBranch("")
+                            fetchBranches(v)
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select merchant" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {merchants.map((m) => (
+                              <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {bulkAssignMerchant && (
+                        <div className="space-y-2">
+                          <Label>Branch</Label>
+                          <Select
+                            value={bulkAssignBranch}
+                            onValueChange={setBulkAssignBranch}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select branch" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {branches.map((b) => (
+                                <SelectItem key={b.id} value={b.id}>{b.bhf_nm || b.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      <Button onClick={handleBulkAssign} className="w-full" disabled={!bulkAssignBranch}>
+                        Assign to Branch
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
+              <Dialog open={hardwareDialogOpen} onOpenChange={setHardwareDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
                     Add Hardware
                   </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Hardware</DialogTitle>
+                    <DialogDescription>Register a new hardware device</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Serial Number</Label>
+                      <Input
+                        value={newHardware.serial_number}
+                        onChange={(e) => setNewHardware({ ...newHardware, serial_number: e.target.value })}
+                        placeholder="SN-XXXX-XXXX"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Device Type</Label>
+                      <Select
+                        value={newHardware.device_type}
+                        onValueChange={(v) => setNewHardware({ ...newHardware, device_type: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="token">Hardware Token</SelectItem>
+                          <SelectItem value="printer">Fiscal Printer</SelectItem>
+                          <SelectItem value="terminal">POS Terminal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button onClick={handleAddHardware} className="w-full">
+                      Add Hardware
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
 
-          <div className="grid gap-4">
-            {filteredHardware.map((hw) => (
-              <Card key={hw.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <HardDrive className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-semibold">{hw.serial_number}</span>
-                          <Badge className={getStatusColor(hw.status)}>{hw.status}</Badge>
-                        </div>
-                        <div className="text-sm text-slate-500">
-                          {hw.device_type} 
-                          {hw.branch_name && ` - ${hw.branch_name}`}
-                          {hw.merchant_name && ` (${hw.merchant_name})`}
-                        </div>
-                      </div>
-                    </div>
-                    {hw.status === 'available' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedHardware(hw)
-                          setAssignDialogOpen(true)
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={availableHardware.length > 0 && selectedHardwareIds.length === availableHardware.length}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedHardwareIds(availableHardware.map(h => h.id))
+                          } else {
+                            setSelectedHardwareIds([])
+                          }
                         }}
-                      >
-                        Assign
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      />
+                    </TableHead>
+                    <TableHead>Serial Number</TableHead>
+                    <TableHead>Device Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Assigned To</TableHead>
+                    <TableHead>Date Added</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredHardware.map((hw) => (
+                    <TableRow key={hw.id}>
+                      <TableCell>
+                        {hw.status === 'available' && (
+                          <Checkbox
+                            checked={selectedHardwareIds.includes(hw.id)}
+                            onCheckedChange={() => toggleHardwareSelection(hw.id)}
+                          />
+                        )}
+                      </TableCell>
+                      <TableCell className="font-mono font-semibold">{hw.serial_number}</TableCell>
+                      <TableCell className="capitalize">{hw.device_type}</TableCell>
+                      <TableCell>
+                        <Badge className={getStatusColor(hw.status)}>{hw.status}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {hw.branch_name ? (
+                          <div>
+                            <div className="font-medium">{hw.branch_name}</div>
+                            {hw.merchant_name && <div className="text-sm text-slate-500">{hw.merchant_name}</div>}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{format(new Date(hw.created_at), "MMM d, yyyy")}</TableCell>
+                      <TableCell className="text-right">
+                        {hw.status === 'available' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedHardware(hw)
+                              setAssignDialogOpen(true)
+                            }}
+                          >
+                            Assign
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
 
           {filteredHardware.length === 0 && (
             <div className="text-center py-12">
@@ -402,40 +562,38 @@ export default function OperationsPage() {
         <TabsContent value="onboarding" className="space-y-4 mt-4">
           <div className="grid gap-4">
             {onboardingRequests.map((request) => (
-              <Card key={request.id} className={request.status === 'pending' ? 'border-orange-200 bg-orange-50' : ''}>
+              <Card key={request.id} className="border-orange-200 bg-orange-50">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${request.status === 'pending' ? 'bg-orange-100' : 'bg-green-100'}`}>
-                        {request.status === 'pending' ? (
-                          <AlertCircle className="h-5 w-5 text-orange-600" />
-                        ) : (
-                          <Check className="h-5 w-5 text-green-600" />
-                        )}
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-100">
+                        <AlertCircle className="h-5 w-5 text-orange-600" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-semibold">{request.merchant_name}</span>
-                          <Badge className={getStatusColor(request.status)}>{request.status}</Badge>
+                          <Badge className="bg-orange-100 text-orange-700">Pending Onboarding</Badge>
                         </div>
                         <div className="text-sm text-slate-500">
-                          {request.type === 'new_merchant' ? 'New Merchant Registration' : `New Branch: ${request.branch_name}`}
-                          <span className="mx-2">-</span>
+                          {request.contact_name && `Contact: ${request.contact_name}`}
+                          {request.contact_email && ` - ${request.contact_email}`}
+                          {request.contact_phone && ` - ${request.contact_phone}`}
+                        </div>
+                        <div className="text-sm text-slate-500">
+                          {request.sales_person_name && `Sales: ${request.sales_person_name} - `}
                           {format(new Date(request.created_at), "MMM d, yyyy")}
                         </div>
                       </div>
                     </div>
-                    {request.status === 'pending' && (
-                      <Button
-                        onClick={() => {
-                          setSelectedRequest(request)
-                          setConfigDialogOpen(true)
-                        }}
-                      >
-                        <Server className="h-4 w-4 mr-2" />
-                        Configure
-                      </Button>
-                    )}
+                    <Button
+                      onClick={() => {
+                        setSelectedRequest(request)
+                        setConfigDialogOpen(true)
+                      }}
+                    >
+                      <Server className="h-4 w-4 mr-2" />
+                      Configure
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -445,7 +603,8 @@ export default function OperationsPage() {
           {onboardingRequests.length === 0 && (
             <div className="text-center py-12">
               <ClipboardList className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500">No pending onboarding requests</p>
+              <p className="text-slate-500">No leads pending onboarding</p>
+              <p className="text-sm text-slate-400 mt-2">Leads at the "onboarding" stage in the pipeline will appear here</p>
             </div>
           )}
         </TabsContent>
