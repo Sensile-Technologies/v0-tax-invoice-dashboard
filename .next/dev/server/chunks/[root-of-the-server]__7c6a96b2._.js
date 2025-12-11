@@ -162,6 +162,39 @@ async function GET() {
 async function PUT(request) {
     try {
         const { lead_id } = await request.json();
+        // First get the lead to check company name
+        const leadResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      SELECT company_name FROM leads WHERE id = $1
+    `, [
+            lead_id
+        ]);
+        if (leadResult.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Lead not found"
+            }, {
+                status: 404
+            });
+        }
+        const companyName = leadResult[0].company_name;
+        // Check if a branch exists with this company name (case-insensitive)
+        const branchResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      SELECT b.id, b.name, m.business_name as merchant_name
+      FROM branches b
+      JOIN merchants m ON b.merchant_id = m.id
+      WHERE LOWER(b.name) = LOWER($1) OR LOWER(m.business_name) = LOWER($1)
+      LIMIT 1
+    `, [
+            companyName
+        ]);
+        if (branchResult.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "No branch found",
+                message: `No branch or merchant found with the name "${companyName}". Please ensure the merchant has been created in the system first.`
+            }, {
+                status: 400
+            });
+        }
+        // Branch exists, move lead to signed_up stage
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       UPDATE leads 
       SET stage = 'signed_up', updated_at = NOW()
@@ -170,14 +203,10 @@ async function PUT(request) {
     `, [
             lead_id
         ]);
-        if (result.length === 0) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Lead not found"
-            }, {
-                status: 404
-            });
-        }
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            ...result[0],
+            branch_found: branchResult[0]
+        });
     } catch (error) {
         console.error("Error updating signup:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

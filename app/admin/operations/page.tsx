@@ -167,6 +167,14 @@ export default function OperationsPage() {
       toast.error("Please enter a serial number")
       return
     }
+    if (!addMerchant) {
+      toast.error("Please select a merchant")
+      return
+    }
+    if (!newHardware.branch_id) {
+      toast.error("Please select a branch")
+      return
+    }
 
     try {
       const response = await fetch("/api/admin/operations/hardware", {
@@ -176,7 +184,7 @@ export default function OperationsPage() {
           serial_number: newHardware.serial_number,
           device_type: newHardware.device_type,
           status: newHardware.status,
-          branch_id: newHardware.branch_id || null,
+          branch_id: newHardware.branch_id,
           assigned_to: newHardware.assigned_to || null
         })
       })
@@ -529,7 +537,7 @@ export default function OperationsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Device Type</Label>
+                      <Label>Device Type *</Label>
                       <Select
                         value={newHardware.device_type}
                         onValueChange={(v) => setNewHardware({ ...newHardware, device_type: v })}
@@ -560,7 +568,7 @@ export default function OperationsPage() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Assign to Merchant (Optional)</Label>
+                      <Label>Merchant *</Label>
                       <Select
                         value={addMerchant}
                         onValueChange={(v) => {
@@ -582,24 +590,23 @@ export default function OperationsPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    {addMerchant && (
-                      <div className="space-y-2">
-                        <Label>Assign to Branch (Optional)</Label>
-                        <Select
-                          value={newHardware.branch_id}
-                          onValueChange={(v) => setNewHardware({ ...newHardware, branch_id: v })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select branch" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {addBranches.map((b) => (
-                              <SelectItem key={b.id} value={b.id}>{b.bhf_nm || b.name}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
+                    <div className="space-y-2">
+                      <Label>Branch *</Label>
+                      <Select
+                        value={newHardware.branch_id}
+                        onValueChange={(v) => setNewHardware({ ...newHardware, branch_id: v })}
+                        disabled={!addMerchant}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={addMerchant ? "Select branch" : "Select merchant first"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {addBranches.map((b) => (
+                            <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button onClick={handleAddHardware} className="w-full">
                       Add Hardware
                     </Button>

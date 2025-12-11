@@ -9,13 +9,13 @@ export async function GET(
     const { id } = await params
 
     const result = await query(`
-      SELECT id, bhf_id, bhf_nm, address, status
+      SELECT id, bhf_id, name, address, status
       FROM branches
       WHERE vendor_id = $1
-      ORDER BY bhf_id
+      ORDER BY name
     `, [id])
 
-    return NextResponse.json(result.rows)
+    return NextResponse.json(result)
   } catch (error) {
     console.error("Error fetching vendor branches:", error)
     return NextResponse.json({ error: "Failed to fetch branches" }, { status: 500 })
