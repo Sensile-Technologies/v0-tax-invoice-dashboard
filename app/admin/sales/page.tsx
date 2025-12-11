@@ -309,7 +309,9 @@ export default function SalesPage() {
       expected_close_date: lead.expected_close_date || "",
       source: lead.source || ""
     })
-    setLeadDialogOpen(true)
+    setTimeout(() => {
+      setLeadDialogOpen(true)
+    }, 100)
   }
 
   const openEditSalesPerson = (person: SalesPerson) => {
