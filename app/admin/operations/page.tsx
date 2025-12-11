@@ -72,7 +72,9 @@ interface OnboardingRequest {
   contact_name: string | null
   contact_email: string | null
   contact_phone: string | null
-  sales_person_name: string | null
+  location: string | null
+  county: string | null
+  address: string | null
   created_at: string
 }
 
@@ -745,7 +747,9 @@ export default function OperationsPage() {
                           {request.contact_phone && ` - ${request.contact_phone}`}
                         </div>
                         <div className="text-sm text-slate-500">
-                          {request.sales_person_name && `Sales: ${request.sales_person_name} - `}
+                          {request.location && `${request.location}`}
+                          {request.county && `, ${request.county}`}
+                          {(request.location || request.county) && ` - `}
                           {format(new Date(request.created_at), "MMM d, yyyy")}
                         </div>
                       </div>
