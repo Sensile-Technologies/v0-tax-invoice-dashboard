@@ -1,8 +1,4 @@
 {
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/kra/codes/route": "app/api/kra/codes/route.js",
-  "/api/logs/route": "app/api/logs/route.js",
-  "/configuration/tax-service/page": "app/configuration/tax-service/page.js",
-  "/logs/page": "app/logs/page.js",
   "/page": "app/page.js"
 }
