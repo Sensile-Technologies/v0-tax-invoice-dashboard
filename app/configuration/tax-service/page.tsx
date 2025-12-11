@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Download, RefreshCw, Bell, FileText, ArrowLeft } from "lucide-react"
+import { Download, RefreshCw, Bell, FileText, ArrowLeft, Database } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
 
 interface CodeListItem {
   cd_cls: string
@@ -36,10 +37,42 @@ interface Notice {
 export default function TaxServiceConfigurationPage() {
   const router = useRouter()
   const [loading, setLoading] = useState<Record<string, boolean>>({})
+  const [bhfId, setBhfId] = useState<string | null>(null)
 
   const [codeListData, setCodeListData] = useState<CodeListItem[]>([])
   const [itemClassData, setItemClassData] = useState<ItemClassification[]>([])
   const [noticesData, setNoticesData] = useState<Notice[]>([])
+  
+  useEffect(() => {
+    loadSavedData()
+  }, [])
+  
+  const loadSavedData = async () => {
+    try {
+      const [codelistRes, classRes] = await Promise.all([
+        fetch("/api/kra/saved-data?type=codelist"),
+        fetch("/api/kra/saved-data?type=classifications")
+      ])
+      
+      if (codelistRes.ok) {
+        const data = await codelistRes.json()
+        if (data.data && data.data.length > 0) {
+          setCodeListData(data.data)
+          setBhfId(data.bhf_id)
+        }
+      }
+      
+      if (classRes.ok) {
+        const data = await classRes.json()
+        if (data.data && data.data.length > 0) {
+          setItemClassData(data.data)
+          if (!bhfId) setBhfId(data.bhf_id)
+        }
+      }
+    } catch (error) {
+      console.error("Error loading saved data:", error)
+    }
+  }
 
   const getBackendUrl = () => {
     const config = localStorage.getItem("backendConfig")
@@ -259,7 +292,12 @@ export default function TaxServiceConfigurationPage() {
 
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-blue-900">How to Use Tax Service Configuration</CardTitle>
+          <CardTitle className="text-blue-900 flex items-center gap-2">
+            How to Use Tax Service Configuration
+            {bhfId && (
+              <Badge className="bg-blue-600 text-white">BHF ID: {bhfId}</Badge>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-blue-800 space-y-2">
           <p>
@@ -281,8 +319,19 @@ export default function TaxServiceConfigurationPage() {
           </p>
           <p>
             <strong>4. BHF ID Mapping:</strong> Each branch is mapped to a unique Branch Office ID (BHF ID) for KRA
-            compliance. Thika Greens is currently assigned BHF ID "03".
+            compliance. {bhfId ? `Current branch BHF ID: "${bhfId}".` : "No BHF ID assigned yet."}
           </p>
+          {(codeListData.length > 0 || itemClassData.length > 0) && (
+            <div className="mt-3 pt-3 border-t border-blue-200">
+              <p className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                <strong>Saved Data:</strong> 
+                {codeListData.length > 0 && ` ${codeListData.length} code list items`}
+                {codeListData.length > 0 && itemClassData.length > 0 && ","}
+                {itemClassData.length > 0 && ` ${itemClassData.length} item classifications`}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -1,0 +1,93 @@
+import { NextRequest, NextResponse } from "next/server"
+import { query } from "@/lib/db"
+import { cookies } from "next/headers"
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get("type")
+    
+    const cookieStore = await cookies()
+    const branchId = cookieStore.get("branch_id")?.value
+    
+    let bhfId = null
+    
+    if (branchId) {
+      const branchResult = await query(
+        "SELECT bhf_id FROM branches WHERE id = $1",
+        [branchId]
+      )
+      if (branchResult.length > 0) {
+        bhfId = branchResult[0].bhf_id
+      }
+    }
+    
+    if (!bhfId) {
+      const defaultBranch = await query(
+        "SELECT bhf_id FROM branches WHERE bhf_id IS NOT NULL AND status = 'active' LIMIT 1"
+      )
+      if (defaultBranch.length > 0) {
+        bhfId = defaultBranch[0].bhf_id
+      }
+    }
+
+    if (type === "codelist") {
+      let result
+      if (bhfId) {
+        result = await query(
+          `SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
+           FROM kra_codelists 
+           WHERE bhf_id = $1 
+           ORDER BY cd_cls, cd`,
+          [bhfId]
+        )
+      }
+      
+      if (!result || result.length === 0) {
+        result = await query(
+          `SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, last_req_dt as updated_at 
+           FROM code_lists 
+           ORDER BY cd_cls, cd`
+        )
+      }
+      
+      return NextResponse.json({ 
+        data: result,
+        bhf_id: bhfId,
+        source: result.length > 0 ? "database" : "none"
+      })
+    }
+    
+    if (type === "classifications") {
+      let result
+      if (bhfId) {
+        result = await query(
+          `SELECT item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, use_yn, updated_at 
+           FROM kra_item_classifications 
+           WHERE bhf_id = $1 
+           ORDER BY item_cls_cd`,
+          [bhfId]
+        )
+      }
+      
+      if (!result || result.length === 0) {
+        result = await query(
+          `SELECT item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, use_yn, last_req_dt as updated_at 
+           FROM item_classifications 
+           ORDER BY item_cls_cd`
+        )
+      }
+      
+      return NextResponse.json({ 
+        data: result,
+        bhf_id: bhfId,
+        source: result.length > 0 ? "database" : "none"
+      })
+    }
+
+    return NextResponse.json({ error: "Invalid type parameter" }, { status: 400 })
+  } catch (error) {
+    console.error("Error fetching saved KRA data:", error)
+    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 })
+  }
+}

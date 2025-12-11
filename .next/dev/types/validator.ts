@@ -758,6 +758,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/api/branch/config/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/branch/config">> = Specific
+  const handler = {} as typeof import("../../../app/api/branch/config/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/api/branches/create/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/branches/create">> = Specific
@@ -987,6 +996,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/kra/sales/save">> = Specific
   const handler = {} as typeof import("../../../app/api/kra/sales/save/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/kra/saved-data/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/kra/saved-data">> = Specific
+  const handler = {} as typeof import("../../../app/api/kra/saved-data/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

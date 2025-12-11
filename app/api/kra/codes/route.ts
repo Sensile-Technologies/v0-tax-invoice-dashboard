@@ -113,6 +113,17 @@ export async function POST(request: Request) {
              last_req_dt = NOW()`,
           [item.cdCls, item.cd, item.cdNm, item.cdDesc, item.useYn || "Y", item.userDfnCd1, item.userDfnCd2, item.userDfnCd3]
         )
+        
+        await query(
+          `INSERT INTO kra_codelists (bhf_id, cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, NOW())
+           ON CONFLICT (bhf_id, cd_cls, cd) DO UPDATE SET
+             cd_nm = EXCLUDED.cd_nm,
+             cd_desc = EXCLUDED.cd_desc,
+             use_yn = EXCLUDED.use_yn,
+             updated_at = NOW()`,
+          [branch.bhf_id, item.cdCls, item.cd, item.cdNm, item.cdDesc, item.useYn || "Y"]
+        )
       }
     }
 
