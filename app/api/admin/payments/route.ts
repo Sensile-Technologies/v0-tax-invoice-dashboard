@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
       SELECT 
         p.*,
         i.invoice_number,
-        v.name as vendor_name
+        v.name as merchant_name
       FROM payments p
       JOIN invoices i ON p.invoice_id = i.id
       JOIN vendors v ON i.vendor_id = v.id

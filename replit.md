@@ -42,11 +42,22 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-11: Operations Dashboard & Merchant Terminology
+  - Renamed "Vendors" to "Merchants" throughout the application
+  - Added Operations page with 3 tabs: Hardware, Onboarding Requests, Signup Requests
+  - Hardware management: register devices with serial numbers, assign to branches
+  - Onboarding requests: configure Device Token, BHF ID, Server Address for new merchants/branches
+  - Signup requests: show leads at "onboarding" stage with signup instructions
+  - Added PDF export for invoices with Sensile Technologies logo
+  - Created database tables: hardware, onboarding_requests
+  - New API routes: /api/admin/operations/hardware, /api/admin/operations/onboarding, /api/admin/operations/signups
+  - Navigation updated: /admin/merchants (was /admin/vendors), /admin/operations added
+
 - 2024-12-11: Sales Team Authentication & Notifications
   - Added sales team login: email as username, full phone number (9+ digits) as password
   - Implemented strict RBAC: sales users can ONLY access /admin/sales page
   - Created notifications system with bell icon in header showing unread count
-  - Notifications auto-created when invoices are raised (vendor-specific and global)
+  - Notifications auto-created when invoices are raised (merchant-specific and global)
   - Invoice dialog now supports percentage discounts per line item
   - Widened invoice dialog to max-w-5xl to prevent horizontal scrolling
   - New API route: /api/admin/notifications (GET, POST, PUT)

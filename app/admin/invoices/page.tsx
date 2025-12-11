@@ -27,8 +27,10 @@ import { Label } from "@/components/ui/label"
 import { 
   FileText, Plus, Search, Calendar, Building2, Copy, 
   RefreshCcw, CreditCard, Trash2, Edit2, DollarSign,
-  CheckCircle, Package, MoreVertical
+  CheckCircle, Package, MoreVertical, Download
 } from "lucide-react"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +44,7 @@ interface Invoice {
   id: string
   invoice_number: string
   vendor_id: string
-  vendor_name: string
+  merchant_name: string
   branch_name: string
   status: string
   issue_date: string
@@ -55,6 +57,7 @@ interface Invoice {
   recurring_interval: string
   next_invoice_date: string
   created_at: string
+  line_items?: any[]
 }
 
 interface Payment {
@@ -67,7 +70,7 @@ interface Payment {
   notes: string
   created_at: string
   invoice_number?: string
-  vendor_name?: string
+  merchant_name?: string
 }
 
 interface BillingProduct {
@@ -88,7 +91,7 @@ export default function InvoicesPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
-  const [vendors, setVendors] = useState<any[]>([])
+  const [merchants, setMerchants] = useState<any[]>([])
   const [billingProducts, setBillingProducts] = useState<BillingProduct[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
   const [newInvoice, setNewInvoice] = useState({
@@ -119,7 +122,7 @@ export default function InvoicesPage() {
 
   useEffect(() => {
     fetchInvoices()
-    fetchVendors()
+    fetchMerchants()
     fetchBillingProducts()
     fetchPayments()
   }, [statusFilter])
@@ -151,14 +154,123 @@ export default function InvoicesPage() {
     }
   }
 
-  const fetchVendors = async () => {
+  const fetchMerchants = async () => {
     try {
       const response = await fetch("/api/admin/vendors")
       const data = await response.json()
-      setVendors(Array.isArray(data) ? data : [])
+      setMerchants(Array.isArray(data) ? data : [])
     } catch (error) {
-      console.error("Error fetching vendors:", error)
-      setVendors([])
+      console.error("Error fetching merchants:", error)
+      setMerchants([])
+    }
+  }
+
+  const handleExportPDF = async (invoice: Invoice) => {
+    try {
+      const detailRes = await fetch(`/api/admin/invoices/${invoice.id}`)
+      const invoiceDetail = await detailRes.json()
+      
+      const doc = new jsPDF()
+      
+      const logoImg = new Image()
+      logoImg.src = '/sensile-logo.png'
+      
+      await new Promise((resolve) => {
+        logoImg.onload = resolve
+        logoImg.onerror = resolve
+      })
+      
+      try {
+        doc.addImage(logoImg, 'PNG', 14, 10, 40, 20)
+      } catch (e) {
+        doc.setFontSize(20)
+        doc.setTextColor(0, 0, 0)
+        doc.text('Sensile Technologies', 14, 25)
+      }
+      
+      doc.setFontSize(10)
+      doc.setTextColor(100, 100, 100)
+      doc.text('Sensile Technologies Ltd', 140, 15)
+      doc.text('P.O. Box 12345, Nairobi', 140, 20)
+      doc.text('Email: info@sensiletechnologies.com', 140, 25)
+      doc.text('Phone: +254 700 000 000', 140, 30)
+      
+      doc.setFontSize(24)
+      doc.setTextColor(0, 0, 0)
+      doc.text('TAX INVOICE', 14, 50)
+      
+      doc.setFontSize(10)
+      doc.setTextColor(100, 100, 100)
+      doc.text(`Invoice #: ${invoice.invoice_number}`, 14, 60)
+      doc.text(`Issue Date: ${invoice.issue_date ? format(new Date(invoice.issue_date), 'MMM d, yyyy') : 'N/A'}`, 14, 66)
+      doc.text(`Due Date: ${invoice.due_date ? format(new Date(invoice.due_date), 'MMM d, yyyy') : 'N/A'}`, 14, 72)
+      
+      doc.setFontSize(12)
+      doc.setTextColor(0, 0, 0)
+      doc.text('Bill To:', 14, 85)
+      doc.setFontSize(10)
+      doc.setTextColor(60, 60, 60)
+      doc.text(invoice.merchant_name || 'N/A', 14, 92)
+      
+      const lineItems = invoiceDetail.line_items || []
+      const tableData = lineItems.map((item: any) => {
+        const subtotal = item.quantity * item.unit_price
+        const discount = subtotal * ((item.discount || 0) / 100)
+        const amount = subtotal - discount
+        return [
+          item.description,
+          item.quantity.toString(),
+          formatCurrency(item.unit_price),
+          item.discount ? `${item.discount}%` : '-',
+          formatCurrency(amount)
+        ]
+      })
+      
+      autoTable(doc, {
+        startY: 100,
+        head: [['Description', 'Qty', 'Unit Price', 'Discount', 'Amount']],
+        body: tableData.length > 0 ? tableData : [['No items', '', '', '', '']],
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185] },
+        styles: { fontSize: 9 }
+      })
+      
+      const finalY = (doc as any).lastAutoTable?.finalY || 150
+      
+      doc.setFontSize(10)
+      doc.text('Subtotal:', 140, finalY + 15)
+      doc.text(formatCurrency(Number(invoice.subtotal)), 180, finalY + 15, { align: 'right' })
+      
+      doc.text('VAT (16%):', 140, finalY + 22)
+      doc.text(formatCurrency(Number(invoice.tax_amount)), 180, finalY + 22, { align: 'right' })
+      
+      doc.setFontSize(12)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Total:', 140, finalY + 32)
+      doc.text(formatCurrency(Number(invoice.total_amount)), 180, finalY + 32, { align: 'right' })
+      
+      if (Number(invoice.paid_amount) > 0) {
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(10)
+        doc.setTextColor(0, 128, 0)
+        doc.text('Paid:', 140, finalY + 42)
+        doc.text(formatCurrency(Number(invoice.paid_amount)), 180, finalY + 42, { align: 'right' })
+        
+        doc.setTextColor(255, 0, 0)
+        doc.text('Balance Due:', 140, finalY + 49)
+        doc.text(formatCurrency(Number(invoice.total_amount) - Number(invoice.paid_amount)), 180, finalY + 49, { align: 'right' })
+      }
+      
+      doc.setFontSize(8)
+      doc.setTextColor(150, 150, 150)
+      doc.text('Thank you for your business!', 105, 280, { align: 'center' })
+      doc.text('This is a computer generated invoice.', 105, 285, { align: 'center' })
+      
+      doc.save(`Invoice-${invoice.invoice_number}.pdf`)
+      toast.success('PDF exported successfully')
+    } catch (error) {
+      console.error('Error exporting PDF:', error)
+      toast.error('Failed to export PDF')
     }
   }
 
@@ -407,7 +519,7 @@ export default function InvoicesPage() {
 
   const filteredInvoices = invoices.filter(i => 
     i.invoice_number?.toLowerCase().includes(search.toLowerCase()) ||
-    i.vendor_name?.toLowerCase().includes(search.toLowerCase())
+    i.merchant_name?.toLowerCase().includes(search.toLowerCase())
   )
 
   const pendingInvoices = invoices.filter(i => i.status === "pending" || i.status === "partial")
@@ -487,22 +599,22 @@ export default function InvoicesPage() {
               <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Create Invoice</DialogTitle>
-                  <DialogDescription>Generate a new invoice for a vendor</DialogDescription>
+                  <DialogDescription>Generate a new invoice for a merchant</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Vendor</Label>
+                      <Label>Merchant</Label>
                       <Select
                         value={newInvoice.vendor_id}
                         onValueChange={(v) => setNewInvoice({ ...newInvoice, vendor_id: v })}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select vendor" />
+                          <SelectValue placeholder="Select merchant" />
                         </SelectTrigger>
                         <SelectContent>
-                          {vendors.map((v) => (
-                            <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>
+                          {merchants.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -723,7 +835,7 @@ export default function InvoicesPage() {
                         <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
                           <span className="flex items-center gap-1">
                             <Building2 className="h-3 w-3" />
-                            {invoice.vendor_name}
+                            {invoice.merchant_name}
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
@@ -744,6 +856,14 @@ export default function InvoicesPage() {
                         )}
                       </div>
                       <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleExportPDF(invoice)}
+                          title="Export PDF"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="outline"
                           size="sm"
@@ -830,7 +950,7 @@ export default function InvoicesPage() {
                       <SelectContent>
                         {pendingInvoices.map((inv) => (
                           <SelectItem key={inv.id} value={inv.id}>
-                            {inv.invoice_number} - {inv.vendor_name} ({formatCurrency(Number(inv.total_amount) - Number(inv.paid_amount || 0))} due)
+                            {inv.invoice_number} - {inv.merchant_name} ({formatCurrency(Number(inv.total_amount) - Number(inv.paid_amount || 0))} due)
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -934,7 +1054,7 @@ export default function InvoicesPage() {
                       <div>
                         <div className="font-medium">{payment.invoice_number}</div>
                         <div className="text-sm text-slate-500">
-                          {payment.vendor_name} - {payment.payment_method?.replace('_', ' ')}
+                          {payment.merchant_name} - {payment.payment_method?.replace('_', ' ')}
                           {payment.reference_number && ` (${payment.reference_number})`}
                         </div>
                       </div>

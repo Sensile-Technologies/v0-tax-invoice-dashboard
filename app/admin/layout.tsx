@@ -14,7 +14,8 @@ import {
   ChevronDown,
   TrendingUp,
   Bell,
-  ShieldAlert
+  ShieldAlert,
+  Settings2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -111,8 +112,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const allNavItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "sales"] },
-    { href: "/admin/vendors", label: "Vendors", icon: Building2, roles: ["admin"] },
+    { href: "/admin/merchants", label: "Merchants", icon: Building2, roles: ["admin"] },
     { href: "/admin/sales", label: "Sales", icon: TrendingUp, roles: ["admin", "sales"] },
+    { href: "/admin/operations", label: "Operations", icon: Settings2, roles: ["admin"] },
     { href: "/admin/tickets", label: "Support Tickets", icon: Ticket, roles: ["admin"] },
     { href: "/admin/invoices", label: "Billing", icon: FileText, roles: ["admin"] },
     { href: "/admin/settings", label: "Settings", icon: Settings, roles: ["admin"] },

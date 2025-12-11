@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     let sql = `
       SELECT 
         i.*,
-        v.name as vendor_name,
+        v.name as merchant_name,
         b.name as branch_name,
         u.username as created_by_username
       FROM invoices i

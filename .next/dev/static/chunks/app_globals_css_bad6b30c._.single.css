@@ -1461,6 +1461,10 @@
     margin-inline: calc(var(--spacing) * -1);
   }
 
+  .mx-2 {
+    margin-inline: calc(var(--spacing) * 2);
+  }
+
   .mx-auto {
     margin-inline: auto;
   }
@@ -3371,6 +3375,10 @@
 
   .border-input {
     border-color: var(--input);
+  }
+
+  .border-orange-200 {
+    border-color: var(--color-orange-200);
   }
 
   .border-primary {
