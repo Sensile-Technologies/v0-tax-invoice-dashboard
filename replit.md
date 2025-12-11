@@ -42,6 +42,17 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-11: Sales Team Authentication & Notifications
+  - Added sales team login: email as username, full phone number (9+ digits) as password
+  - Implemented strict RBAC: sales users can ONLY access /admin/sales page
+  - Created notifications system with bell icon in header showing unread count
+  - Notifications auto-created when invoices are raised (vendor-specific and global)
+  - Invoice dialog now supports percentage discounts per line item
+  - Widened invoice dialog to max-w-5xl to prevent horizontal scrolling
+  - New API route: /api/admin/notifications (GET, POST, PUT)
+  - New database table: notifications (user_id, type, title, message, is_read, reference_id)
+  - Added discount column to invoice_line_items table
+
 - 2024-12-11: Sales Management & Billing Enhancements
   - Added Sales Management page with 5-stage lead pipeline (Contact → Negotiation → Demo → Contracting → Onboarding)
   - Created sales team management with lead assignment and performance tracking
