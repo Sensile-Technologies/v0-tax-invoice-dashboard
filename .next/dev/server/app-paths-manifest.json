@@ -1,4 +1,13 @@
 {
+  "/api/auth/signin/route": "app/api/auth/signin/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/page": "app/page.js"
+  "/api/db/[table]/route": "app/api/db/[table]/route.js",
+  "/api/kra/codes/route": "app/api/kra/codes/route.js",
+  "/api/logs/route": "app/api/logs/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/configuration/tax-service/page": "app/configuration/tax-service/page.js",
+  "/logs/page": "app/logs/page.js",
+  "/page": "app/page.js",
+  "/sales/page": "app/sales/page.js",
+  "/security-settings/page": "app/security-settings/page.js"
 }

@@ -40,13 +40,13 @@ export async function PUT(request: NextRequest) {
   try {
     const { id, device_token, bhf_id, server_address, server_port } = await request.json()
 
-    // Update the branch with onboarding configuration (device token, bhf_id, etc.)
+    // Update the branch with onboarding configuration (device token, bhf_id, server address/port)
     const result = await query(`
       UPDATE branches 
-      SET device_token = $2, bhf_id = $3, updated_at = NOW()
+      SET device_token = $2, bhf_id = $3, server_address = $4, server_port = $5, updated_at = NOW()
       WHERE id = $1
       RETURNING *
-    `, [id, device_token, bhf_id])
+    `, [id, device_token, bhf_id, server_address || null, server_port || null])
 
     if (result.length === 0) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 })
