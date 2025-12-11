@@ -27,8 +27,14 @@ import { Label } from "@/components/ui/label"
 import { 
   FileText, Plus, Search, Calendar, Building2, Copy, 
   RefreshCcw, CreditCard, Trash2, Edit2, DollarSign,
-  CheckCircle
+  CheckCircle, Package, MoreVertical
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { format } from "date-fns"
 
@@ -101,6 +107,15 @@ export default function InvoicesPage() {
     reference_number: "",
     notes: ""
   })
+  const [productDialogOpen, setProductDialogOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<BillingProduct | null>(null)
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    description: "",
+    product_type: "setup",
+    default_amount: ""
+  })
+  const [selectedProductId, setSelectedProductId] = useState("")
 
   useEffect(() => {
     fetchInvoices()
@@ -149,12 +164,90 @@ export default function InvoicesPage() {
 
   const fetchBillingProducts = async () => {
     try {
-      const response = await fetch("/api/db/billing_products")
+      const response = await fetch("/api/admin/billing-products")
       const data = await response.json()
-      setBillingProducts(Array.isArray(data) ? data.filter((p: BillingProduct) => p.is_active) : [])
+      setBillingProducts(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error("Error fetching billing products:", error)
       setBillingProducts([])
+    }
+  }
+
+  const handleCreateProduct = async () => {
+    if (!newProduct.name) {
+      toast.error("Please enter a product name")
+      return
+    }
+
+    try {
+      const response = await fetch("/api/admin/billing-products", {
+        method: editingProduct ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingProduct ? { ...newProduct, id: editingProduct.id, is_active: true } : newProduct)
+      })
+
+      if (!response.ok) throw new Error("Failed to save product")
+
+      toast.success(editingProduct ? "Product updated" : "Product created")
+      setProductDialogOpen(false)
+      resetProductForm()
+      fetchBillingProducts()
+    } catch (error) {
+      toast.error("Failed to save product")
+    }
+  }
+
+  const handleToggleProductActive = async (product: BillingProduct) => {
+    try {
+      const response = await fetch("/api/admin/billing-products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...product, is_active: !product.is_active })
+      })
+
+      if (!response.ok) throw new Error("Failed to update product")
+      toast.success(product.is_active ? "Product deactivated" : "Product activated")
+      fetchBillingProducts()
+    } catch (error) {
+      toast.error("Failed to update product")
+    }
+  }
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return
+
+    try {
+      const response = await fetch(`/api/admin/billing-products?id=${id}`, { method: "DELETE" })
+      if (!response.ok) throw new Error("Failed to delete product")
+      toast.success("Product deleted")
+      fetchBillingProducts()
+    } catch (error) {
+      toast.error("Failed to delete product")
+    }
+  }
+
+  const openEditProduct = (product: BillingProduct) => {
+    setEditingProduct(product)
+    setNewProduct({
+      name: product.name,
+      description: product.description || "",
+      product_type: product.product_type,
+      default_amount: product.default_amount?.toString() || ""
+    })
+    setProductDialogOpen(true)
+  }
+
+  const resetProductForm = () => {
+    setNewProduct({ name: "", description: "", product_type: "setup", default_amount: "" })
+    setEditingProduct(null)
+  }
+
+  const handleAddSelectedProduct = () => {
+    if (!selectedProductId) return
+    const product = billingProducts.find(p => p.id === selectedProductId)
+    if (product) {
+      handleAddLineItem(product)
+      setSelectedProductId("")
     }
   }
 
@@ -347,6 +440,10 @@ export default function InvoicesPage() {
             <CreditCard className="h-4 w-4 mr-2" />
             Payments
           </TabsTrigger>
+          <TabsTrigger value="products">
+            <Package className="h-4 w-4 mr-2" />
+            Products/Services
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="invoices" className="space-y-4 mt-4">
@@ -444,25 +541,41 @@ export default function InvoicesPage() {
 
                   <div className="space-y-2">
                     <Label>Add Products/Services</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {billingProducts.map((product) => (
-                        <Button
-                          key={product.id}
-                          variant="outline"
-                          size="sm"
-                          className="justify-start h-auto py-2"
-                          onClick={() => handleAddLineItem(product)}
-                        >
-                          <Plus className="h-3 w-3 mr-2 flex-shrink-0" />
-                          <div className="text-left">
-                            <div className="font-medium">{product.name}</div>
-                            <div className="text-xs text-slate-500">
-                              {getProductTypeLabel(product.product_type)} - {formatCurrency(Number(product.default_amount))}
-                            </div>
-                          </div>
-                        </Button>
-                      ))}
+                    <div className="flex gap-2">
+                      <Select
+                        value={selectedProductId}
+                        onValueChange={setSelectedProductId}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Select a product to add" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {billingProducts.filter(p => p.is_active).map((product) => (
+                            <SelectItem key={product.id} value={product.id}>
+                              <div className="flex items-center justify-between gap-4">
+                                <span>{product.name}</span>
+                                <span className="text-xs text-slate-500">
+                                  {getProductTypeLabel(product.product_type)} - {formatCurrency(Number(product.default_amount))}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        type="button" 
+                        onClick={handleAddSelectedProduct}
+                        disabled={!selectedProductId}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add
+                      </Button>
                     </div>
+                    {billingProducts.filter(p => p.is_active).length === 0 && (
+                      <p className="text-sm text-slate-500">
+                        No products configured. Go to the Products/Services tab to add some.
+                      </p>
+                    )}
                   </div>
 
                   {newInvoice.line_items.length > 0 && (
@@ -823,6 +936,159 @@ export default function InvoicesPage() {
             <div className="text-center py-12">
               <CreditCard className="h-12 w-12 text-slate-300 mx-auto mb-4" />
               <p className="text-slate-500">No payments recorded yet</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="products" className="mt-4 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Products & Services</h2>
+              <p className="text-sm text-slate-500">Configure billable items for invoices</p>
+            </div>
+            <Dialog open={productDialogOpen} onOpenChange={(open) => {
+              setProductDialogOpen(open)
+              if (!open) resetProductForm()
+            }}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
+                  <DialogDescription>Configure a billable product or service</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label>Name *</Label>
+                    <Input
+                      value={newProduct.name}
+                      onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                      placeholder="Setup Fee"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={newProduct.description}
+                      onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                      placeholder="Initial setup and configuration"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Product Type</Label>
+                      <Select
+                        value={newProduct.product_type}
+                        onValueChange={(v) => setNewProduct({ ...newProduct, product_type: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="setup">Setup Fee</SelectItem>
+                          <SelectItem value="one_off_manual">One-off (Manual)</SelectItem>
+                          <SelectItem value="one_off_automated">One-off (Automated)</SelectItem>
+                          <SelectItem value="subscription_monthly_manual">Monthly Subscription (Manual)</SelectItem>
+                          <SelectItem value="subscription_monthly_automated">Monthly Subscription (Automated)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Default Amount (KES)</Label>
+                      <Input
+                        type="number"
+                        value={newProduct.default_amount}
+                        onChange={(e) => setNewProduct({ ...newProduct, default_amount: e.target.value })}
+                        placeholder="10000"
+                        min={0}
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={handleCreateProduct} className="w-full">
+                    {editingProduct ? "Update Product" : "Create Product"}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="grid gap-4">
+            {billingProducts.map((product) => (
+              <Card key={product.id} className={`${!product.is_active ? 'opacity-60' : ''}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${product.is_active ? 'bg-blue-100' : 'bg-slate-100'}`}>
+                        <Package className={`h-5 w-5 ${product.is_active ? 'text-blue-600' : 'text-slate-400'}`} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-semibold">{product.name}</h3>
+                          <Badge variant="outline">{getProductTypeLabel(product.product_type)}</Badge>
+                          {!product.is_active && (
+                            <Badge variant="secondary">Inactive</Badge>
+                          )}
+                        </div>
+                        {product.description && (
+                          <p className="text-sm text-slate-500 mt-1">{product.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-xl font-bold">{formatCurrency(Number(product.default_amount))}</p>
+                        <p className="text-xs text-slate-500">Default price</p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditProduct(product)}>
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleToggleProductActive(product)}>
+                            {product.is_active ? (
+                              <>
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Deactivate
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Activate
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {billingProducts.length === 0 && (
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500">No products configured yet</p>
+              <p className="text-sm text-slate-400 mt-1">Add products to use them in invoices</p>
             </div>
           )}
         </TabsContent>
