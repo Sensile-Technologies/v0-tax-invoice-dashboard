@@ -175,7 +175,11 @@ async function POST(request) {
         const invoiceNumber = `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
         let subtotal = 0;
         if (line_items && Array.isArray(line_items)) {
-            subtotal = line_items.reduce((sum, item)=>sum + item.quantity * item.unit_price, 0);
+            subtotal = line_items.reduce((sum, item)=>{
+                const lineSubtotal = item.quantity * item.unit_price;
+                const discountAmount = lineSubtotal * ((item.discount || 0) / 100);
+                return sum + (lineSubtotal - discountAmount);
+            }, 0);
         }
         const taxAmount = subtotal * 0.16;
         const totalAmount = subtotal + taxAmount;
@@ -196,17 +200,48 @@ async function POST(request) {
         const invoice = result[0];
         if (line_items && Array.isArray(line_items)) {
             for (const item of line_items){
-                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO invoice_line_items (invoice_id, description, quantity, unit_price, tax_rate, amount)
-           VALUES ($1, $2, $3, $4, $5, $6)`, [
+                const lineSubtotal = item.quantity * item.unit_price;
+                const discountAmount = lineSubtotal * ((item.discount || 0) / 100);
+                const lineAmount = lineSubtotal - discountAmount;
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO invoice_line_items (invoice_id, description, quantity, unit_price, tax_rate, amount, discount)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`, [
                     invoice.id,
                     item.description,
                     item.quantity,
                     item.unit_price,
                     item.tax_rate || 16,
-                    item.quantity * item.unit_price
+                    lineAmount,
+                    item.discount || 0
                 ]);
             }
         }
+        const vendorResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT name, email FROM vendors WHERE id = $1`, [
+            vendor_id
+        ]);
+        const vendor = vendorResult[0];
+        if (vendor) {
+            const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT id FROM users WHERE email = $1`, [
+                vendor.email
+            ]);
+            const vendorUser = userResult[0];
+            if (vendorUser) {
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO notifications (user_id, type, title, message, reference_id)
+           VALUES ($1, $2, $3, $4, $5)`, [
+                    vendorUser.id,
+                    'invoice',
+                    'New Invoice',
+                    `Invoice ${invoiceNumber} for KES ${totalAmount.toLocaleString()} has been created`,
+                    invoice.id
+                ]);
+            }
+        }
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO notifications (user_id, type, title, message, reference_id)
+       VALUES (NULL, $1, $2, $3, $4)`, [
+            'invoice',
+            'Invoice Created',
+            `Invoice ${invoiceNumber} for ${vendor?.name || 'Unknown'} - KES ${totalAmount.toLocaleString()}`,
+            invoice.id
+        ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(invoice);
     } catch (error) {
         console.error("[Admin] Error creating invoice:", error);

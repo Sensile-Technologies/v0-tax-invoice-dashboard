@@ -459,7 +459,7 @@ function AdminLayout({ children }) {
                 "/admin/sales"
             ];
             const isAllowed = allowedPaths.some((path)=>pathname === path || pathname.startsWith(path + "/"));
-            setIsRestricted(!isAllowed && pathname !== "/admin");
+            setIsRestricted(!isAllowed);
         } else {
             setIsRestricted(false);
         }

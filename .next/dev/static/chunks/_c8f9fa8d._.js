@@ -515,7 +515,7 @@ function AdminLayout({ children }) {
                 const isAllowed = allowedPaths.some({
                     "AdminLayout.useEffect.isAllowed": (path)=>pathname === path || pathname.startsWith(path + "/")
                 }["AdminLayout.useEffect.isAllowed"]);
-                setIsRestricted(!isAllowed && pathname !== "/admin");
+                setIsRestricted(!isAllowed);
             } else {
                 setIsRestricted(false);
             }

@@ -32,6 +32,8 @@ export default function LoginPage() {
       if (data.access_token) {
         if (data.user?.role === "admin") {
           router.push("/admin")
+        } else if (data.user?.role === "sales") {
+          router.push("/admin/sales")
         } else {
           router.push("/")
         }

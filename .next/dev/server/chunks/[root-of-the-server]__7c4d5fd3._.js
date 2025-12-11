@@ -94,6 +94,32 @@ async function POST(request) {
         const client = await pool.connect();
         try {
             let user;
+            const identifier = email || username;
+            if (identifier && identifier.includes("@")) {
+                const salesResult = await client.query("SELECT id, name, email, phone, is_active FROM sales_people WHERE email = $1 AND is_active = true", [
+                    identifier
+                ]);
+                const salesPerson = salesResult.rows[0];
+                if (salesPerson && salesPerson.phone) {
+                    const phoneDigits = salesPerson.phone.replace(/\D/g, '');
+                    const passwordDigits = password.replace(/\D/g, '');
+                    if (phoneDigits.length >= 9 && passwordDigits.length >= 9 && phoneDigits === passwordDigits) {
+                        const token = crypto.randomUUID();
+                        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                            access_token: token,
+                            refresh_token: crypto.randomUUID(),
+                            user: {
+                                id: salesPerson.id,
+                                email: salesPerson.email,
+                                username: salesPerson.name,
+                                role: 'sales',
+                                sales_person_id: salesPerson.id,
+                                sales_person_name: salesPerson.name
+                            }
+                        });
+                    }
+                }
+            }
             if (email) {
                 const result = await client.query("SELECT u.id, u.email, u.username, u.password_hash, u.role, v.id as vendor_id, v.name as vendor_name FROM users u LEFT JOIN vendors v ON v.email = u.email WHERE u.email = $1", [
                     email
