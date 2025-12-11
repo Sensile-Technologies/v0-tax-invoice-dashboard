@@ -42,6 +42,15 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-11: Branch Configuration & KRA Data Storage
+  - Added server_address and server_port columns to branches table for backend configuration
+  - Onboarding API now saves complete backend config (server address, port, BHF ID, device token) per branch
+  - Security Settings page loads branch configuration from database and displays all settings
+  - Created kra_codelists table to store KRA code lists per BHF ID
+  - Created kra_item_classifications table to store item classifications per BHF ID
+  - Tax Service Configuration page loads saved codelists/classifications on page load
+  - Added saved data count display and BHF ID badge on tax service page
+
 - 2024-12-11: UI and Workflow Enhancements
   - Changed admin top nav bar background to night sky blue (#0a1628)
   - Updated logo to use Flow360 circular logo image (public/flow360-logo.png)
