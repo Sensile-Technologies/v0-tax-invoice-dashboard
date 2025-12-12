@@ -744,11 +744,16 @@ export function SalesContent() {
                       {(() => {
                         const PAYMENT_COLORS: any = {
                           Cash: "#3A7085",
+                          cash: "#3A7085",
+                          "Mobile Money": "#008C51",
+                          mobile_money: "#008C51",
                           "M-Pesa": "#008C51",
                           Mpesa: "#008C51",
-                          "M-PESA": "#008C51",
                           mpesa: "#008C51",
                           Card: "#F59E0B",
+                          card: "#F59E0B",
+                          Credit: "#EF4444",
+                          credit: "#EF4444",
                         }
                         const paymentSales = sales.reduce((acc: any, sale) => {
                           const method = sale.payment_method || "Cash"
@@ -1227,7 +1232,7 @@ export function SalesContent() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="mpesa">M-Pesa</SelectItem>
+                    <SelectItem value="mobile_money">Mobile Money</SelectItem>
                     <SelectItem value="card">Card</SelectItem>
                     <SelectItem value="credit">Credit</SelectItem>
                   </SelectContent>

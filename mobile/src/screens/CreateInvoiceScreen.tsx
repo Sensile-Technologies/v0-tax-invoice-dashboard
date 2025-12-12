@@ -147,11 +147,6 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const quantity = unitPrice > 0 ? totalAmount / unitPrice : 0
 
   async function handleCreateSale() {
-    if (!customerName.trim()) {
-      Alert.alert('Error', 'Please enter customer name')
-      return
-    }
-
     setSubmitting(true)
     try {
       await api.post('/api/mobile/create-sale', {
@@ -163,7 +158,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         unit_price: unitPrice,
         total_amount: totalAmount,
         payment_method: paymentMethod,
-        customer_name: customerName,
+        customer_name: customerName.trim() || 'Walk-in Customer',
         kra_pin: kraPin,
         vehicle_number: vehicleNumber,
         is_loyalty_customer: isLoyaltyCustomer,
@@ -278,7 +273,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
               placeholderTextColor={colors.textLight}
             />
 
-            <Text style={styles.inputLabel}>Customer Name *</Text>
+            <Text style={styles.inputLabel}>Customer Name (Optional)</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter customer name"

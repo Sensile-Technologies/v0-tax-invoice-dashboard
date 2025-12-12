@@ -390,22 +390,27 @@ export default function SalesScreen() {
 
               <Text style={styles.inputLabel}>Payment Method</Text>
               <View style={styles.paymentButtons}>
-                {['cash', 'mpesa', 'card', 'credit'].map((method) => (
+                {[
+                  { value: 'cash', label: 'Cash' },
+                  { value: 'mobile_money', label: 'Mobile Money' },
+                  { value: 'card', label: 'Card' },
+                  { value: 'credit', label: 'Credit' },
+                ].map((method) => (
                   <TouchableOpacity
-                    key={method}
+                    key={method.value}
                     style={[
                       styles.paymentButton,
-                      saleForm.payment_method === method && styles.paymentButtonActive,
+                      saleForm.payment_method === method.value && styles.paymentButtonActive,
                     ]}
-                    onPress={() => setSaleForm({ ...saleForm, payment_method: method })}
+                    onPress={() => setSaleForm({ ...saleForm, payment_method: method.value })}
                   >
                     <Text
                       style={[
                         styles.paymentButtonText,
-                        saleForm.payment_method === method && styles.paymentButtonTextActive,
+                        saleForm.payment_method === method.value && styles.paymentButtonTextActive,
                       ]}
                     >
-                      {method.charAt(0).toUpperCase() + method.slice(1)}
+                      {method.label}
                     </Text>
                   </TouchableOpacity>
                 ))}

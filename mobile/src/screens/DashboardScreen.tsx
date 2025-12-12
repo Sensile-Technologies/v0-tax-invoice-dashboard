@@ -31,12 +31,13 @@ export default function DashboardScreen({ navigation }: any) {
 
   const fetchStats = useCallback(async () => {
     try {
-      const data = await api.get<DashboardStats>('/api/mobile/dashboard')
-      setStats(data)
+      if (!user?.branch_id) return
+      const data = await api.get<DashboardStats>(`/api/mobile/dashboard?branch_id=${user.branch_id}`)
+      if (data) setStats(data)
     } catch (error) {
       console.log('Using default stats')
     }
-  }, [])
+  }, [user?.branch_id])
 
   useEffect(() => {
     fetchStats()
