@@ -30,7 +30,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "flow360-sales"
+        "projectId": ""
       }
     },
     "plugins": [
