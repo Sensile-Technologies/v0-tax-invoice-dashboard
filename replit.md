@@ -46,6 +46,15 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-12: KRA Test Sales Integration
+  - Created lib/kra-sales-api.ts - helper function to call external KRA backend API
+  - Calls KRA endpoint at http://{server_address}:{server_port}/trnsSales/saveSales
+  - Updated /api/mobile/create-sale to call KRA endpoint after sale creation
+  - Created /api/kra/test-sale endpoint for web dashboard to call KRA API
+  - Updated web sales-content.tsx handleCreateSale to call KRA endpoint after sale creation
+  - All KRA API calls are logged to api_logs table with request/response details
+  - Console logging added for debugging: [KRA API], [Mobile Create Sale], [Web Sale]
+
 - 2024-12-12: Mobile App Loyalty & Discount Features
   - Added discount option to web Record Fuel Sale popup (fixed or percentage)
   - Added discount option to mobile Create Invoice screen (fixed or percentage)

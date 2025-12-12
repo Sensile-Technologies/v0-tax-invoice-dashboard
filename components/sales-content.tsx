@@ -370,6 +370,37 @@ export function SalesContent() {
         console.error("[v0] Sale creation error:", error)
         toast.error(`Error recording sale: ${error.message}`)
       } else {
+        console.log("[Web Sale] Sale created successfully, calling KRA endpoint...")
+        
+        try {
+          const kraResponse = await fetch("/api/kra/test-sale", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              branch_id: branchId,
+              invoice_number: data.invoice_number,
+              receipt_number: data.receipt_number,
+              fuel_type: saleForm.fuel_type,
+              quantity,
+              unit_price: unitPrice,
+              total_amount: totalAmount,
+              payment_method: saleForm.payment_method,
+              customer_name: saleForm.customer_name || "Walk-in Customer",
+              customer_pin: saleForm.customer_pin || "",
+            }),
+          })
+          
+          const kraResult = await kraResponse.json()
+          console.log("[Web Sale] KRA API Response:", JSON.stringify(kraResult, null, 2))
+          
+          if (kraResult.kra_response) {
+            console.log("[Web Sale] KRA Result Code:", kraResult.kra_response.resultCd)
+            console.log("[Web Sale] KRA Result Message:", kraResult.kra_response.resultMsg)
+          }
+        } catch (kraError) {
+          console.error("[Web Sale] Error calling KRA endpoint:", kraError)
+        }
+        
         toast.success("Sale recorded successfully!")
         setSaleForm({
           nozzle_id: "",
