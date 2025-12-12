@@ -47,11 +47,11 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.logoContainer}>
-          <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>F360</Text>
-          </View>
-          <Text style={styles.title}>Flow360</Text>
-          <Text style={styles.subtitle}>Sales & Inventory App</Text>
+          <Image
+            source={{ uri: 'https://ceaad22e-7426-4b1f-a645-d2bab46d41d2-00-2750hh3y918g9.janeway.replit.dev/flow360-logo.png' }}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.formContainer}>
@@ -64,6 +64,7 @@ export default function LoginScreen() {
             autoCapitalize="none"
             keyboardType="email-address"
             editable={!loading}
+            placeholderTextColor={colors.textLight}
           />
 
           <Text style={styles.label}>Password</Text>
@@ -74,6 +75,7 @@ export default function LoginScreen() {
             onChangeText={setPassword}
             secureTextEntry
             editable={!loading}
+            placeholderTextColor={colors.textLight}
           />
 
           <TouchableOpacity
@@ -87,10 +89,6 @@ export default function LoginScreen() {
               <Text style={styles.buttonText}>Sign In</Text>
             )}
           </TouchableOpacity>
-
-          <Text style={styles.hint}>
-            For merchants, cashiers and supervisors
-          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -111,29 +109,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: spacing.xl,
   },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  logoText: {
-    color: '#fff',
-    fontSize: fontSize.lg,
-    fontWeight: 'bold',
-  },
-  title: {
-    fontSize: fontSize.xxl,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textLight,
-    marginTop: spacing.xs,
+  logo: {
+    width: 120,
+    height: 120,
   },
   formContainer: {
     backgroundColor: colors.surface,
@@ -159,6 +137,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     marginBottom: spacing.md,
     backgroundColor: colors.background,
+    color: colors.text,
   },
   button: {
     backgroundColor: colors.primary,
@@ -174,11 +153,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: fontSize.md,
     fontWeight: '600',
-  },
-  hint: {
-    textAlign: 'center',
-    color: colors.textLight,
-    fontSize: fontSize.xs,
-    marginTop: spacing.md,
   },
 })

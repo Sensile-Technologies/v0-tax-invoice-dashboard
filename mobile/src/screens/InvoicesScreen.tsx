@@ -172,8 +172,9 @@ export default function InvoicesScreen({ navigation }: any) {
   const getPaymentMethodLabel = (method: string) => {
     switch (method) {
       case 'mobile_money': return 'Mobile Money'
+      case 'mpesa': return 'Mobile Money'
+      case 'card': return 'Mobile Money'
       case 'cash': return 'Cash'
-      case 'card': return 'Card'
       case 'credit': return 'Credit'
       default: return method
     }
@@ -257,7 +258,7 @@ export default function InvoicesScreen({ navigation }: any) {
               <View style={styles.customerInfo}>
                 <Ionicons name="flame-outline" size={16} color={colors.primary} />
                 <Text style={styles.fuelType}>{item.fuel_type}</Text>
-                <Text style={styles.quantity}>({item.quantity?.toFixed(2)} L)</Text>
+                <Text style={styles.quantity}>({parseFloat(String(item.quantity || 0)).toFixed(2)} L)</Text>
               </View>
               <Text style={styles.invoiceDate}>{formatDate(item.sale_date)}</Text>
             </View>

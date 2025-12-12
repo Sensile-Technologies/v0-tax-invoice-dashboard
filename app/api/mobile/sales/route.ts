@@ -36,8 +36,10 @@ export async function GET(request: Request) {
       )
 
       const nozzlesResult = await client.query(
-        `SELECT id, name, fuel_type FROM nozzles 
-         WHERE branch_id = $1 AND status = 'active'`,
+        `SELECT n.id, CONCAT('D', d.id, 'N', n.nozzle_number) as name, n.fuel_type 
+         FROM nozzles n
+         LEFT JOIN dispensers d ON n.dispenser_id = d.id
+         WHERE n.branch_id = $1 AND n.status = 'active'`,
         [branchId]
       )
 
@@ -49,10 +51,10 @@ export async function GET(request: Request) {
       )
 
       return NextResponse.json({
-        sales: salesResult.rows,
+        sales: salesResult.rows || [],
         shift: shiftResult.rows[0] || null,
-        nozzles: nozzlesResult.rows,
-        fuel_prices: fuelPricesResult.rows,
+        nozzles: nozzlesResult.rows || [],
+        fuel_prices: fuelPricesResult.rows || [],
       })
     } finally {
       client.release()

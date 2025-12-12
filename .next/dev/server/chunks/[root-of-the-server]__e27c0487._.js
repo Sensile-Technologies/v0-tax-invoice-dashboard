@@ -129,18 +129,20 @@ async function POST(request) {
                 meterReadingAfter
             ]);
             const sale = saleResult.rows[0];
-            if (is_loyalty_customer && customer_name) {
-                const existingCustomer = await client.query(`SELECT id FROM customers WHERE name = $1 AND branch_id = $2`, [
+            if (is_loyalty_customer && customer_name && customer_name !== 'Walk-in Customer') {
+                const existingCustomer = await client.query(`SELECT id FROM customers WHERE cust_nm = $1 AND branch_id = $2`, [
                     customer_name,
                     branch_id
                 ]);
                 if (existingCustomer.rows.length === 0) {
-                    await client.query(`INSERT INTO customers (branch_id, name, kra_pin, is_loyalty)
-             VALUES ($1, $2, $3, true)
+                    const custNo = `CUST-${Date.now().toString(36).toUpperCase()}`;
+                    await client.query(`INSERT INTO customers (branch_id, cust_nm, cust_tin, cust_no, use_yn)
+             VALUES ($1, $2, $3, $4, 'Y')
              ON CONFLICT DO NOTHING`, [
                         branch_id,
                         customer_name,
-                        kra_pin || null
+                        kra_pin || null,
+                        custNo
                     ]);
                 }
             }
