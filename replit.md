@@ -46,6 +46,19 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-12: Mobile App Loyalty & Discount Features
+  - Added discount option to web Record Fuel Sale popup (fixed or percentage)
+  - Added discount option to mobile Create Invoice screen (fixed or percentage)
+  - Implemented 3-step loyalty customer verification flow:
+    - Step 1: Nozzle selection and amount entry
+    - Step 2: Customer details with "Loyalty Customer" checkbox
+    - Step 3: Phone verification for loyalty customers (only if checkbox checked)
+  - Created /api/mobile/verify-loyalty endpoint - verifies customer by phone number
+  - Created /api/mobile/loyalty-transaction endpoint - records loyalty points (1 point per 100 KES)
+  - Removed all placeholder/mock nozzle data - now uses only real API data
+  - Added proper error handling with user-friendly messages and retry functionality
+  - Updated /api/mobile/create-sale to return sale_id for loyalty transaction linking
+
 - 2024-12-12: Mobile App Enhancements
   - Customer name field made optional in Create Sale screen (defaults to "Walk-in Customer")
   - Changed payment method terminology from "mpesa" to "Mobile Money" across all screens
