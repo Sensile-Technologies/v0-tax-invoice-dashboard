@@ -118,6 +118,7 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
     console.log(`[KRA API] Request payload:`, JSON.stringify(kraPayload, null, 2))
 
     let kraResponse: KraResponse
+    let httpStatusCode = 200
 
     try {
       const response = await fetch(kraEndpoint, {
@@ -130,11 +131,15 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
         signal: AbortSignal.timeout(30000)
       })
 
+      httpStatusCode = response.status
       kraResponse = await response.json()
       
-      console.log(`[KRA API] Response status: ${response.status}`)
+      console.log(`[KRA API] HTTP Status: ${response.status}`)
+      console.log(`[KRA API] KRA Result Code: ${kraResponse.resultCd}`)
+      console.log(`[KRA API] KRA Result Message: ${kraResponse.resultMsg}`)
       console.log(`[KRA API] Response body:`, JSON.stringify(kraResponse, null, 2))
     } catch (fetchError: any) {
+      httpStatusCode = 0
       kraResponse = {
         resultCd: "NETWORK_ERROR",
         resultMsg: fetchError.message || "Failed to connect to KRA backend",
@@ -142,20 +147,25 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
       }
       
       console.log(`[KRA API] Network error:`, fetchError.message)
-      console.log(`[KRA API] Response (simulated):`, JSON.stringify(kraResponse, null, 2))
+      console.log(`[KRA API] Response (network error):`, JSON.stringify(kraResponse, null, 2))
     }
 
     const durationMs = Date.now() - startTime
+
+    const responseWithMetadata = {
+      ...kraResponse,
+      _httpStatus: httpStatusCode,
+      _kraEndpoint: kraEndpoint
+    }
 
     await logApiCall({
       endpoint: "/kra/trnsSales/saveSales",
       method: "POST",
       payload: kraPayload,
-      response: kraResponse,
-      statusCode: kraResponse.resultCd === "000" ? 200 : 500,
+      response: responseWithMetadata,
+      statusCode: httpStatusCode || 500,
       durationMs,
       branchId: saleData.branch_id,
-      externalEndpoint: kraEndpoint
     })
 
     return {
@@ -172,13 +182,14 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
 
     console.error(`[KRA API] System error:`, error)
     console.log(`[KRA API] Response (error):`, JSON.stringify(errorResponse, null, 2))
+    console.log(`[KRA API] Sale data for context:`, JSON.stringify(saleData, null, 2))
 
     const durationMs = Date.now() - startTime
     
     await logApiCall({
       endpoint: "/kra/trnsSales/saveSales",
       method: "POST",
-      payload: saleData,
+      payload: { saleData, errorContext: "System error before KRA call" },
       response: errorResponse,
       statusCode: 500,
       durationMs,
