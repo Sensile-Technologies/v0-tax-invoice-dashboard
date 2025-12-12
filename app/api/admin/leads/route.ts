@@ -85,6 +85,9 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const leadId = searchParams.get("id")
+    
     const body = await request.json()
     const { 
       id,
@@ -99,21 +102,45 @@ export async function PUT(request: NextRequest) {
       notes, 
       expected_value, 
       expected_close_date,
-      source 
+      source,
+      contract_url
     } = body
 
-    const result = await query(`
-      UPDATE leads 
-      SET company_name = $1, trading_name = $2, kra_pin = $3, contact_name = $4, 
-          contact_email = $5, contact_phone = $6, stage = $7, assigned_to = $8, 
-          notes = $9, expected_value = $10, expected_close_date = $11, source = $12, updated_at = NOW()
-      WHERE id = $13
-      RETURNING *
-    `, [
-      company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone,
-      stage, assigned_to || null, notes, expected_value, expected_close_date, source, id
-    ])
+    const actualId = leadId || id
 
+    let sql: string
+    let params: any[]
+
+    if (contract_url) {
+      sql = `
+        UPDATE leads 
+        SET company_name = $1, trading_name = $2, kra_pin = $3, contact_name = $4, 
+            contact_email = $5, contact_phone = $6, stage = $7, assigned_to = $8, 
+            notes = $9, expected_value = $10, expected_close_date = $11, source = $12, 
+            contract_url = $13, updated_at = NOW()
+        WHERE id = $14
+        RETURNING *
+      `
+      params = [
+        company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone,
+        stage, assigned_to || null, notes, expected_value, expected_close_date, source, contract_url, actualId
+      ]
+    } else {
+      sql = `
+        UPDATE leads 
+        SET company_name = $1, trading_name = $2, kra_pin = $3, contact_name = $4, 
+            contact_email = $5, contact_phone = $6, stage = $7, assigned_to = $8, 
+            notes = $9, expected_value = $10, expected_close_date = $11, source = $12, updated_at = NOW()
+        WHERE id = $13
+        RETURNING *
+      `
+      params = [
+        company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone,
+        stage, assigned_to || null, notes, expected_value, expected_close_date, source, actualId
+      ]
+    }
+
+    const result = await query(sql, params)
     return NextResponse.json(result[0])
   } catch (error) {
     console.error("Error updating lead:", error)

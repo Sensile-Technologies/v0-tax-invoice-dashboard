@@ -668,12 +668,12 @@ export default function SalesPage() {
             </Dialog>
           </div>
 
-          <div className="flex gap-4 overflow-x-auto pb-4">
+          <div className="flex gap-4 overflow-x-auto pb-4 pr-4">
             {STAGES.map((stage) => {
               const stageLeads = getLeadsByStage(stage.id)
               const StageIcon = stage.icon
               return (
-                <div key={stage.id} className="flex-shrink-0 w-[240px]">
+                <div key={stage.id} className="flex-shrink-0 w-[220px]">
                   <div className={`${stage.color} text-white px-3 py-2 rounded-t-lg flex items-center justify-between`}>
                     <div className="flex items-center gap-2">
                       <StageIcon className="h-4 w-4" />
