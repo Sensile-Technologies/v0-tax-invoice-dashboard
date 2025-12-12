@@ -30,7 +30,7 @@ export async function GET(request: Request) {
           'FUEL' as item_cls_cd,
           'L' as pkg_unit_cd,
           'L' as qty_unit_cd,
-          fp.selling_price as unit_price,
+          fp.price as unit_price,
           COALESCE(
             (SELECT SUM(current_volume) FROM tanks t WHERE t.branch_id = fp.branch_id AND t.fuel_type = fp.fuel_type),
             0

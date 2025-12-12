@@ -46,6 +46,15 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-12: Mobile App Enhancements
+  - Customer name field made optional in Create Sale screen (defaults to "Walk-in Customer")
+  - Changed payment method terminology from "mpesa" to "Mobile Money" across all screens
+  - Dashboard now shows dynamic data filtered by branch_id (today's sales, invoices, paid/pending)
+  - Products screen shows fuel products (Kerosene, Petrol) for the branch from fuel_prices table
+  - Sales History screen with date/time filtering (Today, Last 7 Days, Last 30 Days, Custom Range)
+  - Invoices API updated to query sales table with date range filtering
+  - Mobile API endpoints: /api/mobile/dashboard, /api/mobile/invoices, /api/mobile/products
+
 - 2024-12-12: Mobile App for Cashiers/Supervisors
   - Created Expo React Native mobile app in /mobile directory
   - Mobile screens: Login (role-restricted), Dashboard, Create Invoice, Invoice History
