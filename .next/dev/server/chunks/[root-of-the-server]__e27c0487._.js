@@ -74,10 +74,12 @@ const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$exter
 async function POST(request) {
     try {
         const body = await request.json();
+        console.log("[Mobile Create Sale] Request body:", JSON.stringify(body, null, 2));
         const { branch_id, user_id, nozzle_id, fuel_type, quantity, unit_price, total_amount, payment_method, customer_name, kra_pin, vehicle_number, is_loyalty_customer } = body;
         if (!branch_id || !fuel_type || !total_amount) {
+            console.log("[Mobile Create Sale] Missing required fields - branch_id:", branch_id, "fuel_type:", fuel_type, "total_amount:", total_amount);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Branch ID, fuel type, and amount are required"
+                error: `Missing required fields: branch_id=${branch_id}, fuel_type=${fuel_type}, total_amount=${total_amount}`
             }, {
                 status: 400
             });

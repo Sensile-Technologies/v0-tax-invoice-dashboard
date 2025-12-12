@@ -54,13 +54,27 @@ export async function POST(request: Request) {
 
       if (email) {
         const result = await client.query(
-          "SELECT u.id, u.email, u.username, u.password_hash, u.role, v.id as vendor_id, v.name as vendor_name FROM users u LEFT JOIN vendors v ON v.email = u.email WHERE u.email = $1",
+          `SELECT u.id, u.email, u.username, u.password_hash, u.role, 
+           v.id as vendor_id, v.name as vendor_name,
+           s.branch_id, b.name as branch_name
+           FROM users u 
+           LEFT JOIN vendors v ON v.email = u.email 
+           LEFT JOIN staff s ON s.user_id = u.id
+           LEFT JOIN branches b ON b.id = s.branch_id
+           WHERE u.email = $1`,
           [email]
         )
         user = result.rows[0]
       } else {
         const result = await client.query(
-          "SELECT u.id, u.email, u.username, u.password_hash, u.role, v.id as vendor_id, v.name as vendor_name FROM users u LEFT JOIN vendors v ON v.email = u.email WHERE u.username = $1",
+          `SELECT u.id, u.email, u.username, u.password_hash, u.role, 
+           v.id as vendor_id, v.name as vendor_name,
+           s.branch_id, b.name as branch_name
+           FROM users u 
+           LEFT JOIN vendors v ON v.email = u.email 
+           LEFT JOIN staff s ON s.user_id = u.id
+           LEFT JOIN branches b ON b.id = s.branch_id
+           WHERE u.username = $1`,
           [username]
         )
         user = result.rows[0]
@@ -100,7 +114,9 @@ export async function POST(request: Request) {
           username: user.username,
           role: user.role || 'vendor',
           vendor_id: user.vendor_id,
-          vendor_name: user.vendor_name
+          vendor_name: user.vendor_name,
+          branch_id: user.branch_id,
+          branch_name: user.branch_name
         }
       })
     } finally {
