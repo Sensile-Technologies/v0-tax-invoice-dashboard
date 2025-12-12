@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store'
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://ceaad22e-7426-4b1f-a645-d2bab46d41d2-00-2750hh3y918g9.janeway.replit.dev'
+const REQUEST_TIMEOUT = 30000
 
 class ApiClient {
   private token: string | null = null
@@ -43,18 +44,53 @@ class ApiClient {
       ...options.headers,
     }
 
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    })
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT)
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      const message = errorData.error?.message || errorData.message || `HTTP error ${response.status}`
-      throw new Error(message)
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (!response.ok) {
+        let errorMessage = `HTTP error ${response.status}`
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.error?.message || errorData.error || errorData.message || errorMessage
+        } catch {
+          // Response is not JSON, use default message
+        }
+        throw new Error(errorMessage)
+      }
+
+      const text = await response.text()
+      if (!text) {
+        return {} as T
+      }
+      
+      try {
+        return JSON.parse(text)
+      } catch {
+        console.warn('Response is not valid JSON:', text.substring(0, 100))
+        return {} as T
+      }
+    } catch (error: any) {
+      clearTimeout(timeoutId)
+      
+      if (error.name === 'AbortError') {
+        throw new Error('Request timed out. Please check your connection and try again.')
+      }
+      
+      if (error.message?.includes('Network request failed')) {
+        throw new Error('Network error. Please check your internet connection.')
+      }
+      
+      throw error
     }
-
-    return response.json()
   }
 
   async get<T>(endpoint: string): Promise<T> {
