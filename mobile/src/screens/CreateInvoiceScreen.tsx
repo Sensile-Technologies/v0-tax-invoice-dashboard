@@ -15,8 +15,10 @@ import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { Product, InvoiceLineItem } from '../types'
+import { useAuth } from '../context/AuthContext'
 
 export default function CreateInvoiceScreen({ navigation }: any) {
+  const { user } = useAuth()
   const [products, setProducts] = useState<Product[]>([])
   const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([])
   const [customerName, setCustomerName] = useState('')
@@ -28,17 +30,44 @@ export default function CreateInvoiceScreen({ navigation }: any) {
 
   useEffect(() => {
     fetchProducts()
-  }, [])
+  }, [user?.branch_id])
 
   async function fetchProducts() {
     try {
-      const data = await api.get<Product[]>('/api/admin/billing-products')
-      setProducts(data || [])
+      if (!user?.branch_id) {
+        setProducts([
+          { id: '1', name: 'Diesel (AGO)', price: 180, unit: 'Litre' },
+          { id: '2', name: 'Super Petrol (PMS)', price: 195, unit: 'Litre' },
+          { id: '3', name: 'Kerosene (DPK)', price: 165, unit: 'Litre' },
+        ])
+        setLoading(false)
+        return
+      }
+      
+      const data = await api.get<{ products: any[] }>(`/api/mobile/products?branch_id=${user.branch_id}`)
+      const branchProducts = (data?.products || []).map((p: any) => ({
+        id: p.id,
+        name: p.item_nm || p.name,
+        price: parseFloat(p.unit_price) || parseFloat(p.dflt_prc) || 0,
+        unit: p.qty_unit_cd || 'Unit',
+        category: p.item_cls_cd,
+      }))
+      
+      if (branchProducts.length > 0) {
+        setProducts(branchProducts)
+      } else {
+        setProducts([
+          { id: '1', name: 'Diesel (AGO)', price: 180, unit: 'Litre' },
+          { id: '2', name: 'Super Petrol (PMS)', price: 195, unit: 'Litre' },
+          { id: '3', name: 'Kerosene (DPK)', price: 165, unit: 'Litre' },
+        ])
+      }
     } catch (error) {
+      console.log('Error fetching products:', error)
       setProducts([
-        { id: '1', name: 'Diesel', price: 180, unit: 'Litre' },
-        { id: '2', name: 'Super Petrol', price: 195, unit: 'Litre' },
-        { id: '3', name: 'Kerosene', price: 165, unit: 'Litre' },
+        { id: '1', name: 'Diesel (AGO)', price: 180, unit: 'Litre' },
+        { id: '2', name: 'Super Petrol (PMS)', price: 195, unit: 'Litre' },
+        { id: '3', name: 'Kerosene (DPK)', price: 165, unit: 'Litre' },
       ])
     } finally {
       setLoading(false)
@@ -115,6 +144,8 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         subtotal,
         tax,
         total,
+        branch_id: user?.branch_id,
+        user_id: user?.id,
       })
       Alert.alert('Success', 'Invoice created successfully', [
         { text: 'OK', onPress: () => navigation.goBack() },
