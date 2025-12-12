@@ -51,7 +51,7 @@ export default function LoginScreen() {
             <Text style={styles.logoText}>F360</Text>
           </View>
           <Text style={styles.title}>Flow360</Text>
-          <Text style={styles.subtitle}>Merchant Sales App</Text>
+          <Text style={styles.subtitle}>Sales & Inventory App</Text>
         </View>
 
         <View style={styles.formContainer}>
@@ -89,7 +89,7 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           <Text style={styles.hint}>
-            Only cashiers and supervisors can access this app
+            For merchants, cashiers and supervisors
           </Text>
         </View>
       </ScrollView>

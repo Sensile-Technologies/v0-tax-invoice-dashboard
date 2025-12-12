@@ -1,10 +1,13 @@
 export interface User {
   id: string
   email: string
-  name: string
-  role: 'cashier' | 'supervisor' | 'admin' | 'sales'
+  username?: string
+  name?: string
+  role: 'cashier' | 'supervisor' | 'admin' | 'sales' | 'vendor' | 'merchant'
   branch_id?: string
   branch_name?: string
+  vendor_id?: string
+  vendor_name?: string
 }
 
 export interface AuthResponse {

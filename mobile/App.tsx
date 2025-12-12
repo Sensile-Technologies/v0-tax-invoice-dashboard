@@ -9,6 +9,8 @@ import LoginScreen from './src/screens/LoginScreen'
 import DashboardScreen from './src/screens/DashboardScreen'
 import CreateInvoiceScreen from './src/screens/CreateInvoiceScreen'
 import InvoicesScreen from './src/screens/InvoicesScreen'
+import SalesScreen from './src/screens/SalesScreen'
+import ProductsScreen from './src/screens/ProductsScreen'
 import { colors } from './src/utils/theme'
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
 
@@ -23,6 +25,10 @@ function MainTabs() {
           let iconName: keyof typeof Ionicons.glyphMap = 'home'
           if (route.name === 'Dashboard') {
             iconName = focused ? 'home' : 'home-outline'
+          } else if (route.name === 'Sales') {
+            iconName = focused ? 'cart' : 'cart-outline'
+          } else if (route.name === 'Products') {
+            iconName = focused ? 'cube' : 'cube-outline'
           } else if (route.name === 'Invoices') {
             iconName = focused ? 'receipt' : 'receipt-outline'
           }
@@ -38,6 +44,8 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Sales" component={SalesScreen} />
+      <Tab.Screen name="Products" component={ProductsScreen} />
       <Tab.Screen name="Invoices" component={InvoicesScreen} />
     </Tab.Navigator>
   )

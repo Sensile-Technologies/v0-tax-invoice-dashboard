@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedUser = await SecureStore.getItemAsync('user')
       if (storedUser) {
         const userData = JSON.parse(storedUser)
-        if (userData.role === 'cashier' || userData.role === 'supervisor') {
+        if (['cashier', 'supervisor', 'vendor', 'merchant'].includes(userData.role)) {
           setUser(userData)
         }
       }
@@ -55,8 +55,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await api.setToken(response.access_token)
       }
       
-      if (userData.role !== 'cashier' && userData.role !== 'supervisor') {
-        throw new Error('Only cashiers and supervisors can use this app')
+      if (!['cashier', 'supervisor', 'vendor', 'merchant'].includes(userData.role)) {
+        throw new Error('Access denied for this role')
       }
 
       setUser(userData)
