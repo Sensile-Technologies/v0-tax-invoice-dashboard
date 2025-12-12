@@ -8,158 +8,173 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  FlatList,
-  Modal,
 } from 'react-native'
+import { Picker } from '@react-native-picker/picker'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
-import { Product, InvoiceLineItem } from '../types'
 import { useAuth } from '../context/AuthContext'
+
+interface Nozzle {
+  id: string
+  name: string
+  fuel_type: string
+  price?: number
+}
 
 export default function CreateInvoiceScreen({ navigation }: any) {
   const { user } = useAuth()
-  const [products, setProducts] = useState<Product[]>([])
-  const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([])
-  const [customerName, setCustomerName] = useState('')
-  const [customerPhone, setCustomerPhone] = useState('')
+  const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [productModalVisible, setProductModalVisible] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  
+  // Step 1: Nozzle selection
+  const [nozzles, setNozzles] = useState<Nozzle[]>([])
+  const [selectedNozzle, setSelectedNozzle] = useState<string>('')
+  const [selectedNozzleData, setSelectedNozzleData] = useState<Nozzle | null>(null)
+  const [amount, setAmount] = useState('')
+  const [fuelPrices, setFuelPrices] = useState<Record<string, number>>({})
+  
+  // Step 2: Customer details
+  const [kraPin, setKraPin] = useState('')
+  const [customerName, setCustomerName] = useState('')
+  const [vehicleNumber, setVehicleNumber] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('cash')
+  const [isLoyaltyCustomer, setIsLoyaltyCustomer] = useState(false)
 
   useEffect(() => {
-    fetchProducts()
+    fetchNozzles()
   }, [user?.branch_id])
 
-  async function fetchProducts() {
+  async function fetchNozzles() {
     try {
       if (!user?.branch_id) {
-        setProducts([
-          { id: '1', name: 'Diesel (AGO)', price: 180, unit: 'Litre' },
-          { id: '2', name: 'Super Petrol (PMS)', price: 195, unit: 'Litre' },
-          { id: '3', name: 'Kerosene (DPK)', price: 165, unit: 'Litre' },
+        setNozzles([
+          { id: '1', name: 'Pump 1 - Nozzle A', fuel_type: 'PMS', price: 195 },
+          { id: '2', name: 'Pump 1 - Nozzle B', fuel_type: 'AGO', price: 180 },
+          { id: '3', name: 'Pump 2 - Nozzle A', fuel_type: 'DPK', price: 165 },
         ])
+        setFuelPrices({ 'PMS': 195, 'AGO': 180, 'DPK': 165 })
         setLoading(false)
         return
       }
+
+      const data = await api.get<{ nozzles: Nozzle[], fuel_prices: { fuel_type: string, price: number }[] }>(
+        `/api/mobile/nozzles?branch_id=${user.branch_id}`
+      )
       
-      const data = await api.get<{ products: any[] }>(`/api/mobile/products?branch_id=${user.branch_id}`)
-      const branchProducts = (data?.products || []).map((p: any) => ({
-        id: p.id,
-        name: p.item_nm || p.name,
-        price: parseFloat(p.unit_price) || parseFloat(p.dflt_prc) || 0,
-        unit: p.qty_unit_cd || 'Unit',
-        category: p.item_cls_cd,
-      }))
-      
-      if (branchProducts.length > 0) {
-        setProducts(branchProducts)
+      if (data?.nozzles && data.nozzles.length > 0) {
+        setNozzles(data.nozzles)
+        const prices: Record<string, number> = {}
+        if (data.fuel_prices) {
+          data.fuel_prices.forEach(fp => {
+            prices[fp.fuel_type] = parseFloat(String(fp.price))
+          })
+        }
+        setFuelPrices(prices)
       } else {
-        setProducts([
-          { id: '1', name: 'Diesel (AGO)', price: 180, unit: 'Litre' },
-          { id: '2', name: 'Super Petrol (PMS)', price: 195, unit: 'Litre' },
-          { id: '3', name: 'Kerosene (DPK)', price: 165, unit: 'Litre' },
+        setNozzles([
+          { id: '1', name: 'Pump 1 - Nozzle A', fuel_type: 'PMS', price: 195 },
+          { id: '2', name: 'Pump 1 - Nozzle B', fuel_type: 'AGO', price: 180 },
+          { id: '3', name: 'Pump 2 - Nozzle A', fuel_type: 'DPK', price: 165 },
         ])
+        setFuelPrices({ 'PMS': 195, 'AGO': 180, 'DPK': 165 })
       }
     } catch (error) {
-      console.log('Error fetching products:', error)
-      setProducts([
-        { id: '1', name: 'Diesel (AGO)', price: 180, unit: 'Litre' },
-        { id: '2', name: 'Super Petrol (PMS)', price: 195, unit: 'Litre' },
-        { id: '3', name: 'Kerosene (DPK)', price: 165, unit: 'Litre' },
+      console.log('Error fetching nozzles:', error)
+      setNozzles([
+        { id: '1', name: 'Pump 1 - Nozzle A', fuel_type: 'PMS', price: 195 },
+        { id: '2', name: 'Pump 1 - Nozzle B', fuel_type: 'AGO', price: 180 },
+        { id: '3', name: 'Pump 2 - Nozzle A', fuel_type: 'DPK', price: 165 },
       ])
+      setFuelPrices({ 'PMS': 195, 'AGO': 180, 'DPK': 165 })
     } finally {
       setLoading(false)
     }
   }
 
-  function addProduct(product: Product) {
-    const existing = lineItems.find((item) => item.product_id === product.id)
-    if (existing) {
-      setLineItems(
-        lineItems.map((item) =>
-          item.product_id === product.id
-            ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.unit_price }
-            : item
-        )
-      )
+  function handleNozzleChange(nozzleId: string) {
+    setSelectedNozzle(nozzleId)
+    const nozzle = nozzles.find(n => n.id === nozzleId)
+    if (nozzle) {
+      setSelectedNozzleData({
+        ...nozzle,
+        price: nozzle.price || fuelPrices[nozzle.fuel_type] || 0
+      })
     } else {
-      setLineItems([
-        ...lineItems,
-        {
-          product_id: product.id,
-          product_name: product.name,
-          quantity: 1,
-          unit_price: product.price,
-          total: product.price,
-        },
-      ])
-    }
-    setProductModalVisible(false)
-  }
-
-  function updateQuantity(productId: string, quantity: number) {
-    if (quantity <= 0) {
-      setLineItems(lineItems.filter((item) => item.product_id !== productId))
-    } else {
-      setLineItems(
-        lineItems.map((item) =>
-          item.product_id === productId
-            ? { ...item, quantity, total: quantity * item.unit_price }
-            : item
-        )
-      )
+      setSelectedNozzleData(null)
     }
   }
 
-  function removeItem(productId: string) {
-    setLineItems(lineItems.filter((item) => item.product_id !== productId))
+  function getFuelTypeName(fuelType: string): string {
+    const names: Record<string, string> = {
+      'PMS': 'Super Petrol (PMS)',
+      'AGO': 'Diesel (AGO)',
+      'DPK': 'Kerosene (DPK)',
+    }
+    return names[fuelType] || fuelType
   }
 
-  const subtotal = lineItems.reduce((sum, item) => sum + item.total, 0)
-  const tax = subtotal * 0.16
-  const total = subtotal + tax
+  function handleNext() {
+    if (!selectedNozzle) {
+      Alert.alert('Error', 'Please select a nozzle')
+      return
+    }
+    if (!amount || parseFloat(amount) <= 0) {
+      Alert.alert('Error', 'Please enter a valid amount')
+      return
+    }
+    setStep(2)
+  }
 
-  const formatCurrency = (amount: number) => {
+  function handleBack() {
+    setStep(1)
+  }
+
+  const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-KE', {
       style: 'currency',
       currency: 'KES',
       minimumFractionDigits: 0,
-    }).format(amount)
+    }).format(value)
   }
 
-  async function handleSubmit() {
-    if (lineItems.length === 0) {
-      Alert.alert('Error', 'Please add at least one product')
+  const totalAmount = parseFloat(amount) || 0
+  const unitPrice = selectedNozzleData?.price || 0
+  const quantity = unitPrice > 0 ? totalAmount / unitPrice : 0
+
+  async function handleCreateSale() {
+    if (!customerName.trim()) {
+      Alert.alert('Error', 'Please enter customer name')
       return
     }
 
     setSubmitting(true)
     try {
-      await api.post('/api/mobile/invoices', {
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        items: lineItems,
-        subtotal,
-        tax,
-        total,
+      await api.post('/api/mobile/create-sale', {
         branch_id: user?.branch_id,
         user_id: user?.id,
+        nozzle_id: selectedNozzle,
+        fuel_type: selectedNozzleData?.fuel_type,
+        quantity: quantity,
+        unit_price: unitPrice,
+        total_amount: totalAmount,
+        payment_method: paymentMethod,
+        customer_name: customerName,
+        kra_pin: kraPin,
+        vehicle_number: vehicleNumber,
+        is_loyalty_customer: isLoyaltyCustomer,
       })
-      Alert.alert('Success', 'Invoice created successfully', [
+      
+      Alert.alert('Success', 'Sale created successfully', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ])
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create invoice')
+      Alert.alert('Error', error.message || 'Failed to create sale')
     } finally {
       setSubmitting(false)
     }
   }
-
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
 
   if (loading) {
     return (
@@ -171,146 +186,179 @@ export default function CreateInvoiceScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Customer Details (Optional)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Customer Name"
-            value={customerName}
-            onChangeText={setCustomerName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Phone Number"
-            value={customerPhone}
-            onChangeText={setCustomerPhone}
-            keyboardType="phone-pad"
-          />
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Products</Text>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => setProductModalVisible(true)}
-            >
-              <Ionicons name="add" size={20} color="#fff" />
-              <Text style={styles.addButtonText}>Add</Text>
-            </TouchableOpacity>
-          </View>
-
-          {lineItems.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="cart-outline" size={48} color={colors.textLight} />
-              <Text style={styles.emptyText}>No products added yet</Text>
-              <Text style={styles.emptyHint}>Tap "Add" to add products</Text>
-            </View>
-          ) : (
-            lineItems.map((item) => (
-              <View key={item.product_id} style={styles.lineItem}>
-                <View style={styles.lineItemInfo}>
-                  <Text style={styles.productName}>{item.product_name}</Text>
-                  <Text style={styles.productPrice}>
-                    {formatCurrency(item.unit_price)} each
-                  </Text>
-                </View>
-                <View style={styles.quantityControl}>
-                  <TouchableOpacity
-                    style={styles.quantityButton}
-                    onPress={() => updateQuantity(item.product_id, item.quantity - 1)}
-                  >
-                    <Ionicons name="remove" size={18} color={colors.primary} />
-                  </TouchableOpacity>
-                  <Text style={styles.quantity}>{item.quantity}</Text>
-                  <TouchableOpacity
-                    style={styles.quantityButton}
-                    onPress={() => updateQuantity(item.product_id, item.quantity + 1)}
-                  >
-                    <Ionicons name="add" size={18} color={colors.primary} />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.lineTotal}>{formatCurrency(item.total)}</Text>
-                <TouchableOpacity
-                  onPress={() => removeItem(item.product_id)}
-                  style={styles.removeButton}
-                >
-                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
-                </TouchableOpacity>
-              </View>
-            ))
-          )}
-        </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <View style={styles.totals}>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>{formatCurrency(subtotal)}</Text>
-          </View>
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>VAT (16%)</Text>
-            <Text style={styles.totalValue}>{formatCurrency(tax)}</Text>
-          </View>
-          <View style={[styles.totalRow, styles.grandTotal]}>
-            <Text style={styles.grandTotalLabel}>Total</Text>
-            <Text style={styles.grandTotalValue}>{formatCurrency(total)}</Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={[styles.submitButton, submitting && styles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={submitting || lineItems.length === 0}
-        >
-          {submitting ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.submitButtonText}>Create Invoice</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <Modal
-        visible={productModalVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setProductModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Select Product</Text>
-            <TouchableOpacity onPress={() => setProductModalVisible(false)}>
-              <Ionicons name="close" size={24} color={colors.text} />
-            </TouchableOpacity>
-          </View>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search products..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          <FlatList
-            data={filteredProducts}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.productItem}
-                onPress={() => addProduct(item)}
+      {step === 1 ? (
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Select Nozzle</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={selectedNozzle}
+                onValueChange={handleNozzleChange}
+                style={styles.picker}
               >
-                <View>
-                  <Text style={styles.productItemName}>{item.name}</Text>
-                  <Text style={styles.productItemUnit}>{item.unit}</Text>
+                <Picker.Item label="-- Select Nozzle --" value="" />
+                {nozzles.map((nozzle) => (
+                  <Picker.Item
+                    key={nozzle.id}
+                    label={`${nozzle.name} - ${getFuelTypeName(nozzle.fuel_type)}`}
+                    value={nozzle.id}
+                  />
+                ))}
+              </Picker>
+            </View>
+
+            {selectedNozzleData && (
+              <View style={styles.productInfo}>
+                <View style={styles.productRow}>
+                  <Ionicons name="flame" size={24} color={colors.primary} />
+                  <View style={styles.productDetails}>
+                    <Text style={styles.productType}>
+                      {getFuelTypeName(selectedNozzleData.fuel_type)}
+                    </Text>
+                    <Text style={styles.productPrice}>
+                      {formatCurrency(unitPrice)} per litre
+                    </Text>
+                  </View>
                 </View>
-                <Text style={styles.productItemPrice}>
-                  {formatCurrency(item.price)}
-                </Text>
-              </TouchableOpacity>
+              </View>
             )}
-          />
-        </View>
-      </Modal>
+
+            <Text style={[styles.sectionTitle, { marginTop: spacing.lg }]}>Enter Amount</Text>
+            <View style={styles.amountInputContainer}>
+              <Text style={styles.currencySymbol}>KES</Text>
+              <TextInput
+                style={styles.amountInput}
+                placeholder="0"
+                value={amount}
+                onChangeText={setAmount}
+                keyboardType="numeric"
+                placeholderTextColor={colors.textLight}
+              />
+            </View>
+
+            {amount && parseFloat(amount) > 0 && selectedNozzleData && (
+              <View style={styles.quantityInfo}>
+                <Text style={styles.quantityLabel}>Quantity:</Text>
+                <Text style={styles.quantityValue}>
+                  {quantity.toFixed(2)} Litres
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <TouchableOpacity
+            style={[styles.nextButton, (!selectedNozzle || !amount) && styles.buttonDisabled]}
+            onPress={handleNext}
+            disabled={!selectedNozzle || !amount}
+          >
+            <Text style={styles.nextButtonText}>Next</Text>
+            <Ionicons name="arrow-forward" size={20} color="#fff" />
+          </TouchableOpacity>
+        </ScrollView>
+      ) : (
+        <ScrollView style={styles.scrollView}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Ionicons name="arrow-back" size={20} color={colors.primary} />
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Customer Details</Text>
+            
+            <Text style={styles.inputLabel}>KRA PIN</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter KRA PIN (optional)"
+              value={kraPin}
+              onChangeText={setKraPin}
+              autoCapitalize="characters"
+              placeholderTextColor={colors.textLight}
+            />
+
+            <Text style={styles.inputLabel}>Customer Name *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter customer name"
+              value={customerName}
+              onChangeText={setCustomerName}
+              placeholderTextColor={colors.textLight}
+            />
+
+            <Text style={styles.inputLabel}>Vehicle Registration Number</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. KDA 123X"
+              value={vehicleNumber}
+              onChangeText={setVehicleNumber}
+              autoCapitalize="characters"
+              placeholderTextColor={colors.textLight}
+            />
+
+            <Text style={styles.inputLabel}>Mode of Payment</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={paymentMethod}
+                onValueChange={setPaymentMethod}
+                style={styles.picker}
+              >
+                <Picker.Item label="Cash" value="cash" />
+                <Picker.Item label="Mobile Money" value="mobile_money" />
+                <Picker.Item label="Card" value="card" />
+                <Picker.Item label="Credit" value="credit" />
+              </Picker>
+            </View>
+
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => setIsLoyaltyCustomer(!isLoyaltyCustomer)}
+            >
+              <View style={[styles.checkbox, isLoyaltyCustomer && styles.checkboxChecked]}>
+                {isLoyaltyCustomer && (
+                  <Ionicons name="checkmark" size={16} color="#fff" />
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>Loyalty Customer</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.summarySection}>
+            <Text style={styles.summaryTitle}>Sale Summary</Text>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Fuel Type:</Text>
+              <Text style={styles.summaryValue}>
+                {selectedNozzleData ? getFuelTypeName(selectedNozzleData.fuel_type) : '-'}
+              </Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Quantity:</Text>
+              <Text style={styles.summaryValue}>{quantity.toFixed(2)} L</Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Unit Price:</Text>
+              <Text style={styles.summaryValue}>{formatCurrency(unitPrice)}</Text>
+            </View>
+            <View style={[styles.summaryRow, styles.totalRow]}>
+              <Text style={styles.totalLabel}>Total:</Text>
+              <Text style={styles.totalValue}>{formatCurrency(totalAmount)}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.createButton, submitting && styles.buttonDisabled]}
+            onPress={handleCreateSale}
+            disabled={submitting}
+          >
+            {submitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                <Text style={styles.createButtonText}>Create Sale</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+      )}
     </View>
   )
 }
@@ -327,24 +375,126 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    padding: spacing.md,
   },
   section: {
     backgroundColor: colors.surface,
-    margin: spacing.md,
-    padding: spacing.md,
+    padding: spacing.lg,
     borderRadius: borderRadius.lg,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: spacing.md,
   },
   sectionTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    marginBottom: spacing.md,
+  },
+  picker: {
+    height: 50,
+  },
+  productInfo: {
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.sm,
+  },
+  productRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  productDetails: {
+    marginLeft: spacing.md,
+  },
+  productType: {
     fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: spacing.sm,
+  },
+  productPrice: {
+    fontSize: fontSize.sm,
+    color: colors.textLight,
+    marginTop: 2,
+  },
+  amountInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.md,
+  },
+  currencySymbol: {
+    fontSize: fontSize.lg,
+    fontWeight: '600',
+    color: colors.textLight,
+    marginRight: spacing.sm,
+  },
+  amountInput: {
+    flex: 1,
+    fontSize: fontSize.xl,
+    fontWeight: '600',
+    color: colors.text,
+    paddingVertical: spacing.md,
+  },
+  quantityInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  quantityLabel: {
+    fontSize: fontSize.md,
+    color: colors.textLight,
+  },
+  quantityValue: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  nextButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.md,
+  },
+  nextButtonText: {
+    color: '#fff',
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    marginRight: spacing.sm,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  backButtonText: {
+    color: colors.primary,
+    fontSize: fontSize.md,
+    marginLeft: spacing.xs,
+  },
+  inputLabel: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+    color: colors.text,
+    marginBottom: spacing.xs,
+    marginTop: spacing.sm,
   },
   input: {
     borderWidth: 1,
@@ -352,183 +502,88 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     padding: spacing.md,
     fontSize: fontSize.md,
-    marginBottom: spacing.sm,
-  },
-  addButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.md,
-  },
-  addButtonText: {
-    color: '#fff',
-    marginLeft: spacing.xs,
-    fontWeight: '600',
-  },
-  emptyState: {
-    alignItems: 'center',
-    padding: spacing.xl,
-  },
-  emptyText: {
-    fontSize: fontSize.md,
-    color: colors.textLight,
-    marginTop: spacing.md,
-  },
-  emptyHint: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-  lineItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  lineItemInfo: {
-    flex: 1,
-  },
-  productName: {
-    fontSize: fontSize.md,
-    fontWeight: '500',
+    backgroundColor: colors.background,
     color: colors.text,
   },
-  productPrice: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-  quantityControl: {
+  checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: spacing.sm,
+    marginTop: spacing.lg,
+    paddingTop: spacing.md,
   },
-  quantityButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.background,
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderRadius: borderRadius.sm,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: spacing.sm,
   },
-  quantity: {
-    marginHorizontal: spacing.sm,
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  checkboxLabel: {
     fontSize: fontSize.md,
-    fontWeight: '600',
-    minWidth: 24,
-    textAlign: 'center',
+    color: colors.text,
   },
-  lineTotal: {
+  summarySection: {
+    backgroundColor: colors.surface,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.md,
+  },
+  summaryTitle: {
     fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,
-    minWidth: 80,
-    textAlign: 'right',
-  },
-  removeButton: {
-    padding: spacing.sm,
-    marginLeft: spacing.sm,
-  },
-  footer: {
-    backgroundColor: colors.surface,
-    padding: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  totals: {
     marginBottom: spacing.md,
   },
-  totalRow: {
+  summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: spacing.xs,
+    marginBottom: spacing.sm,
   },
-  totalLabel: {
+  summaryLabel: {
     fontSize: fontSize.sm,
     color: colors.textLight,
   },
-  totalValue: {
+  summaryValue: {
     fontSize: fontSize.sm,
     color: colors.text,
+    fontWeight: '500',
   },
-  grandTotal: {
+  totalRow: {
     marginTop: spacing.sm,
     paddingTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  grandTotalLabel: {
+  totalLabel: {
     fontSize: fontSize.lg,
     fontWeight: '600',
     color: colors.text,
   },
-  grandTotalValue: {
+  totalValue: {
     fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: colors.primary,
   },
-  submitButton: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
+  createButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.success,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.xl,
   },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  submitButtonText: {
+  createButtonText: {
     color: '#fff',
     fontSize: fontSize.md,
     fontWeight: '600',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-  modalTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  searchInput: {
-    margin: spacing.md,
-    padding: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-    fontSize: fontSize.md,
-  },
-  productItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-  },
-  productItemName: {
-    fontSize: fontSize.md,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  productItemUnit: {
-    fontSize: fontSize.sm,
-    color: colors.textLight,
-  },
-  productItemPrice: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.primary,
+    marginLeft: spacing.sm,
   },
 })
