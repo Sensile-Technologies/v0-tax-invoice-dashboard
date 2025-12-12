@@ -32,6 +32,9 @@
       "eas": {
         "projectId": "flow360-sales"
       }
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
