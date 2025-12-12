@@ -110,6 +110,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json({
         success: true,
+        sale_id: sale.id,
         sale: sale,
         invoice_number: invoiceNumber,
         receipt_number: receiptNumber,

@@ -45,6 +45,12 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [vehicleNumber, setVehicleNumber] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('cash')
   const [isLoyaltyCustomer, setIsLoyaltyCustomer] = useState(false)
+  
+  // Step 3: Loyalty verification
+  const [loyaltyPhone, setLoyaltyPhone] = useState('')
+  const [verifyingLoyalty, setVerifyingLoyalty] = useState(false)
+  const [loyaltyVerified, setLoyaltyVerified] = useState(false)
+  const [verifiedCustomer, setVerifiedCustomer] = useState<{id: string, name: string, phone: string} | null>(null)
 
   useEffect(() => {
     fetchNozzles()
@@ -135,7 +141,49 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   }
 
   function handleBack() {
-    setStep(1)
+    if (step === 3) {
+      setStep(2)
+    } else {
+      setStep(1)
+    }
+  }
+  
+  function handleProceedToLoyalty() {
+    if (isLoyaltyCustomer) {
+      setStep(3)
+    } else {
+      handleCreateSale()
+    }
+  }
+  
+  async function verifyLoyaltyCustomer() {
+    if (!loyaltyPhone || loyaltyPhone.length < 9) {
+      Alert.alert('Error', 'Please enter a valid phone number')
+      return
+    }
+    
+    setVerifyingLoyalty(true)
+    try {
+      const response = await api.get<{customer: {id: string, cust_nm: string, tel_no: string} | null}>(
+        `/api/mobile/verify-loyalty?branch_id=${user?.branch_id}&phone=${loyaltyPhone}`
+      )
+      
+      if (response.customer) {
+        setVerifiedCustomer({
+          id: response.customer.id,
+          name: response.customer.cust_nm,
+          phone: response.customer.tel_no
+        })
+        setLoyaltyVerified(true)
+        Alert.alert('Success', `Customer verified: ${response.customer.cust_nm}`)
+      } else {
+        Alert.alert('Not Found', 'No customer found with this phone number')
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to verify customer')
+    } finally {
+      setVerifyingLoyalty(false)
+    }
   }
 
   const formatCurrency = (value: number) => {
@@ -165,7 +213,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   async function handleCreateSale() {
     setSubmitting(true)
     try {
-      await api.post('/api/mobile/create-sale', {
+      const saleResponse = await api.post<{sale_id: string}>('/api/mobile/create-sale', {
         branch_id: user?.branch_id,
         user_id: user?.id,
         nozzle_id: selectedNozzle,
@@ -178,7 +226,28 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         kra_pin: kraPin,
         vehicle_number: vehicleNumber,
         is_loyalty_customer: isLoyaltyCustomer,
+        loyalty_customer_id: verifiedCustomer?.id || null,
+        loyalty_customer_name: verifiedCustomer?.name || null,
+        loyalty_phone: verifiedCustomer?.phone || null,
       })
+      
+      // Post loyalty transaction if verified
+      if (isLoyaltyCustomer && loyaltyVerified && verifiedCustomer && saleResponse.sale_id) {
+        try {
+          await api.post('/api/mobile/loyalty-transaction', {
+            branch_id: user?.branch_id,
+            sale_id: saleResponse.sale_id,
+            customer_name: verifiedCustomer.name,
+            customer_pin: verifiedCustomer.phone,
+            transaction_amount: totalAmount,
+            fuel_type: selectedNozzleData?.fuel_type,
+            quantity: quantity,
+            payment_method: paymentMethod,
+          })
+        } catch (loyaltyError) {
+          console.log('Loyalty transaction failed:', loyaltyError)
+        }
+      }
       
       Alert.alert('Success', 'Sale created successfully', [
         { text: 'OK', onPress: () => navigation.goBack() },
@@ -332,7 +401,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
             <Ionicons name="arrow-forward" size={20} color="#fff" />
           </TouchableOpacity>
         </ScrollView>
-      ) : (
+      ) : step === 2 ? (
         <ScrollView style={styles.scrollView}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Ionicons name="arrow-back" size={20} color={colors.primary} />
@@ -387,7 +456,12 @@ export default function CreateInvoiceScreen({ navigation }: any) {
 
             <TouchableOpacity
               style={styles.checkboxContainer}
-              onPress={() => setIsLoyaltyCustomer(!isLoyaltyCustomer)}
+              onPress={() => {
+                setIsLoyaltyCustomer(!isLoyaltyCustomer)
+                setLoyaltyVerified(false)
+                setVerifiedCustomer(null)
+                setLoyaltyPhone('')
+              }}
             >
               <View style={[styles.checkbox, isLoyaltyCustomer && styles.checkboxChecked]}>
                 {isLoyaltyCustomer && (
@@ -422,8 +496,98 @@ export default function CreateInvoiceScreen({ navigation }: any) {
 
           <TouchableOpacity
             style={[styles.createButton, submitting && styles.buttonDisabled]}
-            onPress={handleCreateSale}
+            onPress={handleProceedToLoyalty}
             disabled={submitting}
+          >
+            {submitting ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                <Text style={styles.createButtonText}>{isLoyaltyCustomer ? 'Next: Verify Loyalty' : 'Create Sale'}</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+      ) : step === 3 ? (
+        <ScrollView style={styles.scrollView}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Ionicons name="arrow-back" size={20} color={colors.primary} />
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Verify Loyalty Customer</Text>
+            <Text style={styles.loyaltyHint}>
+              Enter the customer's phone number to verify their loyalty status
+            </Text>
+            
+            <View style={styles.loyaltyInputContainer}>
+              <Ionicons name="call" size={20} color={colors.textLight} style={styles.loyaltyInputIcon} />
+              <TextInput
+                style={styles.loyaltyInput}
+                placeholder="Phone Number (e.g. 0712345678)"
+                value={loyaltyPhone}
+                onChangeText={(text) => {
+                  setLoyaltyPhone(text)
+                  if (loyaltyVerified) {
+                    setLoyaltyVerified(false)
+                    setVerifiedCustomer(null)
+                  }
+                }}
+                keyboardType="phone-pad"
+                placeholderTextColor={colors.textLight}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.verifyButton, verifyingLoyalty && styles.buttonDisabled]}
+              onPress={verifyLoyaltyCustomer}
+              disabled={verifyingLoyalty}
+            >
+              {verifyingLoyalty ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="search" size={20} color="#fff" />
+                  <Text style={styles.verifyButtonText}>Verify Customer</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            {loyaltyVerified && verifiedCustomer && (
+              <View style={styles.verifiedCustomerCard}>
+                <Ionicons name="checkmark-circle" size={32} color={colors.success} />
+                <View style={styles.verifiedCustomerInfo}>
+                  <Text style={styles.verifiedCustomerName}>{verifiedCustomer.name}</Text>
+                  <Text style={styles.verifiedCustomerPhone}>{verifiedCustomer.phone}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.summarySection}>
+            <Text style={styles.summaryTitle}>Sale Summary</Text>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Fuel Type:</Text>
+              <Text style={styles.summaryValue}>
+                {selectedNozzleData ? getFuelTypeName(selectedNozzleData.fuel_type) : '-'}
+              </Text>
+            </View>
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Quantity:</Text>
+              <Text style={styles.summaryValue}>{quantity.toFixed(2)} L</Text>
+            </View>
+            <View style={[styles.summaryRow, styles.totalRow]}>
+              <Text style={styles.totalLabel}>Total:</Text>
+              <Text style={styles.totalValue}>{formatCurrency(totalAmount)}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.createButton, (submitting || !loyaltyVerified) && styles.buttonDisabled]}
+            onPress={handleCreateSale}
+            disabled={submitting || !loyaltyVerified}
           >
             {submitting ? (
               <ActivityIndicator color="#fff" />
@@ -435,7 +599,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
             )}
           </TouchableOpacity>
         </ScrollView>
-      )}
+      ) : null}
     </View>
   )
 }
@@ -727,5 +891,66 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '600',
     color: colors.primary,
+  },
+  loyaltyHint: {
+    fontSize: fontSize.sm,
+    color: colors.textLight,
+    marginBottom: spacing.lg,
+  },
+  loyaltyInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.md,
+  },
+  loyaltyInputIcon: {
+    marginRight: spacing.sm,
+  },
+  loyaltyInput: {
+    flex: 1,
+    fontSize: fontSize.md,
+    color: colors.text,
+    paddingVertical: spacing.md,
+  },
+  verifyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+  },
+  verifyButtonText: {
+    color: '#fff',
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    marginLeft: spacing.sm,
+  },
+  verifiedCustomerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.success,
+  },
+  verifiedCustomerInfo: {
+    marginLeft: spacing.md,
+  },
+  verifiedCustomerName: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  verifiedCustomerPhone: {
+    fontSize: fontSize.sm,
+    color: colors.textLight,
+    marginTop: 2,
   },
 })
