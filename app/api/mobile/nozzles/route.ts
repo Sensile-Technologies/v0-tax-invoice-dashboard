@@ -17,10 +17,11 @@ export async function GET(request: Request) {
     const client = await pool.connect()
     try {
       const nozzlesResult = await client.query(
-        `SELECT id, name, fuel_type, status 
-         FROM nozzles 
-         WHERE branch_id = $1 AND status = 'active'
-         ORDER BY name ASC`,
+        `SELECT n.id, n.nozzle_number, n.fuel_type, n.status, d.dispenser_number
+         FROM nozzles n 
+         LEFT JOIN dispensers d ON n.dispenser_id = d.id
+         WHERE n.branch_id = $1 AND n.status = 'active'
+         ORDER BY d.dispenser_number, n.nozzle_number ASC`,
         [branchId]
       )
 
@@ -32,8 +33,15 @@ export async function GET(request: Request) {
         [branchId]
       )
 
+      const nozzles = nozzlesResult.rows.map(n => ({
+        id: n.id,
+        name: `Pump ${n.dispenser_number || 1} - Nozzle ${n.nozzle_number}`,
+        fuel_type: n.fuel_type,
+        status: n.status,
+      }))
+
       return NextResponse.json({
-        nozzles: nozzlesResult.rows,
+        nozzles: nozzles,
         fuel_prices: fuelPricesResult.rows,
       })
     } finally {

@@ -50,11 +50,11 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     try {
       if (!user?.branch_id) {
         setNozzles([
-          { id: '1', name: 'Pump 1 - Nozzle A', fuel_type: 'PMS', price: 195 },
-          { id: '2', name: 'Pump 1 - Nozzle B', fuel_type: 'AGO', price: 180 },
-          { id: '3', name: 'Pump 2 - Nozzle A', fuel_type: 'DPK', price: 165 },
+          { id: '1', name: 'Pump 1 - Nozzle 1', fuel_type: 'Petrol', price: 195 },
+          { id: '2', name: 'Pump 1 - Nozzle 2', fuel_type: 'Diesel', price: 180 },
+          { id: '3', name: 'Pump 2 - Nozzle 1', fuel_type: 'Kerosene', price: 165 },
         ])
-        setFuelPrices({ 'PMS': 195, 'AGO': 180, 'DPK': 165 })
+        setFuelPrices({ 'Petrol': 195, 'Diesel': 180, 'Kerosene': 165 })
         setLoading(false)
         return
       }
@@ -74,20 +74,20 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         setFuelPrices(prices)
       } else {
         setNozzles([
-          { id: '1', name: 'Pump 1 - Nozzle A', fuel_type: 'PMS', price: 195 },
-          { id: '2', name: 'Pump 1 - Nozzle B', fuel_type: 'AGO', price: 180 },
-          { id: '3', name: 'Pump 2 - Nozzle A', fuel_type: 'DPK', price: 165 },
+          { id: '1', name: 'Pump 1 - Nozzle 1', fuel_type: 'Petrol', price: 195 },
+          { id: '2', name: 'Pump 1 - Nozzle 2', fuel_type: 'Diesel', price: 180 },
+          { id: '3', name: 'Pump 2 - Nozzle 1', fuel_type: 'Kerosene', price: 165 },
         ])
-        setFuelPrices({ 'PMS': 195, 'AGO': 180, 'DPK': 165 })
+        setFuelPrices({ 'Petrol': 195, 'Diesel': 180, 'Kerosene': 165 })
       }
     } catch (error) {
       console.log('Error fetching nozzles:', error)
       setNozzles([
-        { id: '1', name: 'Pump 1 - Nozzle A', fuel_type: 'PMS', price: 195 },
-        { id: '2', name: 'Pump 1 - Nozzle B', fuel_type: 'AGO', price: 180 },
-        { id: '3', name: 'Pump 2 - Nozzle A', fuel_type: 'DPK', price: 165 },
+        { id: '1', name: 'Pump 1 - Nozzle 1', fuel_type: 'Petrol', price: 195 },
+        { id: '2', name: 'Pump 1 - Nozzle 2', fuel_type: 'Diesel', price: 180 },
+        { id: '3', name: 'Pump 2 - Nozzle 1', fuel_type: 'Kerosene', price: 165 },
       ])
-      setFuelPrices({ 'PMS': 195, 'AGO': 180, 'DPK': 165 })
+      setFuelPrices({ 'Petrol': 195, 'Diesel': 180, 'Kerosene': 165 })
     } finally {
       setLoading(false)
     }
@@ -111,6 +111,9 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       'PMS': 'Super Petrol (PMS)',
       'AGO': 'Diesel (AGO)',
       'DPK': 'Kerosene (DPK)',
+      'Petrol': 'Super Petrol (PMS)',
+      'Diesel': 'Diesel (AGO)',
+      'Kerosene': 'Kerosene (DPK)',
     }
     return names[fuelType] || fuelType
   }
