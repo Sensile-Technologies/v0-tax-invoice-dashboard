@@ -1,44 +1,73 @@
 import { NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/db"
+import { Pool } from "pg"
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get("status")
-    const limit = parseInt(searchParams.get("limit") || "50")
+    const branchId = searchParams.get("branch_id")
+    const dateFrom = searchParams.get("date_from")
+    const dateTo = searchParams.get("date_to")
+    const limit = parseInt(searchParams.get("limit") || "100")
 
-    let sql = `
-      SELECT 
-        id,
-        invoice_number,
-        customer_name,
-        branch_id,
-        subtotal,
-        tax_amount as tax,
-        total_amount as total,
-        status,
-        created_at,
-        created_by
-      FROM invoices
-      WHERE 1=1
-    `
-    const params: any[] = []
-    let paramIndex = 1
+    const client = await pool.connect()
+    try {
+      let sql = `
+        SELECT 
+          id,
+          invoice_number,
+          customer_name,
+          sale_date,
+          fuel_type,
+          quantity,
+          unit_price,
+          total_amount,
+          payment_method,
+          CASE 
+            WHEN payment_method = 'credit' THEN 'pending'
+            ELSE 'paid'
+          END as status
+        FROM sales
+        WHERE 1=1
+      `
+      const params: any[] = []
+      let paramIndex = 1
 
-    if (status && status !== "all") {
-      sql += ` AND status = $${paramIndex}`
-      params.push(status)
-      paramIndex++
+      if (branchId) {
+        sql += ` AND branch_id = $${paramIndex}`
+        params.push(branchId)
+        paramIndex++
+      }
+
+      if (dateFrom) {
+        sql += ` AND DATE(sale_date) >= $${paramIndex}`
+        params.push(dateFrom)
+        paramIndex++
+      }
+
+      if (dateTo) {
+        sql += ` AND DATE(sale_date) <= $${paramIndex}`
+        params.push(dateTo)
+        paramIndex++
+      }
+
+      sql += ` ORDER BY sale_date DESC LIMIT $${paramIndex}`
+      params.push(limit)
+
+      const result = await client.query(sql, params)
+      
+      return NextResponse.json({
+        sales: result.rows
+      })
+    } finally {
+      client.release()
     }
-
-    sql += ` ORDER BY created_at DESC LIMIT $${paramIndex}`
-    params.push(limit)
-
-    const result = await query(sql, params)
-    return NextResponse.json(result)
   } catch (error) {
     console.error("Error fetching mobile invoices:", error)
-    return NextResponse.json([])
+    return NextResponse.json({ sales: [] })
   }
 }
 
@@ -56,61 +85,66 @@ export async function POST(request: NextRequest) {
       branch_id
     } = body
 
-    const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`
+    const client = await pool.connect()
+    try {
+      const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`
 
-    const result = await query(`
-      INSERT INTO invoices (
-        invoice_number,
-        customer_name,
+      const result = await client.query(`
+        INSERT INTO invoices (
+          invoice_number,
+          customer_name,
+          customer_phone,
+          branch_id,
+          subtotal,
+          tax_amount,
+          total_amount,
+          status,
+          created_by
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8)
+        RETURNING *
+      `, [
+        invoiceNumber,
+        customer_name || 'Walk-in Customer',
         customer_phone,
-        branch_id,
+        branch_id || null,
         subtotal,
-        tax_amount,
-        total_amount,
-        status,
-        created_by
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8)
-      RETURNING *
-    `, [
-      invoiceNumber,
-      customer_name || 'Walk-in Customer',
-      customer_phone,
-      branch_id || null,
-      subtotal,
-      tax,
-      total,
-      user_id || null
-    ])
+        tax,
+        total,
+        user_id || null
+      ])
 
-    const invoice = result[0]
+      const invoice = result.rows[0]
 
-    if (items && items.length > 0 && invoice) {
-      for (const item of items) {
-        await query(`
-          INSERT INTO invoice_line_items (
-            invoice_id,
-            product_id,
-            product_name,
-            quantity,
-            unit_price,
-            discount,
-            total
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `, [
-          invoice.id,
-          item.product_id,
-          item.product_name,
-          item.quantity,
-          item.unit_price,
-          item.discount || 0,
-          item.total
-        ])
+      if (items && items.length > 0 && invoice) {
+        for (const item of items) {
+          await client.query(`
+            INSERT INTO invoice_line_items (
+              invoice_id,
+              product_id,
+              product_name,
+              quantity,
+              unit_price,
+              discount,
+              total
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+          `, [
+            invoice.id,
+            item.product_id,
+            item.product_name,
+            item.quantity,
+            item.unit_price,
+            item.discount || 0,
+            item.total
+          ])
+        }
       }
-    }
 
-    return NextResponse.json(invoice)
+      return NextResponse.json(invoice)
+    } finally {
+      client.release()
+    }
   } catch (error) {
     console.error("Error creating mobile invoice:", error)
     return NextResponse.json({ error: "Failed to create invoice" }, { status: 500 })

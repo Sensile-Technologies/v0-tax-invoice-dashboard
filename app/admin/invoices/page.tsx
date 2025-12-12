@@ -1076,7 +1076,7 @@ export default function InvoicesPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                          <SelectItem value="mpesa">M-Pesa</SelectItem>
+                          <SelectItem value="mobile_money">Mobile Money</SelectItem>
                           <SelectItem value="cash">Cash</SelectItem>
                           <SelectItem value="cheque">Cheque</SelectItem>
                           <SelectItem value="card">Card</SelectItem>

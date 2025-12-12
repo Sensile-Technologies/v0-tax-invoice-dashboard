@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCurrency } from "@/lib/currency-utils"
 
 const paymentMethods = [
-  { id: "mpesa", name: "MPESA", icon: Smartphone, color: "from-green-500 to-green-700" },
+  { id: "mobile_money", name: "Mobile Money", icon: Smartphone, color: "from-green-500 to-green-700" },
   { id: "cash", name: "Cash", icon: Banknote, color: "from-blue-500 to-blue-700" },
   { id: "bank", name: "Bank", icon: Building2, color: "from-purple-500 to-purple-700" },
   { id: "card", name: "VISA/Mastercard", icon: CreditCard, color: "from-orange-500 to-orange-700" },
@@ -51,7 +51,7 @@ export default function PaymentsPage() {
       vat: 1600,
       grossAmount: 11600,
       customerPin: "A123456789B",
-      method: "mpesa",
+      method: "mobile_money",
       date: "2023-10-01",
     },
     {

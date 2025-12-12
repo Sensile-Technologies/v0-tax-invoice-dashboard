@@ -7,69 +7,111 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Modal,
+  TextInput,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
-import { Invoice } from '../types'
+import { useAuth } from '../context/AuthContext'
+
+interface SaleInvoice {
+  id: string
+  invoice_number: string
+  customer_name: string
+  sale_date: string
+  fuel_type: string
+  quantity: number
+  unit_price: number
+  total_amount: number
+  payment_method: string
+  status: string
+}
+
+type DateFilter = 'today' | 'week' | 'month' | 'all' | 'custom'
 
 export default function InvoicesScreen({ navigation }: any) {
-  const [invoices, setInvoices] = useState<Invoice[]>([])
+  const { user } = useAuth()
+  const [invoices, setInvoices] = useState<SaleInvoice[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'paid'>('all')
+  const [dateFilter, setDateFilter] = useState<DateFilter>('all')
+  const [showDateFilter, setShowDateFilter] = useState(false)
+  const [customDateFrom, setCustomDateFrom] = useState('')
+  const [customDateTo, setCustomDateTo] = useState('')
+
+  const branchId = user?.branch_id || user?.vendor_id
+
+  const getDateRange = useCallback(() => {
+    const now = new Date()
+    let dateFrom: string | null = null
+    let dateTo: string | null = null
+
+    switch (dateFilter) {
+      case 'today':
+        dateFrom = now.toISOString().split('T')[0]
+        dateTo = now.toISOString().split('T')[0]
+        break
+      case 'week':
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+        dateFrom = weekAgo.toISOString().split('T')[0]
+        dateTo = now.toISOString().split('T')[0]
+        break
+      case 'month':
+        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        dateFrom = monthAgo.toISOString().split('T')[0]
+        dateTo = now.toISOString().split('T')[0]
+        break
+      case 'custom':
+        dateFrom = customDateFrom || null
+        dateTo = customDateTo || null
+        break
+      case 'all':
+      default:
+        break
+    }
+    return { dateFrom, dateTo }
+  }, [dateFilter, customDateFrom, customDateTo])
 
   const fetchInvoices = useCallback(async () => {
     try {
-      const data = await api.get<Invoice[]>('/api/mobile/invoices')
-      setInvoices(data || [])
+      const { dateFrom, dateTo } = getDateRange()
+      let url = `/api/mobile/invoices?branch_id=${branchId}`
+      if (dateFrom) {
+        url += `&date_from=${dateFrom}`
+      }
+      if (dateTo) {
+        url += `&date_to=${dateTo}`
+      }
+      
+      const data = await api.get<{ sales: SaleInvoice[] }>(url)
+      setInvoices(data.sales || [])
     } catch (error) {
-      setInvoices([
-        {
-          id: '1',
-          invoice_number: 'INV-001',
-          customer_name: 'John Doe',
-          branch_id: '1',
-          items: [],
-          subtotal: 5000,
-          tax: 800,
-          total: 5800,
-          status: 'paid',
-          created_at: new Date().toISOString(),
-          created_by: 'Cashier',
-        },
-        {
-          id: '2',
-          invoice_number: 'INV-002',
-          customer_name: 'Jane Smith',
-          branch_id: '1',
-          items: [],
-          subtotal: 3200,
-          tax: 512,
-          total: 3712,
-          status: 'pending',
-          created_at: new Date().toISOString(),
-          created_by: 'Cashier',
-        },
-      ])
+      console.error('Error fetching invoices:', error)
+      setInvoices([])
     } finally {
       setLoading(false)
+      setRefreshing(false)
     }
-  }, [])
+  }, [branchId, getDateRange])
 
   useEffect(() => {
-    fetchInvoices()
-  }, [fetchInvoices])
+    if (branchId) {
+      fetchInvoices()
+    }
+  }, [branchId, fetchInvoices])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
     await fetchInvoices()
-    setRefreshing(false)
   }, [fetchInvoices])
 
   const filteredInvoices = invoices.filter((inv) => {
-    if (filter === 'all') return true
-    return inv.status === filter
+    if (statusFilter === 'all') return true
+    if (statusFilter === 'paid') return inv.payment_method !== 'credit'
+    if (statusFilter === 'pending') return inv.payment_method === 'credit'
+    return true
   })
 
   const formatCurrency = (amount: number) => {
@@ -88,16 +130,52 @@ export default function InvoicesScreen({ navigation }: any) {
     })
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return colors.success
-      case 'pending':
-        return colors.warning
-      case 'cancelled':
-        return colors.danger
-      default:
-        return colors.textLight
+  const formatTime = (date: string) => {
+    return new Date(date).toLocaleTimeString('en-KE', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  const getDateFilterLabel = () => {
+    switch (dateFilter) {
+      case 'today': return 'Today'
+      case 'week': return 'Last 7 Days'
+      case 'month': return 'Last 30 Days'
+      case 'custom': return customDateFrom || customDateTo ? 'Custom Range' : 'Custom'
+      case 'all': return 'All Time'
+    }
+  }
+
+  const applyDateFilter = (filter: DateFilter) => {
+    if (filter !== 'custom') {
+      setDateFilter(filter)
+      setShowDateFilter(false)
+    } else {
+      setDateFilter('custom')
+    }
+  }
+
+  const applyCustomDate = () => {
+    setDateFilter('custom')
+    setShowDateFilter(false)
+  }
+
+  const getStatusColor = (paymentMethod: string) => {
+    return paymentMethod === 'credit' ? colors.warning : colors.success
+  }
+
+  const getStatusText = (paymentMethod: string) => {
+    return paymentMethod === 'credit' ? 'CREDIT' : 'PAID'
+  }
+
+  const getPaymentMethodLabel = (method: string) => {
+    switch (method) {
+      case 'mobile_money': return 'Mobile Money'
+      case 'cash': return 'Cash'
+      case 'card': return 'Card'
+      case 'credit': return 'Credit'
+      default: return method
     }
   }
 
@@ -111,15 +189,39 @@ export default function InvoicesScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Sales History</Text>
+        <TouchableOpacity 
+          style={styles.filterIconBtn}
+          onPress={() => setShowDateFilter(true)}
+        >
+          <Ionicons 
+            name="calendar-outline" 
+            size={24} 
+            color={dateFilter !== 'all' ? colors.primary : colors.text} 
+          />
+          {dateFilter !== 'all' && <View style={styles.filterBadge} />}
+        </TouchableOpacity>
+      </View>
+
+      {dateFilter !== 'all' && (
+        <View style={styles.activeDateFilter}>
+          <Text style={styles.activeDateFilterText}>{getDateFilterLabel()}</Text>
+          <TouchableOpacity onPress={() => setDateFilter('all')}>
+            <Ionicons name="close-circle" size={20} color={colors.textLight} />
+          </TouchableOpacity>
+        </View>
+      )}
+
       <View style={styles.filterContainer}>
-        {(['all', 'pending', 'paid'] as const).map((f) => (
+        {(['all', 'paid', 'pending'] as const).map((f) => (
           <TouchableOpacity
             key={f}
-            style={[styles.filterButton, filter === f && styles.filterButtonActive]}
-            onPress={() => setFilter(f)}
+            style={[styles.filterButton, statusFilter === f && styles.filterButtonActive]}
+            onPress={() => setStatusFilter(f)}
           >
-            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+            <Text style={[styles.filterText, statusFilter === f && styles.filterTextActive]}>
+              {f === 'pending' ? 'Credit' : f.charAt(0).toUpperCase() + f.slice(1)}
             </Text>
           </TouchableOpacity>
         ))}
@@ -135,36 +237,49 @@ export default function InvoicesScreen({ navigation }: any) {
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Ionicons name="receipt-outline" size={64} color={colors.textLight} />
-            <Text style={styles.emptyText}>No invoices found</Text>
+            <Text style={styles.emptyText}>No sales found</Text>
+            <Text style={styles.emptySubtext}>
+              {dateFilter !== 'all' ? 'Try adjusting the date filter' : 'Sales will appear here once recorded'}
+            </Text>
           </View>
         }
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.invoiceCard}
-            onPress={() => navigation.navigate('InvoiceDetail', { invoice: item })}
-          >
+          <View style={styles.invoiceCard}>
             <View style={styles.invoiceHeader}>
-              <Text style={styles.invoiceNumber}>{item.invoice_number}</Text>
-              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
-                <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
-                  {item.status.toUpperCase()}
+              <Text style={styles.invoiceNumber}>{item.invoice_number || `SALE-${item.id.slice(0, 8)}`}</Text>
+              <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.payment_method) + '20' }]}>
+                <Text style={[styles.statusText, { color: getStatusColor(item.payment_method) }]}>
+                  {getStatusText(item.payment_method)}
                 </Text>
               </View>
             </View>
             <View style={styles.invoiceBody}>
               <View style={styles.customerInfo}>
-                <Ionicons name="person-outline" size={16} color={colors.textLight} />
-                <Text style={styles.customerName}>
-                  {item.customer_name || 'Walk-in Customer'}
-                </Text>
+                <Ionicons name="flame-outline" size={16} color={colors.primary} />
+                <Text style={styles.fuelType}>{item.fuel_type}</Text>
+                <Text style={styles.quantity}>({item.quantity?.toFixed(2)} L)</Text>
               </View>
-              <Text style={styles.invoiceDate}>{formatDate(item.created_at)}</Text>
+              <Text style={styles.invoiceDate}>{formatDate(item.sale_date)}</Text>
+            </View>
+            <View style={styles.invoiceDetails}>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Customer</Text>
+                <Text style={styles.detailValue}>{item.customer_name || 'Walk-in'}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Time</Text>
+                <Text style={styles.detailValue}>{formatTime(item.sale_date)}</Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Payment</Text>
+                <Text style={styles.detailValue}>{getPaymentMethodLabel(item.payment_method)}</Text>
+              </View>
             </View>
             <View style={styles.invoiceFooter}>
               <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalAmount}>{formatCurrency(item.total)}</Text>
+              <Text style={styles.totalAmount}>{formatCurrency(item.total_amount)}</Text>
             </View>
-          </TouchableOpacity>
+          </View>
         )}
       />
 
@@ -174,6 +289,79 @@ export default function InvoicesScreen({ navigation }: any) {
       >
         <Ionicons name="add" size={28} color="#fff" />
       </TouchableOpacity>
+
+      <Modal visible={showDateFilter} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter by Date</Text>
+              <TouchableOpacity onPress={() => setShowDateFilter(false)}>
+                <Ionicons name="close" size={24} color={colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.quickFilters}>
+              {[
+                { key: 'today', label: 'Today' },
+                { key: 'week', label: 'Last 7 Days' },
+                { key: 'month', label: 'Last 30 Days' },
+                { key: 'all', label: 'All Time' },
+              ].map((item) => (
+                <TouchableOpacity
+                  key={item.key}
+                  style={[
+                    styles.quickFilterButton,
+                    dateFilter === item.key && styles.quickFilterButtonActive
+                  ]}
+                  onPress={() => applyDateFilter(item.key as DateFilter)}
+                >
+                  <Text style={[
+                    styles.quickFilterText,
+                    dateFilter === item.key && styles.quickFilterTextActive
+                  ]}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.customDateSection}>
+              <Text style={styles.customDateTitle}>Custom Date Range</Text>
+              <Text style={styles.customDateHint}>Format: YYYY-MM-DD (e.g., 2024-12-01)</Text>
+              
+              <View style={styles.dateInputRow}>
+                <View style={styles.dateInputContainer}>
+                  <Text style={styles.dateInputLabel}>From</Text>
+                  <TextInput
+                    style={styles.dateInput}
+                    placeholder="YYYY-MM-DD"
+                    value={customDateFrom}
+                    onChangeText={setCustomDateFrom}
+                    placeholderTextColor={colors.textLight}
+                  />
+                </View>
+                <View style={styles.dateInputContainer}>
+                  <Text style={styles.dateInputLabel}>To</Text>
+                  <TextInput
+                    style={styles.dateInput}
+                    placeholder="YYYY-MM-DD"
+                    value={customDateTo}
+                    onChangeText={setCustomDateTo}
+                    placeholderTextColor={colors.textLight}
+                  />
+                </View>
+              </View>
+
+              <TouchableOpacity 
+                style={styles.applyCustomButton}
+                onPress={applyCustomDate}
+              >
+                <Text style={styles.applyCustomButtonText}>Apply Custom Range</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
@@ -188,11 +376,54 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
+    backgroundColor: colors.surface,
+  },
+  title: {
+    fontSize: fontSize.xl,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  filterIconBtn: {
+    padding: spacing.sm,
+    position: 'relative',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: spacing.xs,
+    right: spacing.xs,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.primary,
+  },
+  activeDateFilter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.primary + '15',
+    gap: spacing.sm,
+  },
+  activeDateFilterText: {
+    fontSize: fontSize.sm,
+    color: colors.primary,
+    fontWeight: '500',
+  },
   filterContainer: {
     flexDirection: 'row',
     padding: spacing.md,
     backgroundColor: colors.surface,
     gap: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   filterButton: {
     flex: 1,
@@ -214,6 +445,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: spacing.md,
+    paddingBottom: 100,
   },
   invoiceCard: {
     backgroundColor: colors.surface,
@@ -257,13 +489,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
   },
-  customerName: {
+  fuelType: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  quantity: {
     fontSize: fontSize.sm,
     color: colors.textLight,
   },
   invoiceDate: {
     fontSize: fontSize.sm,
     color: colors.textLight,
+  },
+  invoiceDetails: {
+    backgroundColor: colors.background,
+    borderRadius: borderRadius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 2,
+  },
+  detailLabel: {
+    fontSize: fontSize.xs,
+    color: colors.textLight,
+  },
+  detailValue: {
+    fontSize: fontSize.xs,
+    color: colors.text,
+    fontWeight: '500',
   },
   invoiceFooter: {
     flexDirection: 'row',
@@ -293,6 +550,12 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     marginTop: spacing.md,
   },
+  emptySubtext: {
+    fontSize: fontSize.sm,
+    color: colors.textLight,
+    marginTop: spacing.xs,
+    textAlign: 'center',
+  },
   fab: {
     position: 'absolute',
     right: spacing.lg,
@@ -308,5 +571,102 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
+  },
+  modalTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+  quickFilters: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+  },
+  quickFilterButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  quickFilterButtonActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  quickFilterText: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+  },
+  quickFilterTextActive: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  customDateSection: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.lg,
+  },
+  customDateTitle: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  customDateHint: {
+    fontSize: fontSize.xs,
+    color: colors.textLight,
+    marginBottom: spacing.md,
+  },
+  dateInputRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  dateInputContainer: {
+    flex: 1,
+  },
+  dateInputLabel: {
+    fontSize: fontSize.sm,
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    fontSize: fontSize.md,
+    backgroundColor: colors.background,
+  },
+  applyCustomButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+  },
+  applyCustomButtonText: {
+    color: '#fff',
+    fontSize: fontSize.md,
+    fontWeight: '600',
   },
 })
