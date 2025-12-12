@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { Pool } from "pg"
+import { callKraTestSalesEndpoint } from "@/lib/kra-sales-api"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -108,12 +109,32 @@ export async function POST(request: Request) {
 
       await client.query('COMMIT')
 
+      console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
+      
+      const kraResult = await callKraTestSalesEndpoint({
+        branch_id,
+        invoice_number: invoiceNumber,
+        receipt_number: receiptNumber,
+        fuel_type,
+        quantity: quantity || 0,
+        unit_price: unit_price || 0,
+        total_amount,
+        payment_method: payment_method || 'cash',
+        customer_name: customer_name || 'Walk-in Customer',
+        customer_pin: kra_pin || '',
+        sale_date: new Date().toISOString()
+      })
+
+      console.log("[Mobile Create Sale] KRA API Response:", JSON.stringify(kraResult, null, 2))
+
       return NextResponse.json({
         success: true,
         sale_id: sale.id,
         sale: sale,
         invoice_number: invoiceNumber,
         receipt_number: receiptNumber,
+        kra_response: kraResult.kraResponse,
+        kra_success: kraResult.success
       })
     } catch (error) {
       await client.query('ROLLBACK')
