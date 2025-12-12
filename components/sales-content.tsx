@@ -708,8 +708,14 @@ export function SalesContent() {
                   <PieChart>
                     <Pie
                       data={(() => {
+                        const normalizePaymentMethod = (method: string) => {
+                          const m = (method || "cash").toLowerCase()
+                          if (m === "mpesa" || m === "m-pesa" || m === "card" || m === "mobile_money") return "Mobile Money"
+                          if (m === "credit") return "Credit"
+                          return "Cash"
+                        }
                         const paymentSales = sales.reduce((acc: any, sale) => {
-                          const method = sale.payment_method || "Cash"
+                          const method = normalizePaymentMethod(sale.payment_method)
                           acc[method] = (acc[method] || 0) + sale.total_amount
                           return acc
                         }, {})
@@ -744,19 +750,17 @@ export function SalesContent() {
                       {(() => {
                         const PAYMENT_COLORS: any = {
                           Cash: "#3A7085",
-                          cash: "#3A7085",
                           "Mobile Money": "#008C51",
-                          mobile_money: "#008C51",
-                          "M-Pesa": "#008C51",
-                          Mpesa: "#008C51",
-                          mpesa: "#008C51",
-                          Card: "#F59E0B",
-                          card: "#F59E0B",
                           Credit: "#EF4444",
-                          credit: "#EF4444",
+                        }
+                        const normalizePaymentMethod = (method: string) => {
+                          const m = (method || "cash").toLowerCase()
+                          if (m === "mpesa" || m === "m-pesa" || m === "card" || m === "mobile_money") return "Mobile Money"
+                          if (m === "credit") return "Credit"
+                          return "Cash"
                         }
                         const paymentSales = sales.reduce((acc: any, sale) => {
-                          const method = sale.payment_method || "Cash"
+                          const method = normalizePaymentMethod(sale.payment_method)
                           acc[method] = (acc[method] || 0) + sale.total_amount
                           return acc
                         }, {})
@@ -1097,7 +1101,12 @@ export function SalesContent() {
                           </TableCell>
                           <TableCell className="p-2 text-center">
                             <Badge variant="outline" className="capitalize">
-                              {sale.payment_method || "cash"}
+                              {(() => {
+                                const m = (sale.payment_method || "cash").toLowerCase()
+                                if (m === "mpesa" || m === "m-pesa" || m === "card" || m === "mobile_money") return "Mobile Money"
+                                if (m === "credit") return "Credit"
+                                return "Cash"
+                              })()}
                             </Badge>
                           </TableCell>
                           <TableCell className="p-2 text-center">
@@ -1233,7 +1242,6 @@ export function SalesContent() {
                   <SelectContent>
                     <SelectItem value="cash">Cash</SelectItem>
                     <SelectItem value="mobile_money">Mobile Money</SelectItem>
-                    <SelectItem value="card">Card</SelectItem>
                     <SelectItem value="credit">Credit</SelectItem>
                   </SelectContent>
                 </Select>
