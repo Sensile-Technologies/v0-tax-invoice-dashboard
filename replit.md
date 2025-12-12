@@ -21,6 +21,10 @@ Flow360 is a Next.js 16 business management application for fuel station managem
 - `/hooks` - Custom React hooks
 - `/public` - Static assets and images
 - `/scripts` - SQL migration scripts
+- `/mobile` - Expo React Native mobile app for cashiers/supervisors
+  - `/mobile/src/screens` - Login, Dashboard, Invoice creation, Invoice history
+  - `/mobile/src/context` - Auth context provider
+  - `/mobile/src/api` - API client for backend communication
 
 ## Development
 - **Dev Server**: `npm run dev` on port 5000
@@ -42,6 +46,14 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-12: Mobile App for Cashiers/Supervisors
+  - Created Expo React Native mobile app in /mobile directory
+  - Mobile screens: Login (role-restricted), Dashboard, Create Invoice, Invoice History
+  - Mobile API endpoints: /api/mobile/dashboard, /api/mobile/invoices
+  - Auth context with secure storage for session persistence
+  - Bottom tab navigation with Flow360 branding
+  - APK build configuration via EAS (eas.json)
+
 - 2024-12-11: Branch Configuration & KRA Data Storage
   - Added server_address and server_port columns to branches table for backend configuration
   - Onboarding API now saves complete backend config (server address, port, BHF ID, device token) per branch
