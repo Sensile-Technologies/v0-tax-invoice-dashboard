@@ -353,7 +353,7 @@ export default function LoyaltyPage() {
                                   <td className="p-3 font-medium">{transaction.customer_name}</td>
                                   <td className="p-3 text-sm">{transaction.customer_pin || "N/A"}</td>
                                   <td className="p-3">{transaction.fuel_type || "N/A"}</td>
-                                  <td className="p-3 text-right">{transaction.quantity?.toFixed(2) || "0.00"}</td>
+                                  <td className="p-3 text-right">{(parseFloat(transaction.quantity) || 0).toFixed(2)}</td>
                                   <td className="p-3 text-right font-medium">
                                     {formatCurrency(transaction.transaction_amount)}
                                   </td>
@@ -364,7 +364,7 @@ export default function LoyaltyPage() {
                                   </td>
                                   <td className="p-3 text-right">
                                     <Badge className="bg-green-100 text-green-800 rounded-full">
-                                      {transaction.points_earned?.toFixed(0) || 0} pts
+                                      {(parseFloat(transaction.points_earned) || 0).toFixed(0)} pts
                                     </Badge>
                                   </td>
                                 </tr>
