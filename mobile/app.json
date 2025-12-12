@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Flow360 Sales",
+    "slug": "flow360-sales",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a1628"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.flow360.sales"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a1628"
+      },
+      "package": "com.flow360.sales",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "flow360-sales"
+      }
+    }
+  }
+}

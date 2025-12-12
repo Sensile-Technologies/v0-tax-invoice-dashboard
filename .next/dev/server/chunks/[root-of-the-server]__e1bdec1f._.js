@@ -219,30 +219,65 @@ async function POST(request) {
 }
 async function PUT(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const leadId = searchParams.get("id");
         const body = await request.json();
-        const { id, company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone, stage, assigned_to, notes, expected_value, expected_close_date, source } = body;
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      UPDATE leads 
-      SET company_name = $1, trading_name = $2, kra_pin = $3, contact_name = $4, 
-          contact_email = $5, contact_phone = $6, stage = $7, assigned_to = $8, 
-          notes = $9, expected_value = $10, expected_close_date = $11, source = $12, updated_at = NOW()
-      WHERE id = $13
-      RETURNING *
-    `, [
-            company_name,
-            trading_name,
-            kra_pin,
-            contact_name,
-            contact_email,
-            contact_phone,
-            stage,
-            assigned_to || null,
-            notes,
-            expected_value,
-            expected_close_date,
-            source,
-            id
-        ]);
+        const { id, company_name, trading_name, kra_pin, contact_name, contact_email, contact_phone, stage, assigned_to, notes, expected_value, expected_close_date, source, contract_url } = body;
+        const actualId = leadId || id;
+        let sql;
+        let params;
+        if (contract_url) {
+            sql = `
+        UPDATE leads 
+        SET company_name = $1, trading_name = $2, kra_pin = $3, contact_name = $4, 
+            contact_email = $5, contact_phone = $6, stage = $7, assigned_to = $8, 
+            notes = $9, expected_value = $10, expected_close_date = $11, source = $12, 
+            contract_url = $13, updated_at = NOW()
+        WHERE id = $14
+        RETURNING *
+      `;
+            params = [
+                company_name,
+                trading_name,
+                kra_pin,
+                contact_name,
+                contact_email,
+                contact_phone,
+                stage,
+                assigned_to || null,
+                notes,
+                expected_value,
+                expected_close_date,
+                source,
+                contract_url,
+                actualId
+            ];
+        } else {
+            sql = `
+        UPDATE leads 
+        SET company_name = $1, trading_name = $2, kra_pin = $3, contact_name = $4, 
+            contact_email = $5, contact_phone = $6, stage = $7, assigned_to = $8, 
+            notes = $9, expected_value = $10, expected_close_date = $11, source = $12, updated_at = NOW()
+        WHERE id = $13
+        RETURNING *
+      `;
+            params = [
+                company_name,
+                trading_name,
+                kra_pin,
+                contact_name,
+                contact_email,
+                contact_phone,
+                stage,
+                assigned_to || null,
+                notes,
+                expected_value,
+                expected_close_date,
+                source,
+                actualId
+            ];
+        }
+        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, params);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
     } catch (error) {
         console.error("Error updating lead:", error);

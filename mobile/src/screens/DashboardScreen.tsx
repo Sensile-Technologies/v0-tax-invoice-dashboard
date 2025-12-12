@@ -1,0 +1,245 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  TouchableOpacity,
+} from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { useAuth } from '../context/AuthContext'
+import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
+import { api } from '../api/client'
+
+interface DashboardStats {
+  total_sales: number
+  total_invoices: number
+  pending_invoices: number
+  paid_invoices: number
+}
+
+export default function DashboardScreen({ navigation }: any) {
+  const { user, logout } = useAuth()
+  const [stats, setStats] = useState<DashboardStats>({
+    total_sales: 0,
+    total_invoices: 0,
+    pending_invoices: 0,
+    paid_invoices: 0,
+  })
+  const [refreshing, setRefreshing] = useState(false)
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const data = await api.get<DashboardStats>('/api/mobile/dashboard')
+      setStats(data)
+    } catch (error) {
+      console.log('Using default stats')
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await fetchStats()
+    setRefreshing(false)
+  }, [fetchStats])
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+      minimumFractionDigits: 0,
+    }).format(amount)
+  }
+
+  return (
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.greeting}>Welcome back,</Text>
+          <Text style={styles.userName}>{user?.name || 'User'}</Text>
+          <Text style={styles.role}>{user?.role?.toUpperCase()}</Text>
+        </View>
+        <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={24} color={colors.danger} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.statsGrid}>
+        <View style={[styles.statCard, styles.primaryCard]}>
+          <Ionicons name="cash-outline" size={28} color="#fff" />
+          <Text style={styles.statValue}>{formatCurrency(stats.total_sales)}</Text>
+          <Text style={styles.statLabel}>Today's Sales</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Ionicons name="receipt-outline" size={28} color={colors.primary} />
+          <Text style={[styles.statValue, { color: colors.text }]}>
+            {stats.total_invoices}
+          </Text>
+          <Text style={[styles.statLabel, { color: colors.textLight }]}>
+            Total Invoices
+          </Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Ionicons name="time-outline" size={28} color={colors.warning} />
+          <Text style={[styles.statValue, { color: colors.text }]}>
+            {stats.pending_invoices}
+          </Text>
+          <Text style={[styles.statLabel, { color: colors.textLight }]}>
+            Pending
+          </Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Ionicons name="checkmark-circle-outline" size={28} color={colors.success} />
+          <Text style={[styles.statValue, { color: colors.text }]}>
+            {stats.paid_invoices}
+          </Text>
+          <Text style={[styles.statLabel, { color: colors.textLight }]}>
+            Paid
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.quickActions}>
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('CreateInvoice')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: colors.primary + '20' }]}>
+              <Ionicons name="add-circle-outline" size={28} color={colors.primary} />
+            </View>
+            <Text style={styles.actionText}>New Invoice</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Invoices')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: colors.success + '20' }]}>
+              <Ionicons name="list-outline" size={28} color={colors.success} />
+            </View>
+            <Text style={styles.actionText}>View Invoices</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: spacing.lg,
+    backgroundColor: colors.navBackground,
+    paddingTop: 60,
+  },
+  greeting: {
+    fontSize: fontSize.md,
+    color: '#94a3b8',
+  },
+  userName: {
+    fontSize: fontSize.xl,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  role: {
+    fontSize: fontSize.xs,
+    color: colors.primary,
+    marginTop: spacing.xs,
+    fontWeight: '600',
+  },
+  logoutButton: {
+    padding: spacing.sm,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: spacing.md,
+    marginTop: -spacing.lg,
+  },
+  statCard: {
+    width: '48%',
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    marginHorizontal: '1%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  primaryCard: {
+    backgroundColor: colors.primary,
+  },
+  statValue: {
+    fontSize: fontSize.xl,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginTop: spacing.sm,
+  },
+  statLabel: {
+    fontSize: fontSize.sm,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: spacing.xs,
+  },
+  quickActions: {
+    padding: spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  actionButton: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    padding: spacing.lg,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  actionIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  actionText: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+    color: colors.text,
+  },
+})
