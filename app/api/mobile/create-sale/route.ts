@@ -8,6 +8,8 @@ const pool = new Pool({
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    console.log("[Mobile Create Sale] Request body:", JSON.stringify(body, null, 2))
+    
     const {
       branch_id,
       user_id,
@@ -24,8 +26,9 @@ export async function POST(request: Request) {
     } = body
 
     if (!branch_id || !fuel_type || !total_amount) {
+      console.log("[Mobile Create Sale] Missing required fields - branch_id:", branch_id, "fuel_type:", fuel_type, "total_amount:", total_amount)
       return NextResponse.json(
-        { error: "Branch ID, fuel type, and amount are required" },
+        { error: `Missing required fields: branch_id=${branch_id}, fuel_type=${fuel_type}, total_amount=${total_amount}` },
         { status: 400 }
       )
     }

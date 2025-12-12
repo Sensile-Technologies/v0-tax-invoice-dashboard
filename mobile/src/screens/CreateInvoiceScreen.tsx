@@ -50,11 +50,11 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     try {
       if (!user?.branch_id) {
         setNozzles([
-          { id: '1', name: 'Pump 1 - Nozzle 1', fuel_type: 'Petrol', price: 195 },
-          { id: '2', name: 'Pump 1 - Nozzle 2', fuel_type: 'Diesel', price: 180 },
-          { id: '3', name: 'Pump 2 - Nozzle 1', fuel_type: 'Kerosene', price: 165 },
+          { id: '1', name: 'D1N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
+          { id: '2', name: 'D2N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
+          { id: '3', name: 'D3N1 - Petrol', fuel_type: 'Petrol', price: 183 },
         ])
-        setFuelPrices({ 'Petrol': 195, 'Diesel': 180, 'Kerosene': 165 })
+        setFuelPrices({ 'Petrol': 183, 'Kerosene': 155 })
         setLoading(false)
         return
       }
@@ -74,20 +74,20 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         setFuelPrices(prices)
       } else {
         setNozzles([
-          { id: '1', name: 'Pump 1 - Nozzle 1', fuel_type: 'Petrol', price: 195 },
-          { id: '2', name: 'Pump 1 - Nozzle 2', fuel_type: 'Diesel', price: 180 },
-          { id: '3', name: 'Pump 2 - Nozzle 1', fuel_type: 'Kerosene', price: 165 },
+          { id: '1', name: 'D1N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
+          { id: '2', name: 'D2N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
+          { id: '3', name: 'D3N1 - Petrol', fuel_type: 'Petrol', price: 183 },
         ])
-        setFuelPrices({ 'Petrol': 195, 'Diesel': 180, 'Kerosene': 165 })
+        setFuelPrices({ 'Petrol': 183, 'Kerosene': 155 })
       }
     } catch (error) {
       console.log('Error fetching nozzles:', error)
       setNozzles([
-        { id: '1', name: 'Pump 1 - Nozzle 1', fuel_type: 'Petrol', price: 195 },
-        { id: '2', name: 'Pump 1 - Nozzle 2', fuel_type: 'Diesel', price: 180 },
-        { id: '3', name: 'Pump 2 - Nozzle 1', fuel_type: 'Kerosene', price: 165 },
+        { id: '1', name: 'D1N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
+        { id: '2', name: 'D2N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
+        { id: '3', name: 'D3N1 - Petrol', fuel_type: 'Petrol', price: 183 },
       ])
-      setFuelPrices({ 'Petrol': 195, 'Diesel': 180, 'Kerosene': 165 })
+      setFuelPrices({ 'Petrol': 183, 'Kerosene': 155 })
     } finally {
       setLoading(false)
     }

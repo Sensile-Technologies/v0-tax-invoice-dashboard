@@ -35,7 +35,7 @@ export async function GET(request: Request) {
 
       const nozzles = nozzlesResult.rows.map(n => ({
         id: n.id,
-        name: `Pump ${n.dispenser_number || 1} - Nozzle ${n.nozzle_number}`,
+        name: `D${n.dispenser_number || 1}N${n.nozzle_number} - ${n.fuel_type}`,
         fuel_type: n.fuel_type,
         status: n.status,
       }))
