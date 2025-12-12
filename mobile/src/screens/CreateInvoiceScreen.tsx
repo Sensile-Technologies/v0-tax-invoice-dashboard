@@ -301,6 +301,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
               >
                 <Picker.Item label="Cash" value="cash" />
                 <Picker.Item label="Mobile Money" value="mobile_money" />
+                <Picker.Item label="Card" value="card" />
                 <Picker.Item label="Credit" value="credit" />
               </Picker>
             </View>

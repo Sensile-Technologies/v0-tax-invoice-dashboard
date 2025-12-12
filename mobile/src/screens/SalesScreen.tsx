@@ -393,6 +393,7 @@ export default function SalesScreen() {
                 {[
                   { value: 'cash', label: 'Cash' },
                   { value: 'mobile_money', label: 'Mobile Money' },
+                  { value: 'card', label: 'Card' },
                   { value: 'credit', label: 'Credit' },
                 ].map((method) => (
                   <TouchableOpacity

@@ -710,7 +710,8 @@ export function SalesContent() {
                       data={(() => {
                         const normalizePaymentMethod = (method: string) => {
                           const m = (method || "cash").toLowerCase()
-                          if (m === "mpesa" || m === "m-pesa" || m === "card" || m === "mobile_money") return "Mobile Money"
+                          if (m === "mpesa" || m === "m-pesa" || m === "mobile_money") return "Mobile Money"
+                          if (m === "card") return "Card"
                           if (m === "credit") return "Credit"
                           return "Cash"
                         }
@@ -751,11 +752,13 @@ export function SalesContent() {
                         const PAYMENT_COLORS: any = {
                           Cash: "#3A7085",
                           "Mobile Money": "#008C51",
+                          Card: "#F59E0B",
                           Credit: "#EF4444",
                         }
                         const normalizePaymentMethod = (method: string) => {
                           const m = (method || "cash").toLowerCase()
-                          if (m === "mpesa" || m === "m-pesa" || m === "card" || m === "mobile_money") return "Mobile Money"
+                          if (m === "mpesa" || m === "m-pesa" || m === "mobile_money") return "Mobile Money"
+                          if (m === "card") return "Card"
                           if (m === "credit") return "Credit"
                           return "Cash"
                         }
@@ -1103,7 +1106,8 @@ export function SalesContent() {
                             <Badge variant="outline" className="capitalize">
                               {(() => {
                                 const m = (sale.payment_method || "cash").toLowerCase()
-                                if (m === "mpesa" || m === "m-pesa" || m === "card" || m === "mobile_money") return "Mobile Money"
+                                if (m === "mpesa" || m === "m-pesa" || m === "mobile_money") return "Mobile Money"
+                                if (m === "card") return "Card"
                                 if (m === "credit") return "Credit"
                                 return "Cash"
                               })()}
@@ -1242,6 +1246,7 @@ export function SalesContent() {
                   <SelectContent>
                     <SelectItem value="cash">Cash</SelectItem>
                     <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                    <SelectItem value="card">Card</SelectItem>
                     <SelectItem value="credit">Credit</SelectItem>
                   </SelectContent>
                 </Select>

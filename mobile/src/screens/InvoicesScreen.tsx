@@ -173,7 +173,7 @@ export default function InvoicesScreen({ navigation }: any) {
     switch (method) {
       case 'mobile_money': return 'Mobile Money'
       case 'mpesa': return 'Mobile Money'
-      case 'card': return 'Mobile Money'
+      case 'card': return 'Card'
       case 'cash': return 'Cash'
       case 'credit': return 'Credit'
       default: return method
