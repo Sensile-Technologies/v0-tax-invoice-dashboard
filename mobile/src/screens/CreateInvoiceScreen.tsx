@@ -27,6 +27,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   
   // Step 1: Nozzle selection
   const [nozzles, setNozzles] = useState<Nozzle[]>([])
@@ -57,14 +58,11 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   }, [user?.branch_id])
 
   async function fetchNozzles() {
+    setLoadError(null)
+    setLoading(true)
     try {
       if (!user?.branch_id) {
-        setNozzles([
-          { id: '1', name: 'D1N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
-          { id: '2', name: 'D2N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
-          { id: '3', name: 'D3N1 - Petrol', fuel_type: 'Petrol', price: 183 },
-        ])
-        setFuelPrices({ 'Petrol': 183, 'Kerosene': 155 })
+        setLoadError('No branch assigned. Please contact your administrator.')
         setLoading(false)
         return
       }
@@ -83,21 +81,11 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         }
         setFuelPrices(prices)
       } else {
-        setNozzles([
-          { id: '1', name: 'D1N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
-          { id: '2', name: 'D2N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
-          { id: '3', name: 'D3N1 - Petrol', fuel_type: 'Petrol', price: 183 },
-        ])
-        setFuelPrices({ 'Petrol': 183, 'Kerosene': 155 })
+        setLoadError('No nozzles configured for this branch. Please contact your administrator.')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log('Error fetching nozzles:', error)
-      setNozzles([
-        { id: '1', name: 'D1N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
-        { id: '2', name: 'D2N1 - Kerosene', fuel_type: 'Kerosene', price: 155 },
-        { id: '3', name: 'D3N1 - Petrol', fuel_type: 'Petrol', price: 183 },
-      ])
-      setFuelPrices({ 'Petrol': 183, 'Kerosene': 155 })
+      setLoadError(error.message || 'Failed to load nozzles. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -263,6 +251,19 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle" size={48} color={colors.danger} />
+        <Text style={styles.errorText}>{loadError}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={fetchNozzles}>
+          <Ionicons name="refresh" size={20} color="#fff" />
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
       </View>
     )
   }
@@ -613,6 +614,33 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  errorText: {
+    fontSize: fontSize.md,
+    color: colors.text,
+    textAlign: 'center',
+    marginTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.md,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    marginLeft: spacing.sm,
   },
   scrollView: {
     flex: 1,
