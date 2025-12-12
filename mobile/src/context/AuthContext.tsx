@@ -40,16 +40,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(email: string, password: string) {
     setIsLoading(true)
     try {
-      const response = await api.post<{ user: User; success: boolean }>('/api/auth/signin', {
+      const response = await api.post<{ user: User; access_token?: string; error?: { message: string } }>('/api/auth/signin', {
         email,
         password,
       })
 
-      if (!response.success || !response.user) {
-        throw new Error('Invalid credentials')
+      if (response.error || !response.user) {
+        throw new Error(response.error?.message || 'Invalid credentials')
       }
 
       const userData = response.user
+      
+      if (response.access_token) {
+        await api.setToken(response.access_token)
+      }
       
       if (userData.role !== 'cashier' && userData.role !== 'supervisor') {
         throw new Error('Only cashiers and supervisors can use this app')
