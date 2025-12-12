@@ -92,6 +92,9 @@ async function GET(request) {
             WHEN fp.fuel_type = 'AGO' THEN 'Diesel (AGO)'
             WHEN fp.fuel_type = 'DPK' THEN 'Kerosene (DPK)'
             WHEN fp.fuel_type = 'LPG' THEN 'LPG Gas'
+            WHEN fp.fuel_type = 'Petrol' THEN 'Super Petrol'
+            WHEN fp.fuel_type = 'Kerosene' THEN 'Kerosene'
+            WHEN fp.fuel_type = 'Diesel' THEN 'Diesel'
             ELSE fp.fuel_type
           END as item_nm,
           'FUEL' as item_cls_cd,
@@ -99,7 +102,7 @@ async function GET(request) {
           'L' as qty_unit_cd,
           fp.price as unit_price,
           COALESCE(
-            (SELECT SUM(current_volume) FROM tanks t WHERE t.branch_id = fp.branch_id AND t.fuel_type = fp.fuel_type),
+            (SELECT SUM(current_stock) FROM tanks t WHERE t.branch_id = fp.branch_id AND t.fuel_type = fp.fuel_type),
             0
           ) as stock_quantity,
           'active' as status
@@ -125,8 +128,8 @@ async function GET(request) {
                 branchId
             ]);
             const allProducts = [
-                ...fuelResult.rows,
-                ...itemsResult.rows
+                ...fuelResult.rows || [],
+                ...itemsResult.rows || []
             ];
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 products: allProducts
