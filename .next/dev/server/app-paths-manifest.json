@@ -1,8 +1,1 @@
-{
-  "/api/auth/signin/route": "app/api/auth/signin/route.js",
-  "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/mobile/create-sale/route": "app/api/mobile/create-sale/route.js",
-  "/api/mobile/dashboard/route": "app/api/mobile/dashboard/route.js",
-  "/api/mobile/nozzles/route": "app/api/mobile/nozzles/route.js",
-  "/page": "app/page.js"
-}
+{}

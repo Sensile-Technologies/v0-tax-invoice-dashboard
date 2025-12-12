@@ -40,13 +40,32 @@ export async function POST(request: Request) {
       const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`
       const receiptNumber = `RCP-${Date.now().toString(36).toUpperCase()}`
 
+      let meterReadingAfter = null
+      if (nozzle_id && quantity) {
+        const nozzleResult = await client.query(
+          `SELECT initial_meter_reading FROM nozzles WHERE id = $1`,
+          [nozzle_id]
+        )
+        
+        if (nozzleResult.rows.length > 0) {
+          const currentReading = parseFloat(nozzleResult.rows[0].initial_meter_reading) || 0
+          meterReadingAfter = currentReading + parseFloat(quantity)
+          
+          await client.query(
+            `UPDATE nozzles SET initial_meter_reading = $1, updated_at = NOW() WHERE id = $2`,
+            [meterReadingAfter, nozzle_id]
+          )
+        }
+      }
+
       const saleResult = await client.query(
         `INSERT INTO sales (
           branch_id, nozzle_id, fuel_type, quantity, 
           unit_price, total_amount, payment_method, customer_name, 
           vehicle_number, invoice_number, receipt_number, sale_date,
-          customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15)
+          customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin,
+          meter_reading_after
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15, $16)
         RETURNING *`,
         [
           branch_id,
@@ -64,6 +83,7 @@ export async function POST(request: Request) {
           is_loyalty_customer || false,
           is_loyalty_customer ? customer_name : null,
           is_loyalty_customer ? kra_pin : null,
+          meterReadingAfter,
         ]
       )
 
