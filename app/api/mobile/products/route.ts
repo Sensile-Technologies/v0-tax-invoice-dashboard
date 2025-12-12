@@ -54,12 +54,18 @@ export async function GET(request: Request) {
 
       const itemsResult = await client.query(
         `SELECT 
-          id, item_cd, item_nm, item_cls_cd, pkg_unit_cd, qty_unit_cd,
-          dflt_prc as unit_price, avail_qty as stock_quantity,
-          CASE WHEN use_yn = 'Y' THEN 'active' ELSE 'inactive' END as status
+          id, 
+          item_code as item_cd, 
+          item_name as item_nm, 
+          COALESCE(class_code, 'ITEM') as item_cls_cd, 
+          'PC' as pkg_unit_cd, 
+          'PC' as qty_unit_cd,
+          COALESCE(sale_price, 0) as unit_price, 
+          0 as stock_quantity,
+          COALESCE(status, 'active') as status
          FROM items 
          WHERE branch_id = $1 
-         ORDER BY item_nm ASC`,
+         ORDER BY item_name ASC`,
         [branchId]
       )
 

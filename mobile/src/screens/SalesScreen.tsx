@@ -206,8 +206,8 @@ export default function SalesScreen() {
     }
   }
 
-  const totalSales = sales.reduce((sum, sale) => sum + (sale.total_amount || 0), 0)
-  const totalLiters = sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0)
+  const totalSales = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.total_amount)) || 0), 0)
+  const totalLiters = sales.reduce((sum, sale) => sum + (parseFloat(String(sale.quantity)) || 0), 0)
 
   function formatCurrency(amount: number) {
     return `KES ${amount.toLocaleString('en-KE', { minimumFractionDigits: 2 })}`
@@ -232,7 +232,7 @@ export default function SalesScreen() {
         <View style={styles.saleDetails}>
           <View style={styles.saleRow}>
             <Text style={styles.fuelType}>{item.fuel_type}</Text>
-            <Text style={styles.quantity}>{item.quantity?.toFixed(2)} L</Text>
+            <Text style={styles.quantity}>{(parseFloat(String(item.quantity)) || 0).toFixed(2)} L</Text>
           </View>
           <View style={styles.saleRow}>
             <Text style={styles.paymentMethod}>{item.payment_method}</Text>
@@ -284,7 +284,7 @@ export default function SalesScreen() {
         </View>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Total Liters</Text>
-          <Text style={styles.summaryValue}>{totalLiters.toFixed(2)} L</Text>
+          <Text style={styles.summaryValue}>{(parseFloat(String(totalLiters)) || 0).toFixed(2)} L</Text>
         </View>
       </View>
 

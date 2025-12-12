@@ -1,11 +1,4 @@
 {
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/db/[table]/route": "app/api/db/[table]/route.js",
-  "/api/mobile/dashboard/route": "app/api/mobile/dashboard/route.js",
-  "/api/mobile/invoices/route": "app/api/mobile/invoices/route.js",
-  "/api/mobile/nozzles/route": "app/api/mobile/nozzles/route.js",
-  "/api/mobile/products/route": "app/api/mobile/products/route.js",
-  "/api/mobile/sales/route": "app/api/mobile/sales/route.js",
-  "/page": "app/page.js",
-  "/sales/page": "app/sales/page.js"
+  "/page": "app/page.js"
 }

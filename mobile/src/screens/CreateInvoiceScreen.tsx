@@ -35,6 +35,10 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [amount, setAmount] = useState('')
   const [fuelPrices, setFuelPrices] = useState<Record<string, number>>({})
   
+  // Discount
+  const [discountType, setDiscountType] = useState<'fixed' | 'percentage'>('fixed')
+  const [discountValue, setDiscountValue] = useState('')
+  
   // Step 2: Customer details
   const [kraPin, setKraPin] = useState('')
   const [customerName, setCustomerName] = useState('')
@@ -142,8 +146,20 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     }).format(value)
   }
 
-  const totalAmount = parseFloat(amount) || 0
+  const grossAmount = parseFloat(amount) || 0
   const unitPrice = selectedNozzleData?.price || 0
+  
+  // Calculate discount with validation
+  let discountAmount = 0
+  if (discountValue && parseFloat(discountValue) > 0) {
+    if (discountType === 'percentage') {
+      const pct = Math.min(parseFloat(discountValue), 100)
+      discountAmount = (grossAmount * pct) / 100
+    } else {
+      discountAmount = Math.min(parseFloat(discountValue), grossAmount)
+    }
+  }
+  const totalAmount = Math.max(grossAmount - discountAmount, 0)
   const quantity = unitPrice > 0 ? totalAmount / unitPrice : 0
 
   async function handleCreateSale() {
@@ -242,6 +258,69 @@ export default function CreateInvoiceScreen({ navigation }: any) {
                 </Text>
               </View>
             )}
+
+            <Text style={[styles.sectionTitle, { marginTop: spacing.lg }]}>Discount (Optional)</Text>
+            <View style={styles.discountContainer}>
+              <View style={styles.discountTypeButtons}>
+                <TouchableOpacity
+                  style={[
+                    styles.discountTypeButton,
+                    discountType === 'fixed' && styles.discountTypeButtonActive,
+                  ]}
+                  onPress={() => setDiscountType('fixed')}
+                >
+                  <Text
+                    style={[
+                      styles.discountTypeButtonText,
+                      discountType === 'fixed' && styles.discountTypeButtonTextActive,
+                    ]}
+                  >
+                    Fixed (KES)
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.discountTypeButton,
+                    discountType === 'percentage' && styles.discountTypeButtonActive,
+                  ]}
+                  onPress={() => setDiscountType('percentage')}
+                >
+                  <Text
+                    style={[
+                      styles.discountTypeButtonText,
+                      discountType === 'percentage' && styles.discountTypeButtonTextActive,
+                    ]}
+                  >
+                    Percentage (%)
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.discountInputContainer}>
+                <Text style={styles.discountSymbol}>
+                  {discountType === 'percentage' ? '%' : 'KES'}
+                </Text>
+                <TextInput
+                  style={styles.discountInput}
+                  placeholder="0"
+                  value={discountValue}
+                  onChangeText={setDiscountValue}
+                  keyboardType="numeric"
+                  placeholderTextColor={colors.textLight}
+                />
+              </View>
+              {discountAmount > 0 && (
+                <View style={styles.netAmountInfo}>
+                  <Text style={styles.netAmountLabel}>Discount:</Text>
+                  <Text style={styles.netAmountValue}>-{formatCurrency(discountAmount)}</Text>
+                </View>
+              )}
+              {discountAmount > 0 && (
+                <View style={styles.netAmountInfo}>
+                  <Text style={styles.netAmountLabel}>Net Amount:</Text>
+                  <Text style={styles.netAmountValue}>{formatCurrency(totalAmount)}</Text>
+                </View>
+              )}
+            </View>
           </View>
 
           <TouchableOpacity
@@ -583,5 +662,70 @@ const styles = StyleSheet.create({
     fontSize: fontSize.md,
     fontWeight: '600',
     marginLeft: spacing.sm,
+  },
+  discountContainer: {
+    marginTop: spacing.sm,
+  },
+  discountTypeButtons: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  discountTypeButton: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+  },
+  discountTypeButtonActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  discountTypeButtonText: {
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+    color: colors.text,
+  },
+  discountTypeButtonTextActive: {
+    color: '#fff',
+  },
+  discountInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    backgroundColor: colors.background,
+    paddingHorizontal: spacing.md,
+  },
+  discountSymbol: {
+    fontSize: fontSize.md,
+    fontWeight: '600',
+    color: colors.textLight,
+    marginRight: spacing.sm,
+  },
+  discountInput: {
+    flex: 1,
+    fontSize: fontSize.lg,
+    fontWeight: '600',
+    color: colors.text,
+    paddingVertical: spacing.md,
+  },
+  netAmountInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: spacing.sm,
+    paddingTop: spacing.sm,
+  },
+  netAmountLabel: {
+    fontSize: fontSize.sm,
+    color: colors.textLight,
+  },
+  netAmountValue: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.primary,
   },
 })

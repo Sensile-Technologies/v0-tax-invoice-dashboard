@@ -76,6 +76,8 @@ export function SalesContent() {
     is_loyalty_sale: false,
     loyalty_customer_name: "",
     loyalty_customer_pin: "",
+    discount_type: "fixed" as "fixed" | "percentage",
+    discount_value: "",
   })
 
   const [creditNoteForm, setCreditNoteForm] = useState({
@@ -322,8 +324,20 @@ export function SalesContent() {
         const totalPreviousSales = previousSales.reduce((sum: number, sale: any) => sum + Number(sale.quantity), 0)
         calculatedMeterReading = calculatedMeterReading + totalPreviousSales
       }
-      const totalAmount = Number.parseFloat(saleForm.amount)
+      const grossAmount = Number.parseFloat(saleForm.amount)
       const unitPrice = Number.parseFloat(fuelPrice.price)
+      
+      // Calculate discount with validation
+      let discountAmount = 0
+      if (saleForm.discount_value && Number.parseFloat(saleForm.discount_value) > 0) {
+        if (saleForm.discount_type === "percentage") {
+          const pct = Math.min(Number.parseFloat(saleForm.discount_value), 100)
+          discountAmount = (grossAmount * pct) / 100
+        } else {
+          discountAmount = Math.min(Number.parseFloat(saleForm.discount_value), grossAmount)
+        }
+      }
+      const totalAmount = Math.max(grossAmount - discountAmount, 0)
       const quantity = totalAmount / unitPrice
       calculatedMeterReading = calculatedMeterReading + quantity
 
@@ -369,6 +383,8 @@ export function SalesContent() {
           is_loyalty_sale: false,
           loyalty_customer_name: "",
           loyalty_customer_pin: "",
+          discount_type: "fixed",
+          discount_value: "",
         })
         setShowSaleDialog(false)
         await fetchSales()
@@ -1270,6 +1286,47 @@ export function SalesContent() {
                   value={saleForm.customer_pin}
                   onChange={(e) => setSaleForm({ ...saleForm, customer_pin: e.target.value })}
                 />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="discount_type">Discount Type (Optional)</Label>
+                <Select
+                  value={saleForm.discount_type}
+                  onValueChange={(value: "fixed" | "percentage") => setSaleForm({ ...saleForm, discount_type: value })}
+                >
+                  <SelectTrigger id="discount_type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fixed">Fixed Amount (KES)</SelectItem>
+                    <SelectItem value="percentage">Percentage (%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="discount_value">
+                  Discount {saleForm.discount_type === "percentage" ? "(%)" : "(KES)"}
+                </Label>
+                <Input
+                  id="discount_value"
+                  type="number"
+                  step="0.01"
+                  placeholder={saleForm.discount_type === "percentage" ? "0" : "0.00"}
+                  value={saleForm.discount_value}
+                  onChange={(e) => setSaleForm({ ...saleForm, discount_value: e.target.value })}
+                />
+                {saleForm.amount && saleForm.discount_value && Number.parseFloat(saleForm.discount_value) > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Net Amount: KES{" "}
+                    {(
+                      Number.parseFloat(saleForm.amount) -
+                      (saleForm.discount_type === "percentage"
+                        ? (Number.parseFloat(saleForm.amount) * Number.parseFloat(saleForm.discount_value)) / 100
+                        : Number.parseFloat(saleForm.discount_value))
+                    ).toFixed(2)}
+                  </p>
+                )}
               </div>
             </div>
             <div className="space-y-4 border-t pt-4">
