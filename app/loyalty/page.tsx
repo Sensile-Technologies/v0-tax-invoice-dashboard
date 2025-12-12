@@ -88,9 +88,9 @@ export default function LoyaltyPage() {
     return () => clearInterval(interval)
   }, [])
 
-  const totalPointsIssued = loyaltyTransactions.reduce((sum, t) => sum + (t.points_earned || 0), 0)
+  const totalPointsIssued = loyaltyTransactions.reduce((sum, t) => sum + (parseFloat(t.points_earned) || 0), 0)
   const uniqueCustomers = new Set(loyaltyTransactions.map((t) => t.customer_name)).size
-  const totalRevenue = loyaltyTransactions.reduce((sum, t) => sum + (t.transaction_amount || 0), 0)
+  const totalRevenue = loyaltyTransactions.reduce((sum, t) => sum + (parseFloat(t.transaction_amount) || 0), 0)
 
   const filteredCustomers = loyaltyCustomers.filter((customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()),

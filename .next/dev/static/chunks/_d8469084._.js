@@ -2989,9 +2989,9 @@ function LoyaltyPage() {
             })["LoyaltyPage.useEffect"];
         }
     }["LoyaltyPage.useEffect"], []);
-    const totalPointsIssued = loyaltyTransactions.reduce((sum, t)=>sum + (t.points_earned || 0), 0);
+    const totalPointsIssued = loyaltyTransactions.reduce((sum, t)=>sum + (parseFloat(t.points_earned) || 0), 0);
     const uniqueCustomers = new Set(loyaltyTransactions.map((t)=>t.customer_name)).size;
-    const totalRevenue = loyaltyTransactions.reduce((sum, t)=>sum + (t.transaction_amount || 0), 0);
+    const totalRevenue = loyaltyTransactions.reduce((sum, t)=>sum + (parseFloat(t.transaction_amount) || 0), 0);
     const filteredCustomers = loyaltyCustomers.filter((customer)=>customer.name.toLowerCase().includes(searchTerm.toLowerCase()));
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "flex h-screen overflow-hidden relative",
