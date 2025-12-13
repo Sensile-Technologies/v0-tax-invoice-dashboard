@@ -123,12 +123,25 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const name = searchParams.get("name");
         const userId = searchParams.get("user_id");
+        const vendorId = searchParams.get("vendor_id");
+        let vendorFilter = vendorId;
+        // If user_id is provided, find the user's vendor
+        if (userId && !vendorFilter) {
+            const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
+         JOIN vendors v ON v.email = u.email 
+         WHERE u.id = $1`, [
+                userId
+            ]);
+            if (userResult && userResult.length > 0) {
+                vendorFilter = userResult[0].vendor_id;
+            }
+        }
         let sql = "SELECT * FROM branches WHERE status = 'active'";
         const params = [];
         let paramIndex = 1;
-        if (userId) {
-            sql += ` AND user_id = $${paramIndex}`;
-            params.push(userId);
+        if (vendorFilter) {
+            sql += ` AND vendor_id = $${paramIndex}`;
+            params.push(vendorFilter);
             paramIndex++;
         }
         if (name) {

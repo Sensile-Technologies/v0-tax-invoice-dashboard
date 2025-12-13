@@ -57,7 +57,10 @@ export default function StaffManagementPage() {
 
   const fetchBranches = async () => {
     try {
-      const response = await fetch("/api/branches/list")
+      const currentUser = getCurrentUser()
+      const userId = currentUser?.id
+      const url = userId ? `/api/branches/list?user_id=${userId}` : "/api/branches/list"
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         setBranches(data.branches || data || [])

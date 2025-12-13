@@ -49,6 +49,7 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client" // Updated import path
 import { GlobalShiftUploadDialog } from "@/components/global-shift-upload-dialog" // Added GlobalShiftUploadDialog
 import { useCurrency } from "@/lib/currency-utils" // Added useCurrency hook
+import { getCurrentUser } from "@/lib/auth/client"
 
 const branchesData = [
   {
@@ -101,7 +102,10 @@ export default function HeadquartersPage() {
   const fetchBranches = async () => {
     try {
       setIsLoadingBranches(true)
-      const response = await fetch("/api/branches/list")
+      const currentUser = getCurrentUser()
+      const userId = currentUser?.id
+      const url = userId ? `/api/branches/list?user_id=${userId}` : "/api/branches/list"
+      const response = await fetch(url)
 
       if (response.ok) {
         const data = await response.json()
