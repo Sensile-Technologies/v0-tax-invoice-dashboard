@@ -139,6 +139,7 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const vendorId = searchParams.get("vendor_id");
         const userId = searchParams.get("user_id");
+        const branchId = searchParams.get("branch_id");
         let vendorFilter = null;
         if (vendorId) {
             vendorFilter = vendorId;
@@ -153,7 +154,26 @@ async function GET(request) {
             }
         }
         let result;
-        if (vendorFilter) {
+        if (branchId) {
+            result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        SELECT 
+          s.id,
+          s.full_name,
+          s.username,
+          s.email,
+          s.phone_number,
+          s.role,
+          s.status,
+          s.branch_id,
+          b.name as branch_name
+        FROM staff s
+        LEFT JOIN branches b ON s.branch_id = b.id
+        WHERE s.branch_id = $1
+        ORDER BY s.created_at DESC
+      `, [
+                branchId
+            ]);
+        } else if (vendorFilter) {
             result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
         SELECT 
           s.id,

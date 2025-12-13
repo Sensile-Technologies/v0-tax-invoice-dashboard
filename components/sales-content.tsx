@@ -777,6 +777,7 @@ export function SalesContent() {
                         const radius = innerRadius + (outerRadius - innerRadius) * 0.5
                         const x = cx + radius * Math.cos(-midAngle * (Math.PI / 180))
                         const y = cy + radius * Math.sin(-midAngle * (Math.PI / 180))
+                        const displayName = name === "Mobile Money" ? "M.Money" : name
                         return (
                           <text
                             x={x}
@@ -787,7 +788,7 @@ export function SalesContent() {
                             fontSize="11"
                             fontWeight="500"
                           >
-                            {`${name} ${(percent * 100).toFixed(0)}%`}
+                            {`${displayName} ${(percent * 100).toFixed(0)}%`}
                           </text>
                         )
                       }}
