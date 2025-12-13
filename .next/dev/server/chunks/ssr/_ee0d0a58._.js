@@ -494,6 +494,18 @@ function TaxServiceConfigurationPage() {
         }
         return "http://20.224.40.56:8088";
     };
+    const getBranchId = ()=>{
+        const storedBranch = localStorage.getItem("selectedBranch");
+        if (storedBranch) {
+            try {
+                const parsed = JSON.parse(storedBranch);
+                return parsed.id;
+            } catch  {
+                return null;
+            }
+        }
+        return null;
+    };
     const handlePullCodeList = async ()=>{
         setLoading({
             ...loading,
@@ -501,11 +513,16 @@ function TaxServiceConfigurationPage() {
         });
         try {
             const backendUrl = getBackendUrl();
+            const branchId = getBranchId();
+            const headers = {
+                "x-backend-url": backendUrl
+            };
+            if (branchId) {
+                headers["x-branch-id"] = branchId;
+            }
             const response = await fetch("/api/kra/codes", {
                 method: "POST",
-                headers: {
-                    "x-backend-url": backendUrl
-                }
+                headers
             });
             if (!response.ok) {
                 throw new Error("Failed to pull code list");
@@ -531,11 +548,16 @@ function TaxServiceConfigurationPage() {
         });
         try {
             const backendUrl = getBackendUrl();
+            const branchId = getBranchId();
+            const headers = {
+                "x-backend-url": backendUrl
+            };
+            if (branchId) {
+                headers["x-branch-id"] = branchId;
+            }
             const response = await fetch("/api/kra/items/classifications", {
                 method: "POST",
-                headers: {
-                    "x-backend-url": backendUrl
-                }
+                headers
             });
             if (!response.ok) {
                 throw new Error("Failed to pull item classifications");
@@ -561,11 +583,16 @@ function TaxServiceConfigurationPage() {
         });
         try {
             const backendUrl = getBackendUrl();
+            const branchId = getBranchId();
+            const headers = {
+                "x-backend-url": backendUrl
+            };
+            if (branchId) {
+                headers["x-branch-id"] = branchId;
+            }
             const response = await fetch("/api/kra/notices", {
                 method: "POST",
-                headers: {
-                    "x-backend-url": backendUrl
-                }
+                headers
             });
             if (!response.ok) {
                 throw new Error("Failed to pull notices");
@@ -600,14 +627,14 @@ function TaxServiceConfigurationPage() {
                                 className: "h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 175,
+                                lineNumber: 203,
                                 columnNumber: 11
                             }, this),
                             "Back"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 174,
+                        lineNumber: 202,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -618,7 +645,7 @@ function TaxServiceConfigurationPage() {
                                 children: "Tax Service Configuration"
                             }, void 0, false, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 179,
+                                lineNumber: 207,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -626,19 +653,19 @@ function TaxServiceConfigurationPage() {
                                 children: "Pull master data and updates from KRA TIMS service"
                             }, void 0, false, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 180,
+                                lineNumber: 208,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 178,
+                        lineNumber: 206,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                lineNumber: 173,
+                lineNumber: 201,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -655,27 +682,27 @@ function TaxServiceConfigurationPage() {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 188,
+                                                lineNumber: 216,
                                                 columnNumber: 15
                                             }, this),
                                             "Code List"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 187,
+                                        lineNumber: 215,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                         children: "Pull tax codes, payment types, units of measure, and other code lists from KRA"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 191,
+                                        lineNumber: 219,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 186,
+                                lineNumber: 214,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -692,47 +719,47 @@ function TaxServiceConfigurationPage() {
                                                         children: "Tax type codes (A, B, C, D, E)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 199,
+                                                        lineNumber: 227,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Payment type codes"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 200,
+                                                        lineNumber: 228,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Unit of measure codes"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 201,
+                                                        lineNumber: 229,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Receipt type codes"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 202,
+                                                        lineNumber: 230,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Registration type codes"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 203,
+                                                        lineNumber: 231,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 198,
+                                                lineNumber: 226,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 196,
+                                        lineNumber: 224,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -745,7 +772,7 @@ function TaxServiceConfigurationPage() {
                                                     className: "h-4 w-4 mr-2 animate-spin"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 209,
+                                                    lineNumber: 237,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Pulling..."
@@ -756,7 +783,7 @@ function TaxServiceConfigurationPage() {
                                                     className: "h-4 w-4 mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 214,
+                                                    lineNumber: 242,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Pull Code List"
@@ -764,19 +791,19 @@ function TaxServiceConfigurationPage() {
                                         }, void 0, true)
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 206,
+                                        lineNumber: 234,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 195,
+                                lineNumber: 223,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 185,
+                        lineNumber: 213,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -790,27 +817,27 @@ function TaxServiceConfigurationPage() {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 225,
+                                                lineNumber: 253,
                                                 columnNumber: 15
                                             }, this),
                                             "Item Classification"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 224,
+                                        lineNumber: 252,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                         children: "Pull product/service classification codes and tax categories from KRA"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 228,
+                                        lineNumber: 256,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 223,
+                                lineNumber: 251,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -827,47 +854,47 @@ function TaxServiceConfigurationPage() {
                                                         children: "Product categories"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 234,
+                                                        lineNumber: 262,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Service categories"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 235,
+                                                        lineNumber: 263,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Tax type mappings"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 236,
+                                                        lineNumber: 264,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Classification levels"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 237,
+                                                        lineNumber: 265,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Major target flags"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 238,
+                                                        lineNumber: 266,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 233,
+                                                lineNumber: 261,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 231,
+                                        lineNumber: 259,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -880,7 +907,7 @@ function TaxServiceConfigurationPage() {
                                                     className: "h-4 w-4 mr-2 animate-spin"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 244,
+                                                    lineNumber: 272,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Pulling..."
@@ -891,7 +918,7 @@ function TaxServiceConfigurationPage() {
                                                     className: "h-4 w-4 mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 249,
+                                                    lineNumber: 277,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Pull Classifications"
@@ -899,19 +926,19 @@ function TaxServiceConfigurationPage() {
                                         }, void 0, true)
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 241,
+                                        lineNumber: 269,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 230,
+                                lineNumber: 258,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 222,
+                        lineNumber: 250,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -925,27 +952,27 @@ function TaxServiceConfigurationPage() {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 260,
+                                                lineNumber: 288,
                                                 columnNumber: 15
                                             }, this),
                                             "Notices"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 259,
+                                        lineNumber: 287,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                         children: "Pull important notices, updates, and announcements from KRA"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 263,
+                                        lineNumber: 291,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 258,
+                                lineNumber: 286,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -962,47 +989,47 @@ function TaxServiceConfigurationPage() {
                                                         children: "System updates"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 269,
+                                                        lineNumber: 297,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Compliance reminders"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 270,
+                                                        lineNumber: 298,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Policy changes"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 271,
+                                                        lineNumber: 299,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Maintenance schedules"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 272,
+                                                        lineNumber: 300,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                         children: "Important announcements"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 273,
+                                                        lineNumber: 301,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 268,
+                                                lineNumber: 296,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 266,
+                                        lineNumber: 294,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1015,7 +1042,7 @@ function TaxServiceConfigurationPage() {
                                                     className: "h-4 w-4 mr-2 animate-spin"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 279,
+                                                    lineNumber: 307,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Pulling..."
@@ -1026,7 +1053,7 @@ function TaxServiceConfigurationPage() {
                                                     className: "h-4 w-4 mr-2"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 284,
+                                                    lineNumber: 312,
                                                     columnNumber: 19
                                                 }, this),
                                                 "Pull Notices"
@@ -1034,25 +1061,25 @@ function TaxServiceConfigurationPage() {
                                         }, void 0, true)
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 276,
+                                        lineNumber: 304,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 265,
+                                lineNumber: 293,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 257,
+                        lineNumber: 285,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                lineNumber: 184,
+                lineNumber: 212,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1071,18 +1098,18 @@ function TaxServiceConfigurationPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                    lineNumber: 298,
+                                    lineNumber: 326,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                            lineNumber: 295,
+                            lineNumber: 323,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 294,
+                        lineNumber: 322,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1094,14 +1121,14 @@ function TaxServiceConfigurationPage() {
                                         children: "1. Configure Backend URL:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 304,
+                                        lineNumber: 332,
                                         columnNumber: 13
                                     }, this),
                                     " First, make sure you've configured the KRA TIMS backend URL in Security Settings (profile dropdown → Security Settings → Backend Configuration)."
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 303,
+                                lineNumber: 331,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1110,14 +1137,14 @@ function TaxServiceConfigurationPage() {
                                         children: "2. Pull Master Data:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 308,
+                                        lineNumber: 336,
                                         columnNumber: 13
                                     }, this),
                                     " Click the buttons above to pull the latest master data from KRA. This should be done:"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 307,
+                                lineNumber: 335,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1127,27 +1154,27 @@ function TaxServiceConfigurationPage() {
                                         children: "During initial setup"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 312,
+                                        lineNumber: 340,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                         children: "When KRA releases updates to code lists or classifications"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 313,
+                                        lineNumber: 341,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                         children: "Periodically to check for new notices"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 314,
+                                        lineNumber: 342,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 311,
+                                lineNumber: 339,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1156,14 +1183,14 @@ function TaxServiceConfigurationPage() {
                                         children: "3. Review Notices:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 317,
+                                        lineNumber: 345,
                                         columnNumber: 13
                                     }, this),
                                     " After pulling notices, review them for important compliance updates or system changes."
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 316,
+                                lineNumber: 344,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1172,7 +1199,7 @@ function TaxServiceConfigurationPage() {
                                         children: "4. BHF ID Mapping:"
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 321,
+                                        lineNumber: 349,
                                         columnNumber: 13
                                     }, this),
                                     " Each branch is mapped to a unique Branch Office ID (BHF ID) for KRA compliance. ",
@@ -1180,7 +1207,7 @@ function TaxServiceConfigurationPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 320,
+                                lineNumber: 348,
                                 columnNumber: 11
                             }, this),
                             (codeListData.length > 0 || itemClassData.length > 0) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1192,14 +1219,14 @@ function TaxServiceConfigurationPage() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                            lineNumber: 327,
+                                            lineNumber: 355,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
                                             children: "Saved Data:"
                                         }, void 0, false, {
                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                            lineNumber: 328,
+                                            lineNumber: 356,
                                             columnNumber: 17
                                         }, this),
                                         codeListData.length > 0 && ` ${codeListData.length} code list items`,
@@ -1208,24 +1235,24 @@ function TaxServiceConfigurationPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                    lineNumber: 326,
+                                    lineNumber: 354,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 325,
+                                lineNumber: 353,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 302,
+                        lineNumber: 330,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                lineNumber: 293,
+                lineNumber: 321,
                 columnNumber: 7
             }, this),
             codeListData.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1240,20 +1267,20 @@ function TaxServiceConfigurationPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 341,
+                                lineNumber: 369,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 children: "Tax codes, payment types, units, and other code lists pulled from KRA"
                             }, void 0, false, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 342,
+                                lineNumber: 370,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 340,
+                        lineNumber: 368,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1268,46 +1295,46 @@ function TaxServiceConfigurationPage() {
                                                     children: "Code Class"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 349,
+                                                    lineNumber: 377,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Code"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 350,
+                                                    lineNumber: 378,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Code Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 351,
+                                                    lineNumber: 379,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Description"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 352,
+                                                    lineNumber: 380,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Status"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 353,
+                                                    lineNumber: 381,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                            lineNumber: 348,
+                                            lineNumber: 376,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 347,
+                                        lineNumber: 375,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -1318,21 +1345,21 @@ function TaxServiceConfigurationPage() {
                                                         children: item.cd_cls
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 359,
+                                                        lineNumber: 387,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                         children: item.cd
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 360,
+                                                        lineNumber: 388,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                         children: item.cd_nm
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 361,
+                                                        lineNumber: 389,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1340,7 +1367,7 @@ function TaxServiceConfigurationPage() {
                                                         children: item.cd_desc || "-"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 362,
+                                                        lineNumber: 390,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1349,45 +1376,45 @@ function TaxServiceConfigurationPage() {
                                                             children: item.use_yn === "Y" ? "Active" : "Inactive"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                            lineNumber: 364,
+                                                            lineNumber: 392,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 363,
+                                                        lineNumber: 391,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, `${item.cd_cls}-${item.cd}-${index}`, true, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 358,
+                                                lineNumber: 386,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 356,
+                                        lineNumber: 384,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 346,
+                                lineNumber: 374,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                            lineNumber: 345,
+                            lineNumber: 373,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 344,
+                        lineNumber: 372,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                lineNumber: 339,
+                lineNumber: 367,
                 columnNumber: 9
             }, this),
             itemClassData.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1402,20 +1429,20 @@ function TaxServiceConfigurationPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 382,
+                                lineNumber: 410,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 children: "Product and service classification codes with tax type mappings"
                             }, void 0, false, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 383,
+                                lineNumber: 411,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 381,
+                        lineNumber: 409,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1430,46 +1457,46 @@ function TaxServiceConfigurationPage() {
                                                     children: "Classification Code"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 390,
+                                                    lineNumber: 418,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Classification Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 391,
+                                                    lineNumber: 419,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Level"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 392,
+                                                    lineNumber: 420,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Tax Type"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 393,
+                                                    lineNumber: 421,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Status"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 394,
+                                                    lineNumber: 422,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                            lineNumber: 389,
+                                            lineNumber: 417,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 388,
+                                        lineNumber: 416,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -1480,28 +1507,28 @@ function TaxServiceConfigurationPage() {
                                                         children: item.item_cls_cd
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 400,
+                                                        lineNumber: 428,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                         children: item.item_cls_nm
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 401,
+                                                        lineNumber: 429,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                         children: item.item_cls_lvl
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 402,
+                                                        lineNumber: 430,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                         children: item.tax_ty_cd || "-"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 403,
+                                                        lineNumber: 431,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1510,45 +1537,45 @@ function TaxServiceConfigurationPage() {
                                                             children: item.use_yn === "Y" ? "Active" : "Inactive"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                            lineNumber: 405,
+                                                            lineNumber: 433,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 404,
+                                                        lineNumber: 432,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, `${item.item_cls_cd}-${index}`, true, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 399,
+                                                lineNumber: 427,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 397,
+                                        lineNumber: 425,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 387,
+                                lineNumber: 415,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                            lineNumber: 386,
+                            lineNumber: 414,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 385,
+                        lineNumber: 413,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                lineNumber: 380,
+                lineNumber: 408,
                 columnNumber: 9
             }, this),
             noticesData.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1563,20 +1590,20 @@ function TaxServiceConfigurationPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 423,
+                                lineNumber: 451,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 children: "Important notices, updates, and announcements from KRA"
                             }, void 0, false, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 424,
+                                lineNumber: 452,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 422,
+                        lineNumber: 450,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1591,46 +1618,46 @@ function TaxServiceConfigurationPage() {
                                                     children: "Notice No."
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 431,
+                                                    lineNumber: 459,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Title"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 432,
+                                                    lineNumber: 460,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Content"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 433,
+                                                    lineNumber: 461,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Detail URL"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 434,
+                                                    lineNumber: 462,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                     children: "Date"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                    lineNumber: 435,
+                                                    lineNumber: 463,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                            lineNumber: 430,
+                                            lineNumber: 458,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 429,
+                                        lineNumber: 457,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -1641,7 +1668,7 @@ function TaxServiceConfigurationPage() {
                                                         children: item.notce_no
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 441,
+                                                        lineNumber: 469,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1649,7 +1676,7 @@ function TaxServiceConfigurationPage() {
                                                         children: item.title
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 442,
+                                                        lineNumber: 470,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1657,7 +1684,7 @@ function TaxServiceConfigurationPage() {
                                                         children: item.cont
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 443,
+                                                        lineNumber: 471,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1669,12 +1696,12 @@ function TaxServiceConfigurationPage() {
                                                             children: "View"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                            lineNumber: 446,
+                                                            lineNumber: 474,
                                                             columnNumber: 27
                                                         }, this) : "-"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 444,
+                                                        lineNumber: 472,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1682,46 +1709,46 @@ function TaxServiceConfigurationPage() {
                                                         children: item.last_req_dt ? new Date(item.last_req_dt).toLocaleDateString() : "-"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                        lineNumber: 458,
+                                                        lineNumber: 486,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, `${item.notce_no}-${index}`, true, {
                                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                                lineNumber: 440,
+                                                lineNumber: 468,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                        lineNumber: 438,
+                                        lineNumber: 466,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                                lineNumber: 428,
+                                lineNumber: 456,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/configuration/tax-service/page.tsx",
-                            lineNumber: 427,
+                            lineNumber: 455,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/configuration/tax-service/page.tsx",
-                        lineNumber: 426,
+                        lineNumber: 454,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/configuration/tax-service/page.tsx",
-                lineNumber: 421,
+                lineNumber: 449,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/configuration/tax-service/page.tsx",
-        lineNumber: 172,
+        lineNumber: 200,
         columnNumber: 5
     }, this);
 }

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { query } from "@/lib/db/client"
 import { NextResponse } from "next/server"
 import { createApiLogger } from "@/lib/api-logger"
 
@@ -9,27 +9,43 @@ export async function POST(request: Request) {
   let kraEndpoint = ""
 
   try {
-    const supabase = await createClient()
-
     let backendUrl = request.headers.get("x-backend-url") || "http://20.224.40.56:8088"
     backendUrl = backendUrl.replace(/\/$/, "")
+    const branchId = request.headers.get("x-branch-id")
 
     console.log("[v0] Backend URL:", backendUrl)
+    console.log("[v0] Branch ID from header:", branchId)
 
-    const { data: branches } = await supabase
-      .from("branches")
-      .select("id, bhf_id, name")
-      .eq("name", "Thika Greens")
-      .limit(1)
-      .single()
-
-    if (!branches || !branches.bhf_id) {
-      throw new Error("Thika Greens branch not found. Please configure it first.")
+    let branch
+    if (branchId) {
+      const branches = await query(
+        "SELECT id, bhf_id, name, kra_pin FROM branches WHERE id = $1",
+        [branchId]
+      )
+      if (branches && branches.length > 0) {
+        branch = branches[0]
+      }
+    }
+    
+    if (!branch) {
+      const branches = await query(
+        "SELECT id, bhf_id, name, kra_pin FROM branches WHERE status = 'active' LIMIT 1"
+      )
+      if (!branches || branches.length === 0) {
+        throw new Error("No active branch found. Please configure a branch first.")
+      }
+      branch = branches[0]
     }
 
+    if (!branch.bhf_id) {
+      throw new Error(`Branch "${branch.name}" is not configured with a BHF ID. Please configure the branch first in Security Settings.`)
+    }
+
+    console.log("[v0] Using branch:", branch.name, "with bhf_id:", branch.bhf_id)
+
     kraPayload = {
-      tin: "P052344628B",
-      bhfId: branches.bhf_id,
+      tin: branch.kra_pin || "P052344628B",
+      bhfId: branch.bhf_id,
       lastReqDt: "20180328000000",
     }
 
@@ -84,21 +100,21 @@ export async function POST(request: Request) {
       console.log("[v0] Saving", noticeList.length, "notices to database")
 
       for (const item of noticeList) {
-        await supabase.from("notices").insert({
-          branch_id: branches.id,
-          tin: kraPayload.tin,
-          bhf_id: kraPayload.bhfId,
-          notce_no: item.notceNo,
-          title: item.title,
-          cont: item.cont,
-          dtl_url: item.dtlUrl,
-          remark: item.remark,
-          last_req_dt: new Date(),
-        })
+        await query(
+          `INSERT INTO notices (branch_id, tin, bhf_id, notce_no, title, cont, dtl_url, remark, last_req_dt)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+           ON CONFLICT (branch_id, notce_no) DO UPDATE SET
+             title = EXCLUDED.title,
+             cont = EXCLUDED.cont,
+             dtl_url = EXCLUDED.dtl_url,
+             remark = EXCLUDED.remark,
+             last_req_dt = NOW()`,
+          [branch.id, kraPayload.tin, kraPayload.bhfId, item.notceNo, item.title, item.cont, item.dtlUrl, item.remark]
+        )
       }
     }
 
-    await logger.success(kraPayload, result, branches.id, kraEndpoint)
+    await logger.success(kraPayload, result, branch.id, kraEndpoint)
 
     const transformedData = noticeList.map((item: any) => ({
       notce_no: item.notceNo,

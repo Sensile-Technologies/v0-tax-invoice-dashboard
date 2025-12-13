@@ -50,9 +50,15 @@ export function DashboardHeader({
     { id: 2, title: "Notification 2", message: "This is the second notification", time: "11:00 AM", unread: false },
   ])
   const [currentBranchName, setCurrentBranchName] = useState("Headquarters")
+  const [userName, setUserName] = useState("")
   const router = useRouter()
 
   useEffect(() => {
+    const currentUser = getCurrentUser()
+    if (currentUser) {
+      setUserName(currentUser.username || currentUser.full_name || currentUser.email?.split('@')[0] || "User")
+    }
+    
     const storedBranch = localStorage.getItem("selectedBranch")
     if (storedBranch) {
       try {
@@ -63,6 +69,8 @@ export function DashboardHeader({
       } catch (e) {
         console.error("Error parsing stored branch:", e)
       }
+    } else if (currentUser?.branch_name) {
+      setCurrentBranchName(currentUser.branch_name)
     }
   }, [])
 
@@ -123,7 +131,10 @@ export function DashboardHeader({
       <div className="flex flex-1 items-center gap-4">
         <div className="flex items-center gap-2">
           <Image src="/flow360-logo.png" alt="Flow360 Logo" width={28} height={28} className="rounded-lg" />
-          <span className="text-lg font-bold">{currentBranchName}</span>
+          <div className="flex flex-col">
+            <span className="text-sm text-muted-foreground">Welcome back, {userName}</span>
+            <span className="text-lg font-bold">{currentBranchName}</span>
+          </div>
         </div>
         {showSearch && (
           <div className="relative w-full max-w-md">

@@ -11,21 +11,40 @@ export async function POST(request: Request) {
   try {
     let backendUrl = request.headers.get("x-backend-url") || "http://20.224.40.56:8088"
     backendUrl = backendUrl.replace(/\/$/, "")
+    const branchId = request.headers.get("x-branch-id")
 
     console.log("[v0] Backend URL:", backendUrl)
+    console.log("[v0] Branch ID from header:", branchId)
 
-    const branches = await query(
-      "SELECT id, bhf_id, name FROM branches WHERE status = 'active' LIMIT 1"
-    )
-
-    if (!branches || branches.length === 0 || !branches[0].bhf_id) {
-      throw new Error("No active branch found. Please configure a branch first.")
+    let branch
+    if (branchId) {
+      const branches = await query(
+        "SELECT id, bhf_id, name, kra_pin FROM branches WHERE id = $1",
+        [branchId]
+      )
+      if (branches && branches.length > 0) {
+        branch = branches[0]
+      }
+    }
+    
+    if (!branch) {
+      const branches = await query(
+        "SELECT id, bhf_id, name, kra_pin FROM branches WHERE status = 'active' LIMIT 1"
+      )
+      if (!branches || branches.length === 0) {
+        throw new Error("No active branch found. Please configure a branch first.")
+      }
+      branch = branches[0]
     }
 
-    const branch = branches[0]
+    if (!branch.bhf_id) {
+      throw new Error(`Branch "${branch.name}" is not configured with a BHF ID. Please configure the branch first in Security Settings.`)
+    }
+
+    console.log("[v0] Using branch:", branch.name, "with bhf_id:", branch.bhf_id)
 
     kraPayload = {
-      tin: "P052344628B",
+      tin: branch.kra_pin || "P052344628B",
       bhfId: branch.bhf_id,
       lastReqDt: "20180328000000",
     }

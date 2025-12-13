@@ -46,6 +46,15 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-13: KRA API Branch-Specific BHF ID & Dashboard Header Updates
+  - Updated KRA API endpoints (/api/kra/codes, /api/kra/items/classifications, /api/kra/notices) to accept x-branch-id header
+  - KRA APIs now use branch-specific BHF ID instead of defaulting to first active branch
+  - Added proper bhf_id validation with user-friendly error messages
+  - Updated tax-service configuration page to pass branch_id to KRA API calls
+  - Dashboard header now shows "Welcome back, [username]" greeting
+  - Dashboard header uses user's assigned branch_name (with localStorage override support)
+  - Fixed notices API to use local PostgreSQL (query) instead of Supabase
+
 - 2024-12-13: Staff Management & Shift Closure Enhancements
   - Removed placeholder staff data from Staff Management page - now fetches from database
   - Fixed branch dropdown in Add Staff form - uses /api/branches/list instead of broken Supabase URL
