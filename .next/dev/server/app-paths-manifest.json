@@ -1,3 +1,20 @@
 {
-  "/page": "app/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/signin/route": "app/api/auth/signin/route.js",
+  "/api/branch/config/route": "app/api/branch/config/route.js",
+  "/api/branches/list/route": "app/api/branches/list/route.js",
+  "/api/db/[table]/route": "app/api/db/[table]/route.js",
+  "/api/kra/saved-data/route": "app/api/kra/saved-data/route.js",
+  "/api/kra/test-sale/route": "app/api/kra/test-sale/route.js",
+  "/api/logs/route": "app/api/logs/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/configuration/tax-service/page": "app/configuration/tax-service/page.js",
+  "/headquarters/approvals/page": "app/headquarters/approvals/page.js",
+  "/headquarters/page": "app/headquarters/page.js",
+  "/headquarters/roles/page": "app/headquarters/roles/page.js",
+  "/headquarters/staff-management/page": "app/headquarters/staff-management/page.js",
+  "/logs/page": "app/logs/page.js",
+  "/page": "app/page.js",
+  "/sales/page": "app/sales/page.js",
+  "/security-settings/page": "app/security-settings/page.js"
 }
