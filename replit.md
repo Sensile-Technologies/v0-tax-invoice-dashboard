@@ -46,6 +46,13 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-13: Sales Dropdown Menu Implementation
+  - Made Sales a dropdown menu in sidebar with 3 options
+  - Created /sales/summary page with statistics, pie charts, and daily sales trend with date filters
+  - Created /sales/reports page with transaction table, filters, and pagination (50 per page)
+  - Created /sales/automated page for externally posted transactions with status tracking
+  - Original /sales page still available with full SalesContent component
+
 - 2024-12-13: KRA API Branch-Specific BHF ID & Dashboard Header Updates
   - Updated KRA API endpoints (/api/kra/codes, /api/kra/items/classifications, /api/kra/notices) to accept x-branch-id header
   - KRA APIs now use branch-specific BHF ID instead of defaulting to first active branch
