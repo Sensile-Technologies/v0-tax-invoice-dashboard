@@ -71,6 +71,21 @@ export async function POST(request: Request) {
           ]
         )
         createdBranch = branchResult.rows[0]
+
+        const staffId = crypto.randomUUID()
+        await client.query(
+          `INSERT INTO staff (id, user_id, branch_id, full_name, username, email, phone_number, role, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, 'Director', 'active', NOW(), NOW())`,
+          [
+            staffId,
+            userId,
+            branchId,
+            data?.username || email.split('@')[0],
+            data?.username || email.split('@')[0],
+            email,
+            data?.phone || null,
+          ]
+        )
       }
 
       await client.query("COMMIT")

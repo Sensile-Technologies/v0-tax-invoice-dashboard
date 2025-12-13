@@ -6,6 +6,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const vendorId = searchParams.get("vendor_id")
     const userId = searchParams.get("user_id")
+    const branchId = searchParams.get("branch_id")
     
     let vendorFilter = null
     
@@ -24,7 +25,25 @@ export async function GET(request: Request) {
     }
     
     let result
-    if (vendorFilter) {
+    
+    if (branchId) {
+      result = await query(`
+        SELECT 
+          s.id,
+          s.full_name,
+          s.username,
+          s.email,
+          s.phone_number,
+          s.role,
+          s.status,
+          s.branch_id,
+          b.name as branch_name
+        FROM staff s
+        LEFT JOIN branches b ON s.branch_id = b.id
+        WHERE s.branch_id = $1
+        ORDER BY s.created_at DESC
+      `, [branchId])
+    } else if (vendorFilter) {
       result = await query(`
         SELECT 
           s.id,

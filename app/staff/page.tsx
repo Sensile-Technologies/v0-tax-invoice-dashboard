@@ -16,69 +16,32 @@ export default function BranchStaffPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch staff assigned to this branch
     const fetchBranchStaff = async () => {
       try {
-        // For now, showing demo data filtered by current branch
-        // In production, this would fetch from API based on branch_id
-        const mockStaff = [
-          {
-            id: 1,
-            staffId: "DIR-001",
-            name: "James Mwangi",
-            username: "jmwangi",
-            email: "jmwangi@flow360.com",
-            phone: "+254 711 234567",
-            role: "Director",
-            status: "active",
-            branch: "Nairobi Branch",
-          },
-          {
-            id: 3,
-            staffId: "MGR-001",
-            name: "John Kamau",
-            username: "jkamau",
-            email: "jkamau@flow360.com",
-            phone: "+254 712 345678",
-            role: "Manager",
-            status: "active",
-            branch: "Nairobi Branch",
-          },
-          {
-            id: 5,
-            staffId: "SUP-001",
-            name: "Peter Ochieng",
-            username: "pochieng",
-            email: "pochieng@flow360.com",
-            phone: "+254 734 567890",
-            role: "Supervisor",
-            status: "active",
-            branch: "Nairobi Branch",
-          },
-          {
-            id: 7,
-            staffId: "CSH-001",
-            name: "Grace Akinyi",
-            username: "gakinyi",
-            email: "gakinyi@flow360.com",
-            phone: "+254 756 789012",
-            role: "Cashier",
-            status: "active",
-            branch: "Nairobi Branch",
-          },
-          {
-            id: 8,
-            staffId: "CSH-002",
-            name: "David Otieno",
-            username: "dotieno",
-            email: "dotieno@flow360.com",
-            phone: "+254 767 890123",
-            role: "Cashier",
-            status: "active",
-            branch: "Nairobi Branch",
-          },
-        ]
-        setBranchStaff(mockStaff)
+        const selectedBranch = localStorage.getItem("selectedBranch")
+        if (!selectedBranch) {
+          setIsLoading(false)
+          return
+        }
+        
+        const branch = JSON.parse(selectedBranch)
+        const response = await fetch(`/api/staff/list?branch_id=${branch.id}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          const staffList = (data.staff || data || []).map((s: any, index: number) => ({
+            id: s.id,
+            staffId: s.staff_id || `STF-${String(index + 1).padStart(3, "0")}`,
+            name: s.full_name || s.name || "",
+            username: s.username || s.email?.split("@")[0] || "",
+            email: s.email || "",
+            phone: s.phone_number || s.phone || "",
+            role: s.role || "Cashier",
+            status: s.status || "active",
+            branch: s.branch_name || "Branch",
+          }))
+          setBranchStaff(staffList)
+        }
         setIsLoading(false)
       } catch (error) {
         console.error("Error fetching branch staff:", error)

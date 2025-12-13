@@ -29,13 +29,6 @@ const impactData = [
   { category: "Green Purchases", value: 1248 },
 ]
 
-const loyaltyCustomers = [
-  { id: 1, name: "James Mwangi", points: 2450, tier: "Gold", purchases: 45, lastActivity: "2 days ago" },
-  { id: 2, name: "Mary Njeri", points: 3200, tier: "Platinum", purchases: 67, lastActivity: "1 day ago" },
-  { id: 3, name: "Peter Ochieng", points: 1850, tier: "Silver", purchases: 32, lastActivity: "5 days ago" },
-  { id: 4, name: "Grace Wanjiku", points: 4100, tier: "Platinum", purchases: 89, lastActivity: "Today" },
-  { id: 5, name: "John Kamau", points: 1200, tier: "Bronze", purchases: 18, lastActivity: "1 week ago" },
-]
 
 const earningRules = [
   { id: 1, rule: "Purchase", description: "Earn 1 point per KES 100 spent", multiplier: "1x", status: "Active" },
@@ -56,7 +49,30 @@ export default function LoyaltyPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const { formatCurrency } = useCurrency()
   const [loyaltyTransactions, setLoyaltyTransactions] = useState<any[]>([])
+  const [loyaltyCustomers, setLoyaltyCustomers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingCustomers, setLoadingCustomers] = useState(true)
+
+  const getTier = (points: number) => {
+    if (points >= 4000) return "Platinum"
+    if (points >= 2000) return "Gold"
+    if (points >= 1000) return "Silver"
+    return "Bronze"
+  }
+
+  const formatLastActivity = (date: string | null) => {
+    if (!date) return "No activity"
+    const activityDate = new Date(date)
+    const now = new Date()
+    const diffMs = now.getTime() - activityDate.getTime()
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+    
+    if (diffDays === 0) return "Today"
+    if (diffDays === 1) return "1 day ago"
+    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays < 14) return "1 week ago"
+    return `${Math.floor(diffDays / 7)} weeks ago`
+  }
 
   useEffect(() => {
     const fetchLoyaltyTransactions = async () => {
@@ -83,7 +99,40 @@ export default function LoyaltyPage() {
       }
     }
 
+    const fetchCustomers = async () => {
+      try {
+        const selectedBranch = localStorage.getItem("selectedBranch")
+        if (!selectedBranch) {
+          setLoadingCustomers(false)
+          return
+        }
+
+        const branch = JSON.parse(selectedBranch)
+        const response = await fetch(`/api/customers/list?branch_id=${branch.id}`)
+        
+        if (response.ok) {
+          const data = await response.json()
+          const customerList = (data.customers || []).map((c: any) => ({
+            id: c.id,
+            name: c.name || "Unknown",
+            points: parseInt(c.total_points) || 0,
+            tier: getTier(parseInt(c.total_points) || 0),
+            purchases: parseInt(c.total_purchases) || 0,
+            lastActivity: formatLastActivity(c.last_activity),
+            phone: c.phone,
+            email: c.email,
+          }))
+          setLoyaltyCustomers(customerList)
+        }
+      } catch (error) {
+        console.error("Error fetching customers:", error)
+      } finally {
+        setLoadingCustomers(false)
+      }
+    }
+
     fetchLoyaltyTransactions()
+    fetchCustomers()
     const interval = setInterval(fetchLoyaltyTransactions, 5000)
     return () => clearInterval(interval)
   }, [])
