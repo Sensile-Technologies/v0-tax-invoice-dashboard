@@ -54,6 +54,8 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
   - Dashboard header now shows "Welcome back, [username]" greeting
   - Dashboard header uses user's assigned branch_name (with localStorage override support)
   - Fixed notices API to use local PostgreSQL (query) instead of Supabase
+  - Mobile app dashboard now shows username and branch name instead of role
+  - Fixed staff list API to filter by vendor_id - users only see staff from their own vendor's branches
 
 - 2024-12-13: Staff Management & Shift Closure Enhancements
   - Removed placeholder staff data from Staff Management page - now fetches from database

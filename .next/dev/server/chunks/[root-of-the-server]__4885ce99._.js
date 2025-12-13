@@ -134,23 +134,61 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
 ;
-async function GET() {
+async function GET(request) {
     try {
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT 
-        s.id,
-        s.full_name,
-        s.username,
-        s.email,
-        s.phone_number,
-        s.role,
-        s.status,
-        s.branch_id,
-        b.name as branch_name
-      FROM staff s
-      LEFT JOIN branches b ON s.branch_id = b.id
-      ORDER BY s.created_at DESC
-    `);
+        const { searchParams } = new URL(request.url);
+        const vendorId = searchParams.get("vendor_id");
+        const userId = searchParams.get("user_id");
+        let vendorFilter = null;
+        if (vendorId) {
+            vendorFilter = vendorId;
+        } else if (userId) {
+            const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
+         JOIN vendors v ON v.email = u.email 
+         WHERE u.id = $1`, [
+                userId
+            ]);
+            if (userResult && userResult.length > 0) {
+                vendorFilter = userResult[0].vendor_id;
+            }
+        }
+        let result;
+        if (vendorFilter) {
+            result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        SELECT 
+          s.id,
+          s.full_name,
+          s.username,
+          s.email,
+          s.phone_number,
+          s.role,
+          s.status,
+          s.branch_id,
+          b.name as branch_name
+        FROM staff s
+        LEFT JOIN branches b ON s.branch_id = b.id
+        WHERE b.vendor_id = $1
+        ORDER BY s.created_at DESC
+      `, [
+                vendorFilter
+            ]);
+        } else {
+            result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        SELECT 
+          s.id,
+          s.full_name,
+          s.username,
+          s.email,
+          s.phone_number,
+          s.role,
+          s.status,
+          s.branch_id,
+          b.name as branch_name
+        FROM staff s
+        LEFT JOIN branches b ON s.branch_id = b.id
+        ORDER BY s.created_at DESC
+      `);
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             staff: result
         });

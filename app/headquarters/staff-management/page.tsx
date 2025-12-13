@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, MoreVertical, Edit, RotateCcw, UserX, Plus } from "lucide-react"
 import { roleDescriptions } from "@/lib/auth/rbac"
+import { getCurrentUser } from "@/lib/auth/client"
 
 interface StaffMember {
   id: string | number
@@ -69,7 +70,10 @@ export default function StaffManagementPage() {
   const fetchStaff = async () => {
     setIsLoadingStaff(true)
     try {
-      const response = await fetch("/api/staff/list")
+      const currentUser = getCurrentUser()
+      const userId = currentUser?.id
+      const url = userId ? `/api/staff/list?user_id=${userId}` : "/api/staff/list"
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         const staffList = (data.staff || data || []).map((s: any, index: number) => ({
