@@ -79,7 +79,7 @@ export function DashboardSidebar({
   return (
     <aside
       className={cn(
-        "relative flex flex-col text-white transition-all duration-300",
+        "relative flex flex-col text-white transition-all duration-300 min-h-screen",
         transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-white",
         collapsed ? "w-16" : "w-64",
       )}
