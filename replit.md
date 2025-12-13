@@ -58,6 +58,10 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
   - Fixed staff list API to filter by vendor_id - users only see staff from their own vendor's branches
   - Fixed branches list API to filter by vendor_id - users only see branches from their own vendor
   - Updated staff-management and headquarters pages to pass user_id when fetching branches
+  - Fixed branch staff page - now fetches real staff data filtered by branch_id instead of hardcoded data
+  - Fixed loyalty customers tab - fetches customers from database with points and purchases scoped by branch
+  - Created /api/customers/list endpoint for fetching customers with loyalty data
+  - Signup now creates Director staff record for the user who signs up
 
 - 2024-12-13: Staff Management & Shift Closure Enhancements
   - Removed placeholder staff data from Staff Management page - now fetches from database
