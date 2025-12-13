@@ -14,95 +14,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, MoreVertical, Edit, RotateCcw, UserX, Plus } from "lucide-react"
 import { roleDescriptions } from "@/lib/auth/rbac"
 
-const initialStaff = [
-  // Directors
-  {
-    id: 1,
-    staffId: "DIR-001",
-    name: "James Mwangi",
-    username: "jmwangi",
-    email: "jmwangi@flow360.co.ke",
-    phone: "+254 711 234567",
-    role: "Director",
-    status: "active",
-  },
-  {
-    id: 2,
-    staffId: "DIR-002",
-    name: "Sarah Wambui",
-    username: "swambui",
-    email: "swambui@flow360.co.ke",
-    phone: "+254 722 345678",
-    role: "Director",
-    status: "active",
-  },
-  // Managers
-  {
-    id: 3,
-    staffId: "MGR-001",
-    name: "John Kamau",
-    username: "jkamau",
-    email: "jkamau@flow360.co.ke",
-    phone: "+254 712 345678",
-    role: "Manager",
-    status: "active",
-  },
-  {
-    id: 4,
-    staffId: "MGR-002",
-    name: "Mary Wanjiku",
-    username: "mwanjiku",
-    email: "mwanjiku@flow360.co.ke",
-    phone: "+254 723 456789",
-    role: "Manager",
-    status: "active",
-  },
-  // Supervisors
-  {
-    id: 5,
-    staffId: "SUP-001",
-    name: "Peter Ochieng",
-    username: "pochieng",
-    email: "pochieng@flow360.co.ke",
-    phone: "+254 734 567890",
-    role: "Supervisor",
-    status: "active",
-  },
-  {
-    id: 6,
-    staffId: "SUP-002",
-    name: "Lucy Njeri",
-    username: "lnjeri",
-    email: "lnjeri@flow360.co.ke",
-    phone: "+254 745 678901",
-    role: "Supervisor",
-    status: "active",
-  },
-  // Cashiers
-  {
-    id: 7,
-    staffId: "CSH-001",
-    name: "Grace Akinyi",
-    username: "gakinyi",
-    email: "gakinyi@flow360.co.ke",
-    phone: "+254 756 789012",
-    role: "Cashier",
-    status: "active",
-  },
-  {
-    id: 8,
-    staffId: "CSH-002",
-    name: "David Otieno",
-    username: "dotieno",
-    email: "dotieno@flow360.co.ke",
-    phone: "+254 767 890123",
-    role: "Cashier",
-    status: "active",
-  },
-]
+interface StaffMember {
+  id: string | number
+  staffId: string
+  name: string
+  username: string
+  email: string
+  phone: string
+  role: string
+  status: string
+  branchId?: string
+  branchName?: string
+}
 
 export default function StaffManagementPage() {
-  const [staff, setStaff] = useState(initialStaff)
+  const [staff, setStaff] = useState<StaffMember[]>([])
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false)
@@ -121,28 +47,49 @@ export default function StaffManagementPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  const [isLoadingStaff, setIsLoadingStaff] = useState(true)
+
   useEffect(() => {
     fetchBranches()
+    fetchStaff()
   }, [])
 
   const fetchBranches = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/branches?status=eq.active&select=*`,
-        {
-          headers: {
-            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-          },
-        },
-      )
-
+      const response = await fetch("/api/branches/list")
       if (response.ok) {
         const data = await response.json()
-        setBranches(data)
+        setBranches(data.branches || data || [])
       }
     } catch (error) {
       console.error("Error fetching branches:", error)
+    }
+  }
+
+  const fetchStaff = async () => {
+    setIsLoadingStaff(true)
+    try {
+      const response = await fetch("/api/staff/list")
+      if (response.ok) {
+        const data = await response.json()
+        const staffList = (data.staff || data || []).map((s: any, index: number) => ({
+          id: s.id,
+          staffId: s.staff_id || `STF-${String(index + 1).padStart(3, "0")}`,
+          name: s.full_name || s.name || "",
+          username: s.username || s.email?.split("@")[0] || "",
+          email: s.email || "",
+          phone: s.phone_number || s.phone || "",
+          role: s.role || "Cashier",
+          status: s.status || "active",
+          branchId: s.branch_id || "",
+          branchName: s.branch_name || "All Branches",
+        }))
+        setStaff(staffList)
+      }
+    } catch (error) {
+      console.error("Error fetching staff:", error)
+    } finally {
+      setIsLoadingStaff(false)
     }
   }
 
@@ -192,21 +139,7 @@ export default function StaffManagementPage() {
         setIsLoading(false)
 
         if (response.ok && result.success) {
-          const staffId = `${formData.role.substring(0, 3).toUpperCase()}-${String(staff.length + 1).padStart(3, "0")}`
-          const branchName = branches.find((b) => b.id === formData.branchId)?.name || "All Branches"
-          const newStaff = {
-            id: staff.length + 1,
-            staffId,
-            name: formData.name,
-            username: formData.username,
-            email: formData.email,
-            phone: formData.phone,
-            role: formData.role,
-            status: "active",
-            branchId: formData.branchId,
-            branchName,
-          }
-          setStaff([...staff, newStaff])
+          await fetchStaff()
           alert("Staff account created successfully! They can now log in with their credentials.")
           setEditDialogOpen(false)
           setSelectedStaff(null)
@@ -232,24 +165,22 @@ export default function StaffManagementPage() {
   const confirmReset = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users/${selectedStaff.email}/recover`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          },
-        },
-      )
+      const response = await fetch("/api/staff/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          staffId: selectedStaff.id,
+          email: selectedStaff.email 
+        }),
+      })
 
       setIsLoading(false)
       if (response.ok) {
         alert("Password has been reset to 'flow360'. User should change it on next login.")
         setResetDialogOpen(false)
-        setChangePasswordDialogOpen(true)
       } else {
-        alert("Error resetting password. Please try again.")
+        const result = await response.json()
+        alert(`Error resetting password: ${result.error || "Please try again."}`)
       }
     } catch (error) {
       setIsLoading(false)
@@ -271,10 +202,25 @@ export default function StaffManagementPage() {
     setSelectedStaff(null)
   }
 
-  const handleDeactivate = (member: any) => {
-    setStaff(
-      staff.map((s) => (s.id === member.id ? { ...s, status: s.status === "active" ? "inactive" : "active" } : s)),
-    )
+  const handleDeactivate = async (member: any) => {
+    const newStatus = member.status === "active" ? "inactive" : "active"
+    try {
+      const response = await fetch("/api/staff/update-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staffId: member.id, status: newStatus }),
+      })
+      if (response.ok) {
+        setStaff(
+          staff.map((s) => (s.id === member.id ? { ...s, status: newStatus } : s)),
+        )
+      } else {
+        alert("Failed to update staff status. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error updating staff status:", error)
+      alert("Failed to update staff status. Please try again.")
+    }
   }
 
   const handleAddNew = () => {
@@ -331,54 +277,68 @@ export default function StaffManagementPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {staff.map((member) => (
-                    <TableRow key={member.id}>
-                      <TableCell className="font-medium">{member.staffId}</TableCell>
-                      <TableCell>{member.name}</TableCell>
-                      <TableCell>{member.username}</TableCell>
-                      <TableCell>{member.email}</TableCell>
-                      <TableCell>{member.phone}</TableCell>
-                      <TableCell>{member.role}</TableCell>
-                      <TableCell>{member.branchName || "All Branches"}</TableCell>
-                      <TableCell>
-                        <Badge variant={member.status === "active" ? "default" : "secondary"} className="rounded-lg">
-                          {member.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="rounded-lg">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl">
-                            <DropdownMenuItem
-                              onClick={() => handleEdit(member)}
-                              className="gap-2 cursor-pointer rounded-lg"
-                            >
-                              <Edit className="h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleResetAccount(member)}
-                              className="gap-2 cursor-pointer rounded-lg"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                              Reset Account
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDeactivate(member)}
-                              className="gap-2 cursor-pointer rounded-lg text-red-600"
-                            >
-                              <UserX className="h-4 w-4" />
-                              {member.status === "active" ? "Deactivate" : "Activate"}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                  {isLoadingStaff ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                        Loading staff members...
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : staff.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                        No staff members found. Click "Add Staff" to create one.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    staff.map((member) => (
+                      <TableRow key={member.id}>
+                        <TableCell className="font-medium">{member.staffId}</TableCell>
+                        <TableCell>{member.name}</TableCell>
+                        <TableCell>{member.username}</TableCell>
+                        <TableCell>{member.email}</TableCell>
+                        <TableCell>{member.phone}</TableCell>
+                        <TableCell>{member.role}</TableCell>
+                        <TableCell>{member.branchName || "All Branches"}</TableCell>
+                        <TableCell>
+                          <Badge variant={member.status === "active" ? "default" : "secondary"} className="rounded-lg">
+                            {member.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="rounded-lg">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="rounded-xl">
+                              <DropdownMenuItem
+                                onClick={() => handleEdit(member)}
+                                className="gap-2 cursor-pointer rounded-lg"
+                              >
+                                <Edit className="h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleResetAccount(member)}
+                                className="gap-2 cursor-pointer rounded-lg"
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                                Reset Account
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeactivate(member)}
+                                className="gap-2 cursor-pointer rounded-lg text-red-600"
+                              >
+                                <UserX className="h-4 w-4" />
+                                {member.status === "active" ? "Deactivate" : "Activate"}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>

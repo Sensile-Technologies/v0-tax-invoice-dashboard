@@ -117,11 +117,26 @@ Processes Excel uploads for shift closing.
 
 When a shift is closed via Excel:
 
-1. **Nozzles Table**: `initial_meter_reading` updated for each nozzle
-2. **Tanks Table**: `current_stock` updated for each tank
-3. **Shifts Table**: 
+1. **Sales Table**: New sales records created for each nozzle with calculated values:
+   - Quantity = New meter reading - Old meter reading
+   - Unit price fetched from fuel_prices table
+   - Total amount = Quantity × Unit price
+   - Payment method defaults to 'cash'
+   - Customer name set to 'Shift Close - Bulk Sale'
+2. **Nozzles Table**: `initial_meter_reading` updated for each nozzle
+3. **Tanks Table**: `current_stock` updated for each tank
+4. **Shifts Table**: 
    - `status` changed to 'completed'
    - `end_time` set to current timestamp
+
+## Sales Calculation Logic
+
+The system automatically calculates sales based on meter reading differences:
+1. Reads the current (old) meter reading from the nozzle
+2. Compares with the new reading from the uploaded Excel
+3. If the difference is positive (new > old), creates a sale record
+4. Fetches the current fuel price for that nozzle's fuel type
+5. Calculates total amount and creates the sale in the database
 
 ## Usage Examples
 

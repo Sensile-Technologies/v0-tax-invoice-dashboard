@@ -25,6 +25,7 @@ interface KraResponse {
 interface BranchConfig {
   id: string
   bhf_id: string
+  kra_pin: string
   device_token: string
   server_address: string
   server_port: string
@@ -33,7 +34,7 @@ interface BranchConfig {
 async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
   try {
     const result = await query(`
-      SELECT id, bhf_id, device_token, server_address, server_port
+      SELECT id, bhf_id, kra_pin, device_token, server_address, server_port
       FROM branches
       WHERE id = $1
     `, [branchId])
@@ -82,7 +83,7 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
     const kraEndpoint = `http://${branchConfig.server_address}:${branchConfig.server_port}/trnsSales/saveSales`
     
     const kraPayload = {
-      tin: branchConfig.bhf_id?.split("-")[0] || "",
+      tin: branchConfig.kra_pin || "",
       bhfId: branchConfig.bhf_id || "",
       dvcSrlNo: branchConfig.device_token || "",
       invcNo: saleData.invoice_number,
