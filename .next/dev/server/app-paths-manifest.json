@@ -1,4 +1,21 @@
 {
+  "/api/auth/signin/route": "app/api/auth/signin/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/page": "app/page.js"
+  "/api/db/[table]/route": "app/api/db/[table]/route.js",
+  "/api/kra/codes/route": "app/api/kra/codes/route.js",
+  "/api/kra/saved-data/route": "app/api/kra/saved-data/route.js",
+  "/api/logs/route": "app/api/logs/route.js",
+  "/api/mobile/create-sale/route": "app/api/mobile/create-sale/route.js",
+  "/api/mobile/dashboard/route": "app/api/mobile/dashboard/route.js",
+  "/api/mobile/invoices/route": "app/api/mobile/invoices/route.js",
+  "/api/mobile/nozzles/route": "app/api/mobile/nozzles/route.js",
+  "/api/mobile/products/route": "app/api/mobile/products/route.js",
+  "/api/mobile/sales/route": "app/api/mobile/sales/route.js",
+  "/api/staff/list/route": "app/api/staff/list/route.js",
+  "/configuration/tax-service/page": "app/configuration/tax-service/page.js",
+  "/headquarters/page": "app/headquarters/page.js",
+  "/headquarters/staff-management/page": "app/headquarters/staff-management/page.js",
+  "/logs/page": "app/logs/page.js",
+  "/page": "app/page.js",
+  "/sales/page": "app/sales/page.js"
 }
