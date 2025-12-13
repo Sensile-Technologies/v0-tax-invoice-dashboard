@@ -67,8 +67,8 @@ export default function DashboardScreen({ navigation }: any) {
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.userName}>{user?.name || 'User'}</Text>
-          <Text style={styles.role}>{user?.role?.toUpperCase()}</Text>
+          <Text style={styles.userName}>{user?.username || user?.name || 'User'}</Text>
+          <Text style={styles.branchName}>{user?.branch_name || 'Branch'}</Text>
         </View>
         <TouchableOpacity onPress={logout} style={styles.logoutButton}>
           <Ionicons name="log-out-outline" size={24} color={colors.danger} />
@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
-  role: {
-    fontSize: fontSize.xs,
+  branchName: {
+    fontSize: fontSize.sm,
     color: colors.primary,
     marginTop: spacing.xs,
     fontWeight: '600',
