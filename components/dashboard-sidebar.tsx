@@ -487,7 +487,7 @@ export function DashboardSidebar({
         variant="ghost"
         size="icon"
         onClick={onToggle}
-        className="absolute -right-3 top-20 h-6 w-6 rounded-full border-2 border-white bg-sky-500 hover:bg-sky-600 text-white shadow-lg z-20"
+        className="absolute right-2 top-5 h-6 w-6 rounded-full bg-white/20 hover:bg-white/30 text-white"
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>
