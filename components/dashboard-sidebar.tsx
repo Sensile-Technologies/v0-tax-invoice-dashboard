@@ -37,7 +37,7 @@ interface DashboardSidebarProps {
 }
 
 const regularNavigationItems = [
-  { icon: ShoppingCart, label: "Sales", href: "/sales" },
+  { icon: ShoppingCart, label: "Sales", href: "/sales", hasDropdown: true },
   { icon: ShoppingBag, label: "Purchases", href: "/purchases" },
   { icon: Package, label: "Inventory", href: "/inventory" },
   { icon: CreditCard, label: "Payments", href: "/payments" },
@@ -122,6 +122,40 @@ export function DashboardSidebar({
                   />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pl-8 pt-1 space-y-1">
+                  {item.label === "Sales" && (
+                    <>
+                      <Link
+                        href="/sales/summary"
+                        className={cn(
+                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
+                          "hover:bg-white/20",
+                          pathname === "/sales/summary" && "bg-white/20",
+                        )}
+                      >
+                        Sales Summary
+                      </Link>
+                      <Link
+                        href="/sales/reports"
+                        className={cn(
+                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
+                          "hover:bg-white/20",
+                          pathname === "/sales/reports" && "bg-white/20",
+                        )}
+                      >
+                        Sales Reports
+                      </Link>
+                      <Link
+                        href="/sales/automated"
+                        className={cn(
+                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
+                          "hover:bg-white/20",
+                          pathname === "/sales/automated" && "bg-white/20",
+                        )}
+                      >
+                        Automated Sales
+                      </Link>
+                    </>
+                  )}
                   {item.label === "Customers" && (
                     <>
                       <Link
@@ -438,7 +472,8 @@ export function DashboardSidebar({
           }
 
           if (
-            (item.label === "Customers" ||
+            (item.label === "Sales" ||
+              item.label === "Customers" ||
               item.label === "Items" ||
               item.label === "Imports" ||
               item.label === "Reports" ||
