@@ -766,7 +766,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                 variant: "ghost",
                 size: "icon",
                 onClick: onToggle,
-                className: "absolute -right-3 top-20 h-6 w-6 rounded-full border-2 border-white bg-sky-500 hover:bg-sky-600 text-white shadow-lg",
+                className: "absolute -right-3 top-20 h-6 w-6 rounded-full border-2 border-white bg-sky-500 hover:bg-sky-600 text-white shadow-lg z-20",
                 children: collapsed ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__["ChevronRight"], {
                     className: "h-4 w-4"
                 }, void 0, false, {
@@ -2393,69 +2393,30 @@ function BranchStaffPage() {
     const [searchQuery, setSearchQuery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        // Fetch staff assigned to this branch
         const fetchBranchStaff = async ()=>{
             try {
-                // For now, showing demo data filtered by current branch
-                // In production, this would fetch from API based on branch_id
-                const mockStaff = [
-                    {
-                        id: 1,
-                        staffId: "DIR-001",
-                        name: "James Mwangi",
-                        username: "jmwangi",
-                        email: "jmwangi@flow360.com",
-                        phone: "+254 711 234567",
-                        role: "Director",
-                        status: "active",
-                        branch: "Nairobi Branch"
-                    },
-                    {
-                        id: 3,
-                        staffId: "MGR-001",
-                        name: "John Kamau",
-                        username: "jkamau",
-                        email: "jkamau@flow360.com",
-                        phone: "+254 712 345678",
-                        role: "Manager",
-                        status: "active",
-                        branch: "Nairobi Branch"
-                    },
-                    {
-                        id: 5,
-                        staffId: "SUP-001",
-                        name: "Peter Ochieng",
-                        username: "pochieng",
-                        email: "pochieng@flow360.com",
-                        phone: "+254 734 567890",
-                        role: "Supervisor",
-                        status: "active",
-                        branch: "Nairobi Branch"
-                    },
-                    {
-                        id: 7,
-                        staffId: "CSH-001",
-                        name: "Grace Akinyi",
-                        username: "gakinyi",
-                        email: "gakinyi@flow360.com",
-                        phone: "+254 756 789012",
-                        role: "Cashier",
-                        status: "active",
-                        branch: "Nairobi Branch"
-                    },
-                    {
-                        id: 8,
-                        staffId: "CSH-002",
-                        name: "David Otieno",
-                        username: "dotieno",
-                        email: "dotieno@flow360.com",
-                        phone: "+254 767 890123",
-                        role: "Cashier",
-                        status: "active",
-                        branch: "Nairobi Branch"
-                    }
-                ];
-                setBranchStaff(mockStaff);
+                const selectedBranch = localStorage.getItem("selectedBranch");
+                if (!selectedBranch) {
+                    setIsLoading(false);
+                    return;
+                }
+                const branch = JSON.parse(selectedBranch);
+                const response = await fetch(`/api/staff/list?branch_id=${branch.id}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const staffList = (data.staff || data || []).map((s, index)=>({
+                            id: s.id,
+                            staffId: s.staff_id || `STF-${String(index + 1).padStart(3, "0")}`,
+                            name: s.full_name || s.name || "",
+                            username: s.username || s.email?.split("@")[0] || "",
+                            email: s.email || "",
+                            phone: s.phone_number || s.phone || "",
+                            role: s.role || "Cashier",
+                            status: s.status || "active",
+                            branch: s.branch_name || "Branch"
+                        }));
+                    setBranchStaff(staffList);
+                }
                 setIsLoading(false);
             } catch (error) {
                 console.error("Error fetching branch staff:", error);
@@ -2473,7 +2434,7 @@ function BranchStaffPage() {
                 onToggle: ()=>setSidebarCollapsed(!sidebarCollapsed)
             }, void 0, false, {
                 fileName: "[project]/app/staff/page.tsx",
-                lineNumber: 101,
+                lineNumber: 64,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2483,7 +2444,7 @@ function BranchStaffPage() {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$dashboard$2d$header$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardHeader"], {}, void 0, false, {
                             fileName: "[project]/app/staff/page.tsx",
-                            lineNumber: 105,
+                            lineNumber: 68,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2499,7 +2460,7 @@ function BranchStaffPage() {
                                                     children: "Branch Staff"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/staff/page.tsx",
-                                                    lineNumber: 110,
+                                                    lineNumber: 73,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2507,13 +2468,13 @@ function BranchStaffPage() {
                                                     children: "View staff members assigned to this branch"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/staff/page.tsx",
-                                                    lineNumber: 111,
+                                                    lineNumber: 74,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/staff/page.tsx",
-                                            lineNumber: 109,
+                                            lineNumber: 72,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2523,7 +2484,7 @@ function BranchStaffPage() {
                                                     className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/staff/page.tsx",
-                                                    lineNumber: 114,
+                                                    lineNumber: 77,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -2533,19 +2494,19 @@ function BranchStaffPage() {
                                                     onChange: (e)=>setSearchQuery(e.target.value)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/staff/page.tsx",
-                                                    lineNumber: 115,
+                                                    lineNumber: 78,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/staff/page.tsx",
-                                            lineNumber: 113,
+                                            lineNumber: 76,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/staff/page.tsx",
-                                    lineNumber: 108,
+                                    lineNumber: 71,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2561,7 +2522,7 @@ function BranchStaffPage() {
                                                         className: "h-12 w-12 text-muted-foreground mx-auto mb-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/staff/page.tsx",
-                                                        lineNumber: 129,
+                                                        lineNumber: 92,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2569,18 +2530,18 @@ function BranchStaffPage() {
                                                         children: "Loading staff members..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/staff/page.tsx",
-                                                        lineNumber: 130,
+                                                        lineNumber: 93,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/staff/page.tsx",
-                                                lineNumber: 128,
+                                                lineNumber: 91,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/staff/page.tsx",
-                                            lineNumber: 127,
+                                            lineNumber: 90,
                                             columnNumber: 19
                                         }, this) : filteredStaff.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "flex items-center justify-center py-12",
@@ -2591,7 +2552,7 @@ function BranchStaffPage() {
                                                         className: "h-12 w-12 text-muted-foreground mx-auto mb-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/staff/page.tsx",
-                                                        lineNumber: 136,
+                                                        lineNumber: 99,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2599,18 +2560,18 @@ function BranchStaffPage() {
                                                         children: "No staff members found"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/staff/page.tsx",
-                                                        lineNumber: 137,
+                                                        lineNumber: 100,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/staff/page.tsx",
-                                                lineNumber: 135,
+                                                lineNumber: 98,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/staff/page.tsx",
-                                            lineNumber: 134,
+                                            lineNumber: 97,
                                             columnNumber: 19
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "rounded-xl border overflow-hidden",
@@ -2623,60 +2584,60 @@ function BranchStaffPage() {
                                                                     children: "Staff ID"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/staff/page.tsx",
-                                                                    lineNumber: 145,
+                                                                    lineNumber: 108,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Name"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/staff/page.tsx",
-                                                                    lineNumber: 146,
+                                                                    lineNumber: 109,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Username"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/staff/page.tsx",
-                                                                    lineNumber: 147,
+                                                                    lineNumber: 110,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Email"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/staff/page.tsx",
-                                                                    lineNumber: 148,
+                                                                    lineNumber: 111,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Phone"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/staff/page.tsx",
-                                                                    lineNumber: 149,
+                                                                    lineNumber: 112,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Role"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/staff/page.tsx",
-                                                                    lineNumber: 150,
+                                                                    lineNumber: 113,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Status"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/staff/page.tsx",
-                                                                    lineNumber: 151,
+                                                                    lineNumber: 114,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/staff/page.tsx",
-                                                            lineNumber: 144,
+                                                            lineNumber: 107,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/staff/page.tsx",
-                                                        lineNumber: 143,
+                                                        lineNumber: 106,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -2687,35 +2648,35 @@ function BranchStaffPage() {
                                                                         children: member.staffId
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/staff/page.tsx",
-                                                                        lineNumber: 157,
+                                                                        lineNumber: 120,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                         children: member.name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/staff/page.tsx",
-                                                                        lineNumber: 158,
+                                                                        lineNumber: 121,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                         children: member.username
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/staff/page.tsx",
-                                                                        lineNumber: 159,
+                                                                        lineNumber: 122,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                         children: member.email
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/staff/page.tsx",
-                                                                        lineNumber: 160,
+                                                                        lineNumber: 123,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                         children: member.phone
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/staff/page.tsx",
-                                                                        lineNumber: 161,
+                                                                        lineNumber: 124,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2725,12 +2686,12 @@ function BranchStaffPage() {
                                                                             children: member.role
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/staff/page.tsx",
-                                                                            lineNumber: 163,
+                                                                            lineNumber: 126,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/staff/page.tsx",
-                                                                        lineNumber: 162,
+                                                                        lineNumber: 125,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2740,44 +2701,44 @@ function BranchStaffPage() {
                                                                             children: member.status
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/staff/page.tsx",
-                                                                            lineNumber: 168,
+                                                                            lineNumber: 131,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/staff/page.tsx",
-                                                                        lineNumber: 167,
+                                                                        lineNumber: 130,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, member.id, true, {
                                                                 fileName: "[project]/app/staff/page.tsx",
-                                                                lineNumber: 156,
+                                                                lineNumber: 119,
                                                                 columnNumber: 27
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/staff/page.tsx",
-                                                        lineNumber: 154,
+                                                        lineNumber: 117,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/staff/page.tsx",
-                                                lineNumber: 142,
+                                                lineNumber: 105,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/staff/page.tsx",
-                                            lineNumber: 141,
+                                            lineNumber: 104,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/staff/page.tsx",
-                                        lineNumber: 125,
+                                        lineNumber: 88,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/staff/page.tsx",
-                                    lineNumber: 124,
+                                    lineNumber: 87,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2789,7 +2750,7 @@ function BranchStaffPage() {
                                                 children: "Note:"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/staff/page.tsx",
-                                                lineNumber: 186,
+                                                lineNumber: 149,
                                                 columnNumber: 17
                                             }, this),
                                             " To add, edit, or manage staff assignments, please visit the",
@@ -2800,7 +2761,7 @@ function BranchStaffPage() {
                                                 children: "Headquarters"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/staff/page.tsx",
-                                                lineNumber: 187,
+                                                lineNumber: 150,
                                                 columnNumber: 17
                                             }, this),
                                             " ",
@@ -2808,18 +2769,18 @@ function BranchStaffPage() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/staff/page.tsx",
-                                        lineNumber: 185,
+                                        lineNumber: 148,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/staff/page.tsx",
-                                    lineNumber: 184,
+                                    lineNumber: 147,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/staff/page.tsx",
-                            lineNumber: 107,
+                            lineNumber: 70,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -2827,24 +2788,24 @@ function BranchStaffPage() {
                             children: "Powered by Sensile Technologies East Africa Ltd"
                         }, void 0, false, {
                             fileName: "[project]/app/staff/page.tsx",
-                            lineNumber: 195,
+                            lineNumber: 158,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/staff/page.tsx",
-                    lineNumber: 104,
+                    lineNumber: 67,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/staff/page.tsx",
-                lineNumber: 103,
+                lineNumber: 66,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/staff/page.tsx",
-        lineNumber: 100,
+        lineNumber: 63,
         columnNumber: 5
     }, this);
 }
