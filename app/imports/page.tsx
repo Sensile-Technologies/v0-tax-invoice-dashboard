@@ -59,14 +59,15 @@ export default function ImportsPage() {
   )
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+    <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
 
-      <div className="flex flex-1 flex-col overflow-hidden -ml-6 mt-6 bg-white rounded-tl-3xl shadow-2xl z-10">
-        <DashboardHeader />
+      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
+        <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader />
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-          <div className="mx-auto max-w-7xl space-y-6">
+          <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
+            <div className="mx-auto max-w-7xl space-y-6">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight text-balance">Import List</h1>
@@ -215,6 +216,7 @@ export default function ImportsPage() {
             </footer>
           </div>
         </main>
+        </div>
       </div>
     </div>
   )

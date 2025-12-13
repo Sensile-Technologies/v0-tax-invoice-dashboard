@@ -63,7 +63,7 @@ export default function BranchStaffPage() {
     <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
-      <div className="-ml-6 mt-6 flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
         <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
           <DashboardHeader />
 
