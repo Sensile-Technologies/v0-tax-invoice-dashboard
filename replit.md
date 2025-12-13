@@ -46,6 +46,21 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-13: Staff Management & Shift Closure Enhancements
+  - Removed placeholder staff data from Staff Management page - now fetches from database
+  - Fixed branch dropdown in Add Staff form - uses /api/branches/list instead of broken Supabase URL
+  - Created /api/staff/list endpoint - fetches staff with branch names
+  - Created /api/staff/reset-password endpoint - resets staff password to default
+  - Created /api/staff/update-status endpoint - toggles staff active/inactive status
+  - Fixed KRA payload TIN format - now uses kra_pin field from branches table instead of bhf_id
+  - Enhanced shift closure CSV processing to calculate meter reading differences and create bulk sales:
+    - Calculates quantity sold = new reading - old reading
+    - Fetches fuel price and creates sales records
+    - UUID-based invoice/receipt numbers (no race conditions)
+    - Guards against negative/zero quantities
+    - Transactional control per branch with rollback on error
+    - Updated SHIFT_MANAGEMENT_README.md with sales calculation documentation
+
 - 2024-12-12: KRA Test Sales Integration
   - Created lib/kra-sales-api.ts - helper function to call external KRA backend API
   - Calls KRA endpoint at http://{server_address}:{server_port}/trnsSales/saveSales
