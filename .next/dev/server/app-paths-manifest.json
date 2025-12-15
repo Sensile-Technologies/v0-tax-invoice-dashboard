@@ -26,5 +26,6 @@
   "/api/mobile/dashboard/route": "app/api/mobile/dashboard/route.js",
   "/api/mobile/nozzles/route": "app/api/mobile/nozzles/route.js",
   "/auth/login/page": "app/auth/login/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/sales/summary/page": "app/sales/summary/page.js"
 }
