@@ -158,12 +158,19 @@ async function GET(request) {
             }
         }
         if (type === "codelist") {
-            const result = bhfId ? await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
+            // First try to get data for the specific branch
+            let result = bhfId ? await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
              FROM kra_codelists 
              WHERE bhf_id = $1 
              ORDER BY cd_cls, cd`, [
                 bhfId
             ]) : [];
+            // If no data for this branch, get data from any branch (codelists are shared)
+            if (result.length === 0) {
+                result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT ON (cd_cls, cd) cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
+           FROM kra_codelists 
+           ORDER BY cd_cls, cd, updated_at DESC`);
+            }
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 data: result,
                 bhf_id: bhfId,
