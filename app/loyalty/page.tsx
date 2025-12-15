@@ -81,17 +81,11 @@ export default function LoyaltyPage() {
         if (!selectedBranch) return
 
         const branch = JSON.parse(selectedBranch)
-        const { createClient } = await import("@/lib/supabase/client")
-        const supabase = createClient()
+        const response = await fetch(`/api/loyalty-transactions?branch_id=${branch.id}`)
+        const result = await response.json()
 
-        const { data, error } = await supabase
-          .from("loyalty_transactions")
-          .select("*")
-          .eq("branch_id", branch.id)
-          .order("transaction_date", { ascending: false })
-
-        if (error) throw error
-        setLoyaltyTransactions(data || [])
+        if (!result.success) throw new Error(result.error)
+        setLoyaltyTransactions(result.data || [])
       } catch (error) {
         console.error("Error fetching loyalty transactions:", error)
       } finally {

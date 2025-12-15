@@ -9,7 +9,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Search, MoreVertical, FileText, Edit, Trash2, Loader2 } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 interface Customer {
@@ -55,18 +54,16 @@ export default function CustomersPage() {
       if (storedBranch) {
         const branchData = JSON.parse(storedBranch)
         setCurrentBranch(branchData)
-        console.log("[v0] Current branch from localStorage:", branchData)
         return
       }
 
-      const supabase = createClient()
-      const { data, error } = await supabase.from("branches").select("id, name, bhf_id").limit(1)
+      const response = await fetch('/api/branches?limit=1')
+      const result = await response.json()
 
-      if (error) throw error
+      if (!result.success) throw new Error(result.error)
 
-      if (data && data.length > 0) {
-        setCurrentBranch(data[0])
-        console.log("[v0] Current branch (fallback):", data[0])
+      if (result.data && result.data.length > 0) {
+        setCurrentBranch(result.data[0])
       }
     } catch (error) {
       console.error("[v0] Error fetching current branch:", error)
@@ -75,21 +72,12 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const supabase = createClient()
+      const response = await fetch(`/api/customers?branch_id=${currentBranch.id}`)
+      const result = await response.json()
 
-      console.log("[v0] Fetching customers for branch:", currentBranch?.id)
+      if (!result.success) throw new Error(result.error)
 
-      const { data, error } = await supabase
-        .from("customers")
-        .select("id, tin, cust_tin, cust_nm, email, tel_no, adrs, branch_id")
-        .eq("branch_id", currentBranch.id)
-        .eq("use_yn", "Y")
-        .order("created_at", { ascending: false })
-
-      if (error) throw error
-
-      console.log("[v0] Fetched customers:", data)
-      setCustomers(data || [])
+      setCustomers(result.data || [])
     } catch (error) {
       console.error("[v0] Error fetching customers:", error)
       toast({
@@ -106,10 +94,10 @@ export default function CustomersPage() {
     if (!confirm(`Are you sure you want to delete ${customerName}?`)) return
 
     try {
-      const supabase = createClient()
-      const { error } = await supabase.from("customers").delete().eq("id", customerId)
+      const response = await fetch(`/api/customers?id=${customerId}`, { method: 'DELETE' })
+      const result = await response.json()
 
-      if (error) throw error
+      if (!result.success) throw new Error(result.error)
 
       toast({
         title: "Customer Deleted",

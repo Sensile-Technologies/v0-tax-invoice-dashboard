@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { createClient } from "@/lib/supabase/client"
 import { Fuel, ArrowRightLeft, Plus, Edit, Package } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "react-toastify"
@@ -78,8 +77,6 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     dispenserNumber: "",
   })
 
-  const supabase = createClient()
-
   useEffect(() => {
     if (branchId) {
       fetchTanks()
@@ -89,41 +86,49 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
   const fetchTanks = async () => {
     setLoading(true)
-    const { data: tanksData, error } = await supabase.from("tanks").select("*").eq("branch_id", branchId)
+    try {
+      const tanksRes = await fetch(`/api/tanks?branch_id=${branchId}`)
+      const tanksResult = await tanksRes.json()
 
-    if (error) {
+      if (!tanksResult.success) {
+        console.error("Error fetching tanks:", tanksResult.error)
+        setLoading(false)
+        return
+      }
+
+      const [dispensersRes, nozzlesRes] = await Promise.all([
+        fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/nozzles?branch_id=${branchId}`)
+      ])
+      
+      const dispensersResult = await dispensersRes.json()
+      const nozzlesResult = await nozzlesRes.json()
+      const allDispensers = dispensersResult.success ? dispensersResult.data : []
+      const allNozzles = nozzlesResult.success ? nozzlesResult.data : []
+
+      const tanksWithDetails = (tanksResult.data || []).map((tank: any) => ({
+        ...tank,
+        dispensers: allDispensers,
+        nozzles: allNozzles.filter((n: any) => n.fuel_type === tank.fuel_type),
+      }))
+
+      setTanks(tanksWithDetails)
+    } catch (error) {
       console.error("Error fetching tanks:", error)
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Fetch associated dispensers and nozzles for each tank
-    const tanksWithDetails = await Promise.all(
-      (tanksData || []).map(async (tank) => {
-        const { data: dispensers } = await supabase.from("dispensers").select("*").eq("branch_id", branchId)
-
-        const { data: nozzles } = await supabase
-          .from("nozzles")
-          .select("*")
-          .eq("branch_id", branchId)
-          .eq("fuel_type", tank.fuel_type)
-
-        return {
-          ...tank,
-          dispensers: dispensers || [],
-          nozzles: nozzles || [],
-        }
-      }),
-    )
-
-    setTanks(tanksWithDetails)
-    setLoading(false)
   }
 
   const fetchBranches = async () => {
-    const { data, error } = await supabase.from("branches").select("id, name")
-    if (!error && data) {
-      setBranches(data)
+    try {
+      const response = await fetch('/api/branches')
+      const result = await response.json()
+      if (result.success) {
+        setBranches(result.data || [])
+      }
+    } catch (error) {
+      console.error("Error fetching branches:", error)
     }
   }
 
@@ -133,26 +138,34 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     const quantity = Number.parseFloat(adjustForm.quantity)
     const newStock = selectedTank.current_stock + quantity
 
-    const { error: adjustmentError } = await supabase.from("stock_adjustments").insert({
-      tank_id: selectedTank.id,
-      branch_id: branchId,
-      adjustment_type: "manual_adjustment",
-      quantity,
-      previous_stock: selectedTank.current_stock,
-      new_stock: newStock,
-      reason: adjustForm.reason,
-      requested_by: adjustForm.requestedBy,
-      approval_status: "pending",
-    })
+    try {
+      const response = await fetch('/api/stock-adjustments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tank_id: selectedTank.id,
+          branch_id: branchId,
+          adjustment_type: "manual_adjustment",
+          quantity,
+          previous_stock: selectedTank.current_stock,
+          new_stock: newStock,
+          reason: adjustForm.reason,
+          requested_by: adjustForm.requestedBy,
+          approval_status: "pending",
+        })
+      })
 
-    if (adjustmentError) {
-      console.error("Error creating adjustment:", adjustmentError)
-      return
+      if (!response.ok) {
+        console.error("Error creating adjustment")
+        return
+      }
+
+      setShowAdjustDialog(false)
+      setAdjustForm({ quantity: "", reason: "", requestedBy: "" })
+      fetchTanks()
+    } catch (error) {
+      console.error("Error creating adjustment:", error)
     }
-
-    setShowAdjustDialog(false)
-    setAdjustForm({ quantity: "", reason: "", requestedBy: "" })
-    fetchTanks()
   }
 
   const handleReceiveStock = async () => {
@@ -161,25 +174,37 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     const quantity = Number.parseFloat(receiveForm.quantity)
     const newStock = selectedTank.current_stock + quantity
 
-    const { error: adjustmentError } = await supabase.from("stock_adjustments").insert({
-      tank_id: selectedTank.id,
-      branch_id: branchId,
-      adjustment_type: "receive",
-      quantity,
-      previous_stock: selectedTank.current_stock,
-      new_stock: newStock,
-      reason: receiveForm.reason,
-      requested_by: receiveForm.requestedBy,
-      approval_status: "approved",
-    })
+    try {
+      const adjustRes = await fetch('/api/stock-adjustments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tank_id: selectedTank.id,
+          branch_id: branchId,
+          adjustment_type: "receive",
+          quantity,
+          previous_stock: selectedTank.current_stock,
+          new_stock: newStock,
+          reason: receiveForm.reason,
+          requested_by: receiveForm.requestedBy,
+          approval_status: "approved",
+        })
+      })
 
-    if (!adjustmentError) {
-      await supabase.from("tanks").update({ current_stock: newStock }).eq("id", selectedTank.id)
+      if (adjustRes.ok) {
+        await fetch('/api/tanks', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: selectedTank.id, current_stock: newStock })
+        })
+      }
+
+      setShowReceiveDialog(false)
+      setReceiveForm({ quantity: "", reason: "", requestedBy: "" })
+      fetchTanks()
+    } catch (error) {
+      console.error("Error receiving stock:", error)
     }
-
-    setShowReceiveDialog(false)
-    setReceiveForm({ quantity: "", reason: "", requestedBy: "" })
-    fetchTanks()
   }
 
   const handleTransferStock = async () => {
@@ -187,45 +212,62 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
     const quantity = Number.parseFloat(transferForm.quantity)
 
-    const { error: transferError } = await supabase.from("stock_transfers").insert({
-      from_tank_id: selectedTank.id,
-      to_tank_id: transferForm.toTankId,
-      from_branch_id: branchId,
-      to_branch_id: transferForm.toBranchId,
-      quantity,
-      requested_by: transferForm.requestedBy,
-      notes: transferForm.notes,
-      approval_status: "pending",
-    })
+    try {
+      const response = await fetch('/api/stock-transfers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from_tank_id: selectedTank.id,
+          to_tank_id: transferForm.toTankId,
+          from_branch_id: branchId,
+          to_branch_id: transferForm.toBranchId,
+          quantity,
+          requested_by: transferForm.requestedBy,
+          notes: transferForm.notes,
+          approval_status: "pending",
+        })
+      })
 
-    if (transferError) {
-      console.error("Error creating transfer:", transferError)
-      return
+      if (!response.ok) {
+        console.error("Error creating transfer")
+        return
+      }
+
+      setShowTransferDialog(false)
+      setTransferForm({ toTankId: "", toBranchId: branchId, quantity: "", notes: "", requestedBy: "" })
+      fetchTanks()
+    } catch (error) {
+      console.error("Error creating transfer:", error)
     }
-
-    setShowTransferDialog(false)
-    setTransferForm({ toTankId: "", toBranchId: branchId, quantity: "", notes: "", requestedBy: "" })
-    fetchTanks()
   }
 
   const handleAddTank = async () => {
     if (!branchId) return
 
-    const { error } = await supabase.from("tanks").insert({
-      branch_id: branchId,
-      tank_name: newTankForm.tankName,
-      fuel_type: newTankForm.fuelType,
-      capacity: Number.parseFloat(newTankForm.capacity),
-      current_stock: Number.parseFloat(newTankForm.initialStock || "0"),
-      status: "active",
-    })
+    try {
+      const response = await fetch('/api/tanks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branch_id: branchId,
+          tank_name: newTankForm.tankName,
+          fuel_type: newTankForm.fuelType,
+          capacity: Number.parseFloat(newTankForm.capacity),
+          current_stock: Number.parseFloat(newTankForm.initialStock || "0"),
+          status: "active",
+        })
+      })
 
-    if (!error) {
-      toast.success(`Tank ${newTankForm.tankName} added successfully`)
-      setShowAddTankDialog(false)
-      setNewTankForm({ tankName: "", fuelType: "Petrol", capacity: "", initialStock: "" })
-      fetchTanks()
-    } else {
+      if (response.ok) {
+        toast.success(`Tank ${newTankForm.tankName} added successfully`)
+        setShowAddTankDialog(false)
+        setNewTankForm({ tankName: "", fuelType: "Petrol", capacity: "", initialStock: "" })
+        fetchTanks()
+      } else {
+        console.error("Error adding tank")
+        toast.error("Failed to add tank")
+      }
+    } catch (error) {
       console.error("Error adding tank:", error)
       toast.error("Failed to add tank")
     }
@@ -234,48 +276,40 @@ export default function TankManagement({ branchId }: { branchId: string | null }
   const handleAddDispenser = async () => {
     if (!selectedTankForDispenser) return
 
-    console.log("[v0] Starting to add dispenser for branch:", branchId)
+    try {
+      const dispensersRes = await fetch(`/api/dispensers?branch_id=${branchId}`)
+      const dispensersResult = await dispensersRes.json()
+      const existingDispensers = dispensersResult.success ? dispensersResult.data : []
+      
+      const dispenserNumbers = (existingDispensers || []).map((d: any) => Number(d.dispenser_number) || 0)
+      const maxNumber = dispenserNumbers.length > 0 ? Math.max(...dispenserNumbers) : 0
+      const nextDispenserNumber = maxNumber + 1
 
-    // Fetch all existing dispensers for this branch
-    const { data: existingDispensers, error: fetchError } = await supabase
-      .from("dispensers")
-      .select("*")
-      .eq("branch_id", branchId)
+      const selectedTank = tanks.find((t) => t.id === selectedTankForDispenser)
+      const fuelType = selectedTank?.fuel_type || "Petrol"
 
-    if (fetchError) {
-      console.error("[v0] Error fetching dispensers:", fetchError)
-      toast.error("Failed to fetch existing dispensers")
-      return
-    }
+      const response = await fetch('/api/dispensers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branch_id: branchId,
+          dispenser_number: nextDispenserNumber,
+          fuel_type: fuelType,
+          status: "active",
+        })
+      })
 
-    console.log("[v0] Existing dispensers:", existingDispensers)
-    
-    // Find the highest dispenser number manually
-    const dispenserNumbers = (existingDispensers || []).map((d: any) => Number(d.dispenser_number) || 0)
-    const maxNumber = dispenserNumbers.length > 0 ? Math.max(...dispenserNumbers) : 0
-    const nextDispenserNumber = maxNumber + 1
-    console.log("[v0] Next dispenser number:", nextDispenserNumber)
-
-    // Get fuel type from the selected tank
-    const selectedTank = tanks.find((t) => t.id === selectedTankForDispenser)
-    const fuelType = selectedTank?.fuel_type || "Petrol"
-
-    const { error } = await supabase.from("dispensers").insert({
-      branch_id: branchId,
-      dispenser_number: nextDispenserNumber,
-      fuel_type: fuelType,
-      status: "active",
-    })
-
-    if (!error) {
-      console.log("[v0] Dispenser added successfully:", nextDispenserNumber)
-      toast.success(`Dispenser ${nextDispenserNumber} added successfully`)
-      setShowAddDispenserDialog(false)
-      setNewDispenserForm({ dispenserNumber: "" })
-      setSelectedTankForDispenser(null)
-      fetchTanks()
-    } else {
-      console.error("[v0] Error adding dispenser:", error)
+      if (response.ok) {
+        toast.success(`Dispenser ${nextDispenserNumber} added successfully`)
+        setShowAddDispenserDialog(false)
+        setNewDispenserForm({ dispenserNumber: "" })
+        setSelectedTankForDispenser(null)
+        fetchTanks()
+      } else {
+        toast.error("Failed to add dispenser")
+      }
+    } catch (error) {
+      console.error("Error adding dispenser:", error)
       toast.error("Failed to add dispenser")
     }
   }

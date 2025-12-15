@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Download, Upload, Loader2 } from "lucide-react"
 import { generateGlobalShiftCloseTemplate } from "@/lib/excel-templates"
 import { toast } from "sonner"
-import { createClient } from "@/lib/supabase/client"
 
 interface GlobalShiftUploadDialogProps {
   open: boolean
@@ -29,14 +28,19 @@ export function GlobalShiftUploadDialog({ open, onOpenChange }: GlobalShiftUploa
   }, [open])
 
   const fetchBranches = async () => {
-    const supabase = createClient()
-    const { data, error } = await supabase.from("branches").select("name").eq("status", "active")
+    try {
+      const response = await fetch('/api/branches?status=active')
+      const result = await response.json()
 
-    if (error) {
+      if (!result.success) {
+        console.error("Error fetching branches:", result.error)
+        toast.error("Failed to fetch branches")
+      } else {
+        setBranches(result.data || [])
+      }
+    } catch (error) {
       console.error("Error fetching branches:", error)
       toast.error("Failed to fetch branches")
-    } else {
-      setBranches(data || [])
     }
   }
 
