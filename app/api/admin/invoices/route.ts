@@ -54,7 +54,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Vendor is required" }, { status: 400 })
     }
 
-    const invoiceNumber = `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
+    const year = new Date().getFullYear()
+    const lastInvoiceResult = await query(
+      `SELECT invoice_number FROM invoices 
+       WHERE invoice_number LIKE $1 
+       ORDER BY invoice_number DESC LIMIT 1`,
+      [`INV-${year}-%`]
+    )
+    
+    let nextNumber = 1
+    if (lastInvoiceResult.length > 0) {
+      const lastNumber = lastInvoiceResult[0].invoice_number
+      const parts = lastNumber.split('-')
+      if (parts.length === 3) {
+        nextNumber = parseInt(parts[2], 10) + 1
+      }
+    }
+    const invoiceNumber = `INV-${year}-${nextNumber.toString().padStart(4, '0')}`
     
     let subtotal = 0
     if (line_items && Array.isArray(line_items)) {

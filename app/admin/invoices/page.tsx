@@ -169,10 +169,10 @@ export default function InvoicesPage() {
       
       doc.setFontSize(10)
       doc.setTextColor(100, 100, 100)
-      doc.text('Sensile Technologies Ltd', 140, 15)
-      doc.text('P.O. Box 12345, Nairobi', 140, 20)
-      doc.text('Email: info@sensiletechnologies.com', 140, 25)
-      doc.text('Phone: +254 700 000 000', 140, 30)
+      doc.text('Sensile Technologies E.A. Ltd', 140, 15)
+      doc.text('3rd Floor, Mwanzo House, Dunga Close', 140, 20)
+      doc.text('P.O. Box 450-30200', 140, 25)
+      doc.text('Email: sales@sensiletechnologies.com', 140, 30)
       
       doc.setFontSize(24)
       doc.setTextColor(0, 0, 0)
@@ -242,6 +242,42 @@ export default function InvoicesPage() {
         doc.text('Balance Due:', 140, finalY + 49)
         doc.text(formatCurrency(Number(invoice.total_amount) - Number(invoice.paid_amount)), 180, finalY + 49, { align: 'right' })
       }
+      
+      let paymentY = finalY + 55
+      if (Number(invoice.paid_amount) > 0) {
+        paymentY = finalY + 65
+      }
+      
+      doc.setFontSize(11)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(0, 0, 0)
+      doc.text('Payment Details', 14, paymentY)
+      
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(60, 60, 60)
+      
+      const paymentDetails = [
+        ['Account Name:', 'Sensile Technologies E.A. Ltd'],
+        ['Bank:', 'I AND M Bank Ltd'],
+        ['Branch:', 'Panari'],
+        ['Account Number:', '00905309176350'],
+        ['Bank Code:', '57'],
+        ['Branch Code:', '009'],
+        ['Swift Code:', 'IMBLKENAXXX'],
+        ['Currency:', 'KES'],
+        ['M-Pesa Paybill:', '542542'],
+        ['M-Pesa Account:', '00905309176350']
+      ]
+      
+      let detailY = paymentY + 8
+      paymentDetails.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'bold')
+        doc.text(label, 14, detailY)
+        doc.setFont('helvetica', 'normal')
+        doc.text(value, 50, detailY)
+        detailY += 5
+      })
       
       doc.setFontSize(8)
       doc.setTextColor(150, 150, 150)
