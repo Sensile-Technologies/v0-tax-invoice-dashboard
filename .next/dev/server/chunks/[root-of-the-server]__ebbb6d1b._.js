@@ -159,11 +159,38 @@ async function POST(request) {
             vendorId
         ]);
         await client.query('COMMIT');
+        const createdItem = insertResult.rows[0];
+        let kraResult = {
+            success: false,
+            kraResponse: null,
+            message: "KRA submission pending"
+        };
+        try {
+            const kraResponse = await fetch(`${request.nextUrl.origin}/api/kra/items/saveItems`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    itemId: createdItem.id,
+                    branchId: branchId
+                })
+            });
+            kraResult = await kraResponse.json();
+            console.log(`[Items API] KRA submission result for ${itemCode}:`, kraResult);
+        } catch (kraError) {
+            console.error(`[Items API] KRA submission error for ${itemCode}:`, kraError);
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
-            item: insertResult.rows[0],
+            item: createdItem,
             itemCode: itemCode,
-            message: `Item created successfully with code: ${itemCode}`
+            kraSubmission: {
+                success: kraResult.success,
+                status: kraResult.success ? 'success' : 'rejected',
+                response: kraResult.kraResponse
+            },
+            message: `Item created successfully with code: ${itemCode}. KRA submission: ${kraResult.success ? 'Successful' : 'Pending/Rejected'}`
         });
     } catch (error) {
         await client.query('ROLLBACK');

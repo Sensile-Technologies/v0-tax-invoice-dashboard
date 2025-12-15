@@ -158,20 +158,19 @@ export function SalesContent() {
         setFuelPrices(pricesData || [])
       }
 
-      // Fetch active shift
-      const { data: shiftData, error: shiftError } = await supabase
-        .from("shifts")
-        .select("*")
-        .eq("branch_id", branchId)
-        .eq("status", "active")
-        .order("start_time", { ascending: false })
-        .limit(1)
-        .single()
-
-      if (shiftError && shiftError.code !== "PGRST116") {
+      // Fetch active shift via API
+      try {
+        const shiftResponse = await fetch(`/api/shifts?branch_id=${branchId}&status=active`)
+        const shiftResult = await shiftResponse.json()
+        
+        if (shiftResult.success && shiftResult.data) {
+          setCurrentShift(shiftResult.data)
+        } else {
+          setCurrentShift(null)
+        }
+      } catch (shiftError) {
         console.error("Error fetching shift:", shiftError)
-      } else {
-        setCurrentShift(shiftData)
+        setCurrentShift(null)
       }
 
       await fetchSales()
@@ -547,14 +546,20 @@ export function SalesContent() {
         notes: shiftForm.notes || null,
       }
 
-      const { data, error } = await supabase.from("shifts").insert(shiftData).select().single()
+      const response = await fetch('/api/shifts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shiftData)
+      })
+      
+      const result = await response.json()
 
-      if (error) {
-        console.error("Error starting shift:", error)
-        toast.error(`Failed to start shift: ${error.message}`)
+      if (!response.ok || !result.success) {
+        console.error("Error starting shift:", result.error)
+        toast.error(`Failed to start shift: ${result.error || 'Unknown error'}`)
       } else {
         toast.success("Shift started successfully")
-        setCurrentShift(data)
+        setCurrentShift(result.data)
         setShowShiftDialog(false)
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
@@ -580,20 +585,22 @@ export function SalesContent() {
 
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from("shifts")
-        .update({
+      const response = await fetch('/api/shifts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: currentShift.id,
           end_time: new Date().toISOString(),
           status: "completed",
           closing_cash: shiftForm.closing_cash ? Number.parseFloat(shiftForm.closing_cash) : 0,
           notes: shiftForm.notes || null,
         })
-        .eq("id", currentShift.id)
-        .select()
-        .single()
+      })
+      
+      const result = await response.json()
 
-      if (error) {
-        console.error("Error ending shift:", error)
+      if (!response.ok || !result.success) {
+        console.error("Error ending shift:", result.error)
         toast.error("Failed to end shift")
       } else {
         toast.success("Shift ended successfully")
