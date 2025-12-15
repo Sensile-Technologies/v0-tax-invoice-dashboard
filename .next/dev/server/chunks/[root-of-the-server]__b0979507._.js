@@ -138,9 +138,7 @@ __turbopack_context__.s([
     "logKraApiCall",
     ()=>logKraApiCall,
     "syncStockWithKRA",
-    ()=>syncStockWithKRA,
-    "updateTankStock",
-    ()=>updateTankStock
+    ()=>syncStockWithKRA
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/lib/db/index.ts [app-route] (ecmascript) <locals>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/client.ts [app-route] (ecmascript)");
@@ -414,39 +412,6 @@ async function syncStockWithKRA(branchId, movementType, items, options) {
             error: error.message || "Internal error during KRA sync"
         };
     }
-}
-async function updateTankStock(tankId, quantity, operation) {
-    let sql;
-    if (operation === "set") {
-        sql = `
-      UPDATE tanks 
-      SET current_stock = $2, updated_at = NOW() 
-      WHERE id = $1 
-      RETURNING (SELECT current_stock FROM tanks WHERE id = $1) as previous_stock, current_stock as new_stock
-    `;
-    } else if (operation === "add") {
-        sql = `
-      UPDATE tanks 
-      SET current_stock = COALESCE(current_stock, 0) + $2, updated_at = NOW() 
-      WHERE id = $1 
-      RETURNING (current_stock - $2) as previous_stock, current_stock as new_stock
-    `;
-    } else {
-        sql = `
-      UPDATE tanks 
-      SET current_stock = GREATEST(0, COALESCE(current_stock, 0) - $2), updated_at = NOW() 
-      WHERE id = $1 
-      RETURNING (current_stock + $2) as previous_stock, current_stock as new_stock
-    `;
-    }
-    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, [
-        tankId,
-        quantity
-    ]);
-    return {
-        previousStock: result[0]?.previous_stock || 0,
-        newStock: result[0]?.new_stock || 0
-    };
 }
 __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
