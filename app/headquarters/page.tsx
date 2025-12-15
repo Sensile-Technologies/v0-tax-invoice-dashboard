@@ -172,12 +172,9 @@ export default function HeadquartersPage() {
     manager: "",
     phone: "",
     email: "",
-    bhf_id: "",
     address: "",
     county: "",
     localTaxOffice: "",
-    token: "", // Renamed from token to device_token for clarity in form state
-    bhfId: "",
     hardwareType: "",
     serialNumber: "",
     storageIndices: [] as string[],
@@ -209,11 +206,8 @@ export default function HeadquartersPage() {
       email: "",
       phone: "",
       address: "",
-      description: "",
       county: "",
       localTaxOffice: "",
-      token: "",
-      bhfId: "",
       hardwareType: "",
       serialNumber: "",
       storageIndices: [],
@@ -228,10 +222,9 @@ export default function HeadquartersPage() {
       !branchForm.name ||
       !branchForm.location ||
       !branchForm.county ||
-      !branchForm.localTaxOffice ||
-      !branchForm.bhfId
+      !branchForm.localTaxOffice
     ) {
-      alert("Please fill in all required fields (Branch Name, Location, County, Local Tax Office, BHF ID)")
+      alert("Please fill in all required fields (Branch Name, Location, County, Local Tax Office)")
       return
     }
 
@@ -248,8 +241,6 @@ export default function HeadquartersPage() {
           phone: branchForm.phone,
           status: "active",
           storage_indices: branchForm.storageIndices,
-          bhf_id: branchForm.bhfId,
-          device_token: branchForm.token,
           county: branchForm.county,
           address: branchForm.address,
           local_tax_office: branchForm.localTaxOffice,
@@ -390,11 +381,8 @@ export default function HeadquartersPage() {
         email: "",
         phone: "",
         address: "",
-        description: "",
         county: "",
         localTaxOffice: "",
-        token: "",
-        bhfId: "",
         hardwareType: "",
         serialNumber: "",
         storageIndices: [],
@@ -421,12 +409,12 @@ export default function HeadquartersPage() {
       email: branch.email || "",
       phone: branch.phone || "",
       address: branch.address || "",
-      description: branch.description || "",
       county: branch.county || "",
       localTaxOffice: branch.local_tax_office || "",
-      bhfId: branch.bhf_id || "",
-      token: branch.device_token || "",
+      hardwareType: "",
+      serialNumber: "",
       storageIndices: branch.storage_indices || [],
+      newStorageIndex: "",
       tankConfig: branch.tank_config || {},
     })
     setEditBranchOpen(true)
@@ -440,11 +428,10 @@ export default function HeadquartersPage() {
     if (
       !branchForm.name ||
       !branchForm.location ||
-      !branchForm.bhfId ||
       !branchForm.county ||
       !branchForm.localTaxOffice
     ) {
-      alert("Please fill in all required fields (Branch Name, Location, BHF ID, County, Local Tax Office)")
+      alert("Please fill in all required fields (Branch Name, Location, County, Local Tax Office)")
       return
     }
 
@@ -459,11 +446,8 @@ export default function HeadquartersPage() {
           email: branchForm.email,
           phone: branchForm.phone,
           address: branchForm.address,
-          description: branchForm.description,
           county: branchForm.county,
           localTaxOffice: branchForm.localTaxOffice,
-          bhfId: branchForm.bhfId,
-          device_token: branchForm.token,
           storageIndices: branchForm.storageIndices,
           tankConfig: branchForm.tankConfig,
         }),
@@ -885,16 +869,6 @@ export default function HeadquartersPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="bhf-id">BHF ID *</Label>
-                <Input
-                  id="bhf-id"
-                  placeholder="e.g., BHF-MB-001"
-                  value={branchForm.bhfId}
-                  onChange={(e) => setBranchForm({ ...branchForm, bhfId: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="address">Physical Address</Label>
                 <Input
                   id="address"
@@ -998,23 +972,6 @@ export default function HeadquartersPage() {
               </div>
             </div>
 
-            <div className="space-y-4 border-t pt-4">
-              <h3 className="text-lg font-semibold">Device Initialization</h3>
-              <div className="space-y-2">
-                <Label htmlFor="token">Device Token</Label>
-                <Input
-                  id="token"
-                  placeholder="Enter device authentication token"
-                  value={branchForm.token}
-                  onChange={(e) => setBranchForm({ ...branchForm, token: e.target.value })}
-                  className="rounded-xl"
-                  type="password"
-                />
-                <p className="text-xs text-gray-600">
-                  This token will be used to authenticate the device with the tax authority system
-                </p>
-              </div>
-            </div>
 
             <div className="space-y-4 border-t pt-4">
               <h3 className="text-lg font-semibold">Storage Indices</h3>

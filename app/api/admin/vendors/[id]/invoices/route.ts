@@ -15,7 +15,14 @@ export async function GET(
       ORDER BY created_at DESC
     `, [id])
 
-    return NextResponse.json(result.rows)
+    const invoices = result.rows.map((row: any) => ({
+      ...row,
+      due_date: row.due_date ? row.due_date.toISOString() : null,
+      total_amount: row.total_amount ? Number(row.total_amount) : 0,
+      paid_amount: row.paid_amount ? Number(row.paid_amount) : 0,
+    }))
+
+    return NextResponse.json(invoices)
   } catch (error) {
     console.error("Error fetching vendor invoices:", error)
     return NextResponse.json({ error: "Failed to fetch invoices" }, { status: 500 })

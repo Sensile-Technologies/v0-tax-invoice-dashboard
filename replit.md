@@ -46,6 +46,13 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-15: Branch Form Cleanup & JSON Fixes
+  - Removed BHF ID and Device Token fields from Create New Branch form (these are set during onboarding)
+  - Fixed storage_indices JSON serialization - now properly stringified before database insert
+  - Fixed vendor invoices API JSON serialization - properly converts Date and Decimal types
+  - Updated branch form validation to no longer require BHF ID
+  - Cleaned up branchForm state to remove unused fields (bhf_id, token, bhfId, description)
+
 - 2024-12-15: Branch Security & Admin Invoice Fixes
   - Fixed critical branch security issue - users now only see branches from their own vendor
   - Added 3-tier vendor lookup: user email → vendor email, staff → branch → vendor, staff branches only
