@@ -537,6 +537,17 @@ export default function InvoicesPage() {
                         )}
                       </div>
                       <div className="flex gap-2">
+                        {invoice.status === "draft" && (
+                          <Link href={`/admin/invoices/${invoice.id}/edit`}>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              title="Edit Invoice"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                        )}
                         <Button
                           variant="outline"
                           size="sm"
