@@ -36,9 +36,10 @@ export async function POST(request: Request) {
           
           if (phoneDigits.length >= 9 && passwordDigits.length >= 9 && phoneDigits === passwordDigits) {
             const token = crypto.randomUUID()
-            return NextResponse.json({
+            const refreshToken = crypto.randomUUID()
+            const response = NextResponse.json({
               access_token: token,
-              refresh_token: crypto.randomUUID(),
+              refresh_token: refreshToken,
               user: {
                 id: salesPerson.id,
                 email: salesPerson.email,
@@ -48,6 +49,21 @@ export async function POST(request: Request) {
                 sales_person_name: salesPerson.name
               }
             })
+            response.cookies.set('sb-access-token', token, {
+              path: '/',
+              maxAge: 60 * 60 * 24 * 7,
+              sameSite: 'none',
+              secure: true,
+              httpOnly: false
+            })
+            response.cookies.set('sb-refresh-token', refreshToken, {
+              path: '/',
+              maxAge: 60 * 60 * 24 * 30,
+              sameSite: 'none',
+              secure: true,
+              httpOnly: false
+            })
+            return response
           }
         }
       }
@@ -104,10 +120,11 @@ export async function POST(request: Request) {
       }
 
       const token = crypto.randomUUID()
+      const refreshToken = crypto.randomUUID()
 
-      return NextResponse.json({
+      const response = NextResponse.json({
         access_token: token,
-        refresh_token: crypto.randomUUID(),
+        refresh_token: refreshToken,
         user: {
           id: user.id,
           email: user.email,
@@ -119,6 +136,23 @@ export async function POST(request: Request) {
           branch_name: user.branch_name
         }
       })
+      
+      response.cookies.set('sb-access-token', token, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+        sameSite: 'none',
+        secure: true,
+        httpOnly: false
+      })
+      response.cookies.set('sb-refresh-token', refreshToken, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: 'none',
+        secure: true,
+        httpOnly: false
+      })
+      
+      return response
     } finally {
       client.release()
     }
