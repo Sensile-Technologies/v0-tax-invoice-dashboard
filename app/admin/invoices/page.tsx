@@ -458,7 +458,22 @@ export default function InvoicesPage() {
     i.merchant_name?.toLowerCase().includes(search.toLowerCase())
   )
 
-  const pendingInvoices = invoices.filter(i => i.status === "pending" || i.status === "partial")
+  const unpaidInvoices = invoices.filter(i => i.status !== "paid" && i.status !== "cancelled")
+
+  const handleUpdateStatus = async (invoice: Invoice, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/admin/invoices/${invoice.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+      })
+      if (!response.ok) throw new Error("Failed to update status")
+      toast.success(`Invoice status updated to ${newStatus}`)
+      fetchInvoices()
+    } catch (error) {
+      toast.error("Failed to update invoice status")
+    }
+  }
 
   if (loading) {
     return (
@@ -617,6 +632,52 @@ export default function InvoicesPage() {
                         >
                           <DollarSign className="h-4 w-4" />
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" title="Change Status">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => handleUpdateStatus(invoice, "draft")}
+                              disabled={invoice.status === "draft"}
+                            >
+                              Draft
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleUpdateStatus(invoice, "pending")}
+                              disabled={invoice.status === "pending"}
+                            >
+                              Pending
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleUpdateStatus(invoice, "partial")}
+                              disabled={invoice.status === "partial"}
+                            >
+                              Partial
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleUpdateStatus(invoice, "paid")}
+                              disabled={invoice.status === "paid"}
+                            >
+                              Paid
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleUpdateStatus(invoice, "overdue")}
+                              disabled={invoice.status === "overdue"}
+                            >
+                              Overdue
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleUpdateStatus(invoice, "cancelled")}
+                              disabled={invoice.status === "cancelled"}
+                              className="text-red-600"
+                            >
+                              Cancelled
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </div>
@@ -642,132 +703,10 @@ export default function InvoicesPage() {
                 className="pl-10"
               />
             </div>
-            <Dialog open={paymentDialogOpen} onOpenChange={(open) => {
-              setPaymentDialogOpen(open)
-              if (!open) resetPaymentForm()
-            }}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Record Payment
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Record Payment</DialogTitle>
-                  <DialogDescription>Add a payment for an invoice</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label>Invoice</Label>
-                    <Select
-                      value={newPayment.invoice_id}
-                      onValueChange={(v) => {
-                        const inv = pendingInvoices.find(i => i.id === v)
-                        setSelectedInvoice(inv || null)
-                        setNewPayment({
-                          ...newPayment,
-                          invoice_id: v,
-                          amount: inv ? Number(inv.total_amount) - Number(inv.paid_amount || 0) : 0
-                        })
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select invoice" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {pendingInvoices.map((inv) => (
-                          <SelectItem key={inv.id} value={inv.id}>
-                            {inv.invoice_number} - {inv.merchant_name} ({formatCurrency(Number(inv.total_amount) - Number(inv.paid_amount || 0))} due)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedInvoice && (
-                    <div className="p-3 bg-slate-50 rounded-lg text-sm">
-                      <div className="flex justify-between">
-                        <span>Total Amount:</span>
-                        <span className="font-medium">{formatCurrency(Number(selectedInvoice.total_amount))}</span>
-                      </div>
-                      <div className="flex justify-between text-green-600">
-                        <span>Paid:</span>
-                        <span className="font-medium">{formatCurrency(Number(selectedInvoice.paid_amount || 0))}</span>
-                      </div>
-                      <div className="flex justify-between font-bold border-t pt-2 mt-2">
-                        <span>Balance Due:</span>
-                        <span>{formatCurrency(Number(selectedInvoice.total_amount) - Number(selectedInvoice.paid_amount || 0))}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Amount</Label>
-                      <Input
-                        type="number"
-                        value={newPayment.amount}
-                        onChange={(e) => setNewPayment({ ...newPayment, amount: Number(e.target.value) })}
-                        min={0}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Payment Date</Label>
-                      <Input
-                        type="date"
-                        value={newPayment.payment_date}
-                        onChange={(e) => setNewPayment({ ...newPayment, payment_date: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Payment Method</Label>
-                      <Select
-                        value={newPayment.payment_method}
-                        onValueChange={(v) => setNewPayment({ ...newPayment, payment_method: v })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                          <SelectItem value="mobile_money">Mobile Money</SelectItem>
-                          <SelectItem value="cash">Cash</SelectItem>
-                          <SelectItem value="cheque">Cheque</SelectItem>
-                          <SelectItem value="card">Card</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Reference Number</Label>
-                      <Input
-                        value={newPayment.reference_number}
-                        onChange={(e) => setNewPayment({ ...newPayment, reference_number: e.target.value })}
-                        placeholder="Transaction ID / Receipt #"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea
-                      value={newPayment.notes}
-                      onChange={(e) => setNewPayment({ ...newPayment, notes: e.target.value })}
-                      placeholder="Additional notes..."
-                      rows={2}
-                    />
-                  </div>
-
-                  <Button onClick={handleRecordPayment} className="w-full">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Record Payment
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button onClick={() => setPaymentDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Record Payment
+            </Button>
           </div>
 
           <div className="space-y-4">
@@ -962,6 +901,127 @@ export default function InvoicesPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={paymentDialogOpen} onOpenChange={(open) => {
+        setPaymentDialogOpen(open)
+        if (!open) resetPaymentForm()
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Record Payment</DialogTitle>
+            <DialogDescription>Add a payment for an invoice</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Invoice</Label>
+              <Select
+                value={newPayment.invoice_id}
+                onValueChange={(v) => {
+                  const inv = unpaidInvoices.find(i => i.id === v)
+                  setSelectedInvoice(inv || null)
+                  setNewPayment({
+                    ...newPayment,
+                    invoice_id: v,
+                    amount: inv ? Number(inv.total_amount) - Number(inv.paid_amount || 0) : 0
+                  })
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select invoice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {unpaidInvoices.map((inv) => (
+                    <SelectItem key={inv.id} value={inv.id}>
+                      {inv.invoice_number} - {inv.merchant_name} ({formatCurrency(Number(inv.total_amount) - Number(inv.paid_amount || 0))} due)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedInvoice && (
+              <div className="p-3 bg-slate-50 rounded-lg text-sm">
+                <div className="flex justify-between">
+                  <span>Total Amount:</span>
+                  <span className="font-medium">{formatCurrency(Number(selectedInvoice.total_amount))}</span>
+                </div>
+                <div className="flex justify-between text-green-600">
+                  <span>Paid:</span>
+                  <span className="font-medium">{formatCurrency(Number(selectedInvoice.paid_amount || 0))}</span>
+                </div>
+                <div className="flex justify-between font-bold border-t pt-2 mt-2">
+                  <span>Balance Due:</span>
+                  <span>{formatCurrency(Number(selectedInvoice.total_amount) - Number(selectedInvoice.paid_amount || 0))}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Amount</Label>
+                <Input
+                  type="number"
+                  value={newPayment.amount}
+                  onChange={(e) => setNewPayment({ ...newPayment, amount: Number(e.target.value) })}
+                  min={0}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Payment Date</Label>
+                <Input
+                  type="date"
+                  value={newPayment.payment_date}
+                  onChange={(e) => setNewPayment({ ...newPayment, payment_date: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Payment Method</Label>
+                <Select
+                  value={newPayment.payment_method}
+                  onValueChange={(v) => setNewPayment({ ...newPayment, payment_method: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                    <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="cheque">Cheque</SelectItem>
+                    <SelectItem value="card">Card</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Reference Number</Label>
+                <Input
+                  value={newPayment.reference_number}
+                  onChange={(e) => setNewPayment({ ...newPayment, reference_number: e.target.value })}
+                  placeholder="Transaction ID / Receipt #"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Textarea
+                value={newPayment.notes}
+                onChange={(e) => setNewPayment({ ...newPayment, notes: e.target.value })}
+                placeholder="Additional notes..."
+                rows={2}
+              />
+            </div>
+
+            <Button onClick={handleRecordPayment} className="w-full">
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Record Payment
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -37,6 +37,29 @@ export async function GET(
   }
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const body = await request.json()
+    const { status } = body
+
+    if (!status || !['draft', 'pending', 'partial', 'paid', 'overdue', 'cancelled'].includes(status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 })
+    }
+
+    await query(`UPDATE invoices SET status = $1 WHERE id = $2`, [status, id])
+
+    const updated = await query(`SELECT * FROM invoices WHERE id = $1`, [id])
+    return NextResponse.json(updated[0])
+  } catch (error) {
+    console.error("Error updating invoice status:", error)
+    return NextResponse.json({ error: "Failed to update status" }, { status: 500 })
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
