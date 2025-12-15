@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
-import { submitItemToKra } from "@/lib/kra-items-api"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -137,26 +136,22 @@ export async function POST(request: NextRequest) {
 
     const createdItem = insertResult.rows[0]
 
-    const kraResult = await submitItemToKra({
-      id: createdItem.id,
-      item_code: itemCode,
-      item_name: itemName,
-      item_type: itemType,
-      class_code: classCode,
-      origin: origin,
-      package_unit: packageUnit,
-      quantity_unit: quantityUnit,
-      tax_type: taxType,
-      batch_number: batchNumber,
-      sku: sku,
-      sale_price: salePrice || 0,
-      purchase_price: purchasePrice || 0,
-      status: 'active',
-      vendor_id: vendorId,
-      branch_id: branchId
-    })
-
-    console.log(`[Items API] KRA submission result for ${itemCode}:`, kraResult)
+    let kraResult = { success: false, kraResponse: null as any, message: "KRA submission pending" }
+    
+    try {
+      const kraResponse = await fetch(`${request.nextUrl.origin}/api/kra/items/saveItems`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemId: createdItem.id,
+          branchId: branchId
+        })
+      })
+      kraResult = await kraResponse.json()
+      console.log(`[Items API] KRA submission result for ${itemCode}:`, kraResult)
+    } catch (kraError) {
+      console.error(`[Items API] KRA submission error for ${itemCode}:`, kraError)
+    }
 
     return NextResponse.json({
       success: true,

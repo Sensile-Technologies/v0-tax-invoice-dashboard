@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { resendItemToKra } from "@/lib/kra-items-api"
+import { query } from "@/lib/db"
 
 export async function POST(
   request: NextRequest,
@@ -15,19 +15,43 @@ export async function POST(
       )
     }
 
-    console.log(`[Items API] Resending item ${id} to KRA`)
+    const itemResult = await query(`
+      SELECT id, branch_id FROM items WHERE id = $1
+    `, [id])
 
-    const result = await resendItemToKra(id)
+    if (itemResult.length === 0) {
+      return NextResponse.json(
+        { error: "Item not found" },
+        { status: 404 }
+      )
+    }
 
-    console.log(`[Items API] KRA resend result for ${id}:`, result)
+    const item = itemResult[0]
 
-    return NextResponse.json({
-      success: result.success,
-      kraResponse: result.kraResponse,
-      message: result.success 
-        ? "Item successfully submitted to KRA" 
-        : `KRA submission failed: ${result.error || result.kraResponse?.resultMsg || 'Unknown error'}`
+    if (!item.branch_id) {
+      return NextResponse.json(
+        { error: "Item does not have a branch assigned" },
+        { status: 400 }
+      )
+    }
+
+    console.log(`[Items API] Resending item ${id} to KRA via middleware`)
+
+    const baseUrl = request.nextUrl.origin
+    const response = await fetch(`${baseUrl}/api/kra/items/saveItems`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itemId: id,
+        branchId: item.branch_id
+      })
     })
+
+    const result = await response.json()
+
+    console.log(`[Items API] KRA middleware result for ${id}:`, result)
+
+    return NextResponse.json(result)
 
   } catch (error: any) {
     console.error("Error resending item to KRA:", error)
