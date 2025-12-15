@@ -24,6 +24,8 @@ export default function AddItemPage() {
   const [originCodes, setOriginCodes] = useState<CodelistItem[]>([])
   const [taxTypeCodes, setTaxTypeCodes] = useState<CodelistItem[]>([])
   const [itemTypeCodes, setItemTypeCodes] = useState<CodelistItem[]>([])
+  const [quantityUnitCodes, setQuantityUnitCodes] = useState<CodelistItem[]>([])
+  const [packageUnitCodes, setPackageUnitCodes] = useState<CodelistItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -37,8 +39,12 @@ export default function AddItemPage() {
           setOriginCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "05" && item.use_yn === "Y"))
           // cd_cls 04 = Tax Type codes
           setTaxTypeCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "04" && item.use_yn === "Y"))
-          // cd_cls 17 = Item Type codes
-          setItemTypeCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "17" && item.use_yn === "Y"))
+          // cd_cls 24 = Item Type codes
+          setItemTypeCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "24" && item.use_yn === "Y"))
+          // cd_cls 10 = Quantity Unit (UoM) codes
+          setQuantityUnitCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "10" && item.use_yn === "Y"))
+          // cd_cls 17 = Package Unit codes
+          setPackageUnitCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "17" && item.use_yn === "Y"))
         }
       } catch (error) {
         console.error("Failed to fetch codelists:", error)
@@ -194,6 +200,56 @@ export default function AddItemPage() {
                               <SelectItem value="B">B - 16% VAT</SelectItem>
                               <SelectItem value="C">C - Zero Rated</SelectItem>
                               <SelectItem value="D">D - Non-VAT</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="quantityUnit">Quantity Unit (UoM) *</Label>
+                      <Select>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder={loading ? "Loading..." : "Select quantity unit"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {quantityUnitCodes.length > 0 ? (
+                            quantityUnitCodes.map((item) => (
+                              <SelectItem key={item.cd} value={item.cd}>
+                                {item.cd} - {item.cd_nm}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="BA">BA - Barrel</SelectItem>
+                              <SelectItem value="KG">KG - Kilogram</SelectItem>
+                              <SelectItem value="LT">LT - Litre</SelectItem>
+                              <SelectItem value="U">U - Unit</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="packageUnit">Package Unit *</Label>
+                      <Select>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder={loading ? "Loading..." : "Select package unit"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {packageUnitCodes.length > 0 ? (
+                            packageUnitCodes.map((item) => (
+                              <SelectItem key={item.cd} value={item.cd}>
+                                {item.cd} - {item.cd_nm}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="BG">BG - Bag</SelectItem>
+                              <SelectItem value="BT">BT - Bottle</SelectItem>
+                              <SelectItem value="CT">CT - Carton</SelectItem>
+                              <SelectItem value="NT">NT - Net</SelectItem>
                             </>
                           )}
                         </SelectContent>
