@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Search } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 
 interface CodelistItem {
   cd_cls: string
@@ -37,10 +37,16 @@ export default function AddItemPage() {
   const [classificationCodes, setClassificationCodes] = useState<ClassificationItem[]>([])
   const [loading, setLoading] = useState(true)
 
+  const [selectedOrigin, setSelectedOrigin] = useState("")
+  const [selectedTaxType, setSelectedTaxType] = useState("")
+  const [selectedItemType, setSelectedItemType] = useState("")
+  const [selectedQuantityUnit, setSelectedQuantityUnit] = useState("")
+  const [selectedPackageUnit, setSelectedPackageUnit] = useState("")
+  const [selectedClassCode, setSelectedClassCode] = useState("")
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch codelists and classifications in parallel
         const [codelistResponse, classificationsResponse] = await Promise.all([
           fetch("/api/kra/saved-data?type=codelist"),
           fetch("/api/kra/saved-data?type=classifications")
@@ -50,15 +56,10 @@ export default function AddItemPage() {
         const classificationsResult = await classificationsResponse.json()
         
         if (codelistResult.data) {
-          // cd_cls 05 = Country codes (Origin)
           setOriginCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "05"))
-          // cd_cls 04 = Tax Type codes
           setTaxTypeCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "04"))
-          // cd_cls 24 = Item Type codes
           setItemTypeCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "24"))
-          // cd_cls 10 = Quantity Unit (UoM) codes
           setQuantityUnitCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "10"))
-          // cd_cls 17 = Package Unit codes
           setPackageUnitCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "17"))
         }
         
@@ -74,6 +75,36 @@ export default function AddItemPage() {
     
     fetchData()
   }, [])
+
+  const originOptions = originCodes.map(item => ({
+    value: item.cd,
+    label: `${item.cd} - ${item.cd_nm}`
+  }))
+
+  const taxTypeOptions = taxTypeCodes.map(item => ({
+    value: item.cd,
+    label: `${item.cd} - ${item.cd_nm}`
+  }))
+
+  const itemTypeOptions = itemTypeCodes.map(item => ({
+    value: item.cd,
+    label: `${item.cd} - ${item.cd_nm}`
+  }))
+
+  const quantityUnitOptions = quantityUnitCodes.map(item => ({
+    value: item.cd,
+    label: `${item.cd} - ${item.cd_nm}`
+  }))
+
+  const packageUnitOptions = packageUnitCodes.map(item => ({
+    value: item.cd,
+    label: `${item.cd} - ${item.cd_nm}`
+  }))
+
+  const classificationOptions = classificationCodes.map(item => ({
+    value: item.item_cls_cd,
+    label: `${item.item_cls_cd} - ${item.item_cls_nm}`
+  }))
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
@@ -119,27 +150,16 @@ export default function AddItemPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="itemType">Item Type *</Label>
-                      <Select>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder={loading ? "Loading..." : "Select item type"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {itemTypeCodes.length > 0 ? (
-                            itemTypeCodes.map((item) => (
-                              <SelectItem key={item.cd} value={item.cd}>
-                                {item.cd} - {item.cd_nm}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <>
-                              <SelectItem value="1">1 - Raw Material</SelectItem>
-                              <SelectItem value="2">2 - Finished Product</SelectItem>
-                              <SelectItem value="3">3 - Service</SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Label>Item Type *</Label>
+                      <SearchableSelect
+                        options={itemTypeOptions}
+                        value={selectedItemType}
+                        onValueChange={setSelectedItemType}
+                        placeholder={loading ? "Loading..." : "Select item type"}
+                        searchPlaceholder="Search item types..."
+                        emptyMessage="No item types found."
+                        disabled={loading}
+                      />
                     </div>
 
                     <div className="space-y-2">
@@ -172,126 +192,68 @@ export default function AddItemPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="classCode">Class Code *</Label>
-                      <Select>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder={loading ? "Loading..." : "Select item classification"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {classificationCodes.length > 0 ? (
-                            classificationCodes.map((item) => (
-                              <SelectItem key={item.item_cls_cd} value={item.item_cls_cd}>
-                                {item.item_cls_cd} - {item.item_cls_nm}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <>
-                              <SelectItem value="01">01 - General</SelectItem>
-                              <SelectItem value="02">02 - Electronics</SelectItem>
-                              <SelectItem value="03">03 - Services</SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Label>Class Code *</Label>
+                      <SearchableSelect
+                        options={classificationOptions}
+                        value={selectedClassCode}
+                        onValueChange={setSelectedClassCode}
+                        placeholder={loading ? "Loading..." : "Select item classification"}
+                        searchPlaceholder="Search classifications..."
+                        emptyMessage="No classifications found."
+                        disabled={loading}
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="origin">Origin *</Label>
-                      <Select>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder={loading ? "Loading..." : "Select origin country"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {originCodes.length > 0 ? (
-                            originCodes.map((item) => (
-                              <SelectItem key={item.cd} value={item.cd}>
-                                {item.cd} - {item.cd_nm}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <>
-                              <SelectItem value="KE">KE - KENYA</SelectItem>
-                              <SelectItem value="CN">CN - CHINA</SelectItem>
-                              <SelectItem value="US">US - UNITED STATES</SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Label>Origin *</Label>
+                      <SearchableSelect
+                        options={originOptions}
+                        value={selectedOrigin}
+                        onValueChange={setSelectedOrigin}
+                        placeholder={loading ? "Loading..." : "Select origin country"}
+                        searchPlaceholder="Search countries..."
+                        emptyMessage="No countries found."
+                        disabled={loading}
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="taxType">Tax Type *</Label>
-                      <Select>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder={loading ? "Loading..." : "Select tax type"} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {taxTypeCodes.length > 0 ? (
-                            taxTypeCodes.map((item) => (
-                              <SelectItem key={item.cd} value={item.cd}>
-                                {item.cd} - {item.cd_nm}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <>
-                              <SelectItem value="A">A - Exempt</SelectItem>
-                              <SelectItem value="B">B - 16% VAT</SelectItem>
-                              <SelectItem value="C">C - Zero Rated</SelectItem>
-                              <SelectItem value="D">D - Non-VAT</SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Label>Tax Type *</Label>
+                      <SearchableSelect
+                        options={taxTypeOptions}
+                        value={selectedTaxType}
+                        onValueChange={setSelectedTaxType}
+                        placeholder={loading ? "Loading..." : "Select tax type"}
+                        searchPlaceholder="Search tax types..."
+                        emptyMessage="No tax types found."
+                        disabled={loading}
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="quantityUnit">Quantity Unit (UoM) *</Label>
-                      <Select>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder={loading ? "Loading..." : "Select quantity unit"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {quantityUnitCodes.length > 0 ? (
-                            quantityUnitCodes.map((item) => (
-                              <SelectItem key={item.cd} value={item.cd}>
-                                {item.cd} - {item.cd_nm}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <>
-                              <SelectItem value="BA">BA - Barrel</SelectItem>
-                              <SelectItem value="KG">KG - Kilogram</SelectItem>
-                              <SelectItem value="LT">LT - Litre</SelectItem>
-                              <SelectItem value="U">U - Unit</SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Label>Quantity Unit (UoM) *</Label>
+                      <SearchableSelect
+                        options={quantityUnitOptions}
+                        value={selectedQuantityUnit}
+                        onValueChange={setSelectedQuantityUnit}
+                        placeholder={loading ? "Loading..." : "Select quantity unit"}
+                        searchPlaceholder="Search units..."
+                        emptyMessage="No units found."
+                        disabled={loading}
+                      />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="packageUnit">Package Unit *</Label>
-                      <Select>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder={loading ? "Loading..." : "Select package unit"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {packageUnitCodes.length > 0 ? (
-                            packageUnitCodes.map((item) => (
-                              <SelectItem key={item.cd} value={item.cd}>
-                                {item.cd} - {item.cd_nm}
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <>
-                              <SelectItem value="BG">BG - Bag</SelectItem>
-                              <SelectItem value="BT">BT - Bottle</SelectItem>
-                              <SelectItem value="CT">CT - Carton</SelectItem>
-                              <SelectItem value="NT">NT - Net</SelectItem>
-                            </>
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <Label>Package Unit *</Label>
+                      <SearchableSelect
+                        options={packageUnitOptions}
+                        value={selectedPackageUnit}
+                        onValueChange={setSelectedPackageUnit}
+                        placeholder={loading ? "Loading..." : "Select package unit"}
+                        searchPlaceholder="Search package units..."
+                        emptyMessage="No package units found."
+                        disabled={loading}
+                      />
                     </div>
                   </div>
 
