@@ -1,19 +1,11 @@
 {
-  "/api/auth/signin/route": "app/api/auth/signin/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
   "/api/customers/route": "app/api/customers/route.js",
   "/api/dispensers/route": "app/api/dispensers/route.js",
   "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
-  "/api/items/[id]/resend-kra/route": "app/api/items/[id]/resend-kra/route.js",
-  "/api/items/route": "app/api/items/route.js",
-  "/api/logs/route": "app/api/logs/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
-  "/items/page": "app/items/page.js",
-  "/logs/page": "app/logs/page.js",
   "/page": "app/page.js",
-  "/sales/page": "app/sales/page.js",
-  "/sales/summary/page": "app/sales/summary/page.js"
+  "/sales/page": "app/sales/page.js"
 }

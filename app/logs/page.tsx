@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { RefreshCw, Trash2, Download, Filter } from "lucide-react"
+import { RefreshCw, Trash2, Download, Filter, Building2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -22,19 +22,46 @@ interface ApiLog {
   duration_ms: number
   created_at: string
   user_agent: string | null
+  branch_id: string | null
+}
+
+interface Branch {
+  id: string
+  name: string
 }
 
 export default function LogsPage() {
   const [logs, setLogs] = useState<ApiLog[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("all")
+  const [branchFilter, setBranchFilter] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedLog, setSelectedLog] = useState<ApiLog | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  const fetchBranches = async () => {
+    try {
+      const userStr = localStorage.getItem("flow360_user")
+      if (userStr) {
+        const user = JSON.parse(userStr)
+        const response = await fetch(`/api/branches/list?user_id=${user.id}`)
+        const data = await response.json()
+        setBranches(data.branches || [])
+      }
+    } catch (error) {
+      console.error("Error fetching branches:", error)
+    }
+  }
 
   const fetchLogs = async () => {
     setLoading(true)
     try {
-      const response = await fetch("/api/logs")
+      const params = new URLSearchParams()
+      if (branchFilter && branchFilter !== "all") {
+        params.append("branch_id", branchFilter)
+      }
+      const response = await fetch(`/api/logs${params.toString() ? '?' + params.toString() : ''}`)
       const data = await response.json()
       setLogs(data.logs || [])
     } catch (error) {
@@ -45,8 +72,12 @@ export default function LogsPage() {
   }
 
   useEffect(() => {
-    fetchLogs()
+    fetchBranches()
   }, [])
+
+  useEffect(() => {
+    fetchLogs()
+  }, [branchFilter])
 
   const filteredLogs = logs.filter((log) => {
     const matchesFilter =
@@ -99,7 +130,7 @@ export default function LogsPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <DashboardSidebar />
+      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
       <div className="flex-1">
         <DashboardHeader />
         <main className="p-6">
@@ -138,6 +169,20 @@ export default function LogsPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
+                <Select value={branchFilter} onValueChange={setBranchFilter}>
+                  <SelectTrigger className="w-[200px]">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Filter by branch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Branches</SelectItem>
+                    {branches.map((branch) => (
+                      <SelectItem key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Select value={filter} onValueChange={setFilter}>
                   <SelectTrigger className="w-[180px]">
                     <Filter className="h-4 w-4 mr-2" />
