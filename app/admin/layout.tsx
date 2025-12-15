@@ -16,7 +16,8 @@ import {
   TrendingUp,
   Bell,
   ShieldAlert,
-  Settings2
+  Settings2,
+  Menu
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -128,7 +129,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <header className="bg-[#0a1628] text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4 md:gap-8">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="md:hidden">
+                  <Button variant="ghost" size="icon" className="text-white hover:bg-slate-700">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  {navItems.map((item) => (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link href={item.href} className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/settings" className="flex items-center gap-2">
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Link href="/admin" className="flex items-center gap-2">
                 <Image 
                   src="/flow360-logo.png" 
@@ -137,7 +162,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   height={32}
                   className="w-8 h-8"
                 />
-                <span className="font-bold text-lg">Flow360 Core</span>
+                <span className="font-bold text-lg hidden sm:inline">Flow360 Core</span>
               </Link>
               <nav className="hidden md:flex items-center gap-1">
                 {navItems.map((item) => (
