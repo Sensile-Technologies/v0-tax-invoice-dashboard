@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,8 +11,44 @@ import { Textarea } from "@/components/ui/textarea"
 import { Search } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+interface CodelistItem {
+  cd_cls: string
+  cd: string
+  cd_nm: string
+  cd_desc?: string
+  use_yn: string
+}
+
 export default function AddItemPage() {
   const [collapsed, setCollapsed] = useState(false)
+  const [originCodes, setOriginCodes] = useState<CodelistItem[]>([])
+  const [taxTypeCodes, setTaxTypeCodes] = useState<CodelistItem[]>([])
+  const [itemTypeCodes, setItemTypeCodes] = useState<CodelistItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchCodelists = async () => {
+      try {
+        const response = await fetch("/api/kra/saved-data?type=codelist")
+        const result = await response.json()
+        
+        if (result.data) {
+          // cd_cls 05 = Country codes (Origin)
+          setOriginCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "05" && item.use_yn === "Y"))
+          // cd_cls 04 = Tax Type codes
+          setTaxTypeCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "04" && item.use_yn === "Y"))
+          // cd_cls 17 = Item Type codes
+          setItemTypeCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "17" && item.use_yn === "Y"))
+        }
+      } catch (error) {
+        console.error("Failed to fetch codelists:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchCodelists()
+  }, [])
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
@@ -61,13 +97,22 @@ export default function AddItemPage() {
                       <Label htmlFor="itemType">Item Type *</Label>
                       <Select>
                         <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Select item type" />
+                          <SelectValue placeholder={loading ? "Loading..." : "Select item type"} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="goods">Goods</SelectItem>
-                          <SelectItem value="service">Service</SelectItem>
-                          <SelectItem value="raw-material">Raw Material</SelectItem>
-                          <SelectItem value="finished-goods">Finished Goods</SelectItem>
+                          {itemTypeCodes.length > 0 ? (
+                            itemTypeCodes.map((item) => (
+                              <SelectItem key={item.cd} value={item.cd}>
+                                {item.cd} - {item.cd_nm}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="1">1 - Raw Material</SelectItem>
+                              <SelectItem value="2">2 - Finished Product</SelectItem>
+                              <SelectItem value="3">3 - Service</SelectItem>
+                            </>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -108,20 +153,49 @@ export default function AddItemPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="origin">Origin *</Label>
-                      <Input id="origin" placeholder="e.g., Kenya, China, USA" className="rounded-xl" required />
+                      <Select>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder={loading ? "Loading..." : "Select origin country"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {originCodes.length > 0 ? (
+                            originCodes.map((item) => (
+                              <SelectItem key={item.cd} value={item.cd}>
+                                {item.cd} - {item.cd_nm}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="KE">KE - KENYA</SelectItem>
+                              <SelectItem value="CN">CN - CHINA</SelectItem>
+                              <SelectItem value="US">US - UNITED STATES</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="taxType">Tax Type *</Label>
                       <Select>
                         <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Select tax type" />
+                          <SelectValue placeholder={loading ? "Loading..." : "Select tax type"} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="A">A - Exempt</SelectItem>
-                          <SelectItem value="B">B - 16% VAT</SelectItem>
-                          <SelectItem value="C">C - Zero Rated</SelectItem>
-                          <SelectItem value="D">D - Non-VAT</SelectItem>
+                          {taxTypeCodes.length > 0 ? (
+                            taxTypeCodes.map((item) => (
+                              <SelectItem key={item.cd} value={item.cd}>
+                                {item.cd} - {item.cd_nm}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="A">A - Exempt</SelectItem>
+                              <SelectItem value="B">B - 16% VAT</SelectItem>
+                              <SelectItem value="C">C - Zero Rated</SelectItem>
+                              <SelectItem value="D">D - Non-VAT</SelectItem>
+                            </>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
