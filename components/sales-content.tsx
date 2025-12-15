@@ -46,6 +46,7 @@ export function SalesContent() {
   const [fuelPrices, setFuelPrices] = useState<any[]>([])
   const [currentShift, setCurrentShift] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
+  const [shiftLoading, setShiftLoading] = useState(false)
   const [showSaleDialog, setShowSaleDialog] = useState(false)
   const [showShiftDialog, setShowShiftDialog] = useState(false)
   const [shiftAction, setShiftAction] = useState<"start" | "end" | null>(null)
@@ -523,13 +524,13 @@ export function SalesContent() {
       return
     }
 
-    setLoading(true)
+    setShiftLoading(true)
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
 
       if (!currentBranch) {
         toast.error("No branch selected. Please select a branch from the header.")
-        setLoading(false)
+        setShiftLoading(false)
         return
       }
 
@@ -573,7 +574,7 @@ export function SalesContent() {
       console.error("Error starting shift:", error)
       toast.error(`Failed to start shift: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
-      setLoading(false)
+      setShiftLoading(false)
     }
   }
 
@@ -583,7 +584,7 @@ export function SalesContent() {
       return
     }
 
-    setLoading(true)
+    setShiftLoading(true)
     try {
       const response = await fetch('/api/shifts', {
         method: 'PATCH',
@@ -618,7 +619,7 @@ export function SalesContent() {
       console.error("Error ending shift:", error)
       toast.error("Failed to end shift")
     } finally {
-      setLoading(false)
+      setShiftLoading(false)
     }
   }
 
@@ -1640,7 +1641,7 @@ export function SalesContent() {
             <Button variant="outline" onClick={() => setShowShiftDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={shiftAction === "start" ? handleStartShift : handleEndShift} disabled={loading}>
+            <Button onClick={shiftAction === "start" ? handleStartShift : handleEndShift} disabled={shiftLoading}>
               {shiftAction === "start" ? "Start Shift" : "End Shift"}
             </Button>
           </DialogFooter>
