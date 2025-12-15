@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { SalesContent } from "@/components/sales-content"
+import { SalesSummaryContent } from "@/components/sales-summary-content"
 
 export default function SalesSummaryPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -18,7 +18,7 @@ export default function SalesSummaryPage() {
 
           <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
             <div className="mx-auto max-w-7xl space-y-6">
-              <SalesContent />
+              <SalesSummaryContent />
 
               <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
                 Powered by <span className="font-semibold text-foreground">Sensile Technologies East Africa Ltd</span>
