@@ -1989,11 +1989,22 @@ function createQueryBuilder(table) {
                     data: pendingInsertData
                 })
             });
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error(`API returned non-JSON response for ${table}:`, text.substring(0, 200));
+                return {
+                    data: null,
+                    error: {
+                        message: `Server error: Expected JSON but received ${contentType || 'unknown content type'}`
+                    }
+                };
+            }
             const result = await response.json();
             if (!response.ok) return {
                 data: null,
                 error: {
-                    message: result.error
+                    message: result.error || 'Unknown error'
                 }
             };
             const data = singleResult ? result[0] || null : result;
@@ -2002,6 +2013,7 @@ function createQueryBuilder(table) {
                 error: null
             };
         } catch (error) {
+            console.error(`Insert error for ${table}:`, error);
             return {
                 data: null,
                 error: {
