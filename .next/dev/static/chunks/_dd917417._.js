@@ -448,11 +448,11 @@ function LoginPage() {
             if (error) throw new Error(error.message || "Login failed");
             if (data.access_token) {
                 if (data.user?.role === "admin") {
-                    router.push("/admin");
+                    window.location.href = "/admin";
                 } else if (data.user?.role === "sales") {
-                    router.push("/admin/sales");
+                    window.location.href = "/admin/sales";
                 } else {
-                    router.push("/");
+                    window.location.href = "/";
                 }
             }
         } catch (error) {
