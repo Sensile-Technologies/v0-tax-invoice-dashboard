@@ -80,7 +80,13 @@ export async function POST(
     const values = rows.map((row, i) =>
       `(${columns.map((_, j) => `$${i * columns.length + j + 1}`).join(', ')})`
     ).join(', ');
-    const sqlParams = rows.flatMap(row => columns.map(col => row[col]));
+    const sqlParams = rows.flatMap(row => columns.map(col => {
+      const value = row[col];
+      if (value !== null && typeof value === 'object') {
+        return JSON.stringify(value);
+      }
+      return value;
+    }));
 
     const sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES ${values} RETURNING *`;
     const result = await query(sql, sqlParams);
@@ -108,7 +114,13 @@ export async function PUT(
 
     const columns = Object.keys(data);
     const setClause = columns.map((col, i) => `${col} = $${i + 1}`).join(', ');
-    const sqlParams = columns.map(col => data[col]);
+    const sqlParams = columns.map(col => {
+      const value = data[col];
+      if (value !== null && typeof value === 'object') {
+        return JSON.stringify(value);
+      }
+      return value;
+    });
 
     let sql = `UPDATE ${table} SET ${setClause}`;
     let paramIndex = sqlParams.length;

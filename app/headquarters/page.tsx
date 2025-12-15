@@ -1065,11 +1065,12 @@ export default function HeadquartersPage() {
                             <Select
                               value={branchForm.tankConfig[index]?.fuelType || "Petrol"}
                               onValueChange={(value) => {
+                                const currentConfig = branchForm.tankConfig[index] || { dispensers: [], initialStock: "", fuelType: "Petrol", tankCapacity: "" }
                                 setBranchForm({
                                   ...branchForm,
                                   tankConfig: {
                                     ...branchForm.tankConfig,
-                                    [index]: { ...branchForm.tankConfig[index], fuelType: value },
+                                    [index]: { ...currentConfig, fuelType: value },
                                   },
                                 })
                               }}
@@ -1095,12 +1096,13 @@ export default function HeadquartersPage() {
                               placeholder="e.g., 10000"
                               value={branchForm.tankConfig[index]?.tankCapacity || ""}
                               onChange={(e) => {
+                                const currentConfig = branchForm.tankConfig[index] || { dispensers: [], initialStock: "", fuelType: "Petrol", tankCapacity: "" }
                                 setBranchForm({
                                   ...branchForm,
                                   tankConfig: {
                                     ...branchForm.tankConfig,
                                     [index]: {
-                                      ...branchForm.tankConfig[index],
+                                      ...currentConfig,
                                       tankCapacity: e.target.value,
                                     },
                                   },
@@ -1115,24 +1117,25 @@ export default function HeadquartersPage() {
                             <div className="flex gap-2">
                               <Input
                                 placeholder="e.g., Dispenser 01"
-                                id={`new-dispenser-${i}`}
+                                id={`new-dispenser-${index}`}
                                 className="rounded-xl"
                               />
                               <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => {
-                                  const input = document.getElementById(`new-dispenser-${i}`) as HTMLInputElement
-                                  const dispenserName = input.value.trim()
+                                  const input = document.getElementById(`new-dispenser-${index}`) as HTMLInputElement
+                                  const dispenserName = input?.value?.trim()
                                   if (dispenserName) {
+                                    const currentConfig = branchForm.tankConfig[index] || { dispensers: [], initialStock: "", fuelType: "Petrol", tankCapacity: "" }
                                     setBranchForm({
                                       ...branchForm,
                                       tankConfig: {
                                         ...branchForm.tankConfig,
                                         [index]: {
-                                          ...branchForm.tankConfig[index],
+                                          ...currentConfig,
                                           dispensers: [
-                                            ...(branchForm.tankConfig[index]?.dispensers || []),
+                                            ...(currentConfig.dispensers || []),
                                             dispenserName,
                                           ],
                                         },
@@ -1165,7 +1168,8 @@ export default function HeadquartersPage() {
                                       <button
                                         type="button"
                                         onClick={() => {
-                                          const dispensers = branchForm.tankConfig[index].dispensers.filter(
+                                          const currentConfig = branchForm.tankConfig[index] || { dispensers: [], initialStock: "", fuelType: "Petrol", tankCapacity: "" }
+                                          const dispensers = currentConfig.dispensers.filter(
                                             (_, idx) => idx !== dIdx,
                                           )
                                           setBranchForm({
@@ -1173,7 +1177,7 @@ export default function HeadquartersPage() {
                                             tankConfig: {
                                               ...branchForm.tankConfig,
                                               [index]: {
-                                                ...branchForm.tankConfig[index],
+                                                ...currentConfig,
                                                 dispensers,
                                               },
                                             },
@@ -1191,19 +1195,20 @@ export default function HeadquartersPage() {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor={`tank-stock-${i}`}>Initial Stock Position (Litres) *</Label>
+                            <Label htmlFor={`tank-stock-${index}`}>Initial Stock Position (Litres) *</Label>
                             <Input
-                              id={`tank-stock-${i}`}
+                              id={`tank-stock-${index}`}
                               type="number"
                               placeholder="e.g., 5000"
                               value={branchForm.tankConfig[index]?.initialStock || ""}
                               onChange={(e) => {
+                                const currentConfig = branchForm.tankConfig[index] || { dispensers: [], initialStock: "", fuelType: "Petrol", tankCapacity: "" }
                                 setBranchForm({
                                   ...branchForm,
                                   tankConfig: {
                                     ...branchForm.tankConfig,
                                     [index]: {
-                                      ...branchForm.tankConfig[index],
+                                      ...currentConfig,
                                       initialStock: e.target.value,
                                     },
                                   },
