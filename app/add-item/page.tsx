@@ -19,6 +19,14 @@ interface CodelistItem {
   use_yn: string
 }
 
+interface ClassificationItem {
+  item_cls_cd: string
+  item_cls_nm: string
+  item_cls_lvl: number
+  tax_ty_cd: string
+  use_yn: string
+}
+
 export default function AddItemPage() {
   const [collapsed, setCollapsed] = useState(false)
   const [originCodes, setOriginCodes] = useState<CodelistItem[]>([])
@@ -26,34 +34,45 @@ export default function AddItemPage() {
   const [itemTypeCodes, setItemTypeCodes] = useState<CodelistItem[]>([])
   const [quantityUnitCodes, setQuantityUnitCodes] = useState<CodelistItem[]>([])
   const [packageUnitCodes, setPackageUnitCodes] = useState<CodelistItem[]>([])
+  const [classificationCodes, setClassificationCodes] = useState<ClassificationItem[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchCodelists = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/kra/saved-data?type=codelist")
-        const result = await response.json()
+        // Fetch codelists and classifications in parallel
+        const [codelistResponse, classificationsResponse] = await Promise.all([
+          fetch("/api/kra/saved-data?type=codelist"),
+          fetch("/api/kra/saved-data?type=classifications")
+        ])
         
-        if (result.data) {
+        const codelistResult = await codelistResponse.json()
+        const classificationsResult = await classificationsResponse.json()
+        
+        if (codelistResult.data) {
           // cd_cls 05 = Country codes (Origin)
-          setOriginCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "05" && item.use_yn === "Y"))
+          setOriginCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "05"))
           // cd_cls 04 = Tax Type codes
-          setTaxTypeCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "04" && item.use_yn === "Y"))
+          setTaxTypeCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "04"))
           // cd_cls 24 = Item Type codes
-          setItemTypeCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "24" && item.use_yn === "Y"))
+          setItemTypeCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "24"))
           // cd_cls 10 = Quantity Unit (UoM) codes
-          setQuantityUnitCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "10" && item.use_yn === "Y"))
+          setQuantityUnitCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "10"))
           // cd_cls 17 = Package Unit codes
-          setPackageUnitCodes(result.data.filter((item: CodelistItem) => item.cd_cls === "17" && item.use_yn === "Y"))
+          setPackageUnitCodes(codelistResult.data.filter((item: CodelistItem) => item.cd_cls === "17"))
+        }
+        
+        if (classificationsResult.data) {
+          setClassificationCodes(classificationsResult.data)
         }
       } catch (error) {
-        console.error("Failed to fetch codelists:", error)
+        console.error("Failed to fetch data:", error)
       } finally {
         setLoading(false)
       }
     }
     
-    fetchCodelists()
+    fetchData()
   }, [])
 
   return (
@@ -153,8 +172,27 @@ export default function AddItemPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="classCode">Class Code</Label>
-                      <Input id="classCode" placeholder="e.g., CLS-001" className="rounded-xl" />
+                      <Label htmlFor="classCode">Class Code *</Label>
+                      <Select>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder={loading ? "Loading..." : "Select item classification"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {classificationCodes.length > 0 ? (
+                            classificationCodes.map((item) => (
+                              <SelectItem key={item.item_cls_cd} value={item.item_cls_cd}>
+                                {item.item_cls_cd} - {item.item_cls_nm}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <>
+                              <SelectItem value="01">01 - General</SelectItem>
+                              <SelectItem value="02">02 - Electronics</SelectItem>
+                              <SelectItem value="03">03 - Services</SelectItem>
+                            </>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="space-y-2">

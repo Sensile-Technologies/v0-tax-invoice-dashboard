@@ -127,7 +127,6 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/lib/db/index.ts [app-route] (ecmascript) <locals>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/client.ts [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/headers.js [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__,
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
@@ -135,58 +134,31 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
 ;
-;
 async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const type = searchParams.get("type");
-        const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
-        const branchId = cookieStore.get("branch_id")?.value;
-        let bhfId = null;
-        if (branchId) {
-            const branchResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("SELECT bhf_id FROM branches WHERE id = $1", [
-                branchId
-            ]);
-            if (branchResult.length > 0) {
-                bhfId = branchResult[0].bhf_id;
-            }
-        }
-        if (!bhfId) {
-            const defaultBranch = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("SELECT bhf_id FROM branches WHERE bhf_id IS NOT NULL AND status = 'active' LIMIT 1");
-            if (defaultBranch.length > 0) {
-                bhfId = defaultBranch[0].bhf_id;
-            }
-        }
         if (type === "codelist") {
-            // First try to get data for the specific branch
-            let result = bhfId ? await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
-             FROM kra_codelists 
-             WHERE bhf_id = $1 
-             ORDER BY cd_cls, cd`, [
-                bhfId
-            ]) : [];
-            // If no data for this branch, get data from any branch (codelists are shared)
-            if (result.length === 0) {
-                result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT ON (cd_cls, cd) cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
-           FROM kra_codelists 
-           ORDER BY cd_cls, cd, updated_at DESC`);
-            }
+            // Codelists are shared across all vendors and branches
+            // Get distinct entries by cd_cls and cd, using the most recent update
+            const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT ON (cd_cls, cd) cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
+         FROM kra_codelists 
+         WHERE use_yn = 'Y'
+         ORDER BY cd_cls, cd, updated_at DESC`);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 data: result,
-                bhf_id: bhfId,
                 source: result.length > 0 ? "database" : "none"
             });
         }
         if (type === "classifications") {
-            const result = bhfId ? await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, use_yn, updated_at 
-             FROM kra_item_classifications 
-             WHERE bhf_id = $1 
-             ORDER BY item_cls_cd`, [
-                bhfId
-            ]) : [];
+            // Item classifications are shared across all vendors and branches
+            // Get distinct entries by item_cls_cd, using the most recent update
+            const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT ON (item_cls_cd) item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, use_yn, updated_at 
+         FROM kra_item_classifications 
+         WHERE use_yn = 'Y'
+         ORDER BY item_cls_cd, updated_at DESC`);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 data: result,
-                bhf_id: bhfId,
                 source: result.length > 0 ? "database" : "none"
             });
         }
