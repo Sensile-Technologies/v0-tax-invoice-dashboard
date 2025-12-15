@@ -62,19 +62,35 @@ export default function AddItemPage() {
   const [selectedClassCode, setSelectedClassCode] = useState("")
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser)
-        setUserData({
-          vendorId: user.vendorId || user.vendor_id,
-          branchId: user.branchId || user.branch_id,
-          bhfId: user.bhfId || user.bhf_id
-        })
-      } catch (e) {
-        console.error("Failed to parse user data:", e)
+    const initUserData = async () => {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser)
+          let vendorId = user.vendorId || user.vendor_id
+          let branchId = user.branchId || user.branch_id
+          let bhfId = user.bhfId || user.bhf_id
+
+          if (!vendorId || !branchId) {
+            const response = await fetch(`/api/auth/session?userId=${user.id}`)
+            const result = await response.json()
+            if (result.success && result.user) {
+              vendorId = result.user.vendor_id
+              branchId = result.user.branch_id
+              bhfId = result.user.bhf_id
+              const updatedUser = { ...user, vendor_id: vendorId, branch_id: branchId, bhf_id: bhfId }
+              localStorage.setItem("user", JSON.stringify(updatedUser))
+            }
+          }
+
+          setUserData({ vendorId, branchId, bhfId })
+        } catch (e) {
+          console.error("Failed to parse user data:", e)
+        }
       }
     }
+
+    initUserData()
 
     const fetchData = async () => {
       try {

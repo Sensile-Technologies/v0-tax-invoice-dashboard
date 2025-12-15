@@ -3190,18 +3190,43 @@ function AddItemPage() {
     const [selectedClassCode, setSelectedClassCode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AddItemPage.useEffect": ()=>{
-            const storedUser = localStorage.getItem("user");
-            if (storedUser) {
-                try {
-                    const user = JSON.parse(storedUser);
-                    setUserData({
-                        vendorId: user.vendorId || user.vendor_id,
-                        branchId: user.branchId || user.branch_id
-                    });
-                } catch (e) {
-                    console.error("Failed to parse user data:", e);
+            const initUserData = {
+                "AddItemPage.useEffect.initUserData": async ()=>{
+                    const storedUser = localStorage.getItem("user");
+                    if (storedUser) {
+                        try {
+                            const user = JSON.parse(storedUser);
+                            let vendorId = user.vendorId || user.vendor_id;
+                            let branchId = user.branchId || user.branch_id;
+                            let bhfId = user.bhfId || user.bhf_id;
+                            if (!vendorId || !branchId) {
+                                const response = await fetch(`/api/auth/session?userId=${user.id}`);
+                                const result = await response.json();
+                                if (result.success && result.user) {
+                                    vendorId = result.user.vendor_id;
+                                    branchId = result.user.branch_id;
+                                    bhfId = result.user.bhf_id;
+                                    const updatedUser = {
+                                        ...user,
+                                        vendor_id: vendorId,
+                                        branch_id: branchId,
+                                        bhf_id: bhfId
+                                    };
+                                    localStorage.setItem("user", JSON.stringify(updatedUser));
+                                }
+                            }
+                            setUserData({
+                                vendorId,
+                                branchId,
+                                bhfId
+                            });
+                        } catch (e) {
+                            console.error("Failed to parse user data:", e);
+                        }
+                    }
                 }
-            }
+            }["AddItemPage.useEffect.initUserData"];
+            initUserData();
             const fetchData = {
                 "AddItemPage.useEffect.fetchData": async ()=>{
                     try {
@@ -3340,7 +3365,7 @@ function AddItemPage() {
                 onToggle: ()=>setCollapsed(!collapsed)
             }, void 0, false, {
                 fileName: "[project]/app/add-item/page.tsx",
-                lineNumber: 214,
+                lineNumber: 232,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3348,7 +3373,7 @@ function AddItemPage() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$dashboard$2d$header$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DashboardHeader"], {}, void 0, false, {
                         fileName: "[project]/app/add-item/page.tsx",
-                        lineNumber: 217,
+                        lineNumber: 235,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -3366,7 +3391,7 @@ function AddItemPage() {
                                                     children: "Add New Item"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/add-item/page.tsx",
-                                                    lineNumber: 223,
+                                                    lineNumber: 241,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3374,13 +3399,13 @@ function AddItemPage() {
                                                     children: "Create a new item in your inventory"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/add-item/page.tsx",
-                                                    lineNumber: 224,
+                                                    lineNumber: 242,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/add-item/page.tsx",
-                                            lineNumber: 222,
+                                            lineNumber: 240,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3390,7 +3415,7 @@ function AddItemPage() {
                                                     className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/add-item/page.tsx",
-                                                    lineNumber: 227,
+                                                    lineNumber: 245,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3399,19 +3424,19 @@ function AddItemPage() {
                                                     className: "pl-9 rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/add-item/page.tsx",
-                                                    lineNumber: 228,
+                                                    lineNumber: 246,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/add-item/page.tsx",
-                                            lineNumber: 226,
+                                            lineNumber: 244,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/add-item/page.tsx",
-                                    lineNumber: 221,
+                                    lineNumber: 239,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3423,20 +3448,20 @@ function AddItemPage() {
                                                     children: "Item Details"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/add-item/page.tsx",
-                                                    lineNumber: 234,
+                                                    lineNumber: 252,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                     children: "Fill in the information for the new item. Item code will be auto-generated."
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/add-item/page.tsx",
-                                                    lineNumber: 235,
+                                                    lineNumber: 253,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/add-item/page.tsx",
-                                            lineNumber: 233,
+                                            lineNumber: 251,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3452,7 +3477,7 @@ function AddItemPage() {
                                                                 children: "Item Code Preview"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 240,
+                                                                lineNumber: 258,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3460,7 +3485,7 @@ function AddItemPage() {
                                                                 children: generatePreviewCode()
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 241,
+                                                                lineNumber: 259,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3468,13 +3493,13 @@ function AddItemPage() {
                                                                 children: "Format: Origin + ItemType + PackageUnit + QuantityUnit + SequenceNumber"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 244,
+                                                                lineNumber: 262,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                        lineNumber: 239,
+                                                        lineNumber: 257,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3488,7 +3513,7 @@ function AddItemPage() {
                                                                         children: "Item Name *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 251,
+                                                                        lineNumber: 269,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3500,13 +3525,13 @@ function AddItemPage() {
                                                                         required: true
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 252,
+                                                                        lineNumber: 270,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 250,
+                                                                lineNumber: 268,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3517,7 +3542,7 @@ function AddItemPage() {
                                                                         children: "Batch Number"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 263,
+                                                                        lineNumber: 281,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3528,13 +3553,13 @@ function AddItemPage() {
                                                                         className: "rounded-xl"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 264,
+                                                                        lineNumber: 282,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 262,
+                                                                lineNumber: 280,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3544,7 +3569,7 @@ function AddItemPage() {
                                                                         children: "Origin *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 274,
+                                                                        lineNumber: 292,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$searchable$2d$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SearchableSelect"], {
@@ -3557,13 +3582,13 @@ function AddItemPage() {
                                                                         disabled: loading
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 275,
+                                                                        lineNumber: 293,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 273,
+                                                                lineNumber: 291,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3573,7 +3598,7 @@ function AddItemPage() {
                                                                         children: "Item Type *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 287,
+                                                                        lineNumber: 305,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$searchable$2d$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SearchableSelect"], {
@@ -3586,13 +3611,13 @@ function AddItemPage() {
                                                                         disabled: loading
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 288,
+                                                                        lineNumber: 306,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 286,
+                                                                lineNumber: 304,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3602,7 +3627,7 @@ function AddItemPage() {
                                                                         children: "Package Unit *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 300,
+                                                                        lineNumber: 318,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$searchable$2d$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SearchableSelect"], {
@@ -3615,13 +3640,13 @@ function AddItemPage() {
                                                                         disabled: loading
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 301,
+                                                                        lineNumber: 319,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 299,
+                                                                lineNumber: 317,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3631,7 +3656,7 @@ function AddItemPage() {
                                                                         children: "Quantity Unit (UoM) *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 313,
+                                                                        lineNumber: 331,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$searchable$2d$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SearchableSelect"], {
@@ -3644,13 +3669,13 @@ function AddItemPage() {
                                                                         disabled: loading
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 314,
+                                                                        lineNumber: 332,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 312,
+                                                                lineNumber: 330,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3660,7 +3685,7 @@ function AddItemPage() {
                                                                         children: "Class Code *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 326,
+                                                                        lineNumber: 344,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$searchable$2d$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SearchableSelect"], {
@@ -3673,13 +3698,13 @@ function AddItemPage() {
                                                                         disabled: loading
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 327,
+                                                                        lineNumber: 345,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 325,
+                                                                lineNumber: 343,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3689,7 +3714,7 @@ function AddItemPage() {
                                                                         children: "Tax Type *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 339,
+                                                                        lineNumber: 357,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$searchable$2d$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SearchableSelect"], {
@@ -3702,13 +3727,13 @@ function AddItemPage() {
                                                                         disabled: loading
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 340,
+                                                                        lineNumber: 358,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 338,
+                                                                lineNumber: 356,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3719,7 +3744,7 @@ function AddItemPage() {
                                                                         children: "Purchase Price (Incl.) *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 352,
+                                                                        lineNumber: 370,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3733,13 +3758,13 @@ function AddItemPage() {
                                                                         required: true
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 353,
+                                                                        lineNumber: 371,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 351,
+                                                                lineNumber: 369,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3750,7 +3775,7 @@ function AddItemPage() {
                                                                         children: "Sale Price *"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 366,
+                                                                        lineNumber: 384,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3764,13 +3789,13 @@ function AddItemPage() {
                                                                         required: true
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 367,
+                                                                        lineNumber: 385,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 365,
+                                                                lineNumber: 383,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3781,7 +3806,7 @@ function AddItemPage() {
                                                                         children: "SKU"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 380,
+                                                                        lineNumber: 398,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3792,19 +3817,19 @@ function AddItemPage() {
                                                                         className: "rounded-xl"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                                        lineNumber: 381,
+                                                                        lineNumber: 399,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 379,
+                                                                lineNumber: 397,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                        lineNumber: 249,
+                                                        lineNumber: 267,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3815,7 +3840,7 @@ function AddItemPage() {
                                                                 children: "Description"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 392,
+                                                                lineNumber: 410,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -3826,13 +3851,13 @@ function AddItemPage() {
                                                                 className: "rounded-xl min-h-[100px]"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 393,
+                                                                lineNumber: 411,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                        lineNumber: 391,
+                                                        lineNumber: 409,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3846,7 +3871,7 @@ function AddItemPage() {
                                                                 children: "Cancel"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 403,
+                                                                lineNumber: 421,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3859,7 +3884,7 @@ function AddItemPage() {
                                                                             className: "mr-2 h-4 w-4 animate-spin"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/add-item/page.tsx",
-                                                                            lineNumber: 418,
+                                                                            lineNumber: 436,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         "Creating..."
@@ -3867,30 +3892,30 @@ function AddItemPage() {
                                                                 }, void 0, true) : "Add Item"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                                lineNumber: 411,
+                                                                lineNumber: 429,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/add-item/page.tsx",
-                                                        lineNumber: 402,
+                                                        lineNumber: 420,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/add-item/page.tsx",
-                                                lineNumber: 238,
+                                                lineNumber: 256,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/add-item/page.tsx",
-                                            lineNumber: 237,
+                                            lineNumber: 255,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/add-item/page.tsx",
-                                    lineNumber: 232,
+                                    lineNumber: 250,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -3902,36 +3927,36 @@ function AddItemPage() {
                                             children: "Sensile Technologies East Africa Ltd"
                                         }, void 0, false, {
                                             fileName: "[project]/app/add-item/page.tsx",
-                                            lineNumber: 431,
+                                            lineNumber: 449,
                                             columnNumber: 26
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/add-item/page.tsx",
-                                    lineNumber: 430,
+                                    lineNumber: 448,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/add-item/page.tsx",
-                            lineNumber: 220,
+                            lineNumber: 238,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/add-item/page.tsx",
-                        lineNumber: 219,
+                        lineNumber: 237,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/add-item/page.tsx",
-                lineNumber: 216,
+                lineNumber: 234,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/add-item/page.tsx",
-        lineNumber: 213,
+        lineNumber: 231,
         columnNumber: 5
     }, this);
 }

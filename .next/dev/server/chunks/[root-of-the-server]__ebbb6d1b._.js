@@ -82,7 +82,21 @@ async function POST(request) {
     try {
         const body = await request.json();
         const { vendorId, branchId, itemName, description, itemType, classCode, taxType, origin, batchNumber, purchasePrice, salePrice, sku, quantityUnit, packageUnit } = body;
-        if (!vendorId || !itemName || !itemType || !classCode || !taxType || !origin || !quantityUnit || !packageUnit) {
+        if (!vendorId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Session expired or vendor not found. Please login again."
+            }, {
+                status: 401
+            });
+        }
+        if (!branchId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Branch not assigned. Please contact your administrator."
+            }, {
+                status: 400
+            });
+        }
+        if (!itemName || !itemType || !classCode || !taxType || !origin || !quantityUnit || !packageUnit) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Missing required fields"
             }, {
