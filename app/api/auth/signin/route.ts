@@ -72,11 +72,14 @@ export async function POST(request: Request) {
         const result = await client.query(
           `SELECT u.id, u.email, u.username, u.password_hash, u.role, 
            v.id as vendor_id, v.name as vendor_name,
-           s.branch_id, b.name as branch_name
+           COALESCE(s.branch_id, vb.id) as branch_id, 
+           COALESCE(b.name, vb.name) as branch_name,
+           COALESCE(b.bhf_id, vb.bhf_id) as bhf_id
            FROM users u 
            LEFT JOIN vendors v ON v.email = u.email 
            LEFT JOIN staff s ON s.user_id = u.id
            LEFT JOIN branches b ON b.id = s.branch_id
+           LEFT JOIN branches vb ON vb.vendor_id = v.id AND vb.is_main = true
            WHERE u.email = $1`,
           [email]
         )
@@ -85,11 +88,14 @@ export async function POST(request: Request) {
         const result = await client.query(
           `SELECT u.id, u.email, u.username, u.password_hash, u.role, 
            v.id as vendor_id, v.name as vendor_name,
-           s.branch_id, b.name as branch_name
+           COALESCE(s.branch_id, vb.id) as branch_id, 
+           COALESCE(b.name, vb.name) as branch_name,
+           COALESCE(b.bhf_id, vb.bhf_id) as bhf_id
            FROM users u 
            LEFT JOIN vendors v ON v.email = u.email 
            LEFT JOIN staff s ON s.user_id = u.id
            LEFT JOIN branches b ON b.id = s.branch_id
+           LEFT JOIN branches vb ON vb.vendor_id = v.id AND vb.is_main = true
            WHERE u.username = $1`,
           [username]
         )
@@ -133,7 +139,8 @@ export async function POST(request: Request) {
           vendor_id: user.vendor_id,
           vendor_name: user.vendor_name,
           branch_id: user.branch_id,
-          branch_name: user.branch_name
+          branch_name: user.branch_name,
+          bhf_id: user.bhf_id
         }
       })
       

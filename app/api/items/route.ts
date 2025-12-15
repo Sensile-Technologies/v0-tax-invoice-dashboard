@@ -38,7 +38,21 @@ export async function POST(request: NextRequest) {
       packageUnit
     } = body
 
-    if (!vendorId || !itemName || !itemType || !classCode || !taxType || !origin || !quantityUnit || !packageUnit) {
+    if (!vendorId) {
+      return NextResponse.json(
+        { error: "Session expired or vendor not found. Please login again." },
+        { status: 401 }
+      )
+    }
+
+    if (!branchId) {
+      return NextResponse.json(
+        { error: "Branch not assigned. Please contact your administrator." },
+        { status: 400 }
+      )
+    }
+
+    if (!itemName || !itemType || !classCode || !taxType || !origin || !quantityUnit || !packageUnit) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }

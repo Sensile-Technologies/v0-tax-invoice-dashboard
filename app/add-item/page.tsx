@@ -32,6 +32,7 @@ interface ClassificationItem {
 interface UserData {
   vendorId?: string
   branchId?: string
+  bhfId?: string
 }
 
 export default function AddItemPage() {
@@ -67,7 +68,8 @@ export default function AddItemPage() {
         const user = JSON.parse(storedUser)
         setUserData({
           vendorId: user.vendorId || user.vendor_id,
-          branchId: user.branchId || user.branch_id
+          branchId: user.branchId || user.branch_id,
+          bhfId: user.bhfId || user.bhf_id
         })
       } catch (e) {
         console.error("Failed to parse user data:", e)
