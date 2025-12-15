@@ -258,7 +258,7 @@ export default function HeadquartersPage() {
       console.log("[v0] Branch created:", branchData)
       const createdBranch = branchData
 
-      const dispenserMap = new Map<number, { dispenserNumber: number; fuelType: string }>()
+      const dispenserFuelTypes = new Map<number, Set<string>>()
       const tanksToCreate: any[] = []
 
       Object.entries(branchForm.tankConfig).forEach(([storageIndex, config]) => {
@@ -283,19 +283,21 @@ export default function HeadquartersPage() {
 
         tankConfig.dispensers.forEach((dispenserName) => {
           // Extract dispenser number from name (e.g., "Dispenser 01" -> 1)
-          const dispenserNumber = Number.parseInt(dispenserName.replace(/\D/g, "")) || dispenserMap.size + 1
+          const dispenserNumber = Number.parseInt(dispenserName.replace(/\D/g, "")) || dispenserFuelTypes.size + 1
 
-          // Track dispenser with its fuel type (if same dispenser appears in multiple tanks, use first)
-          if (!dispenserMap.has(dispenserNumber)) {
-            dispenserMap.set(dispenserNumber, { dispenserNumber, fuelType })
+          // Track all fuel types for each dispenser (a dispenser can serve multiple tanks/fuel types)
+          if (!dispenserFuelTypes.has(dispenserNumber)) {
+            dispenserFuelTypes.set(dispenserNumber, new Set())
           }
+          dispenserFuelTypes.get(dispenserNumber)!.add(fuelType)
         })
       })
 
-      const dispensersToCreate = Array.from(dispenserMap.values()).map((d) => ({
+      // Create dispensers - use first fuel type for the dispenser record (nozzles will have specific fuel types)
+      const dispensersToCreate = Array.from(dispenserFuelTypes.entries()).map(([dispenserNumber, fuelTypes]) => ({
         branch_id: createdBranch.id,
-        dispenser_number: d.dispenserNumber,
-        fuel_type: d.fuelType,
+        dispenser_number: dispenserNumber,
+        fuel_type: Array.from(fuelTypes)[0], // First fuel type for dispenser record
         status: "active",
       }))
 
@@ -315,6 +317,7 @@ export default function HeadquartersPage() {
         }
       }
 
+      let nozzlesCreatedCount = 0
       if (dispensersToCreate.length > 0) {
         console.log("[v0] Creating dispensers:", { dispensersToCreate })
         const { data: dispensersData, error: dispensersError } = await supabase
@@ -331,6 +334,40 @@ export default function HeadquartersPage() {
           )
         } else {
           console.log("[v0] Dispensers created:", dispensersData)
+
+          // Create nozzles for each dispenser - one nozzle per fuel type
+          const nozzlesToCreate: any[] = []
+          dispensersData.forEach((dispenser: any) => {
+            const fuelTypes = dispenserFuelTypes.get(dispenser.dispenser_number)
+            if (fuelTypes) {
+              let nozzleNumber = 1
+              fuelTypes.forEach((fuelType) => {
+                nozzlesToCreate.push({
+                  branch_id: createdBranch.id,
+                  dispenser_id: dispenser.id,
+                  nozzle_number: nozzleNumber++,
+                  fuel_type: fuelType,
+                  initial_meter_reading: 0,
+                  status: "active",
+                })
+              })
+            }
+          })
+
+          if (nozzlesToCreate.length > 0) {
+            console.log("[v0] Creating nozzles:", { nozzlesToCreate })
+            const { data: nozzlesData, error: nozzlesError } = await supabase
+              .from("nozzles")
+              .insert(nozzlesToCreate)
+              .select()
+
+            if (nozzlesError) {
+              console.error("[v0] Nozzles creation error:", nozzlesError)
+            } else {
+              console.log("[v0] Nozzles created:", nozzlesData)
+              nozzlesCreatedCount = nozzlesData.length
+            }
+          }
         }
       }
 
@@ -354,16 +391,18 @@ export default function HeadquartersPage() {
           alert(
             `✓ Branch "${branchForm.name}" created successfully!\n` +
               `✓ Local database entry created\n` +
-              `✓ ${tanksToCreate.length} tank(s) created\n` + // Updated count
+              `✓ ${tanksToCreate.length} tank(s) created\n` +
               `✓ ${dispensersToCreate.length} dispenser(s) created\n` +
+              `✓ ${nozzlesCreatedCount} nozzle(s) created\n` +
               `✓ Backend registration completed`,
           )
         } else {
           alert(
             `✓ Branch "${branchForm.name}" created successfully!\n` +
               `✓ Local database entry created\n` +
-              `✓ ${tanksToCreate.length} tank(s) created\n` + // Updated count
+              `✓ ${tanksToCreate.length} tank(s) created\n` +
               `✓ ${dispensersToCreate.length} dispenser(s) created\n` +
+              `✓ ${nozzlesCreatedCount} nozzle(s) created\n` +
               `⚠ Backend registration failed (can be retried later)`,
           )
         }
@@ -372,8 +411,9 @@ export default function HeadquartersPage() {
         alert(
           `✓ Branch "${branchForm.name}" created successfully!\n` +
             `✓ Local database entry created\n` +
-            `✓ ${tanksToCreate.length} tank(s) created\n` + // Updated count
+            `✓ ${tanksToCreate.length} tank(s) created\n` +
             `✓ ${dispensersToCreate.length} dispenser(s) created\n` +
+            `✓ ${nozzlesCreatedCount} nozzle(s) created\n` +
             `⚠ Backend registration unavailable (can be retried later)`,
         )
       }
