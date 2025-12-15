@@ -11,13 +11,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
-  Building2, Plus, Search, Mail, Phone, MapPin, 
-  Store, FileText, Calendar, ExternalLink
+  Building2, Search, Phone, MapPin, 
+  Store, FileText, Calendar
 } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -56,19 +54,11 @@ export default function MerchantsPage() {
   const [merchants, setMerchants] = useState<Merchant[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [detailDialogOpen, setDetailDialogOpen] = useState(false)
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null)
   const [merchantBranches, setMerchantBranches] = useState<Branch[]>([])
   const [merchantInvoices, setMerchantInvoices] = useState<Invoice[]>([])
   const [loadingDetails, setLoadingDetails] = useState(false)
-  const [newMerchant, setNewMerchant] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    subscription_plan: "basic"
-  })
 
   useEffect(() => {
     fetchMerchants()
@@ -115,30 +105,6 @@ export default function MerchantsPage() {
     fetchMerchantDetails(merchant)
   }
 
-  const handleCreateMerchant = async () => {
-    if (!newMerchant.name || !newMerchant.email) {
-      toast.error("Name and email are required")
-      return
-    }
-
-    try {
-      const response = await fetch("/api/admin/vendors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMerchant)
-      })
-
-      if (!response.ok) throw new Error("Failed to create merchant")
-
-      toast.success("Merchant created successfully")
-      setDialogOpen(false)
-      setNewMerchant({ name: "", email: "", phone: "", address: "", subscription_plan: "basic" })
-      fetchMerchants()
-    } catch (error) {
-      toast.error("Failed to create merchant")
-    }
-  }
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-KE", {
       style: "currency",
@@ -182,62 +148,6 @@ export default function MerchantsPage() {
           <h1 className="text-3xl font-bold text-slate-900">Merchants</h1>
           <p className="text-slate-600 mt-1">Manage all merchants on the platform</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Merchant
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Merchant</DialogTitle>
-              <DialogDescription>Create a new merchant account on the platform</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Company Name</Label>
-                <Input
-                  id="name"
-                  value={newMerchant.name}
-                  onChange={(e) => setNewMerchant({ ...newMerchant, name: e.target.value })}
-                  placeholder="Acme Fuel Stations"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newMerchant.email}
-                  onChange={(e) => setNewMerchant({ ...newMerchant, email: e.target.value })}
-                  placeholder="contact@acme.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={newMerchant.phone}
-                  onChange={(e) => setNewMerchant({ ...newMerchant, phone: e.target.value })}
-                  placeholder="+254 700 000 000"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={newMerchant.address}
-                  onChange={(e) => setNewMerchant({ ...newMerchant, address: e.target.value })}
-                  placeholder="123 Main Street, Nairobi"
-                />
-              </div>
-              <Button onClick={handleCreateMerchant} className="w-full">
-                Create Merchant
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <div className="flex items-center gap-4">

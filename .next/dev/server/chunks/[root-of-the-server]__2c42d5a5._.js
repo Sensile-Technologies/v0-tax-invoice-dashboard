@@ -145,7 +145,13 @@ async function GET(request, { params }) {
     `, [
             id
         ]);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result.rows);
+        const invoices = result.rows.map((row)=>({
+                ...row,
+                due_date: row.due_date ? row.due_date.toISOString() : null,
+                total_amount: row.total_amount ? Number(row.total_amount) : 0,
+                paid_amount: row.paid_amount ? Number(row.paid_amount) : 0
+            }));
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(invoices);
     } catch (error) {
         console.error("Error fetching vendor invoices:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

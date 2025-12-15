@@ -29,6 +29,7 @@ import {
   RefreshCcw, CreditCard, Trash2, Edit2, DollarSign,
   CheckCircle, Package, MoreVertical, Download
 } from "lucide-react"
+import Link from "next/link"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import {
@@ -89,22 +90,9 @@ export default function InvoicesPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
-  const [merchants, setMerchants] = useState<any[]>([])
   const [billingProducts, setBillingProducts] = useState<BillingProduct[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
-  const [newInvoice, setNewInvoice] = useState({
-    vendor_id: "",
-    billed_to_contact: "",
-    branch_ids: [] as string[],
-    due_date: "",
-    notes: "",
-    is_recurring: false,
-    recurring_interval: "annually",
-    line_items: [] as any[]
-  })
-  const [branches, setBranches] = useState<any[]>([])
   const [newPayment, setNewPayment] = useState({
     invoice_id: "",
     amount: 0,
@@ -125,7 +113,6 @@ export default function InvoicesPage() {
 
   useEffect(() => {
     fetchInvoices()
-    fetchMerchants()
     fetchBillingProducts()
     fetchPayments()
   }, [statusFilter])
@@ -154,17 +141,6 @@ export default function InvoicesPage() {
     } catch (error) {
       console.error("Error fetching payments:", error)
       setPayments([])
-    }
-  }
-
-  const fetchMerchants = async () => {
-    try {
-      const response = await fetch("/api/admin/vendors")
-      const data = await response.json()
-      setMerchants(Array.isArray(data) ? data : [])
-    } catch (error) {
-      console.error("Error fetching merchants:", error)
-      setMerchants([])
     }
   }
 
@@ -360,77 +336,6 @@ export default function InvoicesPage() {
     setEditingProduct(null)
   }
 
-  const handleAddSelectedProduct = () => {
-    if (!selectedProductId) return
-    const product = billingProducts.find(p => p.id === selectedProductId)
-    if (product) {
-      handleAddLineItem(product)
-      setSelectedProductId("")
-    }
-  }
-
-  const handleAddLineItem = (product: BillingProduct) => {
-    const isSubscription = product.product_type.includes('subscription')
-    setNewInvoice({
-      ...newInvoice,
-      line_items: [...newInvoice.line_items, {
-        product_id: product.id,
-        description: product.name,
-        product_type: product.product_type,
-        quantity: isSubscription ? 12 : 1,
-        unit_price: Number(product.default_amount),
-        tax_rate: 16,
-        discount: 0
-      }]
-    })
-  }
-
-  const handleUpdateLineItem = (index: number, field: string, value: any) => {
-    const items = [...newInvoice.line_items]
-    items[index] = { ...items[index], [field]: value }
-    setNewInvoice({ ...newInvoice, line_items: items })
-  }
-
-  const handleRemoveLineItem = (index: number) => {
-    const items = [...newInvoice.line_items]
-    items.splice(index, 1)
-    setNewInvoice({ ...newInvoice, line_items: items })
-  }
-
-  const handleCreateInvoice = async () => {
-    if (!newInvoice.vendor_id) {
-      toast.error("Please select a vendor")
-      return
-    }
-
-    if (newInvoice.line_items.length === 0) {
-      toast.error("Please add at least one line item")
-      return
-    }
-
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}")
-      const response = await fetch("/api/admin/invoices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          ...newInvoice, 
-          created_by: user.id,
-          issue_date: new Date().toISOString().split('T')[0]
-        })
-      })
-
-      if (!response.ok) throw new Error("Failed to create invoice")
-
-      toast.success("Invoice created successfully")
-      setDialogOpen(false)
-      resetInvoiceForm()
-      fetchInvoices()
-    } catch (error) {
-      toast.error("Failed to create invoice")
-    }
-  }
-
   const handleDuplicateInvoice = async (invoice: Invoice) => {
     try {
       const response = await fetch(`/api/admin/invoices/${invoice.id}/duplicate`, {
@@ -467,31 +372,6 @@ export default function InvoicesPage() {
       fetchInvoices()
     } catch (error) {
       toast.error("Failed to record payment")
-    }
-  }
-
-  const resetInvoiceForm = () => {
-    setNewInvoice({
-      vendor_id: "",
-      billed_to_contact: "",
-      branch_ids: [],
-      due_date: "",
-      notes: "",
-      is_recurring: false,
-      recurring_interval: "annually",
-      line_items: []
-    })
-    setBranches([])
-  }
-
-  const fetchBranches = async (merchantId: string) => {
-    try {
-      const response = await fetch(`/api/admin/vendors/${merchantId}/branches`)
-      const data = await response.json()
-      setBranches(Array.isArray(data) ? data : [])
-    } catch (error) {
-      console.error("Error fetching branches:", error)
-      setBranches([])
     }
   }
 
@@ -543,12 +423,6 @@ export default function InvoicesPage() {
   )
 
   const pendingInvoices = invoices.filter(i => i.status === "pending" || i.status === "partial")
-
-  const lineItemsTotal = newInvoice.line_items.reduce((sum, item) => {
-    const subtotal = item.quantity * item.unit_price
-    const discountAmount = subtotal * ((item.discount || 0) / 100)
-    return sum + (subtotal - discountAmount)
-  }, 0)
 
   if (loading) {
     return (
@@ -609,275 +483,12 @@ export default function InvoicesPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Invoice
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Create Invoice</DialogTitle>
-                  <DialogDescription>Generate a new invoice for a merchant</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Merchant</Label>
-                      <Select
-                        value={newInvoice.vendor_id}
-                        onValueChange={(v) => {
-                          setNewInvoice({ ...newInvoice, vendor_id: v, branch_ids: [] })
-                          fetchBranches(v)
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select merchant" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {merchants.map((m) => (
-                            <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Due Date</Label>
-                      <Input
-                        type="date"
-                        value={newInvoice.due_date}
-                        onChange={(e) => setNewInvoice({ ...newInvoice, due_date: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Billed To (Contact)</Label>
-                      <Input
-                        value={newInvoice.billed_to_contact}
-                        onChange={(e) => setNewInvoice({ ...newInvoice, billed_to_contact: e.target.value })}
-                        placeholder="Enter contact name, email, or address"
-                      />
-                      <p className="text-xs text-slate-500">This will appear on the invoice as "Billed To"</p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Branches (Optional)</Label>
-                      <div className="border rounded-md p-2 max-h-32 overflow-y-auto">
-                        {branches.length > 0 ? (
-                          branches.map((branch) => (
-                            <div key={branch.id} className="flex items-center space-x-2 py-1">
-                              <Checkbox
-                                id={`branch-${branch.id}`}
-                                checked={newInvoice.branch_ids.includes(branch.id)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setNewInvoice({
-                                      ...newInvoice,
-                                      branch_ids: [...newInvoice.branch_ids, branch.id]
-                                    })
-                                  } else {
-                                    setNewInvoice({
-                                      ...newInvoice,
-                                      branch_ids: newInvoice.branch_ids.filter(id => id !== branch.id)
-                                    })
-                                  }
-                                }}
-                              />
-                              <label htmlFor={`branch-${branch.id}`} className="text-sm">
-                                {branch.bhf_nm || branch.name}
-                              </label>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-slate-400 py-2">
-                            {newInvoice.vendor_id ? "No branches found" : "Select a merchant first"}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
-                    <Checkbox
-                      id="recurring"
-                      checked={newInvoice.is_recurring}
-                      onCheckedChange={(checked) => setNewInvoice({ ...newInvoice, is_recurring: !!checked })}
-                    />
-                    <Label htmlFor="recurring" className="flex-1">
-                      <span className="font-medium">Recurring Invoice</span>
-                      <p className="text-sm text-slate-500">Automatically generate this invoice on the due date</p>
-                    </Label>
-                    {newInvoice.is_recurring && (
-                      <Select
-                        value={newInvoice.recurring_interval}
-                        onValueChange={(v) => setNewInvoice({ ...newInvoice, recurring_interval: v })}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                          <SelectItem value="quarterly">Quarterly</SelectItem>
-                          <SelectItem value="annually">Annually</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Add Products/Services</Label>
-                    <div className="flex gap-2">
-                      <Select
-                        value={selectedProductId}
-                        onValueChange={setSelectedProductId}
-                      >
-                        <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Select a product to add" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {billingProducts.filter(p => p.is_active).map((product) => (
-                            <SelectItem key={product.id} value={product.id}>
-                              <div className="flex items-center justify-between gap-4">
-                                <span>{product.name}</span>
-                                <span className="text-xs text-slate-500">
-                                  {getProductTypeLabel(product.product_type)} - {formatCurrency(Number(product.default_amount))}
-                                </span>
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button 
-                        type="button" 
-                        onClick={handleAddSelectedProduct}
-                        disabled={!selectedProductId}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add
-                      </Button>
-                    </div>
-                    {billingProducts.filter(p => p.is_active).length === 0 && (
-                      <p className="text-sm text-slate-500">
-                        No products configured. Go to the Products/Services tab to add some.
-                      </p>
-                    )}
-                  </div>
-
-                  {newInvoice.line_items.length > 0 && (
-                    <div className="border rounded-lg overflow-hidden">
-                      <table className="w-full">
-                        <thead className="bg-slate-50">
-                          <tr>
-                            <th className="text-left p-3 text-sm font-medium">Description</th>
-                            <th className="text-left p-3 text-sm font-medium w-24">Type</th>
-                            <th className="text-right p-3 text-sm font-medium w-16">Qty</th>
-                            <th className="text-right p-3 text-sm font-medium w-28">Unit Price</th>
-                            <th className="text-right p-3 text-sm font-medium w-24">Discount %</th>
-                            <th className="text-right p-3 text-sm font-medium w-28">Amount</th>
-                            <th className="p-3 w-12"></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {newInvoice.line_items.map((item, index) => {
-                            const discountAmount = (item.quantity * item.unit_price) * ((item.discount || 0) / 100)
-                            const lineTotal = (item.quantity * item.unit_price) - discountAmount
-                            return (
-                              <tr key={index} className="border-t">
-                                <td className="p-2">
-                                  <Input
-                                    value={item.description}
-                                    onChange={(e) => handleUpdateLineItem(index, "description", e.target.value)}
-                                    className="h-8"
-                                  />
-                                </td>
-                                <td className="p-2">
-                                  <Badge variant="outline" className="text-xs">
-                                    {getProductTypeLabel(item.product_type)}
-                                  </Badge>
-                                </td>
-                                <td className="p-2">
-                                  <Input
-                                    type="number"
-                                    value={item.quantity}
-                                    onChange={(e) => handleUpdateLineItem(index, "quantity", Number(e.target.value))}
-                                    className="h-8 text-right"
-                                    min={1}
-                                  />
-                                </td>
-                                <td className="p-2">
-                                  <Input
-                                    type="number"
-                                    value={item.unit_price}
-                                    onChange={(e) => handleUpdateLineItem(index, "unit_price", Number(e.target.value))}
-                                    className="h-8 text-right"
-                                    min={0}
-                                  />
-                                </td>
-                                <td className="p-2">
-                                  <Input
-                                    type="number"
-                                    value={item.discount || 0}
-                                    onChange={(e) => handleUpdateLineItem(index, "discount", Number(e.target.value))}
-                                    className="h-8 text-right"
-                                    min={0}
-                                    max={100}
-                                    placeholder="0"
-                                  />
-                                </td>
-                                <td className="p-3 text-right font-medium">
-                                  {formatCurrency(lineTotal)}
-                                </td>
-                                <td className="p-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleRemoveLineItem(index)}
-                                    className="text-red-600 hover:text-red-800 h-8 w-8 p-0"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </td>
-                              </tr>
-                            )
-                          })}
-                          <tr className="border-t bg-slate-50">
-                            <td colSpan={5} className="p-3 text-right font-medium">Subtotal</td>
-                            <td className="p-3 text-right font-bold">{formatCurrency(lineItemsTotal)}</td>
-                            <td></td>
-                          </tr>
-                          <tr className="bg-slate-50">
-                            <td colSpan={5} className="p-3 text-right font-medium">VAT (16%)</td>
-                            <td className="p-3 text-right font-bold">{formatCurrency(lineItemsTotal * 0.16)}</td>
-                            <td></td>
-                          </tr>
-                          <tr className="bg-blue-50">
-                            <td colSpan={5} className="p-3 text-right font-bold text-blue-900">Total</td>
-                            <td className="p-3 text-right font-bold text-blue-900">{formatCurrency(lineItemsTotal * 1.16)}</td>
-                            <td></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label>Notes</Label>
-                    <Textarea
-                      value={newInvoice.notes}
-                      onChange={(e) => setNewInvoice({ ...newInvoice, notes: e.target.value })}
-                      placeholder="Additional notes for this invoice..."
-                      rows={2}
-                    />
-                  </div>
-
-                  <Button onClick={handleCreateInvoice} className="w-full">
-                    Create Invoice
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Link href="/admin/invoices/create">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Invoice
+              </Button>
+            </Link>
           </div>
 
           <div className="space-y-4">
