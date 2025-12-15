@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Search, Upload, Download, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { createClient } from "@/lib/supabase/client"
 
 export default function RegisterCustomerPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -56,17 +55,17 @@ export default function RegisterCustomerPage() {
 
   const fetchBranches = async () => {
     try {
-      const supabase = createClient()
-      const { data, error } = await supabase.from("branches").select("id, name, bhf_id").order("name")
+      const response = await fetch('/api/branches')
+      const result = await response.json()
 
-      if (error) throw error
+      if (!result.success) throw new Error(result.error)
 
-      setBranches(data || [])
+      setBranches(result.data || [])
 
-      if (data && data.length > 0) {
+      if (result.data && result.data.length > 0) {
         const storedBranch = localStorage.getItem("selectedBranch")
         if (!storedBranch) {
-          setCurrentBranch(data[0])
+          setCurrentBranch(result.data[0])
         }
       }
     } catch (error) {
@@ -101,8 +100,6 @@ P051234568B,Another Customer,another@example.com,+254 700 000001,456 Oak Avenue,
     try {
       const text = await file.text()
       const lines = text.split("\n").slice(1)
-
-      const supabase = createClient()
 
       const customersToInsert = []
 
@@ -140,9 +137,13 @@ P051234568B,Another Customer,another@example.com,+254 700 000001,456 Oak Avenue,
         }
       }
 
-      const { error } = await supabase.from("customers").insert(customersToInsert)
-
-      if (error) throw error
+      for (const customer of customersToInsert) {
+        await fetch('/api/customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(customer)
+        })
+      }
 
       toast({
         title: "Customers Imported",
@@ -185,15 +186,13 @@ P051234568B,Another Customer,another@example.com,+254 700 000001,456 Oak Avenue,
 
     setLoading(true)
     try {
-      const supabase = createClient()
+      const branchRes = await fetch(`/api/branches?limit=100`)
+      const branchResult = await branchRes.json()
+      const allBranches = branchResult.success ? branchResult.data : []
+      
+      const branchData = allBranches.find((b: any) => b.id === currentBranch.id)
 
-      const { data: branchData, error: branchError } = await supabase
-        .from("branches")
-        .select("id, name, bhf_id")
-        .eq("id", currentBranch.id)
-        .single()
-
-      if (branchError || !branchData) {
+      if (!branchData) {
         throw new Error("Could not find branch details. Please try again.")
       }
 
@@ -217,12 +216,6 @@ P051234568B,Another Customer,another@example.com,+254 700 000001,456 Oak Avenue,
       }
 
       if (formData.branchScope === "all") {
-        const { data: allBranches, error: allBranchesError } = await supabase
-          .from("branches")
-          .select("id, name, bhf_id")
-
-        if (allBranchesError) throw allBranchesError
-
         for (const branch of allBranches || []) {
           if (!branch.bhf_id) {
             console.warn(`[v0] Skipping branch "${branch.name}" - no BHF ID configured`)
@@ -246,13 +239,12 @@ P051234568B,Another Customer,another@example.com,+254 700 000001,456 Oak Avenue,
         throw new Error("No branches with valid BHF IDs found. Please configure branch BHF IDs in settings.")
       }
 
-      console.log("[v0] Inserting customers:", customersToInsert)
-
-      const { error } = await supabase.from("customers").insert(customersToInsert)
-
-      if (error) {
-        console.error("[v0] Registration error:", error.message)
-        throw error
+      for (const customer of customersToInsert) {
+        await fetch('/api/customers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(customer)
+        })
       }
 
       toast({

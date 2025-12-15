@@ -11,6 +11,8 @@ The application is built on Next.js 16 with React 19, utilizing Tailwind CSS 4.x
 
 The backend leverages a Replit PostgreSQL database. Authentication is custom, designed to be compatible with a Supabase-like client interface but implemented against the local PostgreSQL.
 
+**Data Access Architecture**: All frontend pages and components use fetch() calls to API endpoints (`/api/*`) for database operations. Direct Supabase client usage is restricted to server-side API routes only. This ensures a clean separation between frontend and backend, improves security, and allows for better API rate limiting and caching.
+
 Key features include:
 - **Comprehensive Business Management**: Modules for sales, purchases, inventory, payments, customers, and staff.
 - **KRA TIMS Integration**: Dedicated features and tables for compliance with Kenya Revenue Authority Tax Invoice Management System.

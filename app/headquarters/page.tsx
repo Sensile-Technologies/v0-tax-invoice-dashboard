@@ -46,8 +46,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useRouter } from "next/navigation"
 
-import { createClient } from "@/lib/supabase/client" // Updated import path
-import { GlobalShiftUploadDialog } from "@/components/global-shift-upload-dialog" // Added GlobalShiftUploadDialog
+import { GlobalShiftUploadDialog } from "@/components/global-shift-upload-dialog"
 import { useCurrency } from "@/lib/currency-utils" // Added useCurrency hook
 import { getCurrentUser } from "@/lib/auth/client"
 
@@ -230,10 +229,10 @@ export default function HeadquartersPage() {
 
     setIsSubmitting(true)
     try {
-      const supabase = createClient()
-      const { data: branchData, error: branchError } = await supabase
-        .from("branches")
-        .insert({
+      const branchRes = await fetch('/api/branches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: branchForm.name,
           location: branchForm.location,
           manager: branchForm.manager,
@@ -245,18 +244,19 @@ export default function HeadquartersPage() {
           address: branchForm.address,
           local_tax_office: branchForm.localTaxOffice,
         })
-        .select()
-        .single()
+      })
+      
+      const branchResult = await branchRes.json()
 
-      if (branchError) {
-        console.error("[v0] Branch creation error:", branchError)
-        alert(`Branch creation failed: ${branchError.message}`)
+      if (!branchResult.success) {
+        console.error("[v0] Branch creation error:", branchResult.error)
+        alert(`Branch creation failed: ${branchResult.error}`)
         setIsSubmitting(false)
         return
       }
 
-      console.log("[v0] Branch created:", branchData)
-      const createdBranch = branchData
+      console.log("[v0] Branch created:", branchResult.data)
+      const createdBranch = branchResult.data
 
       const dispenserFuelTypes = new Map<number, Set<string>>()
       const tanksToCreate: any[] = []
@@ -271,7 +271,6 @@ export default function HeadquartersPage() {
 
         const fuelType = tankConfig.fuelType || "Petrol"
 
-        // Create tank entry
         tanksToCreate.push({
           branch_id: createdBranch.id,
           tank_name: storageIndex,
@@ -282,10 +281,7 @@ export default function HeadquartersPage() {
         })
 
         tankConfig.dispensers.forEach((dispenserName) => {
-          // Extract dispenser number from name (e.g., "Dispenser 01" -> 1)
           const dispenserNumber = Number.parseInt(dispenserName.replace(/\D/g, "")) || dispenserFuelTypes.size + 1
-
-          // Track all fuel types for each dispenser (a dispenser can serve multiple tanks/fuel types)
           if (!dispenserFuelTypes.has(dispenserNumber)) {
             dispenserFuelTypes.set(dispenserNumber, new Set())
           }
@@ -293,81 +289,71 @@ export default function HeadquartersPage() {
         })
       })
 
-      // Create dispensers - use first fuel type for the dispenser record (nozzles will have specific fuel types)
       const dispensersToCreate = Array.from(dispenserFuelTypes.entries()).map(([dispenserNumber, fuelTypes]) => ({
         branch_id: createdBranch.id,
         dispenser_number: dispenserNumber,
-        fuel_type: Array.from(fuelTypes)[0], // First fuel type for dispenser record
+        fuel_type: Array.from(fuelTypes)[0],
         status: "active",
       }))
 
-      // Insert tanks first
       if (tanksToCreate.length > 0) {
-        const { error: tanksError } = await supabase.from("tanks").insert(tanksToCreate)
-        if (tanksError) {
-          console.error("[v0] Error creating tanks:", tanksError)
-          // Optionally alert the user or handle the error appropriately
-          alert(
-            `✓ Branch "${branchForm.name}" created successfully!\n` +
-              `⚠ Warning: Could not create tanks. Please add them manually in Configuration.\n` +
-              `Details: ${tanksError.message}`,
-          )
-        } else {
-          console.log("[v0] Tanks created:", tanksToCreate)
+        for (const tank of tanksToCreate) {
+          await fetch('/api/tanks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tank)
+          })
         }
+        console.log("[v0] Tanks created:", tanksToCreate)
       }
 
       let nozzlesCreatedCount = 0
       if (dispensersToCreate.length > 0) {
         console.log("[v0] Creating dispensers:", { dispensersToCreate })
-        const { data: dispensersData, error: dispensersError } = await supabase
-          .from("dispensers")
-          .insert(dispensersToCreate)
-          .select()
-
-        if (dispensersError) {
-          console.error("[v0] Dispensers creation error:", dispensersError)
-          alert(
-            `✓ Branch "${branchForm.name}" created successfully!\n` +
-              `⚠ Warning: Could not create dispensers. You can add them manually in Configuration.\n` +
-              `Details: ${dispensersError.message}`,
-          )
-        } else {
-          console.log("[v0] Dispensers created:", dispensersData)
-
-          // Create nozzles for each dispenser - one nozzle per fuel type
-          const nozzlesToCreate: any[] = []
-          dispensersData.forEach((dispenser: any) => {
-            const fuelTypes = dispenserFuelTypes.get(dispenser.dispenser_number)
-            if (fuelTypes) {
-              let nozzleNumber = 1
-              fuelTypes.forEach((fuelType) => {
-                nozzlesToCreate.push({
-                  branch_id: createdBranch.id,
-                  dispenser_id: dispenser.id,
-                  nozzle_number: nozzleNumber++,
-                  fuel_type: fuelType,
-                  initial_meter_reading: 0,
-                  status: "active",
-                })
-              })
-            }
+        const createdDispensers: any[] = []
+        
+        for (const dispenser of dispensersToCreate) {
+          const dispRes = await fetch('/api/dispensers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dispenser)
           })
-
-          if (nozzlesToCreate.length > 0) {
-            console.log("[v0] Creating nozzles:", { nozzlesToCreate })
-            const { data: nozzlesData, error: nozzlesError } = await supabase
-              .from("nozzles")
-              .insert(nozzlesToCreate)
-              .select()
-
-            if (nozzlesError) {
-              console.error("[v0] Nozzles creation error:", nozzlesError)
-            } else {
-              console.log("[v0] Nozzles created:", nozzlesData)
-              nozzlesCreatedCount = nozzlesData.length
-            }
+          const dispResult = await dispRes.json()
+          if (dispResult.success) {
+            createdDispensers.push(dispResult.data)
           }
+        }
+
+        console.log("[v0] Dispensers created:", createdDispensers)
+
+        const nozzlesToCreate: any[] = []
+        createdDispensers.forEach((dispenser: any) => {
+          const fuelTypes = dispenserFuelTypes.get(dispenser.dispenser_number)
+          if (fuelTypes) {
+            let nozzleNumber = 1
+            fuelTypes.forEach((fuelType) => {
+              nozzlesToCreate.push({
+                branch_id: createdBranch.id,
+                dispenser_id: dispenser.id,
+                nozzle_number: nozzleNumber++,
+                fuel_type: fuelType,
+                initial_meter_reading: 0,
+                status: "active",
+              })
+            })
+          }
+        })
+
+        if (nozzlesToCreate.length > 0) {
+          console.log("[v0] Creating nozzles:", { nozzlesToCreate })
+          for (const nozzle of nozzlesToCreate) {
+            await fetch('/api/nozzles', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(nozzle)
+            })
+          }
+          nozzlesCreatedCount = nozzlesToCreate.length
         }
       }
 
@@ -389,32 +375,32 @@ export default function HeadquartersPage() {
 
         if (backendResponse.ok && backendData.success) {
           alert(
-            `✓ Branch "${branchForm.name}" created successfully!\n` +
-              `✓ Local database entry created\n` +
-              `✓ ${tanksToCreate.length} tank(s) created\n` +
-              `✓ ${dispensersToCreate.length} dispenser(s) created\n` +
-              `✓ ${nozzlesCreatedCount} nozzle(s) created\n` +
-              `✓ Backend registration completed`,
+            `Branch "${branchForm.name}" created successfully!\n` +
+              `Local database entry created\n` +
+              `${tanksToCreate.length} tank(s) created\n` +
+              `${dispensersToCreate.length} dispenser(s) created\n` +
+              `${nozzlesCreatedCount} nozzle(s) created\n` +
+              `Backend registration completed`,
           )
         } else {
           alert(
-            `✓ Branch "${branchForm.name}" created successfully!\n` +
-              `✓ Local database entry created\n` +
-              `✓ ${tanksToCreate.length} tank(s) created\n` +
-              `✓ ${dispensersToCreate.length} dispenser(s) created\n` +
-              `✓ ${nozzlesCreatedCount} nozzle(s) created\n` +
-              `⚠ Backend registration failed (can be retried later)`,
+            `Branch "${branchForm.name}" created successfully!\n` +
+              `Local database entry created\n` +
+              `${tanksToCreate.length} tank(s) created\n` +
+              `${dispensersToCreate.length} dispenser(s) created\n` +
+              `${nozzlesCreatedCount} nozzle(s) created\n` +
+              `Backend registration failed (can be retried later)`,
           )
         }
       } catch (backendError) {
         console.log("[v0] Backend registration failed:", backendError)
         alert(
-          `✓ Branch "${branchForm.name}" created successfully!\n` +
-            `✓ Local database entry created\n` +
-            `✓ ${tanksToCreate.length} tank(s) created\n` +
-            `✓ ${dispensersToCreate.length} dispenser(s) created\n` +
-            `✓ ${nozzlesCreatedCount} nozzle(s) created\n` +
-            `⚠ Backend registration unavailable (can be retried later)`,
+          `Branch "${branchForm.name}" created successfully!\n` +
+            `Local database entry created\n` +
+            `${tanksToCreate.length} tank(s) created\n` +
+            `${dispensersToCreate.length} dispenser(s) created\n` +
+            `${nozzlesCreatedCount} nozzle(s) created\n` +
+            `Backend registration unavailable (can be retried later)`,
         )
       }
 
@@ -437,7 +423,7 @@ export default function HeadquartersPage() {
       await fetchBranches()
     } catch (error: any) {
       console.error("Error creating branch:", error)
-      alert(`❌ Branch creation failed: ${error.message || "Unknown error"}`)
+      alert(`Branch creation failed: ${error.message || "Unknown error"}`)
     } finally {
       setIsSubmitting(false)
     }

@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
-import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -37,8 +36,6 @@ export default function SalesReportsPage() {
     paymentMethod: "",
   })
 
-  const supabase = createClient()
-
   useEffect(() => {
     fetchData()
   }, [currentPage])
@@ -55,47 +52,35 @@ export default function SalesReportsPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const { data: nozzlesData } = await supabase
-        .from("nozzles")
-        .select("*")
-        .eq("branch_id", branchId)
-        .eq("status", "active")
+      const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
+        fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+        fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/sales?branch_id=${branchId}`)
+      ])
 
-      setNozzles(nozzlesData || [])
+      const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
+        nozzlesRes.json(),
+        dispensersRes.json(),
+        salesRes.json()
+      ])
 
-      const { data: dispensersData } = await supabase
-        .from("dispensers")
-        .select("*")
-        .eq("branch_id", branchId)
+      setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
+      setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
 
-      setDispensers(dispensersData || [])
-
-      const { data: allSalesData } = await supabase
-        .from("sales")
-        .select("*")
-        .eq("branch_id", branchId)
-        .order("sale_date", { ascending: false })
-
-      const allSales = allSalesData || []
+      const allSales = salesResult.success ? salesResult.data || [] : []
       setTotalCount(allSales.length)
 
       const offset = (currentPage - 1) * PAGE_SIZE
       const paginatedSales = allSales.slice(offset, offset + PAGE_SIZE)
-      const salesData = paginatedSales
-      const error = null
 
-      if (error) {
-        console.error("Error fetching sales:", error)
-      } else {
-        const processedSales = (salesData || []).map((sale: any) => ({
-          ...sale,
-          quantity: Number(sale.quantity) || 0,
-          unit_price: Number(sale.unit_price) || 0,
-          total_amount: Number(sale.total_amount) || 0,
-          meter_reading_after: Number(sale.meter_reading_after) || 0,
-        }))
-        setSales(processedSales)
-      }
+      const processedSales = paginatedSales.map((sale: any) => ({
+        ...sale,
+        quantity: Number(sale.quantity) || 0,
+        unit_price: Number(sale.unit_price) || 0,
+        total_amount: Number(sale.total_amount) || 0,
+        meter_reading_after: Number(sale.meter_reading_after) || 0,
+      }))
+      setSales(processedSales)
     } catch (error) {
       console.error("Error fetching data:", error)
       toast.error("Failed to load sales data")

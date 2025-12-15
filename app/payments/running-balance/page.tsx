@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Download } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import { useCurrency } from "@/lib/currency-utils"
 
 interface RunningBalanceEntry {
@@ -42,7 +41,6 @@ export default function RunningBalanceReportPage() {
     const fetchData = async () => {
       try {
         setLoading(true)
-        const supabase = createClient()
         const selectedBranchData = localStorage.getItem("selectedBranch")
         const selectedBranchId = selectedBranchData ? JSON.parse(selectedBranchData).id : null
 
@@ -53,31 +51,27 @@ export default function RunningBalanceReportPage() {
           return
         }
 
-        // Fetch shifts data
-        const { data: shifts, error: shiftsError } = await supabase
-          .from("shifts")
-          .select("*")
-          .eq("branch_id", selectedBranchId)
+        const [shiftsRes, salesRes, staffRes] = await Promise.all([
+          fetch(`/api/shifts?branch_id=${selectedBranchId}`),
+          fetch(`/api/sales?branch_id=${selectedBranchId}`),
+          fetch(`/api/staff?branch_id=${selectedBranchId}`)
+        ])
 
-        if (shiftsError) throw shiftsError
+        const [shiftsResult, salesResult, staffResult] = await Promise.all([
+          shiftsRes.json(),
+          salesRes.json(),
+          staffRes.json()
+        ])
+
+        const shifts = shiftsResult.success ? shiftsResult.data : []
+        const salesData = salesResult.success ? salesResult.data : []
+        const staffData = staffResult.success ? staffResult.data : []
 
         if (!shifts || shifts.length === 0) {
           loadPlaceholderData()
           setLoading(false)
           return
         }
-
-        // Fetch sales data for this branch
-        const { data: salesData } = await supabase
-          .from("sales")
-          .select("*")
-          .eq("branch_id", selectedBranchId)
-
-        // Fetch staff data
-        const { data: staffData } = await supabase
-          .from("staff")
-          .select("*")
-          .eq("branch_id", selectedBranchId)
 
         // Create a map of staff_id to full_name
         const staffMap = new Map((staffData || []).map((s: any) => [s.id, s.full_name]))

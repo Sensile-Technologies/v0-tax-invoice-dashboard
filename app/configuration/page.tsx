@@ -29,8 +29,6 @@ export default function ConfigurationPage() {
     initial_meter_reading: "",
   })
 
-  const supabase = createClient()
-
   useEffect(() => {
     fetchConfiguration()
   }, [])
@@ -46,50 +44,35 @@ export default function ConfigurationPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const { data: tanksData, error: tanksError } = await supabase
-        .from("tanks")
-        .select("fuel_type")
-        .eq("branch_id", branchId)
+      const [tanksRes, pricesRes, dispensersRes, nozzlesRes] = await Promise.all([
+        fetch(`/api/tanks?branch_id=${branchId}`),
+        fetch(`/api/fuel-prices?branch_id=${branchId}`),
+        fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/nozzles?branch_id=${branchId}`)
+      ])
 
-      if (tanksError) {
-        console.error("Error fetching tanks:", tanksError)
-      } else {
-        const fuelTypes = [...new Set(tanksData?.map((tank: any) => tank.fuel_type as string) || [])] as string[]
+      const [tanksResult, pricesResult, dispensersResult, nozzlesResult] = await Promise.all([
+        tanksRes.json(),
+        pricesRes.json(),
+        dispensersRes.json(),
+        nozzlesRes.json()
+      ])
+
+      if (tanksResult.success) {
+        const fuelTypes = [...new Set(tanksResult.data?.map((tank: any) => tank.fuel_type as string) || [])] as string[]
         setAvailableFuelTypes(fuelTypes)
       }
 
-      const { data: pricesData, error: pricesError } = await supabase
-        .from("fuel_prices")
-        .select("*")
-        .eq("branch_id", branchId)
-        .order("effective_date", { ascending: false })
-
-      if (pricesError) {
-        console.error("Error fetching fuel prices:", pricesError)
-      } else {
-        setFuelPrices(pricesData || [])
+      if (pricesResult.success) {
+        setFuelPrices(pricesResult.data || [])
       }
 
-      const { data: dispensersData, error: dispensersError } = await supabase
-        .from("dispensers")
-        .select("*")
-        .eq("branch_id", branchId)
-
-      if (dispensersError) {
-        console.error("Error fetching dispensers:", dispensersError)
-      } else {
-        setDispensers(dispensersData || [])
+      if (dispensersResult.success) {
+        setDispensers(dispensersResult.data || [])
       }
 
-      const { data: nozzlesData, error: nozzlesError } = await supabase
-        .from("nozzles")
-        .select("*")
-        .eq("branch_id", branchId)
-
-      if (nozzlesError) {
-        console.error("Error fetching nozzles:", nozzlesError)
-      } else {
-        setNozzles(nozzlesData || [])
+      if (nozzlesResult.success) {
+        setNozzles(nozzlesResult.data || [])
       }
     } catch (error) {
       console.error("Error fetching configuration:", error)
@@ -114,19 +97,21 @@ export default function ConfigurationPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const { data, error } = await supabase
-        .from("fuel_prices")
-        .insert({
+      const response = await fetch('/api/fuel-prices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           branch_id: branchId,
           fuel_type: newPrice.fuel_type,
           price: Number.parseFloat(newPrice.price),
           effective_date: new Date().toISOString(),
         })
-        .select()
-        .single()
+      })
 
-      if (error) {
-        console.error("Error adding fuel price:", error)
+      const result = await response.json()
+
+      if (!result.success) {
+        console.error("Error adding fuel price:", result.error)
         toast.error("Failed to add fuel price")
       } else {
         toast.success("Fuel price added successfully")
@@ -149,16 +134,20 @@ export default function ConfigurationPage() {
 
     setLoading(true)
     try {
-      const { error } = await supabase
-        .from("fuel_prices")
-        .update({
+      const response = await fetch('/api/fuel-prices', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: priceId,
           price: Number.parseFloat(editPrice),
           effective_date: new Date().toISOString(),
         })
-        .eq("id", priceId)
+      })
 
-      if (error) {
-        console.error("Error updating fuel price:", error)
+      const result = await response.json()
+
+      if (!result.success) {
+        console.error("Error updating fuel price:", result.error)
         toast.error("Failed to update fuel price")
       } else {
         toast.success(`${fuelType} price updated successfully`)
@@ -191,21 +180,11 @@ export default function ConfigurationPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const { data: tanksData, error: tanksError } = await supabase
-        .from("tanks")
-        .select("id")
-        .eq("branch_id", branchId)
-        .eq("fuel_type", newNozzle.fuel_type)
-        .limit(1)
+      const tanksRes = await fetch(`/api/tanks?branch_id=${branchId}`)
+      const tanksResult = await tanksRes.json()
+      const tanksData = tanksResult.success ? tanksResult.data.filter((t: any) => t.fuel_type === newNozzle.fuel_type) : []
 
-      if (tanksError) {
-        console.error("Error checking tanks:", tanksError)
-        toast.error("Failed to validate fuel type")
-        setLoading(false)
-        return
-      }
-
-      if (!tanksData || tanksData.length === 0) {
+      if (tanksData.length === 0) {
         toast.error(
           `No tank configured for ${newNozzle.fuel_type}. Please add a ${newNozzle.fuel_type} tank in Tank Management first.`,
         )
@@ -222,25 +201,16 @@ export default function ConfigurationPage() {
         return
       }
 
-      const { data: existingNozzles, error: fetchError } = await supabase
-        .from("nozzles")
-        .select("nozzle_number")
-        .eq("dispenser_id", newNozzle.dispenser_id)
-        .order("nozzle_number", { ascending: false })
-        .limit(1)
+      const nozzlesRes = await fetch(`/api/nozzles?dispenser_id=${newNozzle.dispenser_id}`)
+      const nozzlesResult = await nozzlesRes.json()
+      const existingNozzles = nozzlesResult.success ? nozzlesResult.data : []
+      const nozzleNumbers = existingNozzles.map((n: any) => n.nozzle_number || 0)
+      const nextNozzleNumber = nozzleNumbers.length > 0 ? Math.max(...nozzleNumbers) + 1 : 1
 
-      if (fetchError) {
-        console.error("Error fetching existing nozzles:", fetchError)
-        toast.error("Failed to determine next nozzle number")
-        setLoading(false)
-        return
-      }
-
-      const nextNozzleNumber = existingNozzles && existingNozzles.length > 0 ? existingNozzles[0].nozzle_number + 1 : 1
-
-      const { data, error } = await supabase
-        .from("nozzles")
-        .insert({
+      const response = await fetch('/api/nozzles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           branch_id: branchId,
           dispenser_id: newNozzle.dispenser_id,
           nozzle_number: nextNozzleNumber,
@@ -250,11 +220,12 @@ export default function ConfigurationPage() {
             : 0,
           status: "active",
         })
-        .select()
-        .single()
+      })
 
-      if (error) {
-        console.error("Error adding nozzle:", error)
+      const result = await response.json()
+
+      if (!result.success) {
+        console.error("Error adding nozzle:", result.error)
         toast.error("Failed to add nozzle")
       } else {
         const selectedDispenser = dispensers.find((d) => d.id === newNozzle.dispenser_id)
@@ -275,10 +246,16 @@ export default function ConfigurationPage() {
     const newStatus = currentStatus === "active" ? "inactive" : "active"
 
     try {
-      const { error } = await supabase.from("nozzles").update({ status: newStatus }).eq("id", nozzleId)
+      const response = await fetch('/api/nozzles', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: nozzleId, status: newStatus })
+      })
+      
+      const result = await response.json()
 
-      if (error) {
-        console.error("Error updating nozzle status:", error)
+      if (!result.success) {
+        console.error("Error updating nozzle status:", result.error)
         toast.error("Failed to update nozzle status")
       } else {
         toast.success(`Nozzle ${newStatus === "active" ? "activated" : "deactivated"}`)

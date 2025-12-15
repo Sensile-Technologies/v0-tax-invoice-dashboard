@@ -57,7 +57,6 @@ export default function ItemCompositionPage() {
   const [calculatedTaxType, setCalculatedTaxType] = useState<string>("")
 
   const { toast } = useToast()
-  const supabase = createClient()
   const { formatCurrency } = useCurrency()
 
   useEffect(() => {
@@ -75,20 +74,19 @@ export default function ItemCompositionPage() {
 
     const branch = JSON.parse(selectedBranch)
 
-    const { data, error } = await supabase
-      .from("items")
-      .select("*")
-      .eq("branch_id", branch.id)
-      .eq("status", "active")
-      .neq("item_type", "composite")
-      .order("item_name")
+    try {
+      const response = await fetch(`/api/items/list?branch_id=${branch.id}&status=active&exclude_type=composite`)
+      const result = await response.json()
 
-    if (error) {
+      if (!result.success) {
+        console.error("Error fetching items:", result.error)
+        return
+      }
+
+      setItems(result.data || [])
+    } catch (error) {
       console.error("Error fetching items:", error)
-      return
     }
-
-    setItems(data || [])
   }
 
   const fetchCompositeItems = async () => {
@@ -97,48 +95,38 @@ export default function ItemCompositionPage() {
 
     const branch = JSON.parse(selectedBranch)
 
-    const { data: composites, error } = await supabase
-      .from("items")
-      .select(`
-        id,
-        item_code,
-        item_name,
-        sale_price,
-        tax_type
-      `)
-      .eq("branch_id", branch.id)
-      .eq("item_type", "composite")
-      .order("item_name")
+    try {
+      const response = await fetch(`/api/items/list?branch_id=${branch.id}&item_type=composite`)
+      const result = await response.json()
 
-    if (error) {
+      if (!result.success) {
+        console.error("Error fetching composite items:", result.error)
+        return
+      }
+
+      const composites = result.data || []
+
+      const compositesWithCompositions = await Promise.all(
+        composites.map(async (composite: any) => {
+          const compsRes = await fetch(`/api/item-compositions?composite_item_id=${composite.id}`)
+          const compsResult = await compsRes.json()
+          const comps = compsResult.success ? compsResult.data : []
+
+          return {
+            ...composite,
+            compositions: comps.map((c: any) => ({
+              parent_item_id: c.parent_item_id,
+              parent_item_name: c.parent_item_name || "",
+              percentage: c.percentage,
+            })),
+          }
+        }),
+      )
+
+      setCompositeItems(compositesWithCompositions)
+    } catch (error) {
       console.error("Error fetching composite items:", error)
-      return
     }
-
-    // Fetch compositions for each composite item
-    const compositesWithCompositions = await Promise.all(
-      (composites || []).map(async (composite) => {
-        const { data: comps } = await supabase
-          .from("item_compositions")
-          .select(`
-            parent_item_id,
-            percentage,
-            parent:items!item_compositions_parent_item_id_fkey(item_name)
-          `)
-          .eq("composite_item_id", composite.id)
-
-        return {
-          ...composite,
-          compositions: (comps || []).map((c: any) => ({
-            parent_item_id: c.parent_item_id,
-            parent_item_name: c.parent?.item_name || "",
-            percentage: c.percentage,
-          })),
-        }
-      }),
-    )
-
-    setCompositeItems(compositesWithCompositions)
   }
 
   const calculateCompositeValues = () => {
@@ -235,10 +223,10 @@ export default function ItemCompositionPage() {
     try {
       const branch = JSON.parse(selectedBranch)
 
-      // Create the composite item
-      const { data: newItem, error: itemError } = await supabase
-        .from("items")
-        .insert({
+      const itemRes = await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           branch_id: branch.id,
           item_code: itemCode,
           item_name: itemName,
@@ -249,28 +237,30 @@ export default function ItemCompositionPage() {
           tax_type: calculatedTaxType,
           status: "active",
         })
-        .select()
-        .single()
+      })
 
-      if (itemError) throw itemError
+      const itemResult = await itemRes.json()
+      if (!itemResult.success) throw new Error(itemResult.error)
 
-      // Create the compositions
-      const compositionsData = validCompositions.map((comp) => ({
-        composite_item_id: newItem.id,
-        parent_item_id: comp.parent_item_id,
-        percentage: comp.percentage,
-      }))
+      const newItem = itemResult.data
 
-      const { error: compsError } = await supabase.from("item_compositions").insert(compositionsData)
-
-      if (compsError) throw compsError
+      for (const comp of validCompositions) {
+        await fetch('/api/item-compositions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            composite_item_id: newItem.id,
+            parent_item_id: comp.parent_item_id,
+            percentage: comp.percentage,
+          })
+        })
+      }
 
       toast({
         title: "Success",
         description: "Composite item created successfully",
       })
 
-      // Reset form
       setItemCode("")
       setItemName("")
       setDescription("")
@@ -292,22 +282,32 @@ export default function ItemCompositionPage() {
   const handleDeleteComposite = async (id: string) => {
     if (!confirm("Are you sure you want to delete this composite item?")) return
 
-    const { error } = await supabase.from("items").delete().eq("id", id)
+    try {
+      const response = await fetch(`/api/items/${id}`, { method: 'DELETE' })
+      const result = await response.json()
 
-    if (error) {
+      if (!result.success) {
+        toast({
+          title: "Error",
+          description: "Failed to delete composite item",
+          variant: "destructive",
+        })
+        return
+      }
+
+      toast({
+        title: "Success",
+        description: "Composite item deleted successfully",
+      })
+      fetchCompositeItems()
+    } catch (error) {
+      console.error("Error deleting composite:", error)
       toast({
         title: "Error",
         description: "Failed to delete composite item",
         variant: "destructive",
       })
-      return
     }
-
-    toast({
-      title: "Success",
-      description: "Composite item deleted successfully",
-    })
-    fetchCompositeItems()
   }
 
   const totalPercentage = compositions.reduce((sum, comp) => sum + Number(comp.percentage || 0), 0)

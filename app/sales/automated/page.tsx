@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
-import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { ChevronLeft, ChevronRight, RefreshCw, Zap, Check, X } from "lucide-react"
 
@@ -33,8 +32,6 @@ export default function AutomatedSalesPage() {
     status: "all",
   })
 
-  const supabase = createClient()
-
   useEffect(() => {
     fetchData()
   }, [currentPage, filters])
@@ -51,56 +48,35 @@ export default function AutomatedSalesPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const { data: nozzlesData } = await supabase
-        .from("nozzles")
-        .select("*")
-        .eq("branch_id", branchId)
-        .eq("status", "active")
+      const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
+        fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+        fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}`)
+      ])
 
-      setNozzles(nozzlesData || [])
+      const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
+        nozzlesRes.json(),
+        dispensersRes.json(),
+        salesRes.json()
+      ])
 
-      const { data: dispensersData } = await supabase
-        .from("dispensers")
-        .select("*")
-        .eq("branch_id", branchId)
+      setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
+      setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
 
-      setDispensers(dispensersData || [])
-
-      let query = supabase
-        .from("sales")
-        .select("*")
-        .eq("branch_id", branchId)
-        .eq("is_automated", true)
-        .gte("sale_date", `${filters.startDate}T00:00:00`)
-        .lte("sale_date", `${filters.endDate}T23:59:59`)
-        .order("sale_date", { ascending: false })
-
-      if (filters.status && filters.status !== "all") {
-        query = query.eq("transmission_status", filters.status)
-      }
-
-      const { data: allSalesData, error: queryError } = await query
-
-      let allSales = allSalesData || []
+      const allSales = salesResult.success ? salesResult.data || [] : []
       setTotalCount(allSales.length)
 
       const offset = (currentPage - 1) * PAGE_SIZE
       const paginatedSales = allSales.slice(offset, offset + PAGE_SIZE)
-      const salesData = paginatedSales
-      const error = queryError
 
-      if (error) {
-        console.error("Error fetching automated sales:", error)
-      } else {
-        const processedSales = (salesData || []).map((sale: any) => ({
-          ...sale,
-          quantity: Number(sale.quantity) || 0,
-          unit_price: Number(sale.unit_price) || 0,
-          total_amount: Number(sale.total_amount) || 0,
-          meter_reading_after: Number(sale.meter_reading_after) || 0,
-        }))
-        setSales(processedSales)
-      }
+      const processedSales = paginatedSales.map((sale: any) => ({
+        ...sale,
+        quantity: Number(sale.quantity) || 0,
+        unit_price: Number(sale.unit_price) || 0,
+        total_amount: Number(sale.total_amount) || 0,
+        meter_reading_after: Number(sale.meter_reading_after) || 0,
+      }))
+      setSales(processedSales)
     } catch (error) {
       console.error("Error fetching data:", error)
       toast.error("Failed to load automated sales data")
