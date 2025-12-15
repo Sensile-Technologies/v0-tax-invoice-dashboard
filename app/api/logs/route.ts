@@ -1,42 +1,60 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { query } from "@/lib/db"
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const searchParams = request.nextUrl.searchParams
+    const branchId = searchParams.get("branch_id")
+    const endpoint = searchParams.get("endpoint")
+    const limit = parseInt(searchParams.get("limit") || "500")
 
-    const { data: logs, error } = await supabase
-      .from("api_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(500)
+    let sql = `SELECT * FROM api_logs`
+    const conditions: string[] = []
+    const params: any[] = []
+    let paramIndex = 1
 
-    if (error) {
-      console.error("[v0] Error fetching logs:", error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (branchId) {
+      conditions.push(`branch_id = $${paramIndex}`)
+      params.push(branchId)
+      paramIndex++
     }
 
+    if (endpoint) {
+      conditions.push(`endpoint ILIKE $${paramIndex}`)
+      params.push(`%${endpoint}%`)
+      paramIndex++
+    }
+
+    if (conditions.length > 0) {
+      sql += ` WHERE ` + conditions.join(" AND ")
+    }
+
+    sql += ` ORDER BY created_at DESC LIMIT $${paramIndex}`
+    params.push(limit)
+
+    const logs = await query(sql, params)
+
     return NextResponse.json({ logs })
-  } catch (error) {
-    console.error("[v0] Error in logs API:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  } catch (error: any) {
+    console.error("[Logs API] Error fetching logs:", error)
+    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const searchParams = request.nextUrl.searchParams
+    const branchId = searchParams.get("branch_id")
 
-    const { error } = await supabase.from("api_logs").delete().neq("id", "00000000-0000-0000-0000-000000000000") // Delete all
-
-    if (error) {
-      console.error("[v0] Error clearing logs:", error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (branchId) {
+      await query(`DELETE FROM api_logs WHERE branch_id = $1`, [branchId])
+    } else {
+      await query(`DELETE FROM api_logs WHERE id IS NOT NULL`)
     }
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error("[v0] Error in logs delete API:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  } catch (error: any) {
+    console.error("[Logs API] Error clearing logs:", error)
+    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 })
   }
 }

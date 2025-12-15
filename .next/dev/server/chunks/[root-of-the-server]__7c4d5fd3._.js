@@ -226,6 +226,18 @@ async function POST(request) {
                 secure: true,
                 httpOnly: false
             });
+            response.cookies.set('user_session', JSON.stringify({
+                id: user.id,
+                email: user.email,
+                vendor_id: user.vendor_id,
+                branch_id: user.branch_id
+            }), {
+                path: '/',
+                maxAge: 60 * 60 * 24 * 7,
+                sameSite: 'none',
+                secure: true,
+                httpOnly: true
+            });
             return response;
         } finally{
             client.release();
