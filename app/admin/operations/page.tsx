@@ -87,6 +87,11 @@ interface SignupRequest {
   status: string
   sales_person_name: string | null
   created_at: string
+  trading_name?: string
+  kra_pin?: string
+  location?: string
+  county?: string
+  address?: string
 }
 
 export default function OperationsPage() {
@@ -119,11 +124,26 @@ export default function OperationsPage() {
   const [editMerchant, setEditMerchant] = useState("")
   const [addMerchant, setAddMerchant] = useState("")
   const [addBranches, setAddBranches] = useState<any[]>([])
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
+  const [selectedSignup, setSelectedSignup] = useState<SignupRequest | null>(null)
+  const [reviewData, setReviewData] = useState({
+    company_name: "",
+    contact_name: "",
+    email: "",
+    phone: "",
+    trading_name: "",
+    kra_pin: "",
+    location: "",
+    county: "",
+    address: ""
+  })
   const [configData, setConfigData] = useState({
     device_token: "",
     bhf_id: "",
     server_address: "",
-    server_port: ""
+    server_port: "",
+    hardware_type: "",
+    hardware_serial: ""
   })
 
   useEffect(() => {
@@ -237,7 +257,7 @@ export default function OperationsPage() {
       const response = await fetch("/api/admin/operations/signups", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lead_id: leadId })
+        body: JSON.stringify({ lead_id: leadId, ...reviewData })
       })
 
       const data = await response.json()
@@ -252,10 +272,28 @@ export default function OperationsPage() {
       }
 
       toast.success("Branch verified! Lead moved to Onboarding Requests")
+      setReviewDialogOpen(false)
+      setSelectedSignup(null)
       fetchData()
     } catch (error) {
       toast.error("Failed to move to onboarding")
     }
+  }
+
+  const openReviewDialog = (signup: SignupRequest) => {
+    setSelectedSignup(signup)
+    setReviewData({
+      company_name: signup.company_name || "",
+      contact_name: signup.contact_name || "",
+      email: signup.email || "",
+      phone: signup.phone || "",
+      trading_name: signup.trading_name || "",
+      kra_pin: signup.kra_pin || "",
+      location: signup.location || "",
+      county: signup.county || "",
+      address: signup.address || ""
+    })
+    setReviewDialogOpen(true)
   }
 
   const handleAssignHardware = async (branchId: string) => {
@@ -346,7 +384,7 @@ export default function OperationsPage() {
       toast.success("Configuration saved successfully")
       setConfigDialogOpen(false)
       setSelectedRequest(null)
-      setConfigData({ device_token: "", bhf_id: "", server_address: "", server_port: "" })
+      setConfigData({ device_token: "", bhf_id: "", server_address: "", server_port: "", hardware_type: "", hardware_serial: "" })
       fetchData()
     } catch (error) {
       toast.error("Failed to save configuration")
@@ -806,9 +844,9 @@ export default function OperationsPage() {
                           <ExternalLink className="h-4 w-4 mr-2" />
                           Contact
                         </Button>
-                        <Button size="sm" onClick={() => handleMarkSignedUp(request.lead_id)}>
-                          <Check className="h-4 w-4 mr-2" />
-                          Move to Onboarding
+                        <Button size="sm" onClick={() => openReviewDialog(request)}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Review
                         </Button>
                       </div>
                     </div>
@@ -824,7 +862,7 @@ export default function OperationsPage() {
               )}
             </div>
 
-            <div>
+            <div className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Signup Instructions</CardTitle>
@@ -862,6 +900,64 @@ export default function OperationsPage() {
                         <ul className="space-y-1 text-slate-600">
                           <li>Email: support@flow360.co.ke</li>
                           <li>Phone: +254 700 000 000</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Building Mobile APK (EAS)</CardTitle>
+                  <CardDescription>Instructions for building the Flow360 Sales mobile app</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-sm max-w-none">
+                    <div className="space-y-4 text-sm">
+                      <div>
+                        <h3 className="font-semibold text-base mb-2">Prerequisites</h3>
+                        <ul className="list-disc list-inside space-y-1 text-slate-600">
+                          <li>An Expo account (free at expo.dev/signup)</li>
+                          <li>Node.js installed on your local machine</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-base mb-2">Step 1: Install EAS CLI</h3>
+                        <code className="block bg-slate-100 p-2 rounded text-xs">npm install -g eas-cli</code>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-base mb-2">Step 2: Login to Expo</h3>
+                        <code className="block bg-slate-100 p-2 rounded text-xs">eas login</code>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-base mb-2">Step 3: Link Project</h3>
+                        <code className="block bg-slate-100 p-2 rounded text-xs">cd mobile && eas init</code>
+                        <p className="text-slate-500 mt-1">Creates project on Expo and updates projectId in app.json</p>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-base mb-2">Step 4: Build APK</h3>
+                        <div className="space-y-2">
+                          <div>
+                            <span className="text-slate-600">Preview/Testing:</span>
+                            <code className="block bg-slate-100 p-2 rounded text-xs mt-1">eas build --platform android --profile preview</code>
+                          </div>
+                          <div>
+                            <span className="text-slate-600">Production:</span>
+                            <code className="block bg-slate-100 p-2 rounded text-xs mt-1">eas build --platform android --profile production</code>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-base mb-2">Step 5: Download</h3>
+                        <p className="text-slate-600">After build completes (10-15 mins), download link provided for APK file.</p>
+                      </div>
+                      <div className="pt-2 border-t">
+                        <h3 className="font-semibold text-base mb-2">Build Profiles</h3>
+                        <ul className="list-disc list-inside space-y-1 text-slate-600">
+                          <li><strong>development</strong> - Debug APK with dev client</li>
+                          <li><strong>preview</strong> - Release APK for internal testing</li>
+                          <li><strong>production</strong> - Release APK for distribution</li>
                         </ul>
                       </div>
                     </div>
@@ -967,11 +1063,143 @@ export default function OperationsPage() {
                 />
               </div>
             </div>
+            <div className="border-t pt-4 mt-2">
+              <Label className="text-base font-semibold mb-3 block">Hardware Assignment</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Hardware Type</Label>
+                  <Select
+                    value={configData.hardware_type}
+                    onValueChange={(v) => setConfigData({ ...configData, hardware_type: v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="token">Hardware Token</SelectItem>
+                      <SelectItem value="printer">Fiscal Printer</SelectItem>
+                      <SelectItem value="terminal">POS Terminal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Serial Number</Label>
+                  <Input
+                    value={configData.hardware_serial}
+                    onChange={(e) => setConfigData({ ...configData, hardware_serial: e.target.value })}
+                    placeholder="SN-XXXX-XXXX"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 mt-2">Hardware will be registered and assigned to this branch when configuration is saved.</p>
+            </div>
             <Button onClick={handleConfigureOnboarding} className="w-full">
               <Check className="h-4 w-4 mr-2" />
               Save Configuration
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Review Signup Request</DialogTitle>
+            <DialogDescription>
+              Review and edit details before moving to onboarding
+            </DialogDescription>
+          </DialogHeader>
+          {selectedSignup && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Company Name *</Label>
+                  <Input
+                    value={reviewData.company_name}
+                    onChange={(e) => setReviewData({ ...reviewData, company_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Trading Name</Label>
+                  <Input
+                    value={reviewData.trading_name}
+                    onChange={(e) => setReviewData({ ...reviewData, trading_name: e.target.value })}
+                    placeholder="Trading/Business Name"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Contact Name *</Label>
+                  <Input
+                    value={reviewData.contact_name}
+                    onChange={(e) => setReviewData({ ...reviewData, contact_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>KRA PIN</Label>
+                  <Input
+                    value={reviewData.kra_pin}
+                    onChange={(e) => setReviewData({ ...reviewData, kra_pin: e.target.value })}
+                    placeholder="e.g., P051234567Z"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Email *</Label>
+                  <Input
+                    type="email"
+                    value={reviewData.email}
+                    onChange={(e) => setReviewData({ ...reviewData, email: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone *</Label>
+                  <Input
+                    value={reviewData.phone}
+                    onChange={(e) => setReviewData({ ...reviewData, phone: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Location</Label>
+                  <Input
+                    value={reviewData.location}
+                    onChange={(e) => setReviewData({ ...reviewData, location: e.target.value })}
+                    placeholder="Town/Area"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>County</Label>
+                  <Input
+                    value={reviewData.county}
+                    onChange={(e) => setReviewData({ ...reviewData, county: e.target.value })}
+                    placeholder="County"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Address</Label>
+                <Textarea
+                  value={reviewData.address}
+                  onChange={(e) => setReviewData({ ...reviewData, address: e.target.value })}
+                  placeholder="Full address"
+                  rows={2}
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button variant="outline" onClick={() => setReviewDialogOpen(false)} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={() => handleMarkSignedUp(selectedSignup.lead_id)} className="flex-1">
+                  <Check className="h-4 w-4 mr-2" />
+                  Approve & Move to Onboarding
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 

@@ -38,7 +38,7 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { id, device_token, bhf_id, server_address, server_port } = await request.json()
+    const { id, device_token, bhf_id, server_address, server_port, hardware_type, hardware_serial } = await request.json()
 
     // Update the branch with onboarding configuration (device token, bhf_id, server address/port)
     const result = await query(`
@@ -50,6 +50,17 @@ export async function PUT(request: NextRequest) {
 
     if (result.length === 0) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 })
+    }
+
+    // If hardware info was provided, create hardware record and assign to branch
+    if (hardware_type && hardware_serial) {
+      const hardwareId = crypto.randomUUID()
+      await query(`
+        INSERT INTO hardware (id, serial_number, device_type, branch_id, status, assigned_at, created_at)
+        VALUES ($1, $2, $3, $4, 'assigned', NOW(), NOW())
+        ON CONFLICT (serial_number) 
+        DO UPDATE SET branch_id = $4, status = 'assigned', assigned_at = NOW()
+      `, [hardwareId, hardware_serial, hardware_type, id])
     }
 
     return NextResponse.json(result[0])
