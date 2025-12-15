@@ -139,6 +139,17 @@ async function POST(request) {
                     branch.phone || null
                 ]);
                 createdBranch = branchResult.rows[0];
+                const staffId = crypto.randomUUID();
+                await client.query(`INSERT INTO staff (id, user_id, branch_id, full_name, username, email, phone_number, role, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, 'Director', 'active', NOW(), NOW())`, [
+                    staffId,
+                    userId,
+                    branchId,
+                    data?.username || email.split('@')[0],
+                    data?.username || email.split('@')[0],
+                    email,
+                    data?.phone || null
+                ]);
             }
             await client.query("COMMIT");
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
