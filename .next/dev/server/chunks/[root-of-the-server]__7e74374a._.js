@@ -624,7 +624,8 @@ async function submitItemToKra(item) {
                 error: errorMsg
             };
         }
-        const kraEndpoint = `http://${branchConfig.server_address}:${branchConfig.server_port}/items/saveItems`;
+        const serverAddress = branchConfig.server_address.replace(/^https?:\/\//, '');
+        const kraEndpoint = `http://${serverAddress}:${branchConfig.server_port}/items/saveItems`;
         const kraPayload = {
             tin: branchConfig.kra_pin,
             bhfId: branchConfig.bhf_id || "00",

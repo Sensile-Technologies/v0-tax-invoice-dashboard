@@ -1,5 +1,4 @@
 import { query } from "@/lib/db"
-import { logApiCall } from "@/lib/api-logger"
 
 interface KraItemPayload {
   tin: string
@@ -209,16 +208,23 @@ export async function submitItemToKra(item: ItemData): Promise<{
     const duration = Date.now() - startTime
     console.log(`[KRA Items API] Response (${duration}ms):`, JSON.stringify(kraResponse, null, 2))
 
-    await logApiCall({
-      endpoint: kraEndpoint,
-      method: "POST",
-      payload: { ...kraPayload, tin: "***MASKED***" },
-      response: kraResponse,
-      statusCode: httpStatusCode,
-      durationMs: duration,
-      branchId: item.branch_id,
-      externalEndpoint: "kra_items_api"
-    })
+    try {
+      await query(`
+        INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+      `, [
+        kraEndpoint,
+        "POST",
+        JSON.stringify(kraPayload),
+        JSON.stringify(kraResponse),
+        httpStatusCode,
+        duration,
+        item.branch_id,
+        "kra_items_api"
+      ])
+    } catch (logError) {
+      console.error("[KRA Items API] Failed to log API call:", logError)
+    }
 
     const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
     const status = isSuccess ? "success" : "rejected"
