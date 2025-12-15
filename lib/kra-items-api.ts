@@ -134,7 +134,8 @@ export async function submitItemToKra(item: ItemData): Promise<{
       }
     }
 
-    const kraEndpoint = `http://${branchConfig.server_address}:${branchConfig.server_port}/items/saveItems`
+    const serverAddress = branchConfig.server_address.replace(/^https?:\/\//, '')
+    const kraEndpoint = `http://${serverAddress}:${branchConfig.server_port}/items/saveItems`
     
     const kraPayload: KraItemPayload = {
       tin: branchConfig.kra_pin,
