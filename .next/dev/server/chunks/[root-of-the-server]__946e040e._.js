@@ -172,7 +172,21 @@ async function POST(request) {
                 status: 400
             });
         }
-        const invoiceNumber = `INV-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`;
+        const year = new Date().getFullYear();
+        const lastInvoiceResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT invoice_number FROM invoices 
+       WHERE invoice_number LIKE $1 
+       ORDER BY invoice_number DESC LIMIT 1`, [
+            `INV-${year}-%`
+        ]);
+        let nextNumber = 1;
+        if (lastInvoiceResult.length > 0) {
+            const lastNumber = lastInvoiceResult[0].invoice_number;
+            const parts = lastNumber.split('-');
+            if (parts.length === 3) {
+                nextNumber = parseInt(parts[2], 10) + 1;
+            }
+        }
+        const invoiceNumber = `INV-${year}-${nextNumber.toString().padStart(4, '0')}`;
         let subtotal = 0;
         if (line_items && Array.isArray(line_items)) {
             subtotal = line_items.reduce((sum, item)=>{
