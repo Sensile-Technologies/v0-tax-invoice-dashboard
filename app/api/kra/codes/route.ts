@@ -120,20 +120,6 @@ export async function POST(request: Request) {
 
       for (const item of flattenedCodes) {
         await query(
-          `INSERT INTO code_lists (cd_cls, cd, cd_nm, cd_desc, use_yn, user_dfn_cd1, user_dfn_cd2, user_dfn_cd3, last_req_dt)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-           ON CONFLICT (cd_cls, cd) DO UPDATE SET
-             cd_nm = EXCLUDED.cd_nm,
-             cd_desc = EXCLUDED.cd_desc,
-             use_yn = EXCLUDED.use_yn,
-             user_dfn_cd1 = EXCLUDED.user_dfn_cd1,
-             user_dfn_cd2 = EXCLUDED.user_dfn_cd2,
-             user_dfn_cd3 = EXCLUDED.user_dfn_cd3,
-             last_req_dt = NOW()`,
-          [item.cdCls, item.cd, item.cdNm, item.cdDesc, item.useYn || "Y", item.userDfnCd1, item.userDfnCd2, item.userDfnCd3]
-        )
-        
-        await query(
           `INSERT INTO kra_codelists (bhf_id, cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at)
            VALUES ($1, $2, $3, $4, $5, $6, NOW())
            ON CONFLICT (bhf_id, cd_cls, cd) DO UPDATE SET

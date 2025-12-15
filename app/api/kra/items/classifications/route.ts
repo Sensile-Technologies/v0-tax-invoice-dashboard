@@ -97,19 +97,6 @@ export async function POST(request: Request) {
 
       for (const item of itemClsList) {
         await query(
-          `INSERT INTO item_classifications (item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, mjr_tg_yn, use_yn, last_req_dt)
-           VALUES ($1, $2, $3, $4, $5, $6, NOW())
-           ON CONFLICT (item_cls_cd) DO UPDATE SET
-             item_cls_nm = EXCLUDED.item_cls_nm,
-             item_cls_lvl = EXCLUDED.item_cls_lvl,
-             tax_ty_cd = EXCLUDED.tax_ty_cd,
-             mjr_tg_yn = EXCLUDED.mjr_tg_yn,
-             use_yn = EXCLUDED.use_yn,
-             last_req_dt = NOW()`,
-          [item.itemClsCd, item.itemClsNm, item.itemClsLvl, item.taxTyCd, item.mjrTgYn, item.useYn || "Y"]
-        )
-        
-        await query(
           `INSERT INTO kra_item_classifications (bhf_id, item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, mjr_tg_yn, use_yn, updated_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
            ON CONFLICT (bhf_id, item_cls_cd) DO UPDATE SET

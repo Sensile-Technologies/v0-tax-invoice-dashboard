@@ -32,24 +32,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "codelist") {
-      let result
-      if (bhfId) {
-        result = await query(
-          `SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
-           FROM kra_codelists 
-           WHERE bhf_id = $1 
-           ORDER BY cd_cls, cd`,
-          [bhfId]
-        )
-      }
-      
-      if (!result || result.length === 0) {
-        result = await query(
-          `SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, last_req_dt as updated_at 
-           FROM code_lists 
-           ORDER BY cd_cls, cd`
-        )
-      }
+      const result = bhfId 
+        ? await query(
+            `SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
+             FROM kra_codelists 
+             WHERE bhf_id = $1 
+             ORDER BY cd_cls, cd`,
+            [bhfId]
+          )
+        : []
       
       return NextResponse.json({ 
         data: result,
@@ -59,24 +50,15 @@ export async function GET(request: NextRequest) {
     }
     
     if (type === "classifications") {
-      let result
-      if (bhfId) {
-        result = await query(
-          `SELECT item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, use_yn, updated_at 
-           FROM kra_item_classifications 
-           WHERE bhf_id = $1 
-           ORDER BY item_cls_cd`,
-          [bhfId]
-        )
-      }
-      
-      if (!result || result.length === 0) {
-        result = await query(
-          `SELECT item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, use_yn, last_req_dt as updated_at 
-           FROM item_classifications 
-           ORDER BY item_cls_cd`
-        )
-      }
+      const result = bhfId 
+        ? await query(
+            `SELECT item_cls_cd, item_cls_nm, item_cls_lvl, tax_ty_cd, use_yn, updated_at 
+             FROM kra_item_classifications 
+             WHERE bhf_id = $1 
+             ORDER BY item_cls_cd`,
+            [bhfId]
+          )
+        : []
       
       return NextResponse.json({ 
         data: result,
