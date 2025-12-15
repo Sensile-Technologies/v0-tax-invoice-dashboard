@@ -50,7 +50,13 @@ export async function POST(request: Request) {
       if (branch) {
         const branchId = crypto.randomUUID()
         const vendorId = crypto.randomUUID()
-        const bhfId = "01"
+        
+        const isHeadquarters = branch.name && (
+          branch.name.toLowerCase().includes('headquarters') || 
+          branch.name.toLowerCase().includes('head office') ||
+          branch.name.toLowerCase() === 'hq'
+        )
+        const bhfId = isHeadquarters ? "00" : "01"
 
         // Create vendor for this user
         const vendorResult = await client.query(

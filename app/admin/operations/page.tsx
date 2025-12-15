@@ -907,63 +907,6 @@ export default function OperationsPage() {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Building Mobile APK (EAS)</CardTitle>
-                  <CardDescription>Instructions for building the Flow360 Sales mobile app</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="prose prose-sm max-w-none">
-                    <div className="space-y-4 text-sm">
-                      <div>
-                        <h3 className="font-semibold text-base mb-2">Prerequisites</h3>
-                        <ul className="list-disc list-inside space-y-1 text-slate-600">
-                          <li>An Expo account (free at expo.dev/signup)</li>
-                          <li>Node.js installed on your local machine</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-base mb-2">Step 1: Install EAS CLI</h3>
-                        <code className="block bg-slate-100 p-2 rounded text-xs">npm install -g eas-cli</code>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-base mb-2">Step 2: Login to Expo</h3>
-                        <code className="block bg-slate-100 p-2 rounded text-xs">eas login</code>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-base mb-2">Step 3: Link Project</h3>
-                        <code className="block bg-slate-100 p-2 rounded text-xs">cd mobile && eas init</code>
-                        <p className="text-slate-500 mt-1">Creates project on Expo and updates projectId in app.json</p>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-base mb-2">Step 4: Build APK</h3>
-                        <div className="space-y-2">
-                          <div>
-                            <span className="text-slate-600">Preview/Testing:</span>
-                            <code className="block bg-slate-100 p-2 rounded text-xs mt-1">eas build --platform android --profile preview</code>
-                          </div>
-                          <div>
-                            <span className="text-slate-600">Production:</span>
-                            <code className="block bg-slate-100 p-2 rounded text-xs mt-1">eas build --platform android --profile production</code>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-base mb-2">Step 5: Download</h3>
-                        <p className="text-slate-600">After build completes (10-15 mins), download link provided for APK file.</p>
-                      </div>
-                      <div className="pt-2 border-t">
-                        <h3 className="font-semibold text-base mb-2">Build Profiles</h3>
-                        <ul className="list-disc list-inside space-y-1 text-slate-600">
-                          <li><strong>development</strong> - Debug APK with dev client</li>
-                          <li><strong>preview</strong> - Release APK for internal testing</li>
-                          <li><strong>production</strong> - Release APK for distribution</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </TabsContent>

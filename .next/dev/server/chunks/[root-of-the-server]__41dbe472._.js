@@ -171,7 +171,7 @@ async function GET() {
 }
 async function PUT(request) {
     try {
-        const { id, device_token, bhf_id, server_address, server_port } = await request.json();
+        const { id, device_token, bhf_id, server_address, server_port, hardware_type, hardware_serial } = await request.json();
         // Update the branch with onboarding configuration (device token, bhf_id, server address/port)
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       UPDATE branches 
@@ -191,6 +191,21 @@ async function PUT(request) {
             }, {
                 status: 404
             });
+        }
+        // If hardware info was provided, create hardware record and assign to branch
+        if (hardware_type && hardware_serial) {
+            const hardwareId = crypto.randomUUID();
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        INSERT INTO hardware (id, serial_number, device_type, branch_id, status, assigned_at, created_at)
+        VALUES ($1, $2, $3, $4, 'assigned', NOW(), NOW())
+        ON CONFLICT (serial_number) 
+        DO UPDATE SET branch_id = $4, status = 'assigned', assigned_at = NOW()
+      `, [
+                hardwareId,
+                hardware_serial,
+                hardware_type,
+                id
+            ]);
         }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
     } catch (error) {

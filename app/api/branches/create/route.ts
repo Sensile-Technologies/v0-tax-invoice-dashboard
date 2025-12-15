@@ -31,21 +31,29 @@ export async function POST(request: Request) {
 
       let finalBhfId = bhf_id
 
-      if (bhf_id) {
+      const isHeadquarters = name && (
+        name.toLowerCase().includes('headquarters') || 
+        name.toLowerCase().includes('head office') ||
+        name.toLowerCase() === 'hq'
+      )
+
+      if (isHeadquarters) {
+        finalBhfId = '00'
+      } else if (bhf_id) {
         const existingBhf = await client.query(
           "SELECT id FROM branches WHERE bhf_id = $1",
           [bhf_id]
         )
         if (existingBhf.rows.length > 0) {
           const maxBhf = await client.query(
-            "SELECT bhf_id FROM branches ORDER BY bhf_id DESC LIMIT 1"
+            "SELECT bhf_id FROM branches WHERE bhf_id != '00' ORDER BY bhf_id DESC LIMIT 1"
           )
           const maxNum = maxBhf.rows.length > 0 ? parseInt(maxBhf.rows[0].bhf_id, 10) : 0
           finalBhfId = String(maxNum + 1).padStart(2, '0')
         }
       } else {
         const maxBhf = await client.query(
-          "SELECT bhf_id FROM branches ORDER BY bhf_id DESC LIMIT 1"
+          "SELECT bhf_id FROM branches WHERE bhf_id != '00' ORDER BY bhf_id DESC LIMIT 1"
         )
         const maxNum = maxBhf.rows.length > 0 ? parseInt(maxBhf.rows[0].bhf_id, 10) : 0
         finalBhfId = String(maxNum + 1).padStart(2, '0')
