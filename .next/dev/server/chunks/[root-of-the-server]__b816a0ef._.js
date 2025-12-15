@@ -225,7 +225,13 @@ async function POST(request, { params }) {
         }
         const columns = Object.keys(rows[0]);
         const values = rows.map((row, i)=>`(${columns.map((_, j)=>`$${i * columns.length + j + 1}`).join(', ')})`).join(', ');
-        const sqlParams = rows.flatMap((row)=>columns.map((col)=>row[col]));
+        const sqlParams = rows.flatMap((row)=>columns.map((col)=>{
+                const value = row[col];
+                if (value !== null && typeof value === 'object') {
+                    return JSON.stringify(value);
+                }
+                return value;
+            }));
         const sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES ${values} RETURNING *`;
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, sqlParams);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result);
@@ -252,7 +258,13 @@ async function PUT(request, { params }) {
         const { data, where } = body;
         const columns = Object.keys(data);
         const setClause = columns.map((col, i)=>`${col} = $${i + 1}`).join(', ');
-        const sqlParams = columns.map((col)=>data[col]);
+        const sqlParams = columns.map((col)=>{
+            const value = data[col];
+            if (value !== null && typeof value === 'object') {
+                return JSON.stringify(value);
+            }
+            return value;
+        });
         let sql = `UPDATE ${table} SET ${setClause}`;
         let paramIndex = sqlParams.length;
         if (where && where.length > 0) {

@@ -258,7 +258,7 @@ export default function HeadquartersPage() {
       console.log("[v0] Branch created:", branchData)
       const createdBranch = branchData
 
-      const uniqueDispensers = new Set<number>()
+      const dispenserMap = new Map<number, { dispenserNumber: number; fuelType: string }>()
       const tanksToCreate: any[] = []
 
       Object.entries(branchForm.tankConfig).forEach(([storageIndex, config]) => {
@@ -269,11 +269,13 @@ export default function HeadquartersPage() {
           tankCapacity?: string
         }
 
+        const fuelType = tankConfig.fuelType || "Petrol"
+
         // Create tank entry
         tanksToCreate.push({
           branch_id: createdBranch.id,
           tank_name: storageIndex,
-          fuel_type: tankConfig.fuelType || "Petrol",
+          fuel_type: fuelType,
           capacity: Number.parseFloat(tankConfig.tankCapacity || "0"),
           current_stock: Number.parseFloat(tankConfig.initialStock || "0"),
           status: "active",
@@ -281,16 +283,19 @@ export default function HeadquartersPage() {
 
         tankConfig.dispensers.forEach((dispenserName) => {
           // Extract dispenser number from name (e.g., "Dispenser 01" -> 1)
-          const dispenserNumber = Number.parseInt(dispenserName.replace(/\D/g, "")) || uniqueDispensers.size + 1
+          const dispenserNumber = Number.parseInt(dispenserName.replace(/\D/g, "")) || dispenserMap.size + 1
 
-          // Add to set to track unique dispensers
-          uniqueDispensers.add(dispenserNumber)
+          // Track dispenser with its fuel type (if same dispenser appears in multiple tanks, use first)
+          if (!dispenserMap.has(dispenserNumber)) {
+            dispenserMap.set(dispenserNumber, { dispenserNumber, fuelType })
+          }
         })
       })
 
-      const dispensersToCreate = Array.from(uniqueDispensers).map((dispenserNumber) => ({
+      const dispensersToCreate = Array.from(dispenserMap.values()).map((d) => ({
         branch_id: createdBranch.id,
-        dispenser_number: dispenserNumber,
+        dispenser_number: d.dispenserNumber,
+        fuel_type: d.fuelType,
         status: "active",
       }))
 
