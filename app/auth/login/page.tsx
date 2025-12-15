@@ -46,7 +46,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen w-full relative flex items-center justify-center p-6">
+    <div className="min-h-screen min-h-[100dvh] w-full relative flex items-center justify-center p-4 sm:p-6">
       <div className="absolute inset-0 z-0">
         <Image
           src="https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&h=1080&fit=crop"
@@ -58,18 +58,18 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-blue-900/30" />
       </div>
 
-      <Card className="w-full max-w-md relative z-10 shadow-2xl">
-        <CardHeader className="space-y-4 pb-8">
+      <Card className="w-full max-w-[340px] sm:max-w-md relative z-10 shadow-2xl mx-auto">
+        <CardHeader className="space-y-3 sm:space-y-4 pb-6 sm:pb-8 px-4 sm:px-6">
           <div className="flex justify-center">
-            <Image src="/flow360-logo.png" alt="Flow360 Logo" width={80} height={80} className="rounded-full" />
+            <Image src="/flow360-logo.png" alt="Flow360 Logo" width={64} height={64} className="rounded-full sm:w-20 sm:h-20" />
           </div>
-          <CardTitle className="text-3xl text-center font-bold text-primary">Flow360</CardTitle>
-          <p className="text-center text-muted-foreground">Sign in to your account</p>
+          <CardTitle className="text-2xl sm:text-3xl text-center font-bold text-primary">Flow360</CardTitle>
+          <p className="text-center text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="identifier">Email or Username</Label>
+              <Label htmlFor="identifier" className="text-sm">Email or Username</Label>
               <Input
                 id="identifier"
                 type="text"
@@ -77,11 +77,13 @@ export default function LoginPage() {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className="rounded-xl"
+                className="rounded-xl h-11 sm:h-10 text-base sm:text-sm"
+                autoCapitalize="none"
+                autoCorrect="off"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -89,16 +91,16 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="rounded-xl"
+                className="rounded-xl h-11 sm:h-10 text-base sm:text-sm"
               />
             </div>
             {error && <div className="text-sm text-red-500 bg-red-50 p-3 rounded-xl">{error}</div>}
-            <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
+            <Button type="submit" className="w-full rounded-xl h-11 sm:h-10 text-base sm:text-sm" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
-          <Separator className="my-6" />
+          <Separator className="my-5 sm:my-6" />
 
           <div className="text-center text-sm">
             Don't have an account?{" "}
