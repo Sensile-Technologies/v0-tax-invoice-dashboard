@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
 import { 
   syncStockWithKRA, 
-  StockMovementType,
-  updateTankStock 
+  StockMovementType
 } from "@/lib/kra-stock-service"
 
 export async function POST(request: NextRequest) {
@@ -79,15 +78,6 @@ export async function POST(request: NextRequest) {
       }
     )
 
-    if (result.success) {
-      for (const item of items) {
-        if (movementType === "sale" || movementType === "stock_transfer") {
-          await updateTankStock(item.tankId, item.quantity, "subtract")
-        } else if (movementType === "stock_receive" || movementType === "initial_stock") {
-          await updateTankStock(item.tankId, item.quantity, "add")
-        }
-      }
-    }
 
     return NextResponse.json({
       success: result.success,

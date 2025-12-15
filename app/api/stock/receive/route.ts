@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
-import { syncStockWithKRA, updateTankStock } from "@/lib/kra-stock-service"
+import { syncStockWithKRA } from "@/lib/kra-stock-service"
 
 export async function POST(request: NextRequest) {
   try {
