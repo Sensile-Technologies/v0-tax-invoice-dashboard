@@ -48,10 +48,14 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 ## Recent Changes
 - 2024-12-15: Branch Form Cleanup & JSON Fixes
   - Removed BHF ID and Device Token fields from Create New Branch form (these are set during onboarding)
-  - Fixed storage_indices JSON serialization - now properly stringified before database insert
+  - Removed BHF ID and Device Token fields from Edit Branch Details dialog
+  - Removed Activate/Deactivate button from Edit Branch dialog (branches are active by default)
+  - Created /api/branches/[id] dynamic route for GET, PUT, PATCH, DELETE operations
+  - Fixed storage_indices JSON serialization - now properly handled for jsonb column
   - Fixed vendor invoices API JSON serialization - properly converts Date and Decimal types
   - Updated branch form validation to no longer require BHF ID
   - Cleaned up branchForm state to remove unused fields (bhf_id, token, bhfId, description)
+  - Removed unused handleDeactivateBranch function
 
 - 2024-12-15: Branch Security & Admin Invoice Fixes
   - Fixed critical branch security issue - users now only see branches from their own vendor

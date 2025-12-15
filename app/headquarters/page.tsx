@@ -1221,16 +1221,6 @@ export default function HeadquartersPage() {
               )}
             </div>
 
-            <div className="space-y-2 border-t pt-4">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Brief description of the branch..."
-                value={branchForm.description}
-                onChange={(e) => setBranchForm({ ...branchForm, description: e.target.value })}
-                className="rounded-xl min-h-[100px]"
-              />
-            </div>
           </div>
           <div className="flex justify-end gap-3">
             <Button
@@ -1249,7 +1239,6 @@ export default function HeadquartersPage() {
                 !branchForm.location ||
                 !branchForm.county ||
                 !branchForm.localTaxOffice ||
-                !branchForm.bhfId || // Add BHF ID validation
                 isSubmitting
               }
             >
@@ -1288,28 +1277,6 @@ export default function HeadquartersPage() {
                   className="rounded-xl"
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-bhf-id">BHF ID *</Label>
-              <Input
-                id="edit-bhf-id"
-                placeholder="e.g., BHF-NB-001"
-                value={branchForm.bhfId}
-                onChange={(e) => setBranchForm({ ...branchForm, bhfId: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-device-token">Device Token</Label>
-              <Input
-                id="edit-device-token"
-                placeholder="Enter device authentication token"
-                value={branchForm.token}
-                onChange={(e) => setBranchForm({ ...branchForm, token: e.target.value })}
-                className="rounded-xl"
-                type="password"
-              />
-              <p className="text-xs text-gray-600">This token authenticates the device with the tax authority system</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-address">Physical Address</Label>
@@ -1355,43 +1322,20 @@ export default function HeadquartersPage() {
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
-              <Textarea
-                id="edit-description"
-                placeholder="Brief description of the branch..."
-                value={branchForm.description}
-                onChange={(e) => setBranchForm({ ...branchForm, description: e.target.value })}
-                className="rounded-xl min-h-[100px]"
-              />
-            </div>
           </div>
           <div className="flex justify-between items-center pt-4 border-t">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (editingBranch) {
-                    handleDeactivateBranch(editingBranch.id, editingBranch.name)
-                  }
-                }}
-                className="rounded-xl"
-              >
-                {editingBranch?.status === "active" ? "Deactivate Branch" : "Activate Branch"}
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => {
-                  if (editingBranch) {
-                    handleDeleteBranch(editingBranch.id, editingBranch.name)
-                    setEditBranchOpen(false)
-                  }
-                }}
-                className="rounded-xl"
-              >
-                Delete Branch
-              </Button>
-            </div>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (editingBranch) {
+                  handleDeleteBranch(editingBranch.id, editingBranch.name)
+                  setEditBranchOpen(false)
+                }
+              }}
+              className="rounded-xl"
+            >
+              Delete Branch
+            </Button>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => setEditBranchOpen(false)} className="rounded-xl">
                 Cancel
@@ -1402,10 +1346,9 @@ export default function HeadquartersPage() {
                 disabled={
                   !branchForm.name ||
                   !branchForm.location ||
-                  !branchForm.bhfId ||
                   !branchForm.county ||
                   !branchForm.localTaxOffice
-                } // Add BHF ID validation
+                }
               >
                 Update Branch
               </Button>
