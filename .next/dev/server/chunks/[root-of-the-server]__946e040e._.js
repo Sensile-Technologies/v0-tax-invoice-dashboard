@@ -164,7 +164,7 @@ async function GET(request) {
 async function POST(request) {
     try {
         const body = await request.json();
-        const { vendor_id, branch_id, branch_ids, billed_to_contact, issue_date, due_date, notes, line_items, created_by } = body;
+        const { vendor_id, branch_id, branch_ids, billed_to_contact, issue_date, due_date, notes, line_items, created_by, include_vat } = body;
         if (!vendor_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Vendor is required"
@@ -181,7 +181,7 @@ async function POST(request) {
                 return sum + (lineSubtotal - discountAmount);
             }, 0);
         }
-        const taxAmount = subtotal * 0.16;
+        const taxAmount = include_vat !== false ? subtotal * 0.16 : 0;
         const totalAmount = subtotal + taxAmount;
         // Use first branch_id from branch_ids array if available, otherwise use branch_id
         const primaryBranchId = branch_ids && branch_ids.length > 0 ? branch_ids[0] : branch_id;

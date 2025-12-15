@@ -122,7 +122,9 @@ return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, _
 
 __turbopack_context__.s([
     "GET",
-    ()=>GET
+    ()=>GET,
+    "PUT",
+    ()=>PUT
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/lib/db/index.ts [app-route] (ecmascript) <locals>");
@@ -169,6 +171,85 @@ async function GET(request, { params }) {
         console.error("Error fetching invoice:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: "Failed to fetch invoice"
+        }, {
+            status: 500
+        });
+    }
+}
+async function PUT(request, { params }) {
+    try {
+        const { id } = await params;
+        const body = await request.json();
+        const { billed_to_contact, due_date, notes, include_vat, line_items } = body;
+        const invoiceResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM invoices WHERE id = $1`, [
+            id
+        ]);
+        if (invoiceResult.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Invoice not found"
+            }, {
+                status: 404
+            });
+        }
+        const invoice = invoiceResult[0];
+        if (invoice.status !== "draft") {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Only draft invoices can be edited"
+            }, {
+                status: 400
+            });
+        }
+        let subtotal = 0;
+        if (line_items && Array.isArray(line_items)) {
+            subtotal = line_items.reduce((sum, item)=>{
+                const lineSubtotal = item.quantity * item.unit_price;
+                const discountAmount = lineSubtotal * ((item.discount || 0) / 100);
+                return sum + (lineSubtotal - discountAmount);
+            }, 0);
+        }
+        const taxAmount = include_vat !== false ? subtotal * 0.16 : 0;
+        const totalAmount = subtotal + taxAmount;
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      UPDATE invoices 
+      SET billed_to_contact = $1, due_date = $2, notes = $3, subtotal = $4, tax_amount = $5, total_amount = $6
+      WHERE id = $7
+    `, [
+            billed_to_contact,
+            due_date,
+            notes,
+            subtotal,
+            taxAmount,
+            totalAmount,
+            id
+        ]);
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`DELETE FROM invoice_line_items WHERE invoice_id = $1`, [
+            id
+        ]);
+        if (line_items && Array.isArray(line_items)) {
+            for (const item of line_items){
+                const lineSubtotal = item.quantity * item.unit_price;
+                const discountAmount = lineSubtotal * ((item.discount || 0) / 100);
+                const lineAmount = lineSubtotal - discountAmount;
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO invoice_line_items (invoice_id, description, quantity, unit_price, tax_rate, amount, discount)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`, [
+                    id,
+                    item.description,
+                    item.quantity,
+                    item.unit_price,
+                    item.tax_rate || 0,
+                    lineAmount,
+                    item.discount || 0
+                ]);
+            }
+        }
+        const updatedInvoice = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM invoices WHERE id = $1`, [
+            id
+        ]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(updatedInvoice[0]);
+    } catch (error) {
+        console.error("Error updating invoice:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Failed to update invoice"
         }, {
             status: 500
         });
