@@ -45,18 +45,30 @@ export async function POST(request: Request) {
       )
 
       let createdBranch = null
+      let createdVendor = null
 
       if (branch) {
         const branchId = crypto.randomUUID()
+        const vendorId = crypto.randomUUID()
         const bhfId = "01"
 
+        // Create vendor for this user
+        const vendorResult = await client.query(
+          `INSERT INTO vendors (id, name, email, created_at, updated_at)
+           VALUES ($1, $2, $3, NOW(), NOW())
+           RETURNING *`,
+          [vendorId, branch.trading_name || branch.name, email]
+        )
+        createdVendor = vendorResult.rows[0]
+
         const branchResult = await client.query(
-          `INSERT INTO branches (id, user_id, name, bhf_id, trading_name, kra_pin, location, address, county, local_tax_office, manager, email, phone, status, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, 'active', NOW(), NOW())
+          `INSERT INTO branches (id, user_id, vendor_id, name, bhf_id, trading_name, kra_pin, location, address, county, local_tax_office, manager, email, phone, status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, 'active', NOW(), NOW())
            RETURNING *`,
           [
             branchId,
             userId,
+            vendorId,
             branch.name,
             bhfId,
             branch.trading_name || null,
