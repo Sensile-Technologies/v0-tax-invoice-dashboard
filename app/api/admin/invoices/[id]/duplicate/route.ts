@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/db"
+import { query } from "@/lib/db/client"
 
 export async function POST(
   request: NextRequest,
@@ -12,17 +12,29 @@ export async function POST(
       SELECT * FROM invoices WHERE id = $1
     `, [id])
 
-    if (invoiceResult.rows.length === 0) {
+    if (invoiceResult.length === 0) {
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 })
     }
 
-    const original = invoiceResult.rows[0]
+    const original = invoiceResult[0]
 
-    const countResult = await query(`
-      SELECT COUNT(*) as count FROM invoices WHERE vendor_id = $1
-    `, [original.vendor_id])
-    const count = parseInt(countResult.rows[0].count) + 1
-    const invoiceNumber = `INV-${new Date().getFullYear()}-${String(count).padStart(4, '0')}`
+    const year = new Date().getFullYear()
+    const lastInvoiceResult = await query(
+      `SELECT invoice_number FROM invoices 
+       WHERE invoice_number LIKE $1 
+       ORDER BY invoice_number DESC LIMIT 1`,
+      [`INV-${year}-%`]
+    )
+    
+    let nextNumber = 1
+    if (lastInvoiceResult.length > 0) {
+      const lastNumber = lastInvoiceResult[0].invoice_number
+      const parts = lastNumber.split('-')
+      if (parts.length === 3) {
+        nextNumber = parseInt(parts[2], 10) + 1
+      }
+    }
+    const invoiceNumber = `INV-${year}-${nextNumber.toString().padStart(4, '0')}`
 
     const newInvoiceResult = await query(`
       INSERT INTO invoices (
@@ -52,12 +64,12 @@ export async function POST(
       SELECT * FROM invoice_line_items WHERE invoice_id = $1
     `, [id])
 
-    for (const item of lineItemsResult.rows) {
+    for (const item of lineItemsResult) {
       await query(`
         INSERT INTO invoice_line_items (invoice_id, description, quantity, unit_price, tax_rate, amount)
         VALUES ($1, $2, $3, $4, $5, $6)
       `, [
-        newInvoiceResult.rows[0].id,
+        newInvoiceResult[0].id,
         item.description,
         item.quantity,
         item.unit_price,
@@ -66,7 +78,7 @@ export async function POST(
       ])
     }
 
-    return NextResponse.json(newInvoiceResult.rows[0])
+    return NextResponse.json(newInvoiceResult[0])
   } catch (error) {
     console.error("Error duplicating invoice:", error)
     return NextResponse.json({ error: "Failed to duplicate invoice" }, { status: 500 })

@@ -7,10 +7,12 @@ export async function GET() {
       SELECT 
         v.*,
         COUNT(DISTINCT b.id) as branch_count,
-        COUNT(DISTINCT t.id) FILTER (WHERE t.status = 'open') as open_tickets
+        COUNT(DISTINCT t.id) FILTER (WHERE t.status = 'open') as open_tickets,
+        COUNT(DISTINCT i.id) FILTER (WHERE i.status IN ('pending', 'partial', 'overdue', 'draft')) as pending_invoices
       FROM vendors v
       LEFT JOIN branches b ON b.vendor_id = v.id
       LEFT JOIN support_tickets t ON t.vendor_id = v.id
+      LEFT JOIN invoices i ON i.vendor_id = v.id
       GROUP BY v.id
       ORDER BY v.name
     `)
@@ -41,6 +43,38 @@ export async function POST(request: Request) {
     return NextResponse.json(result[0])
   } catch (error: any) {
     console.error("[Admin] Error creating vendor:", error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json()
+    const { id, name, email, phone, address } = body
+
+    if (!id) {
+      return NextResponse.json({ error: "Vendor ID is required" }, { status: 400 })
+    }
+
+    const result = await query(
+      `UPDATE vendors 
+       SET name = COALESCE($2, name),
+           email = COALESCE($3, email),
+           phone = COALESCE($4, phone),
+           address = COALESCE($5, address),
+           updated_at = NOW()
+       WHERE id = $1
+       RETURNING *`,
+      [id, name, email, phone, address]
+    )
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: "Vendor not found" }, { status: 404 })
+    }
+
+    return NextResponse.json(result[0])
+  } catch (error: any) {
+    console.error("[Admin] Error updating vendor:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Building2, Search, Phone, MapPin, 
-  Store, FileText, Calendar
+  Store, FileText, Calendar, Edit2
 } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -30,6 +31,7 @@ interface Merchant {
   subscription_plan: string
   branch_count: number
   open_tickets: number
+  pending_invoices: number
   created_at: string
 }
 
@@ -59,6 +61,14 @@ export default function MerchantsPage() {
   const [merchantBranches, setMerchantBranches] = useState<Branch[]>([])
   const [merchantInvoices, setMerchantInvoices] = useState<Invoice[]>([])
   const [loadingDetails, setLoadingDetails] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editingMerchant, setEditingMerchant] = useState<Merchant | null>(null)
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: ""
+  })
 
   useEffect(() => {
     fetchMerchants()
@@ -103,6 +113,41 @@ export default function MerchantsPage() {
     setSelectedMerchant(merchant)
     setDetailDialogOpen(true)
     fetchMerchantDetails(merchant)
+  }
+
+  const handleEditClick = (e: React.MouseEvent, merchant: Merchant) => {
+    e.stopPropagation()
+    setEditingMerchant(merchant)
+    setEditForm({
+      name: merchant.name || "",
+      email: merchant.email || "",
+      phone: merchant.phone || "",
+      address: merchant.address || ""
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingMerchant) return
+
+    try {
+      const response = await fetch("/api/admin/vendors", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingMerchant.id,
+          ...editForm
+        })
+      })
+
+      if (!response.ok) throw new Error("Failed to update merchant")
+
+      toast.success("Merchant updated successfully")
+      setEditDialogOpen(false)
+      fetchMerchants()
+    } catch (error) {
+      toast.error("Failed to update merchant")
+    }
   }
 
   const formatCurrency = (amount: number) => {
@@ -180,9 +225,19 @@ export default function MerchantsPage() {
                     <CardDescription>{merchant.email}</CardDescription>
                   </div>
                 </div>
-                <Badge className={getStatusColor(merchant.status)}>
-                  {merchant.status}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleEditClick(e, merchant)}
+                    title="Edit Contact"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Badge className={getStatusColor(merchant.status)}>
+                    {merchant.status}
+                  </Badge>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -204,8 +259,8 @@ export default function MerchantsPage() {
                   <p className="text-xs text-slate-500">Branches</p>
                 </div>
                 <div className="text-center flex-1">
-                  <p className="text-2xl font-bold text-orange-600">{Number(merchant.open_tickets)}</p>
-                  <p className="text-xs text-slate-500">Open Tickets</p>
+                  <p className="text-2xl font-bold text-orange-600">{Number(merchant.pending_invoices || 0)}</p>
+                  <p className="text-xs text-slate-500">Invoices Pending</p>
                 </div>
                 <div className="text-center flex-1">
                   <Badge variant="outline" className="text-xs">
@@ -332,6 +387,64 @@ export default function MerchantsPage() {
           <p className="text-slate-500">No merchants found</p>
         </div>
       )}
+
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Merchant Contact</DialogTitle>
+            <DialogDescription>
+              Update the contact information for this merchant
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={editForm.name}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                placeholder="Merchant name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">Email</Label>
+              <Input
+                id="edit-email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                placeholder="contact@example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-phone">Phone</Label>
+              <Input
+                id="edit-phone"
+                value={editForm.phone}
+                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                placeholder="+254 xxx xxx xxx"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-address">Address</Label>
+              <Input
+                id="edit-address"
+                value={editForm.address}
+                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                placeholder="Business address"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveEdit}>
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
