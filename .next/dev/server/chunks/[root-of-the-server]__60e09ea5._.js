@@ -127,6 +127,7 @@ async function GET(request) {
         let vendorFilter = vendorId;
         // If user_id is provided, find the user's vendor
         if (userId && !vendorFilter) {
+            // First try: match user email to vendor email
             const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
          JOIN vendors v ON v.email = u.email 
          WHERE u.id = $1`, [
@@ -135,14 +136,48 @@ async function GET(request) {
             if (userResult && userResult.length > 0) {
                 vendorFilter = userResult[0].vendor_id;
             }
+            // Second try: get vendor_id from user's staff record → branch → vendor
+            if (!vendorFilter) {
+                const staffResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
+           JOIN branches b ON s.branch_id = b.id
+           WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
+                    userId
+                ]);
+                if (staffResult && staffResult.length > 0) {
+                    vendorFilter = staffResult[0].vendor_id;
+                }
+            }
+            // Third try: if still no vendor, get only branches where user has a staff record
+            if (!vendorFilter) {
+                const staffBranchIds = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT branch_id FROM staff WHERE user_id = $1`, [
+                    userId
+                ]);
+                if (staffBranchIds && staffBranchIds.length > 0) {
+                    const branchIds = staffBranchIds.map((s)=>s.branch_id);
+                    const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM branches WHERE id = ANY($1::uuid[]) AND status = 'active' ORDER BY name`, [
+                        branchIds
+                    ]);
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches);
+                }
+                // SECURITY: No vendor or staff association found - return empty array
+                // Do NOT fall through to return all branches
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
+            }
         }
+        // Build query with filters
         let sql = "SELECT * FROM branches WHERE status = 'active'";
         const params = [];
         let paramIndex = 1;
+        // SECURITY: When user_id was provided but vendor lookup succeeded, 
+        // always filter by vendorFilter (which is now set)
         if (vendorFilter) {
             sql += ` AND vendor_id = $${paramIndex}`;
             params.push(vendorFilter);
             paramIndex++;
+        } else if (userId) {
+            // SECURITY: If user_id was provided but no vendor found and we somehow
+            // got here, return empty array for safety
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
         }
         if (name) {
             sql += ` AND LOWER(name) LIKE LOWER($${paramIndex})`;

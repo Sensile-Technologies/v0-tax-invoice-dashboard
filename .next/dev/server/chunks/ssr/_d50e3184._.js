@@ -1493,7 +1493,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
             if (branch) {
                 localStorage.setItem("selectedBranch", JSON.stringify(branch));
                 setCurrentBranchName(branch.name);
-                router.push(`/sales?branch=${branchId}`);
+                router.push(`/sales/summary?branch=${branchId}`);
             }
             if (onBranchChange) {
                 onBranchChange(branchId);
