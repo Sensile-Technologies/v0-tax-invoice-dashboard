@@ -14,7 +14,6 @@ import { toast } from "sonner"
 import { AlertCircle, ChevronDown, Plus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useCurrency } from "@/lib/currency-utils"
-import { createClient } from "@/lib/supabase/client"
 import { Textarea } from "@/components/ui/textarea"
 import { ShiftManagementDialog } from "@/components/shift-management-dialog"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
@@ -71,12 +70,10 @@ export function SalesSummaryContent() {
   const [shiftForm, setShiftForm] = useState({
     date: new Date().toISOString().split("T")[0],
     time: new Date().toTimeString().slice(0, 5),
-    opening_cash: "",
     closing_cash: "",
     notes: "",
   })
-
-  const supabase = createClient()
+  const [shiftLoading, setShiftLoading] = useState(false)
 
   useEffect(() => {
     const storedBranch = localStorage.getItem("selectedBranch")
@@ -100,54 +97,36 @@ export function SalesSummaryContent() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const { data: nozzlesData, error: nozzlesError } = await supabase
-        .from("nozzles")
-        .select("*")
-        .eq("branch_id", branchId)
-        .eq("status", "active")
+      const [nozzlesRes, dispensersRes, pricesRes, shiftRes] = await Promise.all([
+        fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+        fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/fuel-prices?branch_id=${branchId}`),
+        fetch(`/api/shifts?branch_id=${branchId}&status=active`)
+      ])
 
-      if (nozzlesError) {
-        console.error("Error fetching nozzles:", nozzlesError)
-      } else {
-        setNozzles(nozzlesData || [])
+      const [nozzlesResult, dispensersResult, pricesResult, shiftResult] = await Promise.all([
+        nozzlesRes.json(),
+        dispensersRes.json(),
+        pricesRes.json(),
+        shiftRes.json()
+      ])
+
+      if (nozzlesResult.success) {
+        setNozzles(nozzlesResult.data || [])
       }
 
-      const { data: dispensersData, error: dispensersError } = await supabase
-        .from("dispensers")
-        .select("*")
-        .eq("branch_id", branchId)
-
-      if (dispensersError) {
-        console.error("Error fetching dispensers:", dispensersError)
-      } else {
-        setDispensers(dispensersData || [])
+      if (dispensersResult.success) {
+        setDispensers(dispensersResult.data || [])
       }
 
-      const { data: pricesData, error: pricesError } = await supabase
-        .from("fuel_prices")
-        .select("*")
-        .eq("branch_id", branchId)
-        .order("effective_date", { ascending: false })
-
-      if (pricesError) {
-        console.error("Error fetching fuel prices:", pricesError)
-      } else {
-        setFuelPrices(pricesData || [])
+      if (pricesResult.success) {
+        setFuelPrices(pricesResult.data || [])
       }
 
-      const { data: shiftData, error: shiftError } = await supabase
-        .from("shifts")
-        .select("*")
-        .eq("branch_id", branchId)
-        .eq("status", "active")
-        .order("start_time", { ascending: false })
-        .limit(1)
-        .single()
-
-      if (shiftError && shiftError.code !== "PGRST116") {
-        console.error("Error fetching shift:", shiftError)
+      if (shiftResult.success && shiftResult.data) {
+        setCurrentShift(shiftResult.data)
       } else {
-        setCurrentShift(shiftData)
+        setCurrentShift(null)
       }
 
       await fetchSales()
@@ -162,21 +141,18 @@ export function SalesSummaryContent() {
   useEffect(() => {
     async function fetchLoyaltyCustomers() {
       try {
-        const { data, error } = await supabase
-          .from("customers")
-          .select("id, cust_nm, cust_tin")
-          .eq("branch_id", currentBranchData?.id)
-          .order("cust_nm")
+        const response = await fetch(`/api/customers?branch_id=${currentBranchData?.id}`)
+        const result = await response.json()
 
-        if (error) throw error
-
-        setLoyaltyCustomers(
-          (data || []).map((c: any) => ({
-            id: c.id,
-            name: c.cust_nm || "",
-            pin: c.cust_tin || "",
-          })),
-        )
+        if (result.success) {
+          setLoyaltyCustomers(
+            (result.data || []).map((c: any) => ({
+              id: c.id,
+              name: c.cust_nm || "",
+              pin: c.cust_tin || "",
+            })),
+          )
+        }
       } catch (error) {
         console.error("Error fetching loyalty customers:", error)
       }
@@ -195,17 +171,11 @@ export function SalesSummaryContent() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const { data: salesData, error } = await supabase
-        .from("sales")
-        .select("*")
-        .eq("branch_id", branchId)
-        .order("sale_date", { ascending: false })
-        .limit(50)
+      const response = await fetch(`/api/sales?branch_id=${branchId}&limit=50`)
+      const result = await response.json()
 
-      if (error) {
-        console.error("Error fetching sales:", error)
-      } else {
-        const processedSales = (salesData || []).map((sale: any) => ({
+      if (result.success) {
+        const processedSales = (result.data || []).map((sale: any) => ({
           ...sale,
           quantity: Number(sale.quantity) || 0,
           unit_price: Number(sale.unit_price) || 0,
@@ -250,10 +220,9 @@ export function SalesSummaryContent() {
 
       const selectedNozzle = nozzles.find((n) => n.id === saleForm.nozzle_id)
 
-      const { data: previousSales, error: salesError } = await supabase
-        .from("sales")
-        .select("quantity")
-        .eq("nozzle_id", saleForm.nozzle_id)
+      const prevSalesRes = await fetch(`/api/sales?nozzle_id=${saleForm.nozzle_id}`)
+      const prevSalesResult = await prevSalesRes.json()
+      const previousSales = prevSalesResult.success ? prevSalesResult.data : []
 
       let calculatedMeterReading = Number(selectedNozzle?.initial_meter_reading) || 0
       if (previousSales && previousSales.length > 0) {
@@ -276,9 +245,13 @@ export function SalesSummaryContent() {
       const quantity = totalAmount / unitPrice
       calculatedMeterReading = calculatedMeterReading + quantity
 
-      const { data, error } = await supabase
-        .from("sales")
-        .insert({
+      const invoiceNumber = `INV-${Date.now()}`
+      const receiptNumber = `RCP-${Date.now()}`
+
+      const saleResponse = await fetch('/api/sales', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           branch_id: branchId,
           shift_id: currentShift.id,
           nozzle_id: saleForm.nozzle_id,
@@ -290,21 +263,23 @@ export function SalesSummaryContent() {
           customer_name: saleForm.customer_name || null,
           vehicle_number: saleForm.vehicle_number || null,
           customer_pin: saleForm.customer_pin || null,
-          invoice_number: `INV-${Date.now()}`,
+          invoice_number: invoiceNumber,
           meter_reading_after: calculatedMeterReading,
           transmission_status: "pending",
-          receipt_number: `RCP-${Date.now()}`,
+          receipt_number: receiptNumber,
           is_loyalty_sale: saleForm.is_loyalty_sale,
           loyalty_customer_name: saleForm.is_loyalty_sale ? saleForm.loyalty_customer_name : null,
           loyalty_customer_pin: saleForm.is_loyalty_sale ? saleForm.loyalty_customer_pin : null,
         })
-        .select()
-        .single()
+      })
 
-      if (error) {
-        console.error("Sale creation error:", error)
-        toast.error(`Error recording sale: ${error.message}`)
+      const saleResult = await saleResponse.json()
+
+      if (!saleResponse.ok || !saleResult.success) {
+        console.error("Sale creation error:", saleResult.error)
+        toast.error(`Error recording sale: ${saleResult.error || 'Unknown error'}`)
       } else {
+        const data = saleResult.data
         try {
           const kraResponse = await fetch("/api/kra/test-sale", {
             method: "POST",
@@ -362,13 +337,13 @@ export function SalesSummaryContent() {
       return
     }
 
-    setLoading(true)
+    setShiftLoading(true)
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
 
       if (!currentBranch) {
         toast.error("No branch selected. Please select a branch from the header.")
-        setLoading(false)
+        setShiftLoading(false)
         return
       }
 
@@ -381,23 +356,28 @@ export function SalesSummaryContent() {
         branch_id: branchId,
         start_time: startTime.toISOString(),
         status: "active",
-        opening_cash: shiftForm.opening_cash ? Number.parseFloat(shiftForm.opening_cash) : 0,
+        opening_cash: 0,
         notes: shiftForm.notes || null,
       }
 
-      const { data, error } = await supabase.from("shifts").insert(shiftData).select().single()
+      const response = await fetch('/api/shifts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shiftData)
+      })
+      
+      const result = await response.json()
 
-      if (error) {
-        console.error("Error starting shift:", error)
-        toast.error(`Failed to start shift: ${error.message}`)
+      if (!response.ok || !result.success) {
+        console.error("Error starting shift:", result.error)
+        toast.error(`Failed to start shift: ${result.error || 'Unknown error'}`)
       } else {
         toast.success("Shift started successfully")
-        setCurrentShift(data)
+        setCurrentShift(result.data)
         setShowShiftDialog(false)
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
           time: new Date().toTimeString().slice(0, 5),
-          opening_cash: "",
           closing_cash: "",
           notes: "",
         })
@@ -406,7 +386,7 @@ export function SalesSummaryContent() {
       console.error("Error starting shift:", error)
       toast.error(`Failed to start shift: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
-      setLoading(false)
+      setShiftLoading(false)
     }
   }
 
@@ -416,22 +396,24 @@ export function SalesSummaryContent() {
       return
     }
 
-    setLoading(true)
+    setShiftLoading(true)
     try {
-      const { data, error } = await supabase
-        .from("shifts")
-        .update({
+      const response = await fetch('/api/shifts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: currentShift.id,
           end_time: new Date().toISOString(),
           status: "completed",
           closing_cash: shiftForm.closing_cash ? Number.parseFloat(shiftForm.closing_cash) : 0,
           notes: shiftForm.notes || null,
         })
-        .eq("id", currentShift.id)
-        .select()
-        .single()
+      })
+      
+      const result = await response.json()
 
-      if (error) {
-        console.error("Error ending shift:", error)
+      if (!response.ok || !result.success) {
+        console.error("Error ending shift:", result.error)
         toast.error("Failed to end shift")
       } else {
         toast.success("Shift ended successfully")
@@ -440,7 +422,6 @@ export function SalesSummaryContent() {
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
           time: new Date().toTimeString().slice(0, 5),
-          opening_cash: "",
           closing_cash: "",
           notes: "",
         })
@@ -449,7 +430,7 @@ export function SalesSummaryContent() {
       console.error("Error ending shift:", error)
       toast.error("Failed to end shift")
     } finally {
-      setLoading(false)
+      setShiftLoading(false)
     }
   }
 
@@ -797,38 +778,26 @@ export function SalesSummaryContent() {
           </DialogHeader>
           <div className="space-y-4">
             {shiftAction === "start" && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="shift-date">Date</Label>
-                    <Input
-                      id="shift-date"
-                      type="date"
-                      value={shiftForm.date}
-                      onChange={(e) => setShiftForm({ ...shiftForm, date: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="shift-time">Time</Label>
-                    <Input
-                      id="shift-time"
-                      type="time"
-                      value={shiftForm.time}
-                      onChange={(e) => setShiftForm({ ...shiftForm, time: e.target.value })}
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="opening-cash">Opening Cash</Label>
+                  <Label htmlFor="shift-date">Date</Label>
                   <Input
-                    id="opening-cash"
-                    type="number"
-                    placeholder="0.00"
-                    value={shiftForm.opening_cash}
-                    onChange={(e) => setShiftForm({ ...shiftForm, opening_cash: e.target.value })}
+                    id="shift-date"
+                    type="date"
+                    value={shiftForm.date}
+                    onChange={(e) => setShiftForm({ ...shiftForm, date: e.target.value })}
                   />
                 </div>
-              </>
+                <div>
+                  <Label htmlFor="shift-time">Time</Label>
+                  <Input
+                    id="shift-time"
+                    type="time"
+                    value={shiftForm.time}
+                    onChange={(e) => setShiftForm({ ...shiftForm, time: e.target.value })}
+                  />
+                </div>
+              </div>
             )}
             {shiftAction === "end" && (
               <div>
@@ -854,7 +823,7 @@ export function SalesSummaryContent() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowShiftDialog(false)}>Cancel</Button>
-            <Button onClick={shiftAction === "start" ? handleStartShift : handleEndShift} disabled={loading}>
+            <Button onClick={shiftAction === "start" ? handleStartShift : handleEndShift} disabled={shiftLoading}>
               {shiftAction === "start" ? "Start Shift" : "End Shift"}
             </Button>
           </DialogFooter>
