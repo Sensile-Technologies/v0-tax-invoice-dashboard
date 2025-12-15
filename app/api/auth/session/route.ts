@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { cookies } from "next/headers"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -7,10 +8,28 @@ const pool = new Pool({
 
 export async function GET(request: NextRequest) {
   try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get("user_session")
+    
     const userId = request.nextUrl.searchParams.get("userId")
     
     if (!userId) {
       return NextResponse.json({ error: "User ID required" }, { status: 400 })
+    }
+
+    if (!sessionCookie) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+    }
+
+    let sessionData
+    try {
+      sessionData = JSON.parse(sessionCookie.value)
+    } catch {
+      return NextResponse.json({ error: "Invalid session" }, { status: 401 })
+    }
+
+    if (sessionData.id !== userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
     const result = await pool.query(

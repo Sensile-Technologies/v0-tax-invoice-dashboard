@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, ArrowUpDown, MoreVertical, Loader2, Package } from "lucide-react"
+import { Search, ArrowUpDown, MoreVertical, Loader2, Package, RefreshCw } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
@@ -30,6 +30,9 @@ interface Item {
   status: string
   quantity_unit: string | null
   package_unit: string | null
+  kra_status: string | null
+  kra_response: string | null
+  kra_last_synced_at: string | null
   created_at: string
 }
 
@@ -71,6 +74,45 @@ export default function ItemsListPage() {
 
     fetchItems()
   }, [])
+
+  const [resendingItems, setResendingItems] = useState<Set<string>>(new Set())
+
+  const handleResendToKra = async (itemId: string) => {
+    setResendingItems(prev => new Set(prev).add(itemId))
+    
+    try {
+      const response = await fetch(`/api/items/${itemId}/resend-kra`, {
+        method: "POST"
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success("Item successfully submitted to KRA")
+        setItems(items.map(item => 
+          item.id === itemId 
+            ? { ...item, kra_status: 'success', kra_last_synced_at: new Date().toISOString() }
+            : item
+        ))
+      } else {
+        toast.error(result.message || "Failed to submit item to KRA")
+        setItems(items.map(item => 
+          item.id === itemId 
+            ? { ...item, kra_status: 'rejected', kra_last_synced_at: new Date().toISOString() }
+            : item
+        ))
+      }
+    } catch (error) {
+      console.error("Error resending to KRA:", error)
+      toast.error("Failed to resend item to KRA")
+    } finally {
+      setResendingItems(prev => {
+        const next = new Set(prev)
+        next.delete(itemId)
+        return next
+      })
+    }
+  }
 
   const handleStatusToggle = async (itemId: string, currentStatus: string) => {
     const newStatus = currentStatus === "active" ? "inactive" : "active"
@@ -205,6 +247,7 @@ export default function ItemsListPage() {
                           <th className="p-3 text-left text-sm font-medium">Class Code</th>
                           <th className="p-3 text-left text-sm font-medium">Origin</th>
                           <th className="p-3 text-left text-sm font-medium">Tax Type</th>
+                          <th className="p-3 text-left text-sm font-medium">KRA Status</th>
                           <th className="p-3 text-left text-sm font-medium">Actions</th>
                         </tr>
                       </thead>
@@ -235,6 +278,20 @@ export default function ItemsListPage() {
                               </Badge>
                             </td>
                             <td className="p-3">
+                              <Badge
+                                className={`rounded-full ${
+                                  item.kra_status === "success" 
+                                    ? "bg-green-100 text-green-800" 
+                                    : item.kra_status === "rejected" 
+                                    ? "bg-red-100 text-red-800" 
+                                    : "bg-amber-100 text-amber-800"
+                                }`}
+                              >
+                                {item.kra_status === "success" ? "Synced" : 
+                                 item.kra_status === "rejected" ? "Rejected" : "Pending"}
+                              </Badge>
+                            </td>
+                            <td className="p-3">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg">
@@ -248,6 +305,19 @@ export default function ItemsListPage() {
                                   >
                                     {item.status === "active" ? "Deactivate" : "Activate"}
                                   </DropdownMenuItem>
+                                  {(item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && (
+                                    <DropdownMenuItem 
+                                      className="rounded-lg"
+                                      onClick={() => handleResendToKra(item.id)}
+                                      disabled={resendingItems.has(item.id)}
+                                    >
+                                      {resendingItems.has(item.id) ? (
+                                        <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Syncing...</>
+                                      ) : (
+                                        <><RefreshCw className="h-4 w-4 mr-2" /> Resend to KRA</>
+                                      )}
+                                    </DropdownMenuItem>
+                                  )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </td>

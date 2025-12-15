@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { submitItemToKra } from "@/lib/kra-items-api"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -134,11 +135,39 @@ export async function POST(request: NextRequest) {
 
     await client.query('COMMIT')
 
+    const createdItem = insertResult.rows[0]
+
+    const kraResult = await submitItemToKra({
+      id: createdItem.id,
+      item_code: itemCode,
+      item_name: itemName,
+      item_type: itemType,
+      class_code: classCode,
+      origin: origin,
+      package_unit: packageUnit,
+      quantity_unit: quantityUnit,
+      tax_type: taxType,
+      batch_number: batchNumber,
+      barcode: sku,
+      sale_price: salePrice || 0,
+      purchase_price: purchasePrice || 0,
+      status: 'active',
+      vendor_id: vendorId,
+      branch_id: branchId
+    })
+
+    console.log(`[Items API] KRA submission result for ${itemCode}:`, kraResult)
+
     return NextResponse.json({
       success: true,
-      item: insertResult.rows[0],
+      item: createdItem,
       itemCode: itemCode,
-      message: `Item created successfully with code: ${itemCode}`
+      kraSubmission: {
+        success: kraResult.success,
+        status: kraResult.success ? 'success' : 'rejected',
+        response: kraResult.kraResponse
+      },
+      message: `Item created successfully with code: ${itemCode}. KRA submission: ${kraResult.success ? 'Successful' : 'Pending/Rejected'}`
     })
 
   } catch (error) {
