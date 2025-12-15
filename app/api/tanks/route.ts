@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Pool } from "pg"
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+import { query } from "@/lib/db"
+import { syncStockWithKRA } from "@/lib/kra-stock-service"
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,12 +11,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "branch_id is required" }, { status: 400 })
     }
 
-    const result = await pool.query(
+    const tanks = await query(
       "SELECT * FROM tanks WHERE branch_id = $1 ORDER BY tank_name",
       [branchId]
     )
 
-    return NextResponse.json({ success: true, data: result.rows })
+    return NextResponse.json({ success: true, data: tanks })
   } catch (error) {
     console.error("Error fetching tanks:", error)
     return NextResponse.json({ success: false, error: "Failed to fetch tanks" }, { status: 500 })
@@ -29,20 +26,70 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { branch_id, tank_name, fuel_type, capacity, current_stock, status } = body
+    const { 
+      branch_id, 
+      tank_name, 
+      fuel_type, 
+      capacity, 
+      current_stock, 
+      status,
+      kra_item_cd,
+      sync_to_kra,
+      unit_price
+    } = body
 
     if (!branch_id || !tank_name || !fuel_type) {
       return NextResponse.json({ success: false, error: "branch_id, tank_name, and fuel_type are required" }, { status: 400 })
     }
 
-    const result = await pool.query(
-      `INSERT INTO tanks (branch_id, tank_name, fuel_type, capacity, current_stock, status)
-       VALUES ($1, $2, $3, $4, $5, $6)
+    const result = await query(
+      `INSERT INTO tanks (branch_id, tank_name, fuel_type, capacity, current_stock, status, kra_item_cd)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [branch_id, tank_name, fuel_type, capacity || 0, current_stock || 0, status || "active"]
+      [branch_id, tank_name, fuel_type, capacity || 0, current_stock || 0, status || "active", kra_item_cd || null]
     )
 
-    return NextResponse.json({ success: true, data: result.rows[0] })
+    const tank = result[0]
+    let kraResult = null
+
+    if (sync_to_kra && current_stock > 0) {
+      console.log(`[Tanks API] Syncing initial stock of ${current_stock} for tank ${tank.id} to KRA`)
+      
+      kraResult = await syncStockWithKRA(
+        branch_id,
+        "initial_stock",
+        [{
+          tankId: tank.id,
+          quantity: current_stock,
+          unitPrice: unit_price || 0,
+          itemCode: kra_item_cd,
+          itemName: fuel_type
+        }],
+        { remark: `Initial stock for tank: ${tank_name}` }
+      )
+
+      if (kraResult.success) {
+        await query(
+          `UPDATE tanks SET kra_sync_status = 'synced', last_kra_synced_stock = $1 WHERE id = $2`,
+          [current_stock, tank.id]
+        )
+      } else {
+        await query(
+          `UPDATE tanks SET kra_sync_status = 'failed' WHERE id = $1`,
+          [tank.id]
+        )
+      }
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      data: tank,
+      kraSync: kraResult ? {
+        synced: kraResult.success,
+        movementId: kraResult.movementId,
+        error: kraResult.error
+      } : null
+    })
   } catch (error) {
     console.error("Error creating tank:", error)
     return NextResponse.json({ success: false, error: "Failed to create tank" }, { status: 500 })
@@ -52,11 +99,19 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, current_stock, status } = body
+    const { id, current_stock, status, sync_to_kra, adjustment_type, unit_price } = body
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Tank id is required" }, { status: 400 })
     }
+
+    const existingTank = await query("SELECT * FROM tanks WHERE id = $1", [id])
+    if (existingTank.length === 0) {
+      return NextResponse.json({ success: false, error: "Tank not found" }, { status: 404 })
+    }
+
+    const tank = existingTank[0]
+    const previousStock = tank.current_stock || 0
 
     const updates: string[] = []
     const values: any[] = []
@@ -78,15 +133,84 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: false, error: "No fields to update" }, { status: 400 })
     }
 
+    updates.push(`updated_at = NOW()`)
+
     values.push(id)
-    const result = await pool.query(
+    const result = await query(
       `UPDATE tanks SET ${updates.join(", ")} WHERE id = $${paramIndex} RETURNING *`,
       values
     )
 
-    return NextResponse.json({ success: true, data: result.rows[0] })
+    const updatedTank = result[0]
+    let kraResult = null
+
+    if (sync_to_kra && current_stock !== undefined && current_stock !== previousStock) {
+      const stockDiff = current_stock - previousStock
+      const movementType = adjustment_type || (stockDiff > 0 ? "stock_receive" : "stock_adjustment")
+      
+      console.log(`[Tanks API] Syncing stock ${movementType} of ${Math.abs(stockDiff)} for tank ${id} to KRA`)
+      
+      kraResult = await syncStockWithKRA(
+        tank.branch_id,
+        movementType,
+        [{
+          tankId: id,
+          quantity: Math.abs(stockDiff),
+          unitPrice: unit_price || 0,
+          itemCode: tank.kra_item_cd,
+          itemName: tank.fuel_type
+        }],
+        { remark: `Stock ${movementType}: ${previousStock} -> ${current_stock}` }
+      )
+
+      if (kraResult.success) {
+        await query(
+          `UPDATE tanks SET kra_sync_status = 'synced', last_kra_synced_stock = $1 WHERE id = $2`,
+          [current_stock, id]
+        )
+      } else {
+        await query(
+          `UPDATE tanks SET kra_sync_status = 'failed' WHERE id = $1`,
+          [id]
+        )
+      }
+
+      await query(
+        `INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approval_status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [tank.branch_id, id, movementType, Math.abs(stockDiff), previousStock, current_stock, `API adjustment`, 'approved']
+      )
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      data: updatedTank,
+      kraSync: kraResult ? {
+        synced: kraResult.success,
+        movementId: kraResult.movementId,
+        error: kraResult.error
+      } : null
+    })
   } catch (error) {
     console.error("Error updating tank:", error)
     return NextResponse.json({ success: false, error: "Failed to update tank" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get("id")
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Tank id is required" }, { status: 400 })
+    }
+
+    await query("DELETE FROM tanks WHERE id = $1", [id])
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error("Error deleting tank:", error)
+    return NextResponse.json({ success: false, error: "Failed to delete tank" }, { status: 500 })
   }
 }

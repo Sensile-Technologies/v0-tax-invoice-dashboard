@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Pool } from "pg"
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+import { query } from "@/lib/db"
+import { syncStockWithKRA } from "@/lib/kra-stock-service"
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,28 +9,31 @@ export async function GET(request: NextRequest) {
     const nozzleId = searchParams.get('nozzle_id')
     const limit = searchParams.get('limit') || '50'
 
-    let query = 'SELECT * FROM sales WHERE 1=1'
+    let sql = 'SELECT * FROM sales WHERE 1=1'
     const params: any[] = []
+    let paramIndex = 1
 
     if (branchId) {
+      sql += ` AND branch_id = $${paramIndex}`
       params.push(branchId)
-      query += ` AND branch_id = $${params.length}`
+      paramIndex++
     }
 
     if (nozzleId) {
+      sql += ` AND nozzle_id = $${paramIndex}`
       params.push(nozzleId)
-      query += ` AND nozzle_id = $${params.length}`
+      paramIndex++
     }
 
-    query += ' ORDER BY sale_date DESC'
+    sql += ' ORDER BY sale_date DESC'
+    sql += ` LIMIT $${paramIndex}`
     params.push(parseInt(limit))
-    query += ` LIMIT $${params.length}`
 
-    const result = await pool.query(query, params)
+    const result = await query(sql, params)
 
     return NextResponse.json({
       success: true,
-      data: result.rows
+      data: result
     })
 
   } catch (error: any) {
@@ -66,7 +66,9 @@ export async function POST(request: NextRequest) {
       receipt_number,
       is_loyalty_sale,
       loyalty_customer_name,
-      loyalty_customer_pin
+      loyalty_customer_pin,
+      sync_to_kra = true,
+      deduct_from_tank = true
     } = body
 
     if (!branch_id || !nozzle_id || !fuel_type) {
@@ -76,7 +78,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const result = await pool.query(
+    const result = await query(
       `INSERT INTO sales (
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, vehicle_number, customer_pin,
@@ -92,9 +94,73 @@ export async function POST(request: NextRequest) {
       ]
     )
 
+    const sale = result[0]
+    let kraResult = null
+    let tankUpdate = null
+
+    if (quantity && quantity > 0) {
+      const tankResult = await query(
+        `SELECT * FROM tanks WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' ORDER BY current_stock DESC LIMIT 1`,
+        [branch_id, `%${fuel_type}%`]
+      )
+
+      if (tankResult.length > 0) {
+        const tank = tankResult[0]
+        const previousStock = tank.current_stock || 0
+        const newStock = Math.max(0, previousStock - quantity)
+
+        if (deduct_from_tank) {
+          await query(
+            `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
+            [newStock, tank.id]
+          )
+
+          tankUpdate = {
+            tankId: tank.id,
+            tankName: tank.tank_name,
+            previousStock,
+            newStock,
+            quantityDeducted: quantity
+          }
+        }
+
+        if (sync_to_kra) {
+          console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`)
+          
+          kraResult = await syncStockWithKRA(
+            branch_id,
+            "sale",
+            [{
+              tankId: tank.id,
+              quantity: quantity,
+              unitPrice: unit_price || 0,
+              itemCode: tank.kra_item_cd,
+              itemName: fuel_type
+            }],
+            { 
+              customerId: customer_pin,
+              customerName: customer_name,
+              remark: `Sale: ${quantity}L ${fuel_type} - Invoice: ${invoice_number || 'N/A'}`
+            }
+          )
+
+          await query(
+            `UPDATE tanks SET kra_sync_status = $1 WHERE id = $2`,
+            [kraResult.success ? 'synced' : 'failed', tank.id]
+          )
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      data: result.rows[0]
+      data: sale,
+      tankUpdate,
+      kraSync: kraResult ? {
+        synced: kraResult.success,
+        movementId: kraResult.movementId,
+        error: kraResult.error
+      } : null
     })
 
   } catch (error: any) {
