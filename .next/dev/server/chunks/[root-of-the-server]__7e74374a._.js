@@ -563,10 +563,13 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
 ;
+const DEFAULT_KRA_URL = "http://20.224.40.56:8088";
 async function getBranchConfig(branchId) {
     try {
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT b.id, b.bhf_id, v.kra_pin, b.device_token, b.server_address, b.server_port
+      SELECT b.id, b.bhf_id, v.kra_pin, b.device_token, 
+             COALESCE(b.server_address, '20.224.40.56') as server_address, 
+             COALESCE(b.server_port, '8088') as server_port
       FROM branches b
       JOIN vendors v ON v.id = b.vendor_id
       WHERE b.id = $1
@@ -635,7 +638,7 @@ async function submitItemToKra(item) {
             qtyUnitCd: item.quantity_unit || "U",
             taxTyCd: item.tax_type || "B",
             btchNo: item.batch_number || null,
-            bcd: item.barcode || null,
+            bcd: item.sku || null,
             dftPrc: item.sale_price || 0,
             grpPrcL1: item.sale_price || 0,
             grpPrcL2: item.sale_price || 0,
@@ -742,7 +745,7 @@ async function resendItemToKra(itemId) {
     try {
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       SELECT id, item_code, item_name, item_type, class_code, origin, 
-             package_unit, quantity_unit, tax_type, batch_number, barcode,
+             package_unit, quantity_unit, tax_type, batch_number, sku,
              sale_price, purchase_price, status, vendor_id, branch_id
       FROM items 
       WHERE id = $1
