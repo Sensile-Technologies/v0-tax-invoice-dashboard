@@ -110,7 +110,9 @@ __turbopack_context__.s([
     "GET",
     ()=>GET,
     "POST",
-    ()=>POST
+    ()=>POST,
+    "PUT",
+    ()=>PUT
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/client.ts [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
@@ -126,10 +128,12 @@ async function GET() {
       SELECT 
         v.*,
         COUNT(DISTINCT b.id) as branch_count,
-        COUNT(DISTINCT t.id) FILTER (WHERE t.status = 'open') as open_tickets
+        COUNT(DISTINCT t.id) FILTER (WHERE t.status = 'open') as open_tickets,
+        COUNT(DISTINCT i.id) FILTER (WHERE i.status IN ('pending', 'partial', 'overdue', 'draft')) as pending_invoices
       FROM vendors v
       LEFT JOIN branches b ON b.vendor_id = v.id
       LEFT JOIN support_tickets t ON t.vendor_id = v.id
+      LEFT JOIN invoices i ON i.vendor_id = v.id
       GROUP BY v.id
       ORDER BY v.name
     `);
@@ -167,6 +171,48 @@ async function POST(request) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
     } catch (error) {
         console.error("[Admin] Error creating vendor:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: error.message
+        }, {
+            status: 500
+        });
+    }
+}
+async function PUT(request) {
+    try {
+        const body = await request.json();
+        const { id, name, email, phone, address } = body;
+        if (!id) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Vendor ID is required"
+            }, {
+                status: 400
+            });
+        }
+        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE vendors 
+       SET name = COALESCE($2, name),
+           email = COALESCE($3, email),
+           phone = COALESCE($4, phone),
+           address = COALESCE($5, address),
+           updated_at = NOW()
+       WHERE id = $1
+       RETURNING *`, [
+            id,
+            name,
+            email,
+            phone,
+            address
+        ]);
+        if (result.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Vendor not found"
+            }, {
+                status: 404
+            });
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
+    } catch (error) {
+        console.error("[Admin] Error updating vendor:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: error.message
         }, {

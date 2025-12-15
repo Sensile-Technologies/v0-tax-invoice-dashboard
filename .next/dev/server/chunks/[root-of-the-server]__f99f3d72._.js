@@ -123,6 +123,8 @@ return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, _
 __turbopack_context__.s([
     "GET",
     ()=>GET,
+    "PATCH",
+    ()=>PATCH,
     "PUT",
     ()=>PUT
 ]);
@@ -171,6 +173,42 @@ async function GET(request, { params }) {
         console.error("Error fetching invoice:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: "Failed to fetch invoice"
+        }, {
+            status: 500
+        });
+    }
+}
+async function PATCH(request, { params }) {
+    try {
+        const { id } = await params;
+        const body = await request.json();
+        const { status } = body;
+        if (!status || ![
+            'draft',
+            'pending',
+            'partial',
+            'paid',
+            'overdue',
+            'cancelled'
+        ].includes(status)) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Invalid status"
+            }, {
+                status: 400
+            });
+        }
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE invoices SET status = $1 WHERE id = $2`, [
+            status,
+            id
+        ]);
+        const updated = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM invoices WHERE id = $1`, [
+            id
+        ]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(updated[0]);
+    } catch (error) {
+        console.error("Error updating invoice status:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Failed to update status"
         }, {
             status: 500
         });
