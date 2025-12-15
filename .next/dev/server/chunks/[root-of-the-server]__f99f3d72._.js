@@ -143,7 +143,7 @@ async function GET(request, { params }) {
       SELECT 
         i.*,
         v.name as merchant_name,
-        b.bhf_nm as branch_name
+        b.name as branch_name
       FROM invoices i
       LEFT JOIN vendors v ON i.vendor_id = v.id
       LEFT JOIN branches b ON i.branch_id = b.id
