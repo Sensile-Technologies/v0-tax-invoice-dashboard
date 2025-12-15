@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
     }
 
     if (type === "codelist") {
-      const result = bhfId 
+      // First try to get data for the specific branch
+      let result = bhfId 
         ? await query(
             `SELECT cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
              FROM kra_codelists 
@@ -41,6 +42,15 @@ export async function GET(request: NextRequest) {
             [bhfId]
           )
         : []
+      
+      // If no data for this branch, get data from any branch (codelists are shared)
+      if (result.length === 0) {
+        result = await query(
+          `SELECT DISTINCT ON (cd_cls, cd) cd_cls, cd, cd_nm, cd_desc, use_yn, updated_at 
+           FROM kra_codelists 
+           ORDER BY cd_cls, cd, updated_at DESC`
+        )
+      }
       
       return NextResponse.json({ 
         data: result,
