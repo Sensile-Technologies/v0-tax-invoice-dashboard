@@ -46,6 +46,15 @@ The local Replit PostgreSQL database has the full schema with 30+ tables:
 - API logging
 
 ## Recent Changes
+- 2024-12-15: Branch Security & Admin Invoice Fixes
+  - Fixed critical branch security issue - users now only see branches from their own vendor
+  - Added 3-tier vendor lookup: user email → vendor email, staff → branch → vendor, staff branches only
+  - Returns empty array (not all branches) when no vendor/staff association found
+  - Created vendor records for Hassan Sindi and Lulu Ali in database
+  - Linked Reem Uplands and Reem Mtopanga branches to Hassan Sindi's vendor
+  - Admin invoice merchant dropdown now shows all 4 vendors
+  - Created mobile/BUILD_APK_INSTRUCTIONS.md with APK build guidance
+
 - 2024-12-13: Sales Dropdown Menu Implementation
   - Made Sales a dropdown menu in sidebar with 3 options
   - Created /sales/summary page with statistics, pie charts, and daily sales trend with date filters
