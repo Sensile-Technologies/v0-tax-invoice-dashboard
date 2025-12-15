@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
       quantity_unit: quantityUnit,
       tax_type: taxType,
       batch_number: batchNumber,
-      barcode: sku,
+      sku: sku,
       sale_price: salePrice || 0,
       purchase_price: purchasePrice || 0,
       status: 'active',

@@ -58,7 +58,7 @@ interface ItemData {
   quantity_unit: string
   tax_type: string
   batch_number?: string
-  barcode?: string
+  sku?: string
   sale_price: number
   purchase_price: number
   status: string
@@ -66,10 +66,14 @@ interface ItemData {
   branch_id: string
 }
 
+const DEFAULT_KRA_URL = "http://20.224.40.56:8088"
+
 async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
   try {
     const result = await query(`
-      SELECT b.id, b.bhf_id, v.kra_pin, b.device_token, b.server_address, b.server_port
+      SELECT b.id, b.bhf_id, v.kra_pin, b.device_token, 
+             COALESCE(b.server_address, '20.224.40.56') as server_address, 
+             COALESCE(b.server_port, '8088') as server_port
       FROM branches b
       JOIN vendors v ON v.id = b.vendor_id
       WHERE b.id = $1
@@ -145,7 +149,7 @@ export async function submitItemToKra(item: ItemData): Promise<{
       qtyUnitCd: item.quantity_unit || "U",
       taxTyCd: item.tax_type || "B",
       btchNo: item.batch_number || null,
-      bcd: item.barcode || null,
+      bcd: item.sku || null,
       dftPrc: item.sale_price || 0,
       grpPrcL1: item.sale_price || 0,
       grpPrcL2: item.sale_price || 0,
@@ -258,7 +262,7 @@ export async function resendItemToKra(itemId: string): Promise<{
   try {
     const result = await query(`
       SELECT id, item_code, item_name, item_type, class_code, origin, 
-             package_unit, quantity_unit, tax_type, batch_number, barcode,
+             package_unit, quantity_unit, tax_type, batch_number, sku,
              sale_price, purchase_price, status, vendor_id, branch_id
       FROM items 
       WHERE id = $1
