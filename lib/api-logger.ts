@@ -25,7 +25,7 @@ export async function logApiCall(entry: ApiLogEntry) {
       error: entry.error || null,
       duration_ms: entry.durationMs || null,
       branch_id: entry.branchId || null,
-      user_agent: entry.externalEndpoint || null,
+      external_endpoint: entry.externalEndpoint || null,
     })
   } catch (error) {
     console.error("[v0] Failed to log API call:", error)

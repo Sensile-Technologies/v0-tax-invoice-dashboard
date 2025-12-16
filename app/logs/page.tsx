@@ -21,7 +21,7 @@ interface ApiLog {
   error: string | null
   duration_ms: number
   created_at: string
-  user_agent: string | null
+  external_endpoint: string | null
   branch_id: string | null
 }
 
@@ -297,11 +297,19 @@ export default function LogsPage() {
                                 {selectedLog.endpoint}
                               </pre>
                             </div>
-                            {selectedLog.user_agent && (
+                            {selectedLog.external_endpoint && (
                               <div>
                                 <span className="text-muted-foreground">External KRA Endpoint:</span>
                                 <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
-                                  {selectedLog.user_agent}
+                                  {selectedLog.external_endpoint}
+                                </pre>
+                              </div>
+                            )}
+                            {selectedLog.payload?.tin && (
+                              <div>
+                                <span className="text-muted-foreground">KRA PIN:</span>
+                                <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
+                                  {selectedLog.payload.tin}
                                 </pre>
                               </div>
                             )}
