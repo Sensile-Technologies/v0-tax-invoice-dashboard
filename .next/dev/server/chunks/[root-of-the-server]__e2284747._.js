@@ -1043,10 +1043,30 @@ async function POST(request) {
                 tank_id: tankCheck.rows.length > 0 ? tankCheck.rows[0].id : undefined
             });
             console.log("[Mobile Create Sale] KRA API Response:", JSON.stringify(kraResult, null, 2));
+            const kraData = kraResult.kraResponse?.data || {};
+            const kraStatus = kraResult.success ? 'success' : 'failed';
+            await client.query(`UPDATE sales SET 
+          kra_status = $1,
+          kra_rcpt_sign = $2,
+          kra_scu_id = $3,
+          kra_cu_inv = $4,
+          kra_internal_data = $5,
+          updated_at = NOW()
+        WHERE id = $6`, [
+                kraStatus,
+                kraData.rcptSign || null,
+                kraData.sdcId || null,
+                kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
+                kraData.intrlData || null,
+                sale.id
+            ]);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: true,
                 sale_id: sale.id,
-                sale: sale,
+                sale: {
+                    ...sale,
+                    kra_status: kraStatus
+                },
                 invoice_number: invoiceNumber,
                 receipt_number: receiptNumber,
                 kra_response: kraResult.kraResponse,

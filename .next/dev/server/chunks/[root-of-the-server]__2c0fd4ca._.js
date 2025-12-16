@@ -91,7 +91,7 @@ async function GET(request) {
          ORDER BY d.dispenser_number, n.nozzle_number ASC`, [
                 branchId
             ]);
-            const fuelPricesResult = await client.query(`SELECT item_name as fuel_type, sale_price as price 
+            const fuelPricesResult = await client.query(`SELECT item_name, sale_price as price 
          FROM items 
          WHERE branch_id = $1 
          AND (UPPER(item_name) IN ('PETROL', 'DIESEL', 'KEROSENE') 
@@ -100,15 +100,30 @@ async function GET(request) {
          ORDER BY item_name`, [
                 branchId
             ]);
-            const nozzles = nozzlesResult.rows.map((n)=>({
+            const fuelPrices = fuelPricesResult.rows.map((fp)=>{
+                const itemName = fp.item_name.toUpperCase();
+                let fuelType = fp.item_name;
+                if (itemName.includes('PETROL')) fuelType = 'Petrol';
+                else if (itemName.includes('DIESEL')) fuelType = 'Diesel';
+                else if (itemName.includes('KEROSENE')) fuelType = 'Kerosene';
+                return {
+                    fuel_type: fuelType,
+                    price: parseFloat(fp.price)
+                };
+            });
+            const nozzles = nozzlesResult.rows.map((n)=>{
+                const fuelPrice = fuelPrices.find((fp)=>fp.fuel_type.toUpperCase() === n.fuel_type.toUpperCase());
+                return {
                     id: n.id,
                     name: `D${n.dispenser_number || 1}N${n.nozzle_number} - ${n.fuel_type}`,
                     fuel_type: n.fuel_type,
-                    status: n.status
-                }));
+                    status: n.status,
+                    price: fuelPrice?.price || 0
+                };
+            });
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 nozzles: nozzles,
-                fuel_prices: fuelPricesResult.rows
+                fuel_prices: fuelPrices
             });
         } finally{
             client.release();
