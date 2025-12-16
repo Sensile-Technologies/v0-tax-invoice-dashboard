@@ -83,7 +83,12 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-sm">Password</Label>
+                <Link href="/auth/reset-password" className="text-xs text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -92,6 +97,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="rounded-xl h-11 sm:h-10 text-base sm:text-sm"
+                autoComplete="current-password"
               />
             </div>
             {error && <div className="text-sm text-red-500 bg-red-50 p-3 rounded-xl">{error}</div>}
