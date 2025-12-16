@@ -17,10 +17,12 @@ export async function GET(request: NextRequest) {
     const cleanPhone = phone.replace(/\D/g, '')
     
     const result = await pool.query(
-      `SELECT id, cust_nm, tel_no 
-       FROM customers 
-       WHERE branch_id = $1 
-       AND REPLACE(REPLACE(REPLACE(tel_no, ' ', ''), '-', ''), '+', '') LIKE '%' || $2
+      `SELECT c.id, c.cust_nm, c.tel_no, c.cust_tin
+       FROM customers c
+       INNER JOIN customer_branches cb ON c.id = cb.customer_id
+       WHERE cb.branch_id = $1 
+       AND cb.status = 'active'
+       AND REPLACE(REPLACE(REPLACE(c.tel_no, ' ', ''), '-', ''), '+', '') LIKE '%' || $2
        LIMIT 1`,
       [branch_id, cleanPhone.slice(-9)]
     )
