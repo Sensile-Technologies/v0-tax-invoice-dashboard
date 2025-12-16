@@ -1180,11 +1180,11 @@ async function POST(request) {
         const insertResult = await client.query(`INSERT INTO sales (
         id, branch_id, nozzle_id, fuel_type, quantity, unit_price, total_amount,
         payment_method, customer_name, customer_pin, is_loyalty_sale, 
-        meter_reading_before, meter_reading_after, invoice_number, receipt_number,
+        meter_reading_after, invoice_number, receipt_number,
         transmission_status, sale_date, is_credit_note, original_sale_id,
         kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv
       ) VALUES (
-        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), $16, $17, $18, $19, $20, $21
+        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), $15, $16, $17, $18, $19, $20
       ) RETURNING *`, [
             branch_id,
             originalSale.nozzle_id,
@@ -1196,8 +1196,7 @@ async function POST(request) {
             originalSale.customer_name,
             originalSale.customer_pin,
             originalSale.is_loyalty_sale,
-            originalSale.meter_reading_before,
-            originalSale.meter_reading_after,
+            originalSale.meter_reading_after || 0,
             creditNoteInvoiceNumber,
             kraResult.creditNoteNumber,
             'transmitted',

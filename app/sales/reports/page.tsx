@@ -14,6 +14,9 @@ import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
 import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical, Printer } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Textarea } from "@/components/ui/textarea"
 
 const PAGE_SIZE = 50
 
@@ -37,6 +40,14 @@ export default function SalesReportsPage() {
     documentType: "all",
   })
   const [issuingCreditNote, setIssuingCreditNote] = useState<string | null>(null)
+  const [creditNoteDialogOpen, setCreditNoteDialogOpen] = useState(false)
+  const [selectedSaleForCreditNote, setSelectedSaleForCreditNote] = useState<any>(null)
+  const [creditNoteForm, setCreditNoteForm] = useState({
+    refundType: "full" as "full" | "partial",
+    reasonCode: "01",
+    partialAmount: "",
+    notes: ""
+  })
 
   useEffect(() => {
     fetchData()
@@ -150,7 +161,7 @@ export default function SalesReportsPage() {
     setFilters({ date: "", invoiceNumber: "", fuelType: "", nozzle: "", loyalty: "all", paymentMethod: "", documentType: "all" })
   }
 
-  async function handleIssueCreditNote(sale: any) {
+  function openCreditNoteDialog(sale: any) {
     if (sale.is_credit_note) {
       toast.error("Cannot issue credit note for a credit note")
       return
@@ -158,6 +169,32 @@ export default function SalesReportsPage() {
     if (sale.has_credit_note) {
       toast.error("Credit note already issued for this sale")
       return
+    }
+    setSelectedSaleForCreditNote(sale)
+    setCreditNoteForm({
+      refundType: "full",
+      reasonCode: "01",
+      partialAmount: "",
+      notes: ""
+    })
+    setCreditNoteDialogOpen(true)
+  }
+
+  async function handleSubmitCreditNote() {
+    if (!selectedSaleForCreditNote) return
+    
+    const sale = selectedSaleForCreditNote
+    
+    if (creditNoteForm.refundType === "partial") {
+      const partialAmt = parseFloat(creditNoteForm.partialAmount)
+      if (isNaN(partialAmt) || partialAmt <= 0) {
+        toast.error("Please enter a valid partial amount")
+        return
+      }
+      if (partialAmt > Math.abs(parseFloat(sale.total_amount))) {
+        toast.error("Partial amount cannot exceed original sale amount")
+        return
+      }
     }
     
     try {
@@ -175,8 +212,10 @@ export default function SalesReportsPage() {
         body: JSON.stringify({
           sale_id: sale.id,
           branch_id: branchData.id,
-          reason: 'other',
-          refund_reason_code: 'other'
+          reason_code: creditNoteForm.reasonCode,
+          refund_type: creditNoteForm.refundType,
+          partial_amount: creditNoteForm.refundType === "partial" ? parseFloat(creditNoteForm.partialAmount) : null,
+          notes: creditNoteForm.notes
         })
       })
       
@@ -187,6 +226,8 @@ export default function SalesReportsPage() {
       }
       
       toast.success(`Credit note ${result.creditNoteNumber} issued successfully`)
+      setCreditNoteDialogOpen(false)
+      setSelectedSaleForCreditNote(null)
       fetchData()
     } catch (error: any) {
       console.error('Error issuing credit note:', error)
@@ -467,11 +508,11 @@ export default function SalesReportsPage() {
                                         </DropdownMenuItem>
                                         {!sale.is_credit_note && (
                                           <DropdownMenuItem 
-                                            onClick={() => handleIssueCreditNote(sale)}
-                                            disabled={issuingCreditNote === sale.id || sale.has_credit_note}
+                                            onClick={() => openCreditNoteDialog(sale)}
+                                            disabled={sale.has_credit_note}
                                           >
                                             <CreditCard className="h-4 w-4 mr-2" />
-                                            {issuingCreditNote === sale.id ? "Issuing..." : sale.has_credit_note ? "Credit Note Issued" : "Issue Credit Note"}
+                                            {sale.has_credit_note ? "Credit Note Issued" : "Issue Credit Note"}
                                           </DropdownMenuItem>
                                         )}
                                       </DropdownMenuContent>
@@ -526,6 +567,110 @@ export default function SalesReportsPage() {
           </main>
         </div>
       </div>
+
+      <Dialog open={creditNoteDialogOpen} onOpenChange={setCreditNoteDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Issue Credit Note</DialogTitle>
+            <DialogDescription>
+              {selectedSaleForCreditNote && (
+                <>
+                  Create a credit note for invoice <strong>{selectedSaleForCreditNote.invoice_number}</strong> 
+                  {" "}(Amount: {formatCurrency(Math.abs(parseFloat(selectedSaleForCreditNote.total_amount)))})
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div className="space-y-3">
+              <Label>Refund Type</Label>
+              <RadioGroup
+                value={creditNoteForm.refundType}
+                onValueChange={(value) => setCreditNoteForm({ ...creditNoteForm, refundType: value as "full" | "partial" })}
+                className="flex gap-6"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="full" id="full" />
+                  <Label htmlFor="full" className="font-normal cursor-pointer">Full Refund</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="partial" id="partial" />
+                  <Label htmlFor="partial" className="font-normal cursor-pointer">Partial Refund</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {creditNoteForm.refundType === "partial" && (
+              <div className="space-y-2">
+                <Label htmlFor="partialAmount">Refund Amount (KES)</Label>
+                <Input
+                  id="partialAmount"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max={selectedSaleForCreditNote ? Math.abs(parseFloat(selectedSaleForCreditNote.total_amount)) : undefined}
+                  placeholder="Enter amount to refund"
+                  value={creditNoteForm.partialAmount}
+                  onChange={(e) => setCreditNoteForm({ ...creditNoteForm, partialAmount: e.target.value })}
+                />
+                {selectedSaleForCreditNote && (
+                  <p className="text-sm text-muted-foreground">
+                    Maximum: {formatCurrency(Math.abs(parseFloat(selectedSaleForCreditNote.total_amount)))}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="reasonCode">Reason for Credit Note</Label>
+              <Select
+                value={creditNoteForm.reasonCode}
+                onValueChange={(value) => setCreditNoteForm({ ...creditNoteForm, reasonCode: value })}
+              >
+                <SelectTrigger id="reasonCode">
+                  <SelectValue placeholder="Select reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="01">Wrong quantity delivered</SelectItem>
+                  <SelectItem value="02">Wrong product delivered</SelectItem>
+                  <SelectItem value="03">Product returned</SelectItem>
+                  <SelectItem value="04">Goods damaged</SelectItem>
+                  <SelectItem value="05">Goods rejected</SelectItem>
+                  <SelectItem value="06">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Additional Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Enter any additional notes..."
+                value={creditNoteForm.notes}
+                onChange={(e) => setCreditNoteForm({ ...creditNoteForm, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setCreditNoteDialogOpen(false)}
+              disabled={issuingCreditNote !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitCreditNote}
+              disabled={issuingCreditNote !== null}
+            >
+              {issuingCreditNote ? "Issuing..." : "Issue Credit Note"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

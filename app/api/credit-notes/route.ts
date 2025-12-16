@@ -13,8 +13,10 @@ export async function POST(request: NextRequest) {
     const {
       sale_id,
       branch_id,
-      reason,
-      refund_reason_code
+      reason_code,
+      refund_type,
+      partial_amount,
+      notes
     } = body
 
     if (!sale_id || !branch_id) {
@@ -41,11 +43,26 @@ export async function POST(request: NextRequest) {
     const invoiceNoMatch = originalSale.invoice_number?.match(/\d+/)
     const originalInvoiceNo = invoiceNoMatch ? parseInt(invoiceNoMatch[0]) : 1
 
+    const originalTotal = Math.abs(parseFloat(originalSale.total_amount))
+    const originalQty = Math.abs(parseFloat(originalSale.quantity))
+    const unitPrice = parseFloat(originalSale.unit_price)
+
+    let refundAmount: number
+    let refundQty: number
+
+    if (refund_type === 'partial' && partial_amount) {
+      refundAmount = Math.min(partial_amount, originalTotal)
+      refundQty = refundAmount / unitPrice
+    } else {
+      refundAmount = originalTotal
+      refundQty = originalQty
+    }
+
     const kraResult = await callKraCreditNote({
       branch_id: branch_id,
       original_sale_id: sale_id,
       original_invoice_no: originalInvoiceNo,
-      refund_reason_code: refund_reason_code || reason || 'other',
+      refund_reason_code: reason_code || '06',
       customer_tin: originalSale.customer_pin,
       customer_name: originalSale.customer_name,
       items: [{
@@ -54,8 +71,8 @@ export async function POST(request: NextRequest) {
         item_name: originalSale.item_name || originalSale.fuel_type,
         package_unit: originalSale.package_unit || 'BF',
         quantity_unit: originalSale.quantity_unit || 'L',
-        quantity: parseFloat(originalSale.quantity) || 0,
-        price: parseFloat(originalSale.unit_price) || 0,
+        quantity: refundQty,
+        price: unitPrice,
         tax_type: originalSale.tax_type || 'B'
       }]
     })
@@ -85,9 +102,9 @@ export async function POST(request: NextRequest) {
         branch_id,
         originalSale.nozzle_id,
         originalSale.fuel_type,
-        -Math.abs(parseFloat(originalSale.quantity)),
-        originalSale.unit_price,
-        -Math.abs(parseFloat(originalSale.total_amount)),
+        -refundQty,
+        unitPrice,
+        -refundAmount,
         originalSale.payment_method,
         originalSale.customer_name,
         originalSale.customer_pin,
