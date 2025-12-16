@@ -136,42 +136,39 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     if (!selectedTank) return
 
     const quantity = Number.parseFloat(adjustForm.quantity)
-    const newStock = selectedTank.current_stock + quantity
 
     try {
-      const adjustRes = await fetch('/api/stock-adjustments', {
+      const adjustRes = await fetch('/api/stock/adjust', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tank_id: selectedTank.id,
           branch_id: branchId,
-          adjustment_type: "manual_adjustment",
-          quantity,
-          previous_stock: selectedTank.current_stock,
-          new_stock: newStock,
+          adjustment_type: quantity >= 0 ? "increase" : "decrease",
+          quantity: Math.abs(quantity),
           reason: adjustForm.reason,
-          requested_by: adjustForm.requestedBy,
-          approval_status: "approved",
+          approved_by: adjustForm.requestedBy,
+          sync_to_kra: true
         })
       })
 
-      if (adjustRes.ok) {
-        await fetch('/api/tanks', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: selectedTank.id, current_stock: newStock })
-        })
-        toast.success(`Stock adjusted by ${quantity} litres`)
+      const result = await adjustRes.json()
+      
+      if (adjustRes.ok && result.success) {
+        toast.success(`Stock adjusted: ${result.data.previousStock} -> ${result.data.newStock} litres`)
+        if (result.kraSync?.synced) {
+          toast.info("Stock synced to KRA")
+        }
       } else {
-        toast.error("Error creating adjustment")
+        toast.error(result.error || "Error adjusting stock")
       }
 
       setShowAdjustDialog(false)
       setAdjustForm({ quantity: "", reason: "", requestedBy: "" })
       fetchTanks()
     } catch (error) {
-      console.error("Error creating adjustment:", error)
-      toast.error("Error creating adjustment")
+      console.error("Error adjusting stock:", error)
+      toast.error("Error adjusting stock")
     }
   }
 
@@ -179,34 +176,31 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     if (!selectedTank) return
 
     const quantity = Number.parseFloat(receiveForm.quantity)
-    const newStock = selectedTank.current_stock + quantity
 
     try {
-      const adjustRes = await fetch('/api/stock-adjustments', {
+      const receiveRes = await fetch('/api/stock/receive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tank_id: selectedTank.id,
           branch_id: branchId,
-          adjustment_type: "receive",
+          tank_id: selectedTank.id,
           quantity,
-          previous_stock: selectedTank.current_stock,
-          new_stock: newStock,
-          reason: receiveForm.reason,
-          requested_by: receiveForm.requestedBy,
-          approval_status: "approved",
+          unit_price: 0,
+          supplier_name: receiveForm.requestedBy || "Unknown",
+          notes: receiveForm.reason,
+          sync_to_kra: true
         })
       })
 
-      if (adjustRes.ok) {
-        await fetch('/api/tanks', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: selectedTank.id, current_stock: newStock })
-        })
-        toast.success(`Received ${quantity} litres`)
+      const result = await receiveRes.json()
+      
+      if (receiveRes.ok && result.success) {
+        toast.success(`Received ${quantity} litres. New stock: ${result.data.newStock}`)
+        if (result.kraSync?.synced) {
+          toast.info("Stock synced to KRA")
+        }
       } else {
-        toast.error("Error receiving stock")
+        toast.error(result.error || "Error receiving stock")
       }
 
       setShowReceiveDialog(false)
@@ -577,7 +571,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
             <div>
               <Label>Destination Branch</Label>
               <Select
-                value={transferForm.toBranchId}
+                value={transferForm.toBranchId || undefined}
                 onValueChange={(value) => setTransferForm({ ...transferForm, toBranchId: value, toTankId: "" })}
               >
                 <SelectTrigger className="rounded-xl">
