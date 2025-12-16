@@ -107,7 +107,7 @@ export async function getBranchKraInfo(branchId: string): Promise<{ tin: string,
 export async function getTankWithItemInfo(tankId: string): Promise<any> {
   const result = await query(`
     SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
-           i.quantity_unit, i.tax_type, i.sale_price,
+           i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price,
            fp.price as current_price
     FROM tanks t
     LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
@@ -248,7 +248,8 @@ export async function syncStockWithKRA(
       const itemCd = item.itemCode || tankInfo?.item_code || tankInfo?.kra_item_cd || `KE1NTXU000000${index + 1}`
       const itemClsCd = item.itemClassCode || tankInfo?.class_code || "5059690800"
       const itemNm = item.itemName || tankInfo?.item_name || tankInfo?.fuel_type || "Fuel Item"
-      const price = item.unitPrice || tankInfo?.current_price || tankInfo?.sale_price || 0
+      const isPurchaseMovement = movementType === "stock_receive"
+      const price = item.unitPrice || (isPurchaseMovement ? tankInfo?.purchase_price : tankInfo?.current_price) || tankInfo?.sale_price || 0
       
       const splyAmt = Math.round(item.quantity * price * 100) / 100
       const taxAmt = calculateTaxAmount(splyAmt, tankInfo?.tax_type || "B")

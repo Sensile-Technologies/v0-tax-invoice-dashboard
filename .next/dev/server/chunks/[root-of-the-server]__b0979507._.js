@@ -277,14 +277,14 @@ async function logKraApiCall(endpoint, payload, response, statusCode, durationMs
       INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
     `, [
-            "/api/kra/stock/saveStockItems",
+            endpoint,
             "POST",
             JSON.stringify(payload),
             JSON.stringify(response),
             statusCode,
             durationMs,
             branchId,
-            `${KRA_BASE_URL}${STOCK_ENDPOINT}`
+            `${KRA_BASE_URL}${endpoint}`
         ]);
     } catch (error) {
         console.error("[KRA Stock Service] Failed to log API call:", error);
