@@ -80,21 +80,17 @@ async function getTankItemInfo(branchId: string, fuelType: string, tankId?: stri
   if (tankId) {
     result = await query(`
       SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
-             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price,
-             fp.price as current_price
+             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price
       FROM tanks t
-      LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
-      LEFT JOIN fuel_prices fp ON fp.branch_id = t.branch_id AND fp.fuel_type = t.fuel_type
+      LEFT JOIN items i ON UPPER(i.item_name) = UPPER(t.fuel_type) AND i.branch_id = t.branch_id
       WHERE t.id = $1
     `, [tankId])
   } else {
     result = await query(`
       SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
-             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price,
-             fp.price as current_price
+             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price
       FROM tanks t
-      LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
-      LEFT JOIN fuel_prices fp ON fp.branch_id = t.branch_id AND fp.fuel_type = t.fuel_type
+      LEFT JOIN items i ON UPPER(i.item_name) = UPPER(t.fuel_type) AND i.branch_id = t.branch_id
       WHERE t.branch_id = $1 AND t.fuel_type ILIKE $2 AND t.status = 'active'
       ORDER BY t.current_stock DESC LIMIT 1
     `, [branchId, `%${fuelType}%`])
@@ -120,6 +116,10 @@ function formatKraDate(date: Date = new Date()): string {
   return `${year}${month}${day}`
 }
 
+function toFixed2(num: number): string {
+  return (Math.round(num * 100) / 100).toFixed(2)
+}
+
 function calculateTax(amount: number, taxType: string = "B"): { taxblAmt: number, taxAmt: number, taxRt: number } {
   if (taxType === "A") {
     const taxRt = 16
@@ -132,6 +132,8 @@ function calculateTax(amount: number, taxType: string = "B"): { taxblAmt: number
   } else if (taxType === "C") {
     const taxRt = 8
     return { taxblAmt: amount, taxAmt: Math.round(amount * 0.08 * 100) / 100, taxRt }
+  } else if (taxType === "D" || taxType === "E") {
+    return { taxblAmt: 0, taxAmt: 0, taxRt: 0 }
   }
   return { taxblAmt: amount, taxAmt: 0, taxRt: 0 }
 }
@@ -169,18 +171,18 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
     const tankInfo = await getTankItemInfo(saleData.branch_id, saleData.fuel_type, saleData.tank_id)
     const invcNo = await getNextInvoiceNo(saleData.branch_id)
     
-    const itemCd = tankInfo?.item_code || tankInfo?.kra_item_cd || `KE2NTL0000001`
-    const itemClsCd = tankInfo?.class_code || "5059690800"
+    const itemCd = tankInfo?.item_code || `KE2NTL0000001`
+    const itemClsCd = tankInfo?.class_code || "15100000"
     const itemNm = tankInfo?.item_name || saleData.fuel_type
     const pkgUnitCd = tankInfo?.package_unit || "NT"
-    const qtyUnitCd = tankInfo?.quantity_unit || "LT"
+    const qtyUnitCd = tankInfo?.quantity_unit || "LTR"
     const taxTyCd = tankInfo?.tax_type || "B"
     
-    const price = saleData.unit_price || tankInfo?.current_price || tankInfo?.sale_price || 0
-    const qty = saleData.quantity || 1
-    const splyAmt = Math.round(qty * price * 100) / 100
+    const prc = Math.round((saleData.unit_price || tankInfo?.sale_price || 0) * 100) / 100
+    const qty = Math.round(saleData.quantity * 100) / 100
+    const totAmt = Math.round(qty * prc * 100) / 100
     
-    const { taxblAmt, taxAmt, taxRt } = calculateTax(splyAmt, taxTyCd)
+    const { taxblAmt, taxAmt, taxRt } = calculateTax(totAmt, taxTyCd)
     
     const now = new Date()
     const cfmDt = formatKraDateTime(now)
@@ -211,27 +213,27 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       rfdRsnCd: null,
       totItemCnt: 1,
       
-      taxblAmtA: taxTyCd === "A" ? taxblAmt.toFixed(2) : "0.00",
-      taxblAmtB: taxTyCd === "B" ? taxblAmt.toFixed(2) : "0.00",
-      taxblAmtC: taxTyCd === "C" ? taxblAmt.toFixed(2) : "0.00",
+      taxblAmtA: taxTyCd === "A" ? toFixed2(taxblAmt) : "0.00",
+      taxblAmtB: taxTyCd === "B" ? toFixed2(taxblAmt) : "0.00",
+      taxblAmtC: taxTyCd === "C" ? toFixed2(taxblAmt) : "0.00",
       taxblAmtD: "0.00",
       taxblAmtE: "0.00",
       
-      taxRtA: taxTyCd === "A" ? taxRt.toFixed(2) : "0.00",
-      taxRtB: taxTyCd === "B" ? taxRt.toFixed(2) : "0.00",
-      taxRtC: taxTyCd === "C" ? taxRt.toFixed(2) : "0.00",
+      taxRtA: taxTyCd === "A" ? toFixed2(taxRt) : "0.00",
+      taxRtB: taxTyCd === "B" ? toFixed2(taxRt) : "0.00",
+      taxRtC: taxTyCd === "C" ? toFixed2(taxRt) : "0.00",
       taxRtD: "0.00",
       taxRtE: "0.00",
       
-      taxAmtA: taxTyCd === "A" ? taxAmt.toFixed(2) : "0.00",
-      taxAmtB: taxTyCd === "B" ? taxAmt.toFixed(2) : "0.00",
-      taxAmtC: taxTyCd === "C" ? taxAmt.toFixed(2) : "0.00",
+      taxAmtA: taxTyCd === "A" ? toFixed2(taxAmt) : "0.00",
+      taxAmtB: taxTyCd === "B" ? toFixed2(taxAmt) : "0.00",
+      taxAmtC: taxTyCd === "C" ? toFixed2(taxAmt) : "0.00",
       taxAmtD: "0.00",
       taxAmtE: "0.00",
       
-      totTaxblAmt: taxblAmt.toFixed(2),
-      totTaxAmt: taxAmt.toFixed(2),
-      totAmt: splyAmt.toFixed(2),
+      totTaxblAmt: toFixed2(taxblAmt),
+      totTaxAmt: toFixed2(taxAmt),
+      totAmt: toFixed2(totAmt),
       
       prchrAcptcYn: "N",
       remark: null,
@@ -259,11 +261,11 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
           itemNm: itemNm,
           bcd: null,
           pkgUnitCd: pkgUnitCd,
-          pkg: Math.ceil(qty),
+          pkg: 1,
           qtyUnitCd: qtyUnitCd,
           qty: qty,
-          prc: price,
-          splyAmt: splyAmt.toFixed(2),
+          prc: prc,
+          splyAmt: toFixed2(qty),
           dcRt: 0.0,
           dcAmt: 0.0,
           isrccCd: null,
@@ -271,9 +273,9 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
           isrcRt: 0,
           isrcAmt: 0,
           taxTyCd: taxTyCd,
-          taxblAmt: taxblAmt.toFixed(2),
-          taxAmt: taxAmt.toFixed(2),
-          totAmt: splyAmt.toFixed(2)
+          taxblAmt: toFixed2(taxblAmt),
+          taxAmt: toFixed2(taxAmt),
+          totAmt: toFixed2(totAmt)
         }
       ]
     }
