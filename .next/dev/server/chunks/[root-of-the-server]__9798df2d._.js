@@ -184,7 +184,6 @@ async function GET(request) {
         sa.reason,
         sa.requested_by,
         sa.approval_status,
-        sa.kra_sync_status,
         sa.created_at
       FROM stock_adjustments sa
       LEFT JOIN tanks t ON sa.tank_id = t.id

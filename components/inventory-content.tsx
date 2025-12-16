@@ -55,7 +55,7 @@ interface StockMovement {
   reason: string
   requested_by: string
   approval_status: string
-  kra_sync_status: string
+  kra_sync_status?: string
   created_at: string
 }
 
