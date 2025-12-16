@@ -603,31 +603,20 @@ async function getNextInvoiceNo(branchId) {
     ]);
     return result[0]?.invoice_number || 1;
 }
-async function getTankItemInfo(branchId, fuelType, tankId) {
-    let result;
-    if (tankId) {
-        result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
-             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price
-      FROM tanks t
-      LEFT JOIN items i ON UPPER(i.item_name) = UPPER(t.fuel_type) AND i.branch_id = t.branch_id
-      WHERE t.id = $1
-    `, [
-            tankId
-        ]);
-    } else {
-        result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
-             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price
-      FROM tanks t
-      LEFT JOIN items i ON UPPER(i.item_name) = UPPER(t.fuel_type) AND i.branch_id = t.branch_id
-      WHERE t.branch_id = $1 AND t.fuel_type ILIKE $2 AND t.status = 'active'
-      ORDER BY t.current_stock DESC LIMIT 1
-    `, [
-            branchId,
-            `%${fuelType}%`
-        ]);
-    }
+async function getItemInfoByFuelType(branchId, fuelType) {
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+    SELECT item_code, class_code, item_name, package_unit, 
+           quantity_unit, tax_type, sale_price, purchase_price
+    FROM items
+    WHERE branch_id = $1 
+    AND (UPPER(item_name) = UPPER($2) OR item_name ILIKE $3)
+    ORDER BY created_at DESC
+    LIMIT 1
+  `, [
+        branchId,
+        fuelType,
+        `%${fuelType}%`
+    ]);
     return result.length > 0 ? result[0] : null;
 }
 function formatKraDateTime(date = new Date()) {
@@ -711,17 +700,31 @@ async function callKraSaveSales(saleData) {
                 error: errorMsg
             };
         }
-        const tankInfo = await getTankItemInfo(saleData.branch_id, saleData.fuel_type, saleData.tank_id);
+        const itemInfo = await getItemInfoByFuelType(saleData.branch_id, saleData.fuel_type);
         const invcNo = await getNextInvoiceNo(saleData.branch_id);
-        const itemCd = tankInfo?.item_code || `KE2NTL0000001`;
-        const itemClsCd = tankInfo?.class_code || "15100000";
-        const itemNm = tankInfo?.item_name || saleData.fuel_type;
-        const pkgUnitCd = tankInfo?.package_unit || "NT";
-        const qtyUnitCd = tankInfo?.quantity_unit || "LTR";
-        const taxTyCd = tankInfo?.tax_type || "B";
-        const prc = Math.round((saleData.unit_price || tankInfo?.sale_price || 0) * 100) / 100;
+        if (!itemInfo) {
+            const errorMsg = `No item found for fuel type: ${saleData.fuel_type}`;
+            console.log(`[KRA Sales API] ${errorMsg}`);
+            return {
+                success: false,
+                kraResponse: {
+                    resultCd: "ITEM_NOT_FOUND",
+                    resultMsg: errorMsg,
+                    resultDt: new Date().toISOString()
+                },
+                error: errorMsg
+            };
+        }
+        const itemCd = itemInfo.item_code;
+        const itemClsCd = itemInfo.class_code || "15100000";
+        const itemNm = itemInfo.item_name;
+        const pkgUnitCd = itemInfo.package_unit || "NT";
+        const qtyUnitCd = itemInfo.quantity_unit || "LTR";
+        const taxTyCd = itemInfo.tax_type || "B";
+        const prc = Math.round((Number(itemInfo.sale_price) || 0) * 100) / 100;
         const qty = Math.round(saleData.quantity * 100) / 100;
         const totAmt = Math.round(qty * prc * 100) / 100;
+        console.log(`[KRA Sales API] Item: ${itemNm}, Code: ${itemCd}, Price from items table: ${prc}, Qty: ${qty}`);
         const { taxblAmt, taxAmt, taxRt } = calculateTax(totAmt, taxTyCd);
         const now = new Date();
         const cfmDt = formatKraDateTime(now);
