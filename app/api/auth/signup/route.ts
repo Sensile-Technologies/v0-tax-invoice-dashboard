@@ -119,10 +119,10 @@ export async function POST(request: Request) {
     } finally {
       client.release()
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("[API] Sign up error:", error)
     return NextResponse.json(
-      { error: { message: "Failed to create user" } },
+      { error: { message: error?.message || "Failed to create user", details: error?.toString() } },
       { status: 500 }
     )
   }
