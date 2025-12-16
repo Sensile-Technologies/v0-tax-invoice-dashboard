@@ -26,7 +26,7 @@ export async function GET(request: Request) {
       )
 
       const fuelPricesResult = await client.query(
-        `SELECT item_name as fuel_type, sale_price as price 
+        `SELECT item_name, sale_price as price 
          FROM items 
          WHERE branch_id = $1 
          AND (UPPER(item_name) IN ('PETROL', 'DIESEL', 'KEROSENE') 
@@ -36,16 +36,31 @@ export async function GET(request: Request) {
         [branchId]
       )
 
-      const nozzles = nozzlesResult.rows.map(n => ({
-        id: n.id,
-        name: `D${n.dispenser_number || 1}N${n.nozzle_number} - ${n.fuel_type}`,
-        fuel_type: n.fuel_type,
-        status: n.status,
-      }))
+      const fuelPrices = fuelPricesResult.rows.map(fp => {
+        const itemName = fp.item_name.toUpperCase()
+        let fuelType = fp.item_name
+        if (itemName.includes('PETROL')) fuelType = 'Petrol'
+        else if (itemName.includes('DIESEL')) fuelType = 'Diesel'
+        else if (itemName.includes('KEROSENE')) fuelType = 'Kerosene'
+        return { fuel_type: fuelType, price: parseFloat(fp.price) }
+      })
+
+      const nozzles = nozzlesResult.rows.map(n => {
+        const fuelPrice = fuelPrices.find(fp => 
+          fp.fuel_type.toUpperCase() === n.fuel_type.toUpperCase()
+        )
+        return {
+          id: n.id,
+          name: `D${n.dispenser_number || 1}N${n.nozzle_number} - ${n.fuel_type}`,
+          fuel_type: n.fuel_type,
+          status: n.status,
+          price: fuelPrice?.price || 0,
+        }
+      })
 
       return NextResponse.json({
         nozzles: nozzles,
-        fuel_prices: fuelPricesResult.rows,
+        fuel_prices: fuelPrices,
       })
     } finally {
       client.release()

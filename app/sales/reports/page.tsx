@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
-import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical, Printer } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const PAGE_SIZE = 50
@@ -131,7 +131,9 @@ export default function SalesReportsPage() {
   function getStatusBadgeVariant(status: string) {
     switch (status) {
       case "transmitted": return "default"
+      case "success": return "default"
       case "pending": return "secondary"
+      case "failed": return "destructive"
       case "flagged": return "destructive"
       default: return "secondary"
     }
@@ -139,6 +141,45 @@ export default function SalesReportsPage() {
 
   function clearFilters() {
     setFilters({ date: "", invoiceNumber: "", fuelType: "", nozzle: "", loyalty: "all", paymentMethod: "" })
+  }
+
+  async function handlePrintReceipt(sale: any) {
+    try {
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (!currentBranch) {
+        toast.error("No branch selected")
+        return
+      }
+      const branchData = JSON.parse(currentBranch)
+      
+      const response = await fetch('/api/receipt/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sale_id: sale.id,
+          branch_id: branchData.id
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate receipt')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `receipt-${sale.invoice_number || sale.id}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+      toast.success('Receipt downloaded')
+    } catch (error) {
+      console.error('Error generating receipt:', error)
+      toast.error('Failed to generate receipt')
+    }
   }
 
   return (
@@ -329,9 +370,21 @@ export default function SalesReportsPage() {
                                   </TableCell>
                                   <TableCell className="p-2 text-right font-mono text-sm">{sale.meter_reading_after.toFixed(2)}</TableCell>
                                   <TableCell className="p-2 text-center">
-                                    <Badge variant={getStatusBadgeVariant(sale.transmission_status)} className="capitalize">
-                                      {sale.transmission_status || "pending"}
-                                    </Badge>
+                                    {sale.kra_status === 'success' ? (
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                        onClick={() => handlePrintReceipt(sale)}
+                                        title="Print KRA Receipt"
+                                      >
+                                        <Printer className="h-5 w-5" />
+                                      </Button>
+                                    ) : (
+                                      <Badge variant={getStatusBadgeVariant(sale.kra_status || sale.transmission_status)} className="capitalize">
+                                        {sale.kra_status || sale.transmission_status || "pending"}
+                                      </Badge>
+                                    )}
                                   </TableCell>
                                   <TableCell className="p-2 text-center">
                                     <DropdownMenu>
