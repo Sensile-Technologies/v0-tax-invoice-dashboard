@@ -577,7 +577,7 @@ const PAYMENT_TYPE_CODES = {
 async function getBranchConfig(branchId) {
     try {
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT id, bhf_id, kra_pin, tin, device_token, server_address, server_port, COALESCE(invc_no, 0) as invc_no
+      SELECT id, bhf_id, kra_pin, device_token, server_address, server_port, COALESCE(invoice_number, 0) as invoice_number
       FROM branches
       WHERE id = $1
     `, [
@@ -595,13 +595,13 @@ async function getBranchConfig(branchId) {
 async function getNextInvoiceNo(branchId) {
     const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
     UPDATE branches 
-    SET invc_no = COALESCE(invc_no, 0) + 1 
+    SET invoice_number = COALESCE(invoice_number, 0) + 1 
     WHERE id = $1 
-    RETURNING invc_no
+    RETURNING invoice_number
   `, [
         branchId
     ]);
-    return result[0]?.invc_no || 1;
+    return result[0]?.invoice_number || 1;
 }
 async function getTankItemInfo(branchId, fuelType, tankId) {
     let result;
@@ -693,8 +693,8 @@ async function callKraSaveSales(saleData) {
                 error: errorMsg
             };
         }
-        if (!branchConfig.tin) {
-            const errorMsg = "KRA TIN not configured for this branch";
+        if (!branchConfig.kra_pin) {
+            const errorMsg = "KRA PIN not configured for this branch";
             console.log(`[KRA Sales API] ${errorMsg}`);
             return {
                 success: false,
@@ -724,7 +724,7 @@ async function callKraSaveSales(saleData) {
         const pmtTyCd = PAYMENT_TYPE_CODES[saleData.payment_method?.toLowerCase()] || "01";
         const trdInvcNo = `CIV-${String(invcNo).padStart(6, '0')}`;
         const kraPayload = {
-            tin: branchConfig.tin,
+            tin: branchConfig.kra_pin,
             bhfId: branchConfig.bhf_id || "00",
             trdInvcNo: trdInvcNo,
             invcNo: String(invcNo),
@@ -853,7 +853,8 @@ async function callKraSaveSales(saleData) {
             response: kraResponse,
             statusCode: httpStatusCode || 500,
             durationMs,
-            branchId: saleData.branch_id
+            branchId: saleData.branch_id,
+            externalEndpoint: kraEndpoint
         });
         const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0";
         return {
@@ -879,7 +880,8 @@ async function callKraSaveSales(saleData) {
             statusCode: 500,
             durationMs,
             branchId: saleData.branch_id,
-            error: error.message
+            error: error.message,
+            externalEndpoint: `${KRA_BASE_URL}/trnsSales/saveSales`
         });
         return {
             success: false,

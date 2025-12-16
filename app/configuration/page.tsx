@@ -9,19 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { Fuel, Gauge, Plus, ArrowLeft } from "lucide-react"
+import { Fuel, Gauge, Plus, ArrowLeft, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function ConfigurationPage() {
   const router = useRouter()
-  const [fuelPrices, setFuelPrices] = useState<any[]>([])
+  const [fuelItems, setFuelItems] = useState<any[]>([])
   const [dispensers, setDispensers] = useState<any[]>([])
   const [nozzles, setNozzles] = useState<any[]>([])
   const [availableFuelTypes, setAvailableFuelTypes] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
-  const [editingPriceId, setEditingPriceId] = useState<string | null>(null)
-  const [editPrice, setEditPrice] = useState("")
-  const [newPrice, setNewPrice] = useState({ fuel_type: "", price: "" })
   const [newNozzle, setNewNozzle] = useState({
     dispenser_id: "",
     nozzle_number: "",
@@ -44,16 +41,16 @@ export default function ConfigurationPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const [tanksRes, pricesRes, dispensersRes, nozzlesRes] = await Promise.all([
+      const [tanksRes, itemsRes, dispensersRes, nozzlesRes] = await Promise.all([
         fetch(`/api/tanks?branch_id=${branchId}`),
-        fetch(`/api/fuel-prices?branch_id=${branchId}`),
+        fetch(`/api/items?branch_id=${branchId}`),
         fetch(`/api/dispensers?branch_id=${branchId}`),
         fetch(`/api/nozzles?branch_id=${branchId}`)
       ])
 
-      const [tanksResult, pricesResult, dispensersResult, nozzlesResult] = await Promise.all([
+      const [tanksResult, itemsResult, dispensersResult, nozzlesResult] = await Promise.all([
         tanksRes.json(),
-        pricesRes.json(),
+        itemsRes.json(),
         dispensersRes.json(),
         nozzlesRes.json()
       ])
@@ -63,8 +60,13 @@ export default function ConfigurationPage() {
         setAvailableFuelTypes(fuelTypes)
       }
 
-      if (pricesResult.success) {
-        setFuelPrices(pricesResult.data || [])
+      if (itemsResult.success) {
+        const fuelTypeItems = (itemsResult.data || []).filter((item: any) => 
+          item.item_name?.toUpperCase() === 'DIESEL' || 
+          item.item_name?.toUpperCase() === 'PETROL' ||
+          item.item_type === '2'
+        )
+        setFuelItems(fuelTypeItems)
       }
 
       if (dispensersResult.success) {
@@ -77,89 +79,6 @@ export default function ConfigurationPage() {
     } catch (error) {
       console.error("Error fetching configuration:", error)
       toast.error("Failed to load configuration")
-    }
-  }
-
-  const handleAddFuelPrice = async () => {
-    if (!newPrice.fuel_type || !newPrice.price) {
-      toast.error("Please fill in all fields")
-      return
-    }
-
-    setLoading(true)
-    try {
-      const currentBranch = localStorage.getItem("selectedBranch")
-      if (!currentBranch) {
-        toast.error("Please select a branch first")
-        return
-      }
-
-      const branchData = JSON.parse(currentBranch)
-      const branchId = branchData.id
-
-      const response = await fetch('/api/fuel-prices', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          branch_id: branchId,
-          fuel_type: newPrice.fuel_type,
-          price: Number.parseFloat(newPrice.price),
-          effective_date: new Date().toISOString(),
-        })
-      })
-
-      const result = await response.json()
-
-      if (!result.success) {
-        console.error("Error adding fuel price:", result.error)
-        toast.error("Failed to add fuel price")
-      } else {
-        toast.success("Fuel price added successfully")
-        setNewPrice({ fuel_type: "", price: "" })
-        await fetchConfiguration()
-      }
-    } catch (error) {
-      console.error("Error adding fuel price:", error)
-      toast.error("Failed to add fuel price")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleUpdateFuelPrice = async (priceId: string, fuelType: string) => {
-    if (!editPrice) {
-      toast.error("Please enter a price")
-      return
-    }
-
-    setLoading(true)
-    try {
-      const response = await fetch('/api/fuel-prices', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: priceId,
-          price: Number.parseFloat(editPrice),
-          effective_date: new Date().toISOString(),
-        })
-      })
-
-      const result = await response.json()
-
-      if (!result.success) {
-        console.error("Error updating fuel price:", result.error)
-        toast.error("Failed to update fuel price")
-      } else {
-        toast.success(`${fuelType} price updated successfully`)
-        setEditingPriceId(null)
-        setEditPrice("")
-        await fetchConfiguration()
-      }
-    } catch (error) {
-      console.error("Error updating fuel price:", error)
-      toast.error("Failed to update fuel price")
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -192,10 +111,10 @@ export default function ConfigurationPage() {
         return
       }
 
-      const priceExists = fuelPrices.some((price) => price.fuel_type === newNozzle.fuel_type)
+      const priceExists = fuelItems.some((item) => item.item_name?.toUpperCase() === newNozzle.fuel_type?.toUpperCase())
       if (!priceExists) {
         toast.error(
-          `No price configured for ${newNozzle.fuel_type}. Please add a fuel price for ${newNozzle.fuel_type} first.`,
+          `No item configured for ${newNozzle.fuel_type}. Please add this fuel type in the Items list first.`,
         )
         setLoading(false)
         return
@@ -295,130 +214,32 @@ export default function ConfigurationPage() {
         <TabsContent value="fuel-prices" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Add Fuel Price</CardTitle>
-              <CardDescription>Set selling prices for different fuel types</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fuel_type">Fuel Type</Label>
-                  <Select
-                    value={newPrice.fuel_type}
-                    onValueChange={(value) => setNewPrice({ ...newPrice, fuel_type: value })}
-                  >
-                    <SelectTrigger id="fuel_type">
-                      <SelectValue placeholder="Select fuel type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableFuelTypes.length === 0 ? (
-                        <div className="px-2 py-1.5 text-sm text-slate-500">
-                          No fuel types available. Add tanks in Tank Management first.
-                        </div>
-                      ) : (
-                        availableFuelTypes
-                          .filter((fuelType) => !fuelPrices.some((price) => price.fuel_type === fuelType))
-                          .map((fuelType) => (
-                            <SelectItem key={fuelType} value={fuelType}>
-                              {fuelType}
-                            </SelectItem>
-                          ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price (KES)</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={newPrice.price}
-                    onChange={(e) => setNewPrice({ ...newPrice, price: e.target.value })}
-                  />
-                </div>
-              </div>
-              <Button
-                onClick={handleAddFuelPrice}
-                disabled={
-                  loading || availableFuelTypes.filter((ft) => !fuelPrices.some((p) => p.fuel_type === ft)).length === 0
-                }
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Fuel Price
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>Current Fuel Prices</CardTitle>
-              <CardDescription>Active fuel prices for this branch</CardDescription>
+              <CardDescription>Sale prices from items list (read-only)</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="flex items-start gap-2 p-3 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-blue-700">
+                  Fuel prices are managed in the Items list. To update prices, go to Inventory → Items and edit the sale price for each fuel type.
+                </p>
+              </div>
               <div className="space-y-2">
-                {fuelPrices.length === 0 ? (
-                  <p className="text-sm text-slate-500">No fuel prices configured</p>
+                {fuelItems.length === 0 ? (
+                  <p className="text-sm text-slate-500">No fuel items configured. Add fuel items in the Items list.</p>
                 ) : (
-                  fuelPrices.map((price) => (
-                    <div key={price.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      {editingPriceId === price.id ? (
-                        <>
-                          <div className="flex-1">
-                            <p className="font-medium mb-2">{price.fuel_type}</p>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="Enter new price"
-                              value={editPrice}
-                              onChange={(e) => setEditPrice(e.target.value)}
-                              className="max-w-[200px]"
-                            />
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleUpdateFuelPrice(price.id, price.fuel_type)}
-                              disabled={loading}
-                            >
-                              Save
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingPriceId(null)
-                                setEditPrice("")
-                              }}
-                              disabled={loading}
-                            >
-                              Cancel
-                            </Button>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div>
-                            <p className="font-medium">{price.fuel_type}</p>
-                            <p className="text-sm text-slate-500">
-                              Effective: {new Date(price.effective_date).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <p className="text-lg font-bold">KES {Number.parseFloat(price.price).toFixed(2)}</p>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingPriceId(price.id)
-                                setEditPrice(price.price.toString())
-                              }}
-                            >
-                              Edit
-                            </Button>
-                          </div>
-                        </>
-                      )}
+                  fuelItems.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg bg-slate-50">
+                      <div>
+                        <p className="font-medium">{item.item_name}</p>
+                        <p className="text-sm text-slate-500">
+                          Item Code: {item.item_code || 'N/A'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-700">KES {Number.parseFloat(item.sale_price || 0).toFixed(2)}</p>
+                        <p className="text-xs text-slate-500">Purchase: KES {Number.parseFloat(item.purchase_price || 0).toFixed(2)}</p>
+                      </div>
                     </div>
                   ))
                 )}
