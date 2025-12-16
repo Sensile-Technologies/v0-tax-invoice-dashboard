@@ -1,0 +1,563 @@
+module.exports = [
+"[externals]/next/dist/compiled/next-server/app-route-turbo.runtime.dev.js [external] (next/dist/compiled/next-server/app-route-turbo.runtime.dev.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/compiled/next-server/app-route-turbo.runtime.dev.js", () => require("next/dist/compiled/next-server/app-route-turbo.runtime.dev.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/compiled/@opentelemetry/api [external] (next/dist/compiled/@opentelemetry/api, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/compiled/@opentelemetry/api", () => require("next/dist/compiled/@opentelemetry/api"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js [external] (next/dist/compiled/next-server/app-page-turbo.runtime.dev.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/compiled/next-server/app-page-turbo.runtime.dev.js", () => require("next/dist/compiled/next-server/app-page-turbo.runtime.dev.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/server/app-render/work-unit-async-storage.external.js [external] (next/dist/server/app-render/work-unit-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/app-render/work-unit-async-storage.external.js", () => require("next/dist/server/app-render/work-unit-async-storage.external.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/server/app-render/work-async-storage.external.js [external] (next/dist/server/app-render/work-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/app-render/work-async-storage.external.js", () => require("next/dist/server/app-render/work-async-storage.external.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/shared/lib/no-fallback-error.external.js [external] (next/dist/shared/lib/no-fallback-error.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/shared/lib/no-fallback-error.external.js", () => require("next/dist/shared/lib/no-fallback-error.external.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/server/app-render/after-task-async-storage.external.js [external] (next/dist/server/app-render/after-task-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/app-render/after-task-async-storage.external.js", () => require("next/dist/server/app-render/after-task-async-storage.external.js"));
+
+module.exports = mod;
+}),
+"[externals]/pg [external] (pg, esm_import)", ((__turbopack_context__) => {
+"use strict";
+
+return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
+
+const mod = await __turbopack_context__.y("pg");
+
+__turbopack_context__.n(mod);
+__turbopack_async_result__();
+} catch(e) { __turbopack_async_result__(e); } }, true);}),
+"[project]/lib/db/client.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
+
+__turbopack_context__.s([
+    "execute",
+    ()=>execute,
+    "pool",
+    ()=>pool,
+    "query",
+    ()=>query,
+    "queryOne",
+    ()=>queryOne
+]);
+var __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__ = __turbopack_context__.i("[externals]/pg [external] (pg, esm_import)");
+var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
+    __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__
+]);
+[__TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
+;
+const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
+    connectionString: process.env.DATABASE_URL,
+    ssl: ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : false
+});
+async function query(text, params) {
+    const client = await pool.connect();
+    try {
+        const result = await client.query(text, params);
+        return result.rows;
+    } finally{
+        client.release();
+    }
+}
+async function queryOne(text, params) {
+    const rows = await query(text, params);
+    return rows[0] || null;
+}
+async function execute(text, params) {
+    const client = await pool.connect();
+    try {
+        const result = await client.query(text, params);
+        return result.rowCount || 0;
+    } finally{
+        client.release();
+    }
+}
+;
+__turbopack_async_result__();
+} catch(e) { __turbopack_async_result__(e); } }, false);}),
+"[project]/lib/db/index.ts [app-route] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
+
+__turbopack_context__.s([]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/client.ts [app-route] (ecmascript)");
+var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
+    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
+]);
+[__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
+;
+__turbopack_async_result__();
+} catch(e) { __turbopack_async_result__(e); } }, false);}),
+"[project]/lib/kra-stock-service.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
+
+__turbopack_context__.s([
+    "SAR_TYPE_CODES",
+    ()=>SAR_TYPE_CODES,
+    "calculateTaxAmount",
+    ()=>calculateTaxAmount,
+    "createStockMovementRecord",
+    ()=>createStockMovementRecord,
+    "formatKraDate",
+    ()=>formatKraDate,
+    "getBranchKraInfo",
+    ()=>getBranchKraInfo,
+    "getNextSarNo",
+    ()=>getNextSarNo,
+    "getTankWithItemInfo",
+    ()=>getTankWithItemInfo,
+    "logKraApiCall",
+    ()=>logKraApiCall,
+    "syncStockWithKRA",
+    ()=>syncStockWithKRA
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/lib/db/index.ts [app-route] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/client.ts [app-route] (ecmascript)");
+var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
+    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__,
+    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
+]);
+[__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
+;
+const KRA_BASE_URL = "http://20.224.40.56:8088";
+const STOCK_ENDPOINT = "/stock/saveStockItems";
+const SAR_TYPE_CODES = {
+    initial_stock: "01",
+    stock_receive: "02",
+    stock_adjustment: "06",
+    stock_transfer: "05",
+    sale: "11" // Sale
+};
+async function getNextSarNo(branchId, endpoint = STOCK_ENDPOINT) {
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+    INSERT INTO branch_kra_counters (branch_id, endpoint, current_sar_no)
+    VALUES ($1, $2, 1)
+    ON CONFLICT (branch_id, endpoint) 
+    DO UPDATE SET 
+      current_sar_no = branch_kra_counters.current_sar_no + 1,
+      updated_at = NOW()
+    RETURNING current_sar_no
+  `, [
+        branchId,
+        endpoint
+    ]);
+    return result[0].current_sar_no;
+}
+async function getBranchKraInfo(branchId) {
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+    SELECT b.kra_pin as tin, b.bhf_id 
+    FROM branches b 
+    WHERE b.id = $1
+  `, [
+        branchId
+    ]);
+    if (result.length === 0) return null;
+    const branch = result[0];
+    if (!branch.tin) {
+        const vendorResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      SELECT v.kra_pin as tin 
+      FROM branches b 
+      JOIN vendors v ON v.id = b.vendor_id 
+      WHERE b.id = $1
+    `, [
+            branchId
+        ]);
+        if (vendorResult.length > 0 && vendorResult[0].tin) {
+            return {
+                tin: vendorResult[0].tin,
+                bhfId: branch.bhf_id || "00"
+            };
+        }
+        return null;
+    }
+    return {
+        tin: branch.tin,
+        bhfId: branch.bhf_id || "00"
+    };
+}
+async function getTankWithItemInfo(tankId) {
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+    SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
+           i.quantity_unit, i.tax_type, i.sale_price,
+           fp.price as current_price
+    FROM tanks t
+    LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
+    LEFT JOIN fuel_prices fp ON fp.branch_id = t.branch_id AND fp.fuel_type = t.fuel_type
+    WHERE t.id = $1
+  `, [
+        tankId
+    ]);
+    return result.length > 0 ? result[0] : null;
+}
+function formatKraDate(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`;
+}
+function calculateTaxAmount(taxableAmount, taxType = "B") {
+    if (taxType === "B") {
+        return Math.round(taxableAmount * 0.16 * 100) / 100;
+    }
+    return 0;
+}
+async function createStockMovementRecord(branchId, kraPayload, kraResponse, httpStatus, durationMs) {
+    const isSuccess = kraResponse?.resultCd === "000" || kraResponse?.resultCd === "0";
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+    INSERT INTO stock_movements (
+      branch_id, tin, bhf_id, sar_no, org_sar_no, reg_ty_cd, 
+      cust_tin, cust_bhf_id, cust_nm, sar_ty_cd, ocrn_dt,
+      tot_item_cnt, tot_taxbl_amt, tot_tax_amt, tot_amt, remark,
+      regr_id, regr_nm, modr_id, modr_nm,
+      kra_status, kra_response, kra_synced_at
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
+      $12, $13, $14, $15, $16, $17, $18, $19, $20,
+      $21, $22, $23
+    ) RETURNING id
+  `, [
+        branchId,
+        kraPayload.tin,
+        kraPayload.bhfId,
+        kraPayload.sarNo,
+        kraPayload.orgSarNo,
+        kraPayload.regTyCd,
+        kraPayload.custTin,
+        kraPayload.custBhfId,
+        kraPayload.custNm,
+        kraPayload.sarTyCd,
+        kraPayload.ocrnDt,
+        kraPayload.totItemCnt,
+        kraPayload.totTaxblAmt,
+        kraPayload.totTaxAmt,
+        kraPayload.totAmt,
+        kraPayload.remark,
+        kraPayload.regrId,
+        kraPayload.regrNm,
+        kraPayload.modrId,
+        kraPayload.modrNm,
+        isSuccess ? "success" : "failed",
+        JSON.stringify(kraResponse),
+        isSuccess ? new Date() : null
+    ]);
+    return result[0].id;
+}
+async function logKraApiCall(endpoint, payload, response, statusCode, durationMs, branchId) {
+    try {
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+    `, [
+            "/api/kra/stock/saveStockItems",
+            "POST",
+            JSON.stringify(payload),
+            JSON.stringify(response),
+            statusCode,
+            durationMs,
+            branchId,
+            `${KRA_BASE_URL}${STOCK_ENDPOINT}`
+        ]);
+    } catch (error) {
+        console.error("[KRA Stock Service] Failed to log API call:", error);
+    }
+}
+async function syncStockWithKRA(branchId, movementType, items, options) {
+    const startTime = Date.now();
+    try {
+        const kraInfo = await getBranchKraInfo(branchId);
+        if (!kraInfo) {
+            return {
+                success: false,
+                kraResponse: null,
+                error: "Branch KRA info not configured (missing KRA PIN)"
+            };
+        }
+        const sarNo = await getNextSarNo(branchId);
+        const sarTyCd = SAR_TYPE_CODES[movementType] || "06";
+        let totTaxblAmt = 0;
+        let totTaxAmt = 0;
+        let totAmt = 0;
+        const itemList = await Promise.all(items.map(async (item, index)=>{
+            let tankInfo = await getTankWithItemInfo(item.tankId);
+            const itemCd = item.itemCode || tankInfo?.item_code || tankInfo?.kra_item_cd || `KE1NTXU000000${index + 1}`;
+            const itemClsCd = item.itemClassCode || tankInfo?.class_code || "5059690800";
+            const itemNm = item.itemName || tankInfo?.item_name || tankInfo?.fuel_type || "Fuel Item";
+            const price = item.unitPrice || tankInfo?.current_price || tankInfo?.sale_price || 0;
+            const splyAmt = Math.round(item.quantity * price * 100) / 100;
+            const taxAmt = calculateTaxAmount(splyAmt, tankInfo?.tax_type || "B");
+            totTaxblAmt += splyAmt;
+            totTaxAmt += taxAmt;
+            totAmt += splyAmt;
+            return {
+                itemSeq: index + 1,
+                itemCd,
+                itemClsCd,
+                itemNm,
+                bcd: null,
+                pkgUnitCd: tankInfo?.package_unit || "NT",
+                pkg: Math.ceil(item.quantity),
+                qtyUnitCd: tankInfo?.quantity_unit || "U",
+                qty: item.quantity,
+                itemExprDt: null,
+                prc: price,
+                splyAmt,
+                totDcAmt: 0,
+                taxblAmt: splyAmt,
+                taxTyCd: tankInfo?.tax_type || "B",
+                taxAmt,
+                totAmt: splyAmt
+            };
+        }));
+        const payload = {
+            tin: kraInfo.tin,
+            bhfId: kraInfo.bhfId,
+            sarNo,
+            orgSarNo: sarNo,
+            regTyCd: "M",
+            custTin: options?.customerId || null,
+            custNm: options?.customerName || null,
+            custBhfId: options?.customerBhfId || null,
+            sarTyCd,
+            ocrnDt: formatKraDate(),
+            totItemCnt: itemList.length,
+            totTaxblAmt: Math.round(totTaxblAmt * 100) / 100,
+            totTaxAmt: Math.round(totTaxAmt * 100) / 100,
+            totAmt: Math.round(totAmt * 100) / 100,
+            remark: options?.remark || null,
+            regrId: "Admin",
+            regrNm: "Admin",
+            modrNm: "Admin",
+            modrId: "Admin",
+            itemList
+        };
+        console.log(`[KRA Stock Service] Syncing ${movementType} to KRA for branch ${branchId}`);
+        console.log(`[KRA Stock Service] Payload:`, JSON.stringify(payload, null, 2));
+        let kraResponse;
+        let httpStatusCode = 200;
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(()=>controller.abort(), 15000);
+            const response = await fetch(`${KRA_BASE_URL}${STOCK_ENDPOINT}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            httpStatusCode = response.status;
+            kraResponse = await response.json();
+        } catch (fetchError) {
+            if (fetchError.name === 'AbortError') {
+                kraResponse = {
+                    resultCd: "TIMEOUT",
+                    resultMsg: "Request timed out after 15 seconds",
+                    resultDt: new Date().toISOString()
+                };
+            } else {
+                kraResponse = {
+                    resultCd: "NETWORK_ERROR",
+                    resultMsg: `Network error: ${fetchError.message}`,
+                    resultDt: new Date().toISOString()
+                };
+            }
+            httpStatusCode = 0;
+        }
+        const duration = Date.now() - startTime;
+        console.log(`[KRA Stock Service] Response (${duration}ms):`, JSON.stringify(kraResponse, null, 2));
+        await logKraApiCall(STOCK_ENDPOINT, payload, kraResponse, httpStatusCode, duration, branchId);
+        const movementId = await createStockMovementRecord(branchId, payload, kraResponse, httpStatusCode, duration);
+        const isSuccess = kraResponse?.resultCd === "000" || kraResponse?.resultCd === "0";
+        return {
+            success: isSuccess,
+            kraResponse,
+            movementId,
+            error: isSuccess ? undefined : kraResponse?.resultMsg || "KRA sync failed"
+        };
+    } catch (error) {
+        console.error("[KRA Stock Service] Error:", error);
+        return {
+            success: false,
+            kraResponse: null,
+            error: error.message || "Internal error during KRA sync"
+        };
+    }
+}
+__turbopack_async_result__();
+} catch(e) { __turbopack_async_result__(e); } }, false);}),
+"[project]/app/api/stock-adjustments/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
+
+__turbopack_context__.s([
+    "GET",
+    ()=>GET,
+    "POST",
+    ()=>POST
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__ = __turbopack_context__.i("[externals]/pg [external] (pg, esm_import)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$service$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/kra-stock-service.ts [app-route] (ecmascript)");
+var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
+    __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__,
+    __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$service$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
+]);
+[__TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$service$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
+;
+;
+;
+const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
+    connectionString: process.env.DATABASE_URL
+});
+async function GET(request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const branchId = searchParams.get("branch_id");
+        const tankId = searchParams.get("tank_id");
+        let query = "SELECT * FROM stock_adjustments WHERE 1=1";
+        const params = [];
+        let paramIndex = 1;
+        if (branchId) {
+            query += ` AND branch_id = $${paramIndex}`;
+            params.push(branchId);
+            paramIndex++;
+        }
+        if (tankId) {
+            query += ` AND tank_id = $${paramIndex}`;
+            params.push(tankId);
+            paramIndex++;
+        }
+        query += " ORDER BY created_at DESC";
+        const result = await pool.query(query, params);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: true,
+            data: result.rows
+        });
+    } catch (error) {
+        console.error("Error fetching stock adjustments:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: false,
+            error: "Failed to fetch stock adjustments"
+        }, {
+            status: 500
+        });
+    }
+}
+async function POST(request) {
+    try {
+        const body = await request.json();
+        const { tank_id, branch_id, adjustment_type, quantity, previous_stock, new_stock, reason, requested_by, approval_status, sync_to_kra = true } = body;
+        if (!tank_id || !branch_id || !adjustment_type) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "tank_id, branch_id, and adjustment_type are required"
+            }, {
+                status: 400
+            });
+        }
+        const result = await pool.query(`INSERT INTO stock_adjustments (tank_id, branch_id, adjustment_type, quantity, previous_stock, new_stock, reason, requested_by, approval_status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING *`, [
+            tank_id,
+            branch_id,
+            adjustment_type,
+            quantity || 0,
+            previous_stock || 0,
+            new_stock || 0,
+            reason,
+            requested_by,
+            approval_status || "pending"
+        ]);
+        const adjustment = result.rows[0];
+        if (sync_to_kra && quantity && quantity !== 0) {
+            try {
+                const tankResult = await pool.query(`SELECT t.*, fp.kra_item_cd, fp.product_name, fp.unit_price
+           FROM tanks t
+           LEFT JOIN fuel_prices fp ON t.fuel_type = fp.fuel_type AND t.branch_id = fp.branch_id
+           WHERE t.id = $1`, [
+                    tank_id
+                ]);
+                if (tankResult.rows.length > 0) {
+                    const tank = tankResult.rows[0];
+                    let movementType;
+                    if (adjustment_type === 'receive' || adjustment_type === 'addition') {
+                        movementType = 'stock_receive';
+                    } else if (adjustment_type === 'sale' || adjustment_type === 'deduction') {
+                        movementType = 'sale';
+                    } else {
+                        movementType = 'stock_adjustment';
+                    }
+                    const kraSync = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$service$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["syncStockWithKRA"])(branch_id, movementType, [
+                        {
+                            tankId: tank_id,
+                            itemCode: tank.kra_item_cd || tank.fuel_type?.substring(0, 10) || 'FUEL',
+                            itemName: tank.product_name || tank.name || tank.fuel_type || 'Fuel',
+                            quantity: Math.abs(quantity),
+                            unitPrice: tank.unit_price || 0
+                        }
+                    ], {
+                        remark: reason || `Stock adjustment: ${adjustment_type}`
+                    });
+                    await pool.query(`UPDATE stock_adjustments SET 
+              kra_sync_status = $1,
+              kra_response = $2
+            WHERE id = $3`, [
+                        kraSync.success ? 'synced' : 'failed',
+                        JSON.stringify(kraSync.kraResponse),
+                        adjustment.id
+                    ]);
+                }
+            } catch (kraError) {
+                console.error("KRA sync error:", kraError);
+            }
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: true,
+            data: adjustment
+        });
+    } catch (error) {
+        console.error("Error creating stock adjustment:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: false,
+            error: "Failed to create stock adjustment"
+        }, {
+            status: 500
+        });
+    }
+}
+__turbopack_async_result__();
+} catch(e) { __turbopack_async_result__(e); } }, false);}),
+];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__a8223bb6._.js.map
