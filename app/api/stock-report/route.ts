@@ -13,35 +13,23 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get("start_date")
     const endDate = searchParams.get("end_date")
 
-    let whereClause = "WHERE 1=1"
-    const params: any[] = []
-    let paramIndex = 1
-
+    const tanksParams: any[] = []
+    let tankParamIndex = 1
+    let tankWhereClause = "WHERE 1=1"
+    
     if (branchId) {
-      whereClause += ` AND sa.branch_id = $${paramIndex}`
-      params.push(branchId)
-      paramIndex++
+      tankWhereClause += ` AND t.branch_id = $${tankParamIndex}`
+      tanksParams.push(branchId)
+      tankParamIndex++
     }
 
     if (tankId) {
-      whereClause += ` AND sa.tank_id = $${paramIndex}`
-      params.push(tankId)
-      paramIndex++
+      tankWhereClause += ` AND t.id = $${tankParamIndex}`
+      tanksParams.push(tankId)
+      tankParamIndex++
     }
 
-    if (startDate) {
-      whereClause += ` AND sa.created_at >= $${paramIndex}`
-      params.push(startDate)
-      paramIndex++
-    }
-
-    if (endDate) {
-      whereClause += ` AND sa.created_at <= $${paramIndex}`
-      params.push(endDate + 'T23:59:59')
-      paramIndex++
-    }
-
-    const summaryQuery = `
+    const tanksQuery = `
       SELECT 
         t.id as tank_id,
         t.tank_name,
@@ -49,23 +37,88 @@ export async function GET(request: NextRequest) {
         t.capacity,
         t.current_stock,
         b.name as branch_name,
-        b.id as branch_id,
-        COALESCE(SUM(CASE WHEN sa.adjustment_type IN ('receive', 'addition') THEN sa.quantity ELSE 0 END), 0) as total_received,
-        COALESCE(SUM(CASE WHEN sa.adjustment_type = 'manual_adjustment' AND sa.quantity > 0 THEN sa.quantity ELSE 0 END), 0) as total_adjusted_in,
-        COALESCE(SUM(CASE WHEN sa.adjustment_type = 'manual_adjustment' AND sa.quantity < 0 THEN ABS(sa.quantity) ELSE 0 END), 0) as total_adjusted_out,
-        COALESCE(SUM(CASE WHEN sa.adjustment_type IN ('sale', 'deduction') THEN ABS(sa.quantity) ELSE 0 END), 0) as total_sold,
-        COALESCE(SUM(CASE WHEN sa.adjustment_type = 'transfer_out' THEN ABS(sa.quantity) ELSE 0 END), 0) as total_transferred_out,
-        COALESCE(SUM(CASE WHEN sa.adjustment_type = 'transfer_in' THEN sa.quantity ELSE 0 END), 0) as total_transferred_in,
-        COUNT(sa.id) as movement_count
+        b.id as branch_id
       FROM tanks t
       LEFT JOIN branches b ON t.branch_id = b.id
-      LEFT JOIN stock_adjustments sa ON t.id = sa.tank_id ${branchId ? 'AND sa.branch_id = $1' : ''}
-        ${startDate ? `AND sa.created_at >= $${branchId ? 2 : 1}` : ''}
-        ${endDate ? `AND sa.created_at <= $${branchId ? (startDate ? 3 : 2) : (startDate ? 2 : 1)}` : ''}
-      ${branchId ? 'WHERE t.branch_id = $1' : ''}
-      GROUP BY t.id, t.tank_name, t.fuel_type, t.capacity, t.current_stock, b.name, b.id
+      ${tankWhereClause}
       ORDER BY b.name, t.tank_name
     `
+
+    const tanksResult = await pool.query(tanksQuery, tanksParams)
+
+    const summaryWithTotals = await Promise.all(
+      tanksResult.rows.map(async (tank) => {
+        const aggParams: any[] = [tank.tank_id]
+        let aggParamIndex = 2
+        let dateFilter = ""
+
+        if (startDate) {
+          dateFilter += ` AND created_at >= $${aggParamIndex}`
+          aggParams.push(startDate)
+          aggParamIndex++
+        }
+        if (endDate) {
+          dateFilter += ` AND created_at <= $${aggParamIndex}`
+          aggParams.push(endDate + 'T23:59:59')
+          aggParamIndex++
+        }
+
+        const aggQuery = `
+          SELECT 
+            COALESCE(SUM(CASE WHEN adjustment_type IN ('receive', 'stock_receive', 'addition') THEN quantity ELSE 0 END), 0) as total_received,
+            COALESCE(SUM(CASE WHEN adjustment_type IN ('manual_adjustment', 'increase') AND quantity > 0 THEN quantity ELSE 0 END), 0) as total_adjusted_in,
+            COALESCE(SUM(CASE WHEN adjustment_type IN ('manual_adjustment', 'decrease') OR (adjustment_type = 'increase' AND quantity < 0) THEN ABS(quantity) ELSE 0 END), 0) as total_adjusted_out,
+            COALESCE(SUM(CASE WHEN adjustment_type IN ('sale', 'deduction') THEN ABS(quantity) ELSE 0 END), 0) as total_sold,
+            COALESCE(SUM(CASE WHEN adjustment_type IN ('transfer_out', 'transfer') THEN ABS(quantity) ELSE 0 END), 0) as total_transferred_out,
+            COALESCE(SUM(CASE WHEN adjustment_type = 'transfer_in' THEN quantity ELSE 0 END), 0) as total_transferred_in,
+            COUNT(*) as movement_count
+          FROM stock_adjustments
+          WHERE tank_id = $1 ${dateFilter}
+        `
+
+        const aggResult = await pool.query(aggQuery, aggParams)
+        const agg = aggResult.rows[0] || {}
+
+        return {
+          ...tank,
+          total_received: parseFloat(agg.total_received || 0),
+          total_adjusted_in: parseFloat(agg.total_adjusted_in || 0),
+          total_adjusted_out: parseFloat(agg.total_adjusted_out || 0),
+          total_sold: parseFloat(agg.total_sold || 0),
+          total_transferred_out: parseFloat(agg.total_transferred_out || 0),
+          total_transferred_in: parseFloat(agg.total_transferred_in || 0),
+          movement_count: parseInt(agg.movement_count || 0),
+        }
+      })
+    )
+
+    const movementsParams: any[] = []
+    let movementParamIndex = 1
+    let movementWhereClause = "WHERE 1=1"
+
+    if (branchId) {
+      movementWhereClause += ` AND sa.branch_id = $${movementParamIndex}`
+      movementsParams.push(branchId)
+      movementParamIndex++
+    }
+
+    if (tankId) {
+      movementWhereClause += ` AND sa.tank_id = $${movementParamIndex}`
+      movementsParams.push(tankId)
+      movementParamIndex++
+    }
+
+    if (startDate) {
+      movementWhereClause += ` AND sa.created_at >= $${movementParamIndex}`
+      movementsParams.push(startDate)
+      movementParamIndex++
+    }
+
+    if (endDate) {
+      movementWhereClause += ` AND sa.created_at <= $${movementParamIndex}`
+      movementsParams.push(endDate + 'T23:59:59')
+      movementParamIndex++
+    }
 
     const movementsQuery = `
       SELECT 
@@ -86,23 +139,20 @@ export async function GET(request: NextRequest) {
       FROM stock_adjustments sa
       LEFT JOIN tanks t ON sa.tank_id = t.id
       LEFT JOIN branches b ON sa.branch_id = b.id
-      ${whereClause}
+      ${movementWhereClause}
       ORDER BY sa.created_at DESC
       LIMIT 100
     `
 
-    const [summaryResult, movementsResult] = await Promise.all([
-      pool.query(summaryQuery, branchId ? [branchId, ...(startDate ? [startDate] : []), ...(endDate ? [endDate + 'T23:59:59'] : [])] : [...(startDate ? [startDate] : []), ...(endDate ? [endDate + 'T23:59:59'] : [])]),
-      pool.query(movementsQuery, params)
-    ])
+    const movementsResult = await pool.query(movementsQuery, movementsParams)
 
-    const totals = summaryResult.rows.reduce((acc, row) => ({
-      total_received: acc.total_received + parseFloat(row.total_received || 0),
-      total_adjusted_in: acc.total_adjusted_in + parseFloat(row.total_adjusted_in || 0),
-      total_adjusted_out: acc.total_adjusted_out + parseFloat(row.total_adjusted_out || 0),
-      total_sold: acc.total_sold + parseFloat(row.total_sold || 0),
-      total_transferred_out: acc.total_transferred_out + parseFloat(row.total_transferred_out || 0),
-      total_transferred_in: acc.total_transferred_in + parseFloat(row.total_transferred_in || 0),
+    const totals = summaryWithTotals.reduce((acc, row) => ({
+      total_received: acc.total_received + row.total_received,
+      total_adjusted_in: acc.total_adjusted_in + row.total_adjusted_in,
+      total_adjusted_out: acc.total_adjusted_out + row.total_adjusted_out,
+      total_sold: acc.total_sold + row.total_sold,
+      total_transferred_out: acc.total_transferred_out + row.total_transferred_out,
+      total_transferred_in: acc.total_transferred_in + row.total_transferred_in,
       current_stock: acc.current_stock + parseFloat(row.current_stock || 0),
       capacity: acc.capacity + parseFloat(row.capacity || 0),
     }), {
@@ -119,7 +169,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        summary: summaryResult.rows,
+        summary: summaryWithTotals,
         movements: movementsResult.rows,
         totals
       }
