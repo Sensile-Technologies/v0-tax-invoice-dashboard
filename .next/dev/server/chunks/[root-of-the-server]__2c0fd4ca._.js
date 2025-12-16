@@ -91,10 +91,13 @@ async function GET(request) {
          ORDER BY d.dispenser_number, n.nozzle_number ASC`, [
                 branchId
             ]);
-            const fuelPricesResult = await client.query(`SELECT fuel_type, price 
-         FROM fuel_prices 
+            const fuelPricesResult = await client.query(`SELECT item_name as fuel_type, sale_price as price 
+         FROM items 
          WHERE branch_id = $1 
-         ORDER BY effective_date DESC`, [
+         AND (UPPER(item_name) IN ('PETROL', 'DIESEL', 'KEROSENE') 
+              OR item_name ILIKE '%petrol%' 
+              OR item_name ILIKE '%diesel%')
+         ORDER BY item_name`, [
                 branchId
             ]);
             const nozzles = nozzlesResult.rows.map((n)=>({

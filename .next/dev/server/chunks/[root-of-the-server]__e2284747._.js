@@ -955,17 +955,28 @@ async function POST(request) {
                     status: 400
                 });
             }
+            const itemPriceResult = await client.query(`SELECT sale_price FROM items 
+         WHERE branch_id = $1 
+         AND (UPPER(item_name) = UPPER($2) OR item_name ILIKE $3)
+         ORDER BY created_at DESC LIMIT 1`, [
+                branch_id,
+                fuel_type,
+                `%${fuel_type}%`
+            ]);
+            const correctUnitPrice = itemPriceResult.rows.length > 0 ? parseFloat(itemPriceResult.rows[0].sale_price) : unit_price;
+            const correctQuantity = total_amount / correctUnitPrice;
+            console.log(`[Mobile Create Sale] Price from items table: ${correctUnitPrice}, Calculated quantity: ${correctQuantity}`);
             await client.query('BEGIN');
             const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
             const receiptNumber = `RCP-${Date.now().toString(36).toUpperCase()}`;
             let meterReadingAfter = null;
-            if (nozzle_id && quantity) {
+            if (nozzle_id && correctQuantity > 0) {
                 const nozzleResult = await client.query(`SELECT initial_meter_reading FROM nozzles WHERE id = $1`, [
                     nozzle_id
                 ]);
                 if (nozzleResult.rows.length > 0) {
                     const currentReading = parseFloat(nozzleResult.rows[0].initial_meter_reading) || 0;
-                    meterReadingAfter = currentReading + parseFloat(quantity);
+                    meterReadingAfter = currentReading + correctQuantity;
                     await client.query(`UPDATE nozzles SET initial_meter_reading = $1, updated_at = NOW() WHERE id = $2`, [
                         meterReadingAfter,
                         nozzle_id
@@ -983,8 +994,8 @@ async function POST(request) {
                 branch_id,
                 nozzle_id || null,
                 fuel_type,
-                quantity || 0,
-                unit_price || 0,
+                correctQuantity,
+                correctUnitPrice,
                 total_amount,
                 payment_method || 'cash',
                 customer_name || 'Walk-in Customer',
@@ -1022,8 +1033,8 @@ async function POST(request) {
                 invoice_number: invoiceNumber,
                 receipt_number: receiptNumber,
                 fuel_type,
-                quantity: quantity || 0,
-                unit_price: unit_price || 0,
+                quantity: correctQuantity,
+                unit_price: correctUnitPrice,
                 total_amount,
                 payment_method: payment_method || 'cash',
                 customer_name: customer_name || 'Walk-in Customer',
