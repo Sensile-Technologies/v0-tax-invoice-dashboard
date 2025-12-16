@@ -472,8 +472,8 @@ async function POST(request) {
             newStock,
             tank_id
         ]);
-        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approval_status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`, [
+        const adjustmentResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approval_status, kra_sync_status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`, [
             branch_id,
             tank_id,
             'stock_receive',
@@ -481,8 +481,10 @@ async function POST(request) {
             previousStock,
             newStock,
             supplier_name ? `Received from: ${supplier_name}` : 'Stock received',
-            'approved'
+            'approved',
+            'pending'
         ]);
+        const adjustmentId = adjustmentResult[0]?.id;
         let kraResult = null;
         if (sync_to_kra) {
             console.log(`[Stock Receive API] Syncing stock receive of ${quantity} for tank ${tank_id} to KRA`);
@@ -503,6 +505,12 @@ async function POST(request) {
                 kraResult.success ? newStock : tank.last_kra_synced_stock,
                 tank_id
             ]);
+            if (adjustmentId) {
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE stock_adjustments SET kra_sync_status = $1 WHERE id = $2`, [
+                    kraResult.success ? 'synced' : 'failed',
+                    adjustmentId
+                ]);
+            }
         }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,

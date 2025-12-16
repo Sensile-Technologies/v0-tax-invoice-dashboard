@@ -147,10 +147,12 @@ async function GET(request) {
             });
         }
         const cleanPhone = phone.replace(/\D/g, '');
-        const result = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT id, cust_nm, tel_no 
-       FROM customers 
-       WHERE branch_id = $1 
-       AND REPLACE(REPLACE(REPLACE(tel_no, ' ', ''), '-', ''), '+', '') LIKE '%' || $2
+        const result = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT c.id, c.cust_nm, c.tel_no, c.cust_tin
+       FROM customers c
+       INNER JOIN customer_branches cb ON c.id = cb.customer_id
+       WHERE cb.branch_id = $1 
+       AND cb.status = 'active'
+       AND REPLACE(REPLACE(REPLACE(c.tel_no, ' ', ''), '-', ''), '+', '') LIKE '%' || $2
        LIMIT 1`, [
             branch_id,
             cleanPhone.slice(-9)
