@@ -34,7 +34,9 @@ export default function SalesReportsPage() {
     nozzle: "",
     loyalty: "all",
     paymentMethod: "",
+    documentType: "all",
   })
+  const [issuingCreditNote, setIssuingCreditNote] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -121,6 +123,11 @@ export default function SalesReportsPage() {
       }
       if (normalizePaymentMethod(sale.payment_method) !== filters.paymentMethod) return false
     }
+    if (filters.documentType === "invoices") {
+      if (sale.is_credit_note) return false
+    } else if (filters.documentType === "credit_notes") {
+      if (!sale.is_credit_note) return false
+    }
     return true
   })
 
@@ -140,7 +147,53 @@ export default function SalesReportsPage() {
   }
 
   function clearFilters() {
-    setFilters({ date: "", invoiceNumber: "", fuelType: "", nozzle: "", loyalty: "all", paymentMethod: "" })
+    setFilters({ date: "", invoiceNumber: "", fuelType: "", nozzle: "", loyalty: "all", paymentMethod: "", documentType: "all" })
+  }
+
+  async function handleIssueCreditNote(sale: any) {
+    if (sale.is_credit_note) {
+      toast.error("Cannot issue credit note for a credit note")
+      return
+    }
+    if (sale.has_credit_note) {
+      toast.error("Credit note already issued for this sale")
+      return
+    }
+    
+    try {
+      setIssuingCreditNote(sale.id)
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (!currentBranch) {
+        toast.error("No branch selected")
+        return
+      }
+      const branchData = JSON.parse(currentBranch)
+      
+      const response = await fetch('/api/credit-notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sale_id: sale.id,
+          branch_id: branchData.id,
+          reason: 'other',
+          refund_reason_code: 'other'
+        })
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to issue credit note')
+      }
+      
+      toast.success(`Credit note ${result.creditNoteNumber} issued successfully`)
+      fetchData()
+    } catch (error: any) {
+      console.error('Error issuing credit note:', error)
+      toast.error(error.message || 'Failed to issue credit note')
+    } finally {
+      setIssuingCreditNote(null)
+    }
   }
 
   async function handlePrintReceipt(sale: any) {
@@ -281,6 +334,20 @@ export default function SalesReportsPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        <Label htmlFor="doctype-filter" className="text-sm whitespace-nowrap">Type:</Label>
+                        <Select value={filters.documentType} onValueChange={(value) => setFilters({ ...filters, documentType: value })}>
+                          <SelectTrigger id="doctype-filter" className="w-36 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="invoices">Invoices</SelectItem>
+                            <SelectItem value="credit_notes">Credit Notes</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex items-center gap-2">
                         <Label htmlFor="loyalty-filter" className="text-sm whitespace-nowrap">Loyalty:</Label>
                         <Select value={filters.loyalty} onValueChange={(value) => setFilters({ ...filters, loyalty: value })}>
                           <SelectTrigger id="loyalty-filter" className="w-32 h-9">
@@ -394,14 +461,19 @@ export default function SalesReportsPage() {
                                         </Button>
                                       </DropdownMenuTrigger>
                                       <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => toast.info(`Viewing invoice ${sale.invoice_number}`)}>
+                                        <DropdownMenuItem onClick={() => handlePrintReceipt(sale)}>
                                           <FileText className="h-4 w-4 mr-2" />
                                           View Invoice
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => toast.info("Credit note feature")}>
-                                          <CreditCard className="h-4 w-4 mr-2" />
-                                          Issue Credit Note
-                                        </DropdownMenuItem>
+                                        {!sale.is_credit_note && (
+                                          <DropdownMenuItem 
+                                            onClick={() => handleIssueCreditNote(sale)}
+                                            disabled={issuingCreditNote === sale.id || sale.has_credit_note}
+                                          >
+                                            <CreditCard className="h-4 w-4 mr-2" />
+                                            {issuingCreditNote === sale.id ? "Issuing..." : sale.has_credit_note ? "Credit Note Issued" : "Issue Credit Note"}
+                                          </DropdownMenuItem>
+                                        )}
                                       </DropdownMenuContent>
                                     </DropdownMenu>
                                   </TableCell>

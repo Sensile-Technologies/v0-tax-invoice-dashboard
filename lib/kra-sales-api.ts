@@ -394,3 +394,237 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
 }> {
   return callKraSaveSales(saleData)
 }
+
+interface CreditNoteData {
+  branch_id: string
+  original_sale_id: string
+  original_invoice_no: number
+  refund_reason_code: string
+  customer_tin?: string
+  customer_name?: string
+  items: Array<{
+    item_code: string
+    item_class_code: string
+    item_name: string
+    package_unit: string
+    quantity_unit: string
+    quantity: number
+    price: number
+    tax_type: string
+  }>
+}
+
+const REFUND_REASON_CODES: Record<string, string> = {
+  'defective': '01',
+  'wrong_item': '02',
+  'customer_request': '03',
+  'price_error': '04',
+  'duplicate': '05',
+  'other': '06'
+}
+
+export async function callKraCreditNote(creditNoteData: CreditNoteData): Promise<{
+  success: boolean
+  kraResponse: KraResponse | null
+  creditNoteNumber?: string
+  invcNo?: number
+  error?: string
+}> {
+  const startTime = Date.now()
+  
+  try {
+    const branchConfig = await getBranchConfig(creditNoteData.branch_id)
+    
+    if (!branchConfig) {
+      return { success: false, kraResponse: null, error: "Branch configuration not found" }
+    }
+
+    if (!branchConfig.kra_pin) {
+      return { 
+        success: false, 
+        kraResponse: {
+          resultCd: "CONFIG_ERROR",
+          resultMsg: "KRA PIN not configured for this branch",
+          resultDt: new Date().toISOString()
+        }, 
+        error: "KRA PIN not configured" 
+      }
+    }
+
+    const invcNo = await getNextInvoiceNo(creditNoteData.branch_id)
+    const trdInvcNo = `CR${invcNo}`
+    
+    const now = new Date()
+    const cfmDt = formatKraDateTime(now)
+    const salesDt = formatKraDate(now)
+    
+    const rfdRsnCd = REFUND_REASON_CODES[creditNoteData.refund_reason_code?.toLowerCase()] || "06"
+    
+    let totTaxblAmtB = 0
+    let totTaxAmtB = 0
+    let totAmt = 0
+    
+    const itemList = creditNoteData.items.map((item, index) => {
+      const splyAmt = item.quantity * item.price
+      const taxblAmt = splyAmt / 1.16
+      const taxAmt = splyAmt - taxblAmt
+      
+      totTaxblAmtB += taxblAmt
+      totTaxAmtB += taxAmt
+      totAmt += splyAmt
+      
+      return {
+        itemSeq: index + 1,
+        itemCd: item.item_code,
+        itemClsCd: item.item_class_code || "99013001",
+        itemNm: item.item_name,
+        bcd: null,
+        pkgUnitCd: item.package_unit || "BF",
+        pkg: item.quantity,
+        qtyUnitCd: item.quantity_unit || "L",
+        qty: item.quantity,
+        prc: item.price,
+        splyAmt: toFixed2(splyAmt),
+        dcRt: 0.0,
+        dcAmt: 0.0,
+        isrccCd: null,
+        isrccNm: null,
+        isrcRt: null,
+        isrcAmt: null,
+        taxTyCd: item.tax_type || "B",
+        taxblAmt: toFixed2(taxblAmt),
+        taxAmt: toFixed2(taxAmt),
+        totAmt: toFixed2(splyAmt)
+      }
+    })
+
+    const kraPayload = {
+      tin: branchConfig.kra_pin,
+      bhfId: branchConfig.bhf_id || "00",
+      trdInvcNo: trdInvcNo,
+      invcNo: invcNo,
+      orgInvcNo: creditNoteData.original_invoice_no,
+      custTin: creditNoteData.customer_tin || null,
+      custNm: creditNoteData.customer_name || "Walk-in Customer",
+      salesTyCd: "N",
+      rcptTyCd: "R",
+      pmtTyCd: "01",
+      salesSttsCd: "02",
+      cfmDt: cfmDt,
+      salesDt: salesDt,
+      stockRlsDt: cfmDt,
+      cnclReqDt: null,
+      cnclDt: null,
+      rfdDt: cfmDt,
+      rfdRsnCd: rfdRsnCd,
+      totItemCnt: itemList.length,
+      taxblAmtA: "0.00",
+      taxblAmtB: toFixed2(totTaxblAmtB),
+      taxblAmtC: "0.00",
+      taxblAmtD: "0.00",
+      taxblAmtE: "0.00",
+      taxRtA: "0.00",
+      taxRtB: "16.00",
+      taxRtC: "0.00",
+      taxRtD: "0.00",
+      taxRtE: "0.00",
+      taxAmtA: "0.00",
+      taxAmtB: toFixed2(totTaxAmtB),
+      taxAmtC: "0.00",
+      taxAmtD: "0.00",
+      taxAmtE: "0.00",
+      totTaxblAmt: toFixed2(totTaxblAmtB),
+      totTaxAmt: toFixed2(totTaxAmtB),
+      totAmt: toFixed2(totAmt),
+      prchrAcptcYn: "N",
+      remark: null,
+      regrNm: "Admin",
+      regrId: "Admin",
+      modrNm: "Admin",
+      modrId: "Admin",
+      receipt: {
+        custTin: creditNoteData.customer_tin || null,
+        custMblNo: null,
+        rcptPbctDt: cfmDt,
+        trdeNm: null,
+        adrs: null,
+        topMsg: null,
+        btmMsg: null,
+        prchrAcptcYn: "N"
+      },
+      itemList: itemList
+    }
+
+    const kraEndpoint = `${KRA_BASE_URL}/trnsSales/saveSales`
+    
+    console.log(`[KRA Credit Note API] Calling endpoint: ${kraEndpoint}`)
+    console.log(`[KRA Credit Note API] Request payload:`, JSON.stringify(kraPayload, null, 2))
+
+    let kraResponse: KraResponse
+    let httpStatusCode = 200
+
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
+      
+      const response = await fetch(kraEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify(kraPayload),
+        signal: controller.signal
+      })
+
+      clearTimeout(timeoutId)
+      httpStatusCode = response.status
+      kraResponse = await response.json()
+      
+      console.log(`[KRA Credit Note API] HTTP Status: ${response.status}`)
+      console.log(`[KRA Credit Note API] Response:`, JSON.stringify(kraResponse, null, 2))
+    } catch (fetchError: any) {
+      httpStatusCode = 0
+      kraResponse = {
+        resultCd: fetchError.name === 'AbortError' ? "TIMEOUT" : "NETWORK_ERROR",
+        resultMsg: fetchError.message || "Failed to connect to KRA backend",
+        resultDt: new Date().toISOString()
+      }
+      console.log(`[KRA Credit Note API] Network error:`, fetchError.message)
+    }
+
+    const durationMs = Date.now() - startTime
+
+    await logApiCall({
+      endpoint: "/trnsSales/saveSales",
+      method: "POST",
+      payload: kraPayload,
+      response: kraResponse,
+      statusCode: httpStatusCode || 500,
+      durationMs,
+      branchId: creditNoteData.branch_id,
+      externalEndpoint: kraEndpoint
+    })
+
+    const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
+    
+    return {
+      success: isSuccess,
+      kraResponse,
+      creditNoteNumber: trdInvcNo,
+      invcNo: invcNo
+    }
+
+  } catch (error: any) {
+    console.error(`[KRA Credit Note API] System error:`, error)
+    return {
+      success: false,
+      kraResponse: {
+        resultCd: "SYSTEM_ERROR",
+        resultMsg: error.message || "System error calling KRA API",
+        resultDt: new Date().toISOString()
+      },
+      error: error.message
+    }
+  }
+}
