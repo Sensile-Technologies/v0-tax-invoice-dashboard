@@ -139,7 +139,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     const newStock = selectedTank.current_stock + quantity
 
     try {
-      const response = await fetch('/api/stock-adjustments', {
+      const adjustRes = await fetch('/api/stock-adjustments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -151,13 +151,19 @@ export default function TankManagement({ branchId }: { branchId: string | null }
           new_stock: newStock,
           reason: adjustForm.reason,
           requested_by: adjustForm.requestedBy,
-          approval_status: "pending",
+          approval_status: "approved",
         })
       })
 
-      if (!response.ok) {
-        console.error("Error creating adjustment")
-        return
+      if (adjustRes.ok) {
+        await fetch('/api/tanks', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: selectedTank.id, current_stock: newStock })
+        })
+        toast.success(`Stock adjusted by ${quantity} litres`)
+      } else {
+        toast.error("Error creating adjustment")
       }
 
       setShowAdjustDialog(false)
@@ -165,6 +171,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       fetchTanks()
     } catch (error) {
       console.error("Error creating adjustment:", error)
+      toast.error("Error creating adjustment")
     }
   }
 
@@ -197,6 +204,9 @@ export default function TankManagement({ branchId }: { branchId: string | null }
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: selectedTank.id, current_stock: newStock })
         })
+        toast.success(`Received ${quantity} litres`)
+      } else {
+        toast.error("Error receiving stock")
       }
 
       setShowReceiveDialog(false)
@@ -204,6 +214,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       fetchTanks()
     } catch (error) {
       console.error("Error receiving stock:", error)
+      toast.error("Error receiving stock")
     }
   }
 

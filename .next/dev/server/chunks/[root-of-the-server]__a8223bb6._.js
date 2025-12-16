@@ -502,7 +502,7 @@ async function POST(request) {
         const adjustment = result.rows[0];
         if (sync_to_kra && quantity && quantity !== 0) {
             try {
-                const tankResult = await pool.query(`SELECT t.*, fp.kra_item_cd, fp.product_name, fp.unit_price
+                const tankResult = await pool.query(`SELECT t.*, fp.item_cd, fp.product_name, fp.unit_price
            FROM tanks t
            LEFT JOIN fuel_prices fp ON t.fuel_type = fp.fuel_type AND t.branch_id = fp.branch_id
            WHERE t.id = $1`, [
@@ -521,7 +521,7 @@ async function POST(request) {
                     const kraSync = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$service$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["syncStockWithKRA"])(branch_id, movementType, [
                         {
                             tankId: tank_id,
-                            itemCode: tank.kra_item_cd || tank.fuel_type?.substring(0, 10) || 'FUEL',
+                            itemCode: tank.item_cd || tank.fuel_type?.substring(0, 10) || 'FUEL',
                             itemName: tank.product_name || tank.name || tank.fuel_type || 'Fuel',
                             quantity: Math.abs(quantity),
                             unitPrice: tank.unit_price || 0
