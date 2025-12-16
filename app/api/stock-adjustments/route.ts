@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { syncStockWithKRA, StockMovementType } from "@/lib/kra-stock-service"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -50,7 +51,8 @@ export async function POST(request: NextRequest) {
       new_stock, 
       reason, 
       requested_by, 
-      approval_status 
+      approval_status,
+      sync_to_kra = true
     } = body
 
     if (!tank_id || !branch_id || !adjustment_type) {
@@ -64,7 +66,61 @@ export async function POST(request: NextRequest) {
       [tank_id, branch_id, adjustment_type, quantity || 0, previous_stock || 0, new_stock || 0, reason, requested_by, approval_status || "pending"]
     )
 
-    return NextResponse.json({ success: true, data: result.rows[0] })
+    const adjustment = result.rows[0]
+
+    if (sync_to_kra && quantity && quantity !== 0) {
+      try {
+        const tankResult = await pool.query(
+          `SELECT t.*, fp.kra_item_cd, fp.product_name, fp.unit_price
+           FROM tanks t
+           LEFT JOIN fuel_prices fp ON t.fuel_type = fp.fuel_type AND t.branch_id = fp.branch_id
+           WHERE t.id = $1`,
+          [tank_id]
+        )
+
+        if (tankResult.rows.length > 0) {
+          const tank = tankResult.rows[0]
+          
+          let movementType: StockMovementType
+          if (adjustment_type === 'receive' || adjustment_type === 'addition') {
+            movementType = 'stock_receive'
+          } else if (adjustment_type === 'sale' || adjustment_type === 'deduction') {
+            movementType = 'sale'
+          } else {
+            movementType = 'stock_adjustment'
+          }
+
+          const kraSync = await syncStockWithKRA(
+            branch_id,
+            movementType,
+            [{
+              tankId: tank_id,
+              itemCode: tank.kra_item_cd || tank.fuel_type?.substring(0, 10) || 'FUEL',
+              itemName: tank.product_name || tank.name || tank.fuel_type || 'Fuel',
+              quantity: Math.abs(quantity),
+              unitPrice: tank.unit_price || 0
+            }],
+            { remark: reason || `Stock adjustment: ${adjustment_type}` }
+          )
+
+          await pool.query(
+            `UPDATE stock_adjustments SET 
+              kra_sync_status = $1,
+              kra_response = $2
+            WHERE id = $3`,
+            [
+              kraSync.success ? 'synced' : 'failed',
+              JSON.stringify(kraSync.kraResponse),
+              adjustment.id
+            ]
+          )
+        }
+      } catch (kraError) {
+        console.error("KRA sync error:", kraError)
+      }
+    }
+
+    return NextResponse.json({ success: true, data: adjustment })
   } catch (error) {
     console.error("Error creating stock adjustment:", error)
     return NextResponse.json({ success: false, error: "Failed to create stock adjustment" }, { status: 500 })
