@@ -207,7 +207,7 @@ async function getBranchKraInfo(branchId) {
 async function getTankWithItemInfo(tankId) {
     const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
     SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
-           i.quantity_unit, i.tax_type, i.sale_price,
+           i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price,
            fp.price as current_price
     FROM tanks t
     LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
@@ -311,7 +311,8 @@ async function syncStockWithKRA(branchId, movementType, items, options) {
             const itemCd = item.itemCode || tankInfo?.item_code || tankInfo?.kra_item_cd || `KE1NTXU000000${index + 1}`;
             const itemClsCd = item.itemClassCode || tankInfo?.class_code || "5059690800";
             const itemNm = item.itemName || tankInfo?.item_name || tankInfo?.fuel_type || "Fuel Item";
-            const price = item.unitPrice || tankInfo?.current_price || tankInfo?.sale_price || 0;
+            const isPurchaseMovement = movementType === "stock_receive";
+            const price = item.unitPrice || (isPurchaseMovement ? tankInfo?.purchase_price : tankInfo?.current_price) || tankInfo?.sale_price || 0;
             const splyAmt = Math.round(item.quantity * price * 100) / 100;
             const taxAmt = calculateTaxAmount(splyAmt, tankInfo?.tax_type || "B");
             totTaxblAmt += splyAmt;

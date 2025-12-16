@@ -1,6 +1,8 @@
 import { query } from "@/lib/db"
 import { logApiCall } from "@/lib/api-logger"
 
+const KRA_BASE_URL = "http://20.224.40.56:8088"
+
 interface KraSaleData {
   branch_id: string
   invoice_number: string
@@ -13,6 +15,7 @@ interface KraSaleData {
   customer_name?: string
   customer_pin?: string
   sale_date: string
+  tank_id?: string
 }
 
 interface KraResponse {
@@ -26,15 +29,28 @@ interface BranchConfig {
   id: string
   bhf_id: string
   kra_pin: string
+  tin: string
   device_token: string
   server_address: string
   server_port: string
+  invc_no: number
+}
+
+const PAYMENT_TYPE_CODES: Record<string, string> = {
+  'cash': '01',
+  'credit': '02', 
+  'mobile_money': '03',
+  'mpesa': '03',
+  'bank_transfer': '04',
+  'card': '05',
+  'cheque': '06',
+  'other': '07'
 }
 
 async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
   try {
     const result = await query(`
-      SELECT id, bhf_id, kra_pin, device_token, server_address, server_port
+      SELECT id, bhf_id, kra_pin, tin, device_token, server_address, server_port, COALESCE(invc_no, 0) as invc_no
       FROM branches
       WHERE id = $1
     `, [branchId])
@@ -45,12 +61,83 @@ async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
 
     return result[0] as BranchConfig
   } catch (error) {
-    console.error("[KRA API] Error fetching branch config:", error)
+    console.error("[KRA Sales API] Error fetching branch config:", error)
     return null
   }
 }
 
-export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
+async function getNextInvoiceNo(branchId: string): Promise<number> {
+  const result = await query(`
+    UPDATE branches 
+    SET invc_no = COALESCE(invc_no, 0) + 1 
+    WHERE id = $1 
+    RETURNING invc_no
+  `, [branchId])
+  return result[0]?.invc_no || 1
+}
+
+async function getTankItemInfo(branchId: string, fuelType: string, tankId?: string): Promise<any> {
+  let result
+  if (tankId) {
+    result = await query(`
+      SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
+             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price,
+             fp.price as current_price
+      FROM tanks t
+      LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
+      LEFT JOIN fuel_prices fp ON fp.branch_id = t.branch_id AND fp.fuel_type = t.fuel_type
+      WHERE t.id = $1
+    `, [tankId])
+  } else {
+    result = await query(`
+      SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
+             i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price,
+             fp.price as current_price
+      FROM tanks t
+      LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
+      LEFT JOIN fuel_prices fp ON fp.branch_id = t.branch_id AND fp.fuel_type = t.fuel_type
+      WHERE t.branch_id = $1 AND t.fuel_type ILIKE $2 AND t.status = 'active'
+      ORDER BY t.current_stock DESC LIMIT 1
+    `, [branchId, `%${fuelType}%`])
+  }
+  
+  return result.length > 0 ? result[0] : null
+}
+
+function formatKraDateTime(date: Date = new Date()): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}${month}${day}${hours}${minutes}${seconds}`
+}
+
+function formatKraDate(date: Date = new Date()): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}${month}${day}`
+}
+
+function calculateTax(amount: number, taxType: string = "B"): { taxblAmt: number, taxAmt: number, taxRt: number } {
+  if (taxType === "A") {
+    const taxRt = 16
+    const taxblAmt = amount / (1 + taxRt / 100)
+    const taxAmt = amount - taxblAmt
+    return { taxblAmt: Math.round(taxblAmt * 100) / 100, taxAmt: Math.round(taxAmt * 100) / 100, taxRt }
+  } else if (taxType === "B") {
+    const taxRt = 16
+    return { taxblAmt: amount, taxAmt: Math.round(amount * 0.16 * 100) / 100, taxRt }
+  } else if (taxType === "C") {
+    const taxRt = 8
+    return { taxblAmt: amount, taxAmt: Math.round(amount * 0.08 * 100) / 100, taxRt }
+  }
+  return { taxblAmt: amount, taxAmt: 0, taxRt: 0 }
+}
+
+export async function callKraSaveSales(saleData: KraSaleData): Promise<{
   success: boolean
   kraResponse: KraResponse | null
   error?: string
@@ -62,13 +149,13 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
     
     if (!branchConfig) {
       const errorMsg = "Branch configuration not found"
-      console.log(`[KRA API] ${errorMsg}`)
+      console.log(`[KRA Sales API] ${errorMsg}`)
       return { success: false, kraResponse: null, error: errorMsg }
     }
 
-    if (!branchConfig.server_address || !branchConfig.server_port) {
-      const errorMsg = "KRA server configuration not set for this branch"
-      console.log(`[KRA API] ${errorMsg}`)
+    if (!branchConfig.tin) {
+      const errorMsg = "KRA TIN not configured for this branch"
+      console.log(`[KRA Sales API] ${errorMsg}`)
       return { 
         success: false, 
         kraResponse: {
@@ -80,48 +167,130 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
       }
     }
 
-    const kraEndpoint = `http://${branchConfig.server_address}:${branchConfig.server_port}/trnsSales/saveSales`
+    const tankInfo = await getTankItemInfo(saleData.branch_id, saleData.fuel_type, saleData.tank_id)
+    const invcNo = await getNextInvoiceNo(saleData.branch_id)
     
+    const itemCd = tankInfo?.item_code || tankInfo?.kra_item_cd || `KE2NTL0000001`
+    const itemClsCd = tankInfo?.class_code || "5059690800"
+    const itemNm = tankInfo?.item_name || saleData.fuel_type
+    const pkgUnitCd = tankInfo?.package_unit || "NT"
+    const qtyUnitCd = tankInfo?.quantity_unit || "LT"
+    const taxTyCd = tankInfo?.tax_type || "B"
+    
+    const price = saleData.unit_price || tankInfo?.current_price || tankInfo?.sale_price || 0
+    const qty = saleData.quantity || 1
+    const splyAmt = Math.round(qty * price * 100) / 100
+    
+    const { taxblAmt, taxAmt, taxRt } = calculateTax(splyAmt, taxTyCd)
+    
+    const now = new Date()
+    const cfmDt = formatKraDateTime(now)
+    const salesDt = formatKraDate(now)
+    
+    const pmtTyCd = PAYMENT_TYPE_CODES[saleData.payment_method?.toLowerCase()] || "01"
+    
+    const trdInvcNo = `CIV-${String(invcNo).padStart(6, '0')}`
+
     const kraPayload = {
-      tin: branchConfig.kra_pin || "",
-      bhfId: branchConfig.bhf_id || "",
-      dvcSrlNo: branchConfig.device_token || "",
-      invcNo: saleData.invoice_number,
-      rcptNo: saleData.receipt_number,
-      salesDt: saleData.sale_date,
-      salesTy: "N",
-      rcptTy: "S",
-      pmtTy: saleData.payment_method === "cash" ? "01" : saleData.payment_method === "mobile_money" ? "02" : "03",
-      salesSttsCd: "02",
-      cfmDt: saleData.sale_date,
-      salesAmt: saleData.total_amount,
-      totTaxAmt: 0,
-      totAmt: saleData.total_amount,
+      tin: branchConfig.tin,
+      bhfId: branchConfig.bhf_id || "00",
+      trdInvcNo: trdInvcNo,
+      invcNo: String(invcNo),
+      orgInvcNo: 0,
+      custTin: saleData.customer_pin || null,
       custNm: saleData.customer_name || "Walk-in Customer",
-      custTin: saleData.customer_pin || "",
+      salesTyCd: "N",
+      rcptTyCd: "S",
+      pmtTyCd: pmtTyCd,
+      salesSttsCd: "02",
+      cfmDt: cfmDt,
+      salesDt: salesDt,
+      stockRlsDt: cfmDt,
+      cnclReqDt: null,
+      cnclDt: null,
+      rfdDt: null,
+      rfdRsnCd: null,
+      totItemCnt: 1,
+      
+      taxblAmtA: taxTyCd === "A" ? taxblAmt.toFixed(2) : "0.00",
+      taxblAmtB: taxTyCd === "B" ? taxblAmt.toFixed(2) : "0.00",
+      taxblAmtC: taxTyCd === "C" ? taxblAmt.toFixed(2) : "0.00",
+      taxblAmtD: "0.00",
+      taxblAmtE: "0.00",
+      
+      taxRtA: taxTyCd === "A" ? taxRt.toFixed(2) : "0.00",
+      taxRtB: taxTyCd === "B" ? taxRt.toFixed(2) : "0.00",
+      taxRtC: taxTyCd === "C" ? taxRt.toFixed(2) : "0.00",
+      taxRtD: "0.00",
+      taxRtE: "0.00",
+      
+      taxAmtA: taxTyCd === "A" ? taxAmt.toFixed(2) : "0.00",
+      taxAmtB: taxTyCd === "B" ? taxAmt.toFixed(2) : "0.00",
+      taxAmtC: taxTyCd === "C" ? taxAmt.toFixed(2) : "0.00",
+      taxAmtD: "0.00",
+      taxAmtE: "0.00",
+      
+      totTaxblAmt: taxblAmt.toFixed(2),
+      totTaxAmt: taxAmt.toFixed(2),
+      totAmt: splyAmt.toFixed(2),
+      
+      prchrAcptcYn: "N",
+      remark: null,
+      regrNm: "Admin",
+      regrId: "Admin",
+      modrNm: "Admin",
+      modrId: "Admin",
+      
+      receipt: {
+        custTin: saleData.customer_pin || null,
+        custMblNo: null,
+        rcptPbctDt: null,
+        trdeNm: null,
+        adrs: null,
+        topMsg: null,
+        btmMsg: null,
+        prchrAcptcYn: "Y"
+      },
+      
       itemList: [
         {
           itemSeq: 1,
-          itemCd: saleData.fuel_type.toUpperCase().replace(/\s/g, ""),
-          itemNm: saleData.fuel_type,
-          qty: saleData.quantity,
-          unitPrc: saleData.unit_price,
-          splyAmt: saleData.total_amount,
-          totAmt: saleData.total_amount,
-          taxAmt: 0,
-          taxTy: "B",
-          taxRt: 0
+          itemCd: itemCd,
+          itemClsCd: itemClsCd,
+          itemNm: itemNm,
+          bcd: null,
+          pkgUnitCd: pkgUnitCd,
+          pkg: Math.ceil(qty),
+          qtyUnitCd: qtyUnitCd,
+          qty: qty,
+          prc: price,
+          splyAmt: splyAmt.toFixed(2),
+          dcRt: 0.0,
+          dcAmt: 0.0,
+          isrccCd: null,
+          isrccNm: null,
+          isrcRt: 0,
+          isrcAmt: 0,
+          taxTyCd: taxTyCd,
+          taxblAmt: taxblAmt.toFixed(2),
+          taxAmt: taxAmt.toFixed(2),
+          totAmt: splyAmt.toFixed(2)
         }
       ]
     }
 
-    console.log(`[KRA API] Calling endpoint: ${kraEndpoint}`)
-    console.log(`[KRA API] Request payload:`, JSON.stringify(kraPayload, null, 2))
+    const kraEndpoint = `${KRA_BASE_URL}/trnsSales/saveSales`
+    
+    console.log(`[KRA Sales API] Calling endpoint: ${kraEndpoint}`)
+    console.log(`[KRA Sales API] Request payload:`, JSON.stringify(kraPayload, null, 2))
 
     let kraResponse: KraResponse
     let httpStatusCode = 200
 
     try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
+      
       const response = await fetch(kraEndpoint, {
         method: "POST",
         headers: {
@@ -129,48 +298,53 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
           "Accept": "application/json",
         },
         body: JSON.stringify(kraPayload),
-        signal: AbortSignal.timeout(30000)
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
       httpStatusCode = response.status
       kraResponse = await response.json()
       
-      console.log(`[KRA API] HTTP Status: ${response.status}`)
-      console.log(`[KRA API] KRA Result Code: ${kraResponse.resultCd}`)
-      console.log(`[KRA API] KRA Result Message: ${kraResponse.resultMsg}`)
-      console.log(`[KRA API] Response body:`, JSON.stringify(kraResponse, null, 2))
+      console.log(`[KRA Sales API] HTTP Status: ${response.status}`)
+      console.log(`[KRA Sales API] KRA Result Code: ${kraResponse.resultCd}`)
+      console.log(`[KRA Sales API] KRA Result Message: ${kraResponse.resultMsg}`)
+      console.log(`[KRA Sales API] Response body:`, JSON.stringify(kraResponse, null, 2))
     } catch (fetchError: any) {
       httpStatusCode = 0
-      kraResponse = {
-        resultCd: "NETWORK_ERROR",
-        resultMsg: fetchError.message || "Failed to connect to KRA backend",
-        resultDt: new Date().toISOString()
+      if (fetchError.name === 'AbortError') {
+        kraResponse = {
+          resultCd: "TIMEOUT",
+          resultMsg: "Request timed out after 30 seconds",
+          resultDt: new Date().toISOString()
+        }
+      } else {
+        kraResponse = {
+          resultCd: "NETWORK_ERROR",
+          resultMsg: fetchError.message || "Failed to connect to KRA backend",
+          resultDt: new Date().toISOString()
+        }
       }
       
-      console.log(`[KRA API] Network error:`, fetchError.message)
-      console.log(`[KRA API] Response (network error):`, JSON.stringify(kraResponse, null, 2))
+      console.log(`[KRA Sales API] Network error:`, fetchError.message)
+      console.log(`[KRA Sales API] Response (network error):`, JSON.stringify(kraResponse, null, 2))
     }
 
     const durationMs = Date.now() - startTime
 
-    const responseWithMetadata = {
-      ...kraResponse,
-      _httpStatus: httpStatusCode,
-      _kraEndpoint: kraEndpoint
-    }
-
     await logApiCall({
-      endpoint: "/kra/trnsSales/saveSales",
+      endpoint: "/trnsSales/saveSales",
       method: "POST",
       payload: kraPayload,
-      response: responseWithMetadata,
+      response: kraResponse,
       statusCode: httpStatusCode || 500,
       durationMs,
       branchId: saleData.branch_id,
     })
 
+    const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
+    
     return {
-      success: kraResponse.resultCd === "000",
+      success: isSuccess,
       kraResponse
     }
 
@@ -181,14 +355,12 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
       resultDt: new Date().toISOString()
     }
 
-    console.error(`[KRA API] System error:`, error)
-    console.log(`[KRA API] Response (error):`, JSON.stringify(errorResponse, null, 2))
-    console.log(`[KRA API] Sale data for context:`, JSON.stringify(saleData, null, 2))
+    console.error(`[KRA Sales API] System error:`, error)
 
     const durationMs = Date.now() - startTime
     
     await logApiCall({
-      endpoint: "/kra/trnsSales/saveSales",
+      endpoint: "/trnsSales/saveSales",
       method: "POST",
       payload: { saleData, errorContext: "System error before KRA call" },
       response: errorResponse,
@@ -204,4 +376,12 @@ export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
       error: error.message
     }
   }
+}
+
+export async function callKraTestSalesEndpoint(saleData: KraSaleData): Promise<{
+  success: boolean
+  kraResponse: KraResponse | null
+  error?: string
+}> {
+  return callKraSaveSales(saleData)
 }

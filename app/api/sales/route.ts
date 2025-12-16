@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
 import { syncStockWithKRA } from "@/lib/kra-stock-service"
+import { callKraSaveSales } from "@/lib/kra-sales-api"
 
 export async function GET(request: NextRequest) {
   try {
@@ -134,22 +135,20 @@ export async function POST(request: NextRequest) {
         if (sync_to_kra) {
           console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`)
           
-          kraResult = await syncStockWithKRA(
+          kraResult = await callKraSaveSales({
             branch_id,
-            "sale",
-            [{
-              tankId: tank.id,
-              quantity: quantity,
-              unitPrice: unit_price || 0,
-              itemCode: tank.kra_item_cd,
-              itemName: fuel_type
-            }],
-            { 
-              customerId: customer_pin,
-              customerName: customer_name,
-              remark: `Sale: ${quantity}L ${fuel_type} - Invoice: ${invoice_number || 'N/A'}`
-            }
-          )
+            invoice_number: invoice_number || `INV-${Date.now().toString(36).toUpperCase()}`,
+            receipt_number: receipt_number || `RCP-${Date.now().toString(36).toUpperCase()}`,
+            fuel_type,
+            quantity,
+            unit_price: unit_price || 0,
+            total_amount: total_amount || (quantity * (unit_price || 0)),
+            payment_method: payment_method || 'cash',
+            customer_name: customer_name || 'Walk-in Customer',
+            customer_pin: customer_pin || '',
+            sale_date: new Date().toISOString(),
+            tank_id: tank.id
+          })
 
           await query(
             `UPDATE tanks SET kra_sync_status = $1 WHERE id = $2`,
@@ -165,7 +164,7 @@ export async function POST(request: NextRequest) {
       tankUpdate,
       kraSync: kraResult ? {
         synced: kraResult.success,
-        movementId: kraResult.movementId,
+        kraResponse: kraResult.kraResponse,
         error: kraResult.error
       } : null
     })
