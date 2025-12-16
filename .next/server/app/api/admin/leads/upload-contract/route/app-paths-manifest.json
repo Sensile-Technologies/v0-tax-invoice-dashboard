@@ -1,0 +1,3 @@
+{
+  "/api/admin/leads/upload-contract/route": "app/api/admin/leads/upload-contract/route.js"
+}

@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../app/reports/purchase-report/loading.tsx"],"sourcesContent":["export default function Loading() {\n  return <div className=\"flex items-center justify-center h-screen\">Loading...</div>\n}\n"],"names":[],"mappings":"sDAAe,SAAS,IACtB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,CAAI,UAAU,qDAA4C,cACpE"}
