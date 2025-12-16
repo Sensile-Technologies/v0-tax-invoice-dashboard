@@ -63,16 +63,18 @@ export const SAR_TYPE_CODES = {
 
 export async function getNextSarNo(branchId: string, endpoint: string = STOCK_ENDPOINT): Promise<number> {
   const result = await query(`
-    INSERT INTO branch_kra_counters (branch_id, endpoint, current_sar_no)
-    VALUES ($1, $2, 1)
-    ON CONFLICT (branch_id, endpoint) 
-    DO UPDATE SET 
-      current_sar_no = branch_kra_counters.current_sar_no + 1,
-      updated_at = NOW()
-    RETURNING current_sar_no
-  `, [branchId, endpoint])
+    UPDATE branches 
+    SET sr_number = COALESCE(sr_number, 0) + 1,
+        updated_at = NOW()
+    WHERE id = $1
+    RETURNING sr_number
+  `, [branchId])
   
-  return result[0].current_sar_no
+  if (result.length === 0) {
+    throw new Error(`Branch ${branchId} not found`)
+  }
+  
+  return result[0].sr_number
 }
 
 export async function getBranchKraInfo(branchId: string): Promise<{ tin: string, bhfId: string } | null> {
@@ -280,7 +282,7 @@ export async function syncStockWithKRA(
       tin: kraInfo.tin,
       bhfId: kraInfo.bhfId,
       sarNo,
-      orgSarNo: sarNo,
+      orgSarNo: 0,
       regTyCd: "M",
       custTin: options?.customerId || null,
       custNm: options?.customerName || null,
@@ -344,6 +346,79 @@ export async function syncStockWithKRA(
     const movementId = await createStockMovementRecord(branchId, payload, kraResponse, httpStatusCode, duration)
     
     const isSuccess = kraResponse?.resultCd === "000" || kraResponse?.resultCd === "0"
+    
+    if (isSuccess) {
+      console.log(`[KRA Stock Service] saveStockItems successful, now calling saveStockMaster for each item`)
+      
+      for (const item of items) {
+        const stockMasterStartTime = Date.now()
+        let stockMasterResponse: any = null
+        let stockMasterStatusCode = 0
+        
+        try {
+          const tankInfo = await getTankWithItemInfo(item.tankId)
+          const tankResult = await query(`SELECT current_stock FROM tanks WHERE id = $1`, [item.tankId])
+          const currentStock = tankResult.length > 0 ? parseFloat(tankResult[0].current_stock) || 0 : 0
+          
+          const itemCd = item.itemCode || tankInfo?.item_code || tankInfo?.kra_item_cd
+          
+          if (!itemCd) {
+            console.log(`[KRA Stock Service] Skipping saveStockMaster for tank ${item.tankId} - no item code`)
+            continue
+          }
+          
+          const stockMasterPayload = {
+            tin: kraInfo.tin,
+            bhfId: kraInfo.bhfId,
+            itemCd: itemCd,
+            rsdQty: currentStock,
+            regrId: "Admin",
+            regrNm: "Admin",
+            modrNm: "Admin",
+            modrId: "Admin"
+          }
+          
+          console.log(`[KRA Stock Service] Calling saveStockMaster:`, JSON.stringify(stockMasterPayload, null, 2))
+          
+          try {
+            const stockMasterController = new AbortController()
+            const stockMasterTimeoutId = setTimeout(() => stockMasterController.abort(), 15000)
+            
+            const response = await fetch(`${KRA_BASE_URL}/stockMaster/saveStockMaster`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(stockMasterPayload),
+              signal: stockMasterController.signal
+            })
+            
+            clearTimeout(stockMasterTimeoutId)
+            stockMasterStatusCode = response.status
+            stockMasterResponse = await response.json()
+          } catch (fetchError: any) {
+            if (fetchError.name === 'AbortError') {
+              stockMasterResponse = {
+                resultCd: "TIMEOUT",
+                resultMsg: "Request timed out after 15 seconds",
+                resultDt: new Date().toISOString()
+              }
+            } else {
+              stockMasterResponse = {
+                resultCd: "NETWORK_ERROR",
+                resultMsg: `Network error: ${fetchError.message}`,
+                resultDt: new Date().toISOString()
+              }
+            }
+          }
+          
+          console.log(`[KRA Stock Service] saveStockMaster response for ${itemCd}:`, JSON.stringify(stockMasterResponse, null, 2))
+          
+          await logKraApiCall("/stockMaster/saveStockMaster", stockMasterPayload, stockMasterResponse, stockMasterStatusCode, Date.now() - stockMasterStartTime, branchId)
+          
+        } catch (stockMasterError: any) {
+          console.error(`[KRA Stock Service] Error calling saveStockMaster for tank ${item.tankId}:`, stockMasterError.message)
+        }
+      }
+    }
     
     return {
       success: isSuccess,

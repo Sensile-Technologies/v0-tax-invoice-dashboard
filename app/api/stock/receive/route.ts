@@ -38,8 +38,11 @@ export async function POST(request: NextRequest) {
     }
 
     const tank = tankResult[0]
-    const previousStock = tank.current_stock || 0
-    const newStock = previousStock + quantity
+    const previousStock = parseFloat(tank.current_stock) || 0
+    const quantityNum = parseFloat(quantity)
+    const newStock = previousStock + quantityNum
+
+    console.log(`[Stock Receive] Tank ${tank_id}: previousStock=${previousStock}, quantity=${quantityNum}, newStock=${newStock}`)
 
     await query(
       `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
     const adjustmentResult = await query(
       `INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approval_status, kra_sync_status)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
-      [branch_id, tank_id, 'stock_receive', quantity, previousStock, newStock, supplier_name ? `Received from: ${supplier_name}` : 'Stock received', 'approved', 'pending']
+      [branch_id, tank_id, 'stock_receive', quantityNum, previousStock, newStock, supplier_name ? `Received from: ${supplier_name}` : 'Stock received', 'approved', 'pending']
     )
     const adjustmentId = adjustmentResult[0]?.id
 

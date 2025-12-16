@@ -1359,6 +1359,60 @@ export default function HeadquartersPage() {
               </div>
             </div>
           </div>
+          <div className="space-y-4 border-t pt-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium">Staff Password Reset</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  if (!editingBranch) return
+                  const userEmail = prompt("Enter the email or username of the staff member:")
+                  if (!userEmail) return
+                  
+                  try {
+                    const userRes = await fetch(`/api/users?email=${encodeURIComponent(userEmail)}&branch_id=${editingBranch.id}`)
+                    const userData = await userRes.json()
+                    
+                    if (!userData.success || !userData.data || userData.data.length === 0) {
+                      alert("User not found in this branch")
+                      return
+                    }
+                    
+                    const user = userData.data[0]
+                    const currentUser = getCurrentUser()
+                    
+                    const resetRes = await fetch('/api/auth/reset/issue', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        user_id: user.id,
+                        admin_id: currentUser?.id
+                      })
+                    })
+                    
+                    const resetData = await resetRes.json()
+                    
+                    if (resetData.success) {
+                      alert(`Reset code for ${resetData.user.username}: ${resetData.code}\n\nThis code expires in ${resetData.expires_in_minutes} minutes.\n\nGive this code to the user to reset their password.`)
+                    } else {
+                      alert(resetData.error || "Failed to generate reset code")
+                    }
+                  } catch (error) {
+                    console.error("Error generating reset code:", error)
+                    alert("Error generating reset code")
+                  }
+                }}
+                className="rounded-xl"
+              >
+                Generate Reset Code
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Generate a password reset code for a staff member in this branch
+            </p>
+          </div>
+
           <div className="flex justify-between items-center pt-4 border-t">
             <Button
               variant="destructive"
