@@ -46,11 +46,12 @@ export async function POST(request: NextRequest) {
       [newStock, tank_id]
     )
 
-    await query(
-      `INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approval_status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [branch_id, tank_id, 'stock_receive', quantity, previousStock, newStock, supplier_name ? `Received from: ${supplier_name}` : 'Stock received', 'approved']
+    const adjustmentResult = await query(
+      `INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approval_status, kra_sync_status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+      [branch_id, tank_id, 'stock_receive', quantity, previousStock, newStock, supplier_name ? `Received from: ${supplier_name}` : 'Stock received', 'approved', 'pending']
     )
+    const adjustmentId = adjustmentResult[0]?.id
 
     let kraResult = null
     if (sync_to_kra) {
@@ -76,6 +77,13 @@ export async function POST(request: NextRequest) {
         `UPDATE tanks SET kra_sync_status = $1, last_kra_synced_stock = $2 WHERE id = $3`,
         [kraResult.success ? 'synced' : 'failed', kraResult.success ? newStock : tank.last_kra_synced_stock, tank_id]
       )
+
+      if (adjustmentId) {
+        await query(
+          `UPDATE stock_adjustments SET kra_sync_status = $1 WHERE id = $2`,
+          [kraResult.success ? 'synced' : 'failed', adjustmentId]
+        )
+      }
     }
 
     return NextResponse.json({
