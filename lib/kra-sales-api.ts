@@ -29,11 +29,10 @@ interface BranchConfig {
   id: string
   bhf_id: string
   kra_pin: string
-  tin: string
   device_token: string
   server_address: string
   server_port: string
-  invc_no: number
+  invoice_number: number
 }
 
 const PAYMENT_TYPE_CODES: Record<string, string> = {
@@ -50,7 +49,7 @@ const PAYMENT_TYPE_CODES: Record<string, string> = {
 async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
   try {
     const result = await query(`
-      SELECT id, bhf_id, kra_pin, tin, device_token, server_address, server_port, COALESCE(invc_no, 0) as invc_no
+      SELECT id, bhf_id, kra_pin, device_token, server_address, server_port, COALESCE(invoice_number, 0) as invoice_number
       FROM branches
       WHERE id = $1
     `, [branchId])
@@ -69,11 +68,11 @@ async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
 async function getNextInvoiceNo(branchId: string): Promise<number> {
   const result = await query(`
     UPDATE branches 
-    SET invc_no = COALESCE(invc_no, 0) + 1 
+    SET invoice_number = COALESCE(invoice_number, 0) + 1 
     WHERE id = $1 
-    RETURNING invc_no
+    RETURNING invoice_number
   `, [branchId])
-  return result[0]?.invc_no || 1
+  return result[0]?.invoice_number || 1
 }
 
 async function getTankItemInfo(branchId: string, fuelType: string, tankId?: string): Promise<any> {
@@ -153,8 +152,8 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       return { success: false, kraResponse: null, error: errorMsg }
     }
 
-    if (!branchConfig.tin) {
-      const errorMsg = "KRA TIN not configured for this branch"
+    if (!branchConfig.kra_pin) {
+      const errorMsg = "KRA PIN not configured for this branch"
       console.log(`[KRA Sales API] ${errorMsg}`)
       return { 
         success: false, 
@@ -192,7 +191,7 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
     const trdInvcNo = `CIV-${String(invcNo).padStart(6, '0')}`
 
     const kraPayload = {
-      tin: branchConfig.tin,
+      tin: branchConfig.kra_pin,
       bhfId: branchConfig.bhf_id || "00",
       trdInvcNo: trdInvcNo,
       invcNo: String(invcNo),
@@ -339,6 +338,7 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       statusCode: httpStatusCode || 500,
       durationMs,
       branchId: saleData.branch_id,
+      externalEndpoint: kraEndpoint
     })
 
     const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
@@ -367,7 +367,8 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       statusCode: 500,
       durationMs,
       branchId: saleData.branch_id,
-      error: error.message
+      error: error.message,
+      externalEndpoint: `${KRA_BASE_URL}/trnsSales/saveSales`
     })
 
     return {
