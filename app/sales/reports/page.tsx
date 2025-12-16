@@ -248,7 +248,7 @@ export default function SalesReportsPage() {
                           <SelectContent>
                             <SelectItem value="all">All</SelectItem>
                             <SelectItem value="loyalty">Loyalty Only</SelectItem>
-                            <SelectItem value="non-loyalty">Non-Loyalty</SelectItem>
+                            <SelectItem value="non-loyalty">Walk-in</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>

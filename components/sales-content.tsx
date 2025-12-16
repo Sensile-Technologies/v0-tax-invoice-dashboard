@@ -808,7 +808,7 @@ export function SalesContent() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base text-black">Loyalty Program</CardTitle>
-                <CardDescription className="text-xs text-black/70">Loyalty vs non-loyalty sales</CardDescription>
+                <CardDescription className="text-xs text-black/70">Loyalty vs Walk-in sales</CardDescription>
               </CardHeader>
               <CardContent className="pt-2">
                 <ResponsiveContainer width="100%" height={220}>
@@ -823,7 +823,7 @@ export function SalesContent() {
                           .reduce((sum, s) => sum + s.total_amount, 0)
                         return [
                           { name: "Loyalty", value: loyaltyTotal },
-                          { name: "Non-Loyalty", value: nonLoyaltyTotal },
+                          { name: "Walk-in", value: nonLoyaltyTotal },
                         ]
                       })()}
                       cx="50%"
@@ -1061,7 +1061,7 @@ export function SalesContent() {
                   <SelectContent>
                     <SelectItem value="all">All</SelectItem>
                     <SelectItem value="loyalty">Loyalty Only</SelectItem>
-                    <SelectItem value="non-loyalty">Non-Loyalty</SelectItem>
+                    <SelectItem value="non-loyalty">Walk-in</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

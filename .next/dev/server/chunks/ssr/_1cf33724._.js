@@ -4622,7 +4622,7 @@ function SalesContent() {
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                 className: "text-xs text-black/70",
-                                                children: "Loyalty vs non-loyalty sales"
+                                                children: "Loyalty vs Walk-in sales"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
                                                 lineNumber: 811,
@@ -4651,7 +4651,7 @@ function SalesContent() {
                                                                     value: loyaltyTotal
                                                                 },
                                                                 {
-                                                                    name: "Non-Loyalty",
+                                                                    name: "Walk-in",
                                                                     value: nonLoyaltyTotal
                                                                 }
                                                             ];
@@ -5332,7 +5332,7 @@ function SalesContent() {
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
                                                                     value: "non-loyalty",
-                                                                    children: "Non-Loyalty"
+                                                                    children: "Walk-in"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
                                                                     lineNumber: 1064,
