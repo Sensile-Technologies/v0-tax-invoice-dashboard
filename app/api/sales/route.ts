@@ -106,6 +106,13 @@ export async function POST(request: NextRequest) {
 
       if (tankResult.length > 0) {
         const tank = tankResult[0]
+        
+        if (!tank.kra_item_cd) {
+          return NextResponse.json(
+            { error: `Tank "${tank.tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
+            { status: 400 }
+          )
+        }
         const previousStock = tank.current_stock || 0
         const newStock = Math.max(0, previousStock - quantity)
 

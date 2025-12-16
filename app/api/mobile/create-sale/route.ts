@@ -36,6 +36,21 @@ export async function POST(request: Request) {
 
     const client = await pool.connect()
     try {
+      const tankCheck = await client.query(
+        `SELECT id, tank_name, kra_item_cd FROM tanks 
+         WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' 
+         ORDER BY current_stock DESC LIMIT 1`,
+        [branch_id, `%${fuel_type}%`]
+      )
+
+      if (tankCheck.rows.length > 0 && !tankCheck.rows[0].kra_item_cd) {
+        client.release()
+        return NextResponse.json(
+          { error: `Tank "${tankCheck.rows[0].tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
+          { status: 400 }
+        )
+      }
+
       await client.query('BEGIN')
 
       const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`
