@@ -182,11 +182,11 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
     const qtyUnitCd = itemInfo.quantity_unit || "LTR"
     const taxTyCd = itemInfo.tax_type || "B"
     
-    const prc = Math.round((Number(itemInfo.sale_price) || 0) * 100) / 100
-    const qty = Math.round(saleData.quantity * 100) / 100
-    const totAmt = Math.round(qty * prc * 100) / 100
+    const prc = Number(itemInfo.sale_price) || 0
+    const qty = saleData.quantity
+    const totAmt = qty * prc
     
-    console.log(`[KRA Sales API] Item: ${itemNm}, Code: ${itemCd}, Price from items table: ${prc}, Qty: ${qty}`)
+    console.log(`[KRA Sales API] Item lookup: ${itemNm}, item_code: ${itemCd}, sale_price from DB: ${prc}, qty: ${qty}, totAmt: ${totAmt}`)
     
     const { taxblAmt, taxAmt, taxRt } = calculateTax(totAmt, taxTyCd)
     
