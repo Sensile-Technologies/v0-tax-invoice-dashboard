@@ -9,11 +9,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const branchId = searchParams.get('branch_id')
+    const filterByBranch = searchParams.get('filter_by_branch') === 'true'
 
-    let query = 'SELECT id, cust_nm, cust_tin FROM customers WHERE 1=1'
+    let query = 'SELECT id, cust_nm, cust_tin, cust_no, branch_id FROM customers WHERE use_yn = \'Y\''
     const params: any[] = []
 
-    if (branchId) {
+    if (branchId && filterByBranch) {
       params.push(branchId)
       query += ` AND branch_id = $${params.length}`
     }

@@ -75,9 +75,10 @@ async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
-        let query = 'SELECT id, cust_nm, cust_tin FROM customers WHERE 1=1';
+        const filterByBranch = searchParams.get('filter_by_branch') === 'true';
+        let query = 'SELECT id, cust_nm, cust_tin, cust_no, branch_id FROM customers WHERE use_yn = \'Y\'';
         const params = [];
-        if (branchId) {
+        if (branchId && filterByBranch) {
             params.push(branchId);
             query += ` AND branch_id = $${params.length}`;
         }
