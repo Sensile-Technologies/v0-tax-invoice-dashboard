@@ -1243,6 +1243,34 @@ async function POST(request) {
                         kraResult.success ? 'synced' : 'failed',
                         tank.id
                     ]);
+                    if (kraResult.success && kraResult.kraResponse?.data) {
+                        const kraData = kraResult.kraResponse.data;
+                        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE sales SET 
+                kra_status = 'success',
+                kra_rcpt_sign = $1,
+                kra_scu_id = $2,
+                kra_cu_inv = $3,
+                kra_internal_data = $4,
+                transmission_status = 'transmitted'
+              WHERE id = $5`, [
+                            kraData.rcptSign || '',
+                            kraData.sdcId || '',
+                            `${kraData.sdcId}/${kraData.rcptNo}`,
+                            kraData.intrlData || '',
+                            sale.id
+                        ]);
+                        sale.kra_status = 'success';
+                        sale.kra_rcpt_sign = kraData.rcptSign;
+                        sale.kra_scu_id = kraData.sdcId;
+                        sale.kra_cu_inv = `${kraData.sdcId}/${kraData.rcptNo}`;
+                        sale.kra_internal_data = kraData.intrlData;
+                    } else if (!kraResult.success) {
+                        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE sales SET kra_status = 'failed', kra_error = $1 WHERE id = $2`, [
+                            kraResult.error || 'Unknown error',
+                            sale.id
+                        ]);
+                        sale.kra_status = 'failed';
+                    }
                 }
             }
         }
