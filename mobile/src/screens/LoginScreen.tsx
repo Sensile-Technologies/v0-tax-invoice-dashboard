@@ -48,10 +48,11 @@ export default function LoginScreen() {
       >
         <View style={styles.logoContainer}>
           <Image
-            source={{ uri: 'https://ceaad22e-7426-4b1f-a645-d2bab46d41d2-00-2750hh3y918g9.janeway.replit.dev/flow360-logo.png' }}
+            source={require('../../assets/icon.png')}
             style={styles.logo}
             resizeMode="contain"
           />
+          <Text style={styles.appTitle}>Flow360</Text>
         </View>
 
         <View style={styles.formContainer}>
@@ -112,6 +113,12 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
+  },
+  appTitle: {
+    fontSize: fontSize.xl || 24,
+    fontWeight: '700',
+    color: colors.primary,
+    marginTop: spacing.sm,
   },
   formContainer: {
     backgroundColor: colors.surface,

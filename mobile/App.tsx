@@ -3,7 +3,7 @@ import React from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Ionicons } from '@expo/vector-icons'
 import { AuthProvider, useAuth } from './src/context/AuthContext'
 import LoginScreen from './src/screens/LoginScreen'
@@ -13,43 +13,28 @@ import InvoicesScreen from './src/screens/InvoicesScreen'
 import SalesScreen from './src/screens/SalesScreen'
 import ProductsScreen from './src/screens/ProductsScreen'
 import { colors } from './src/utils/theme'
-import { View, ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native'
+import { View, ActivityIndicator, StyleSheet, Text, Image } from 'react-native'
 
 const Stack = createNativeStackNavigator()
-const Drawer = createDrawerNavigator()
+const Tab = createBottomTabNavigator()
 
-function CustomDrawerContent(props: any) {
-  const { user, logout } = useAuth()
-  
+function LogoTitle() {
   return (
-    <DrawerContentScrollView {...props} style={styles.drawerContent}>
-      <View style={styles.drawerHeader}>
-        <View style={styles.userAvatar}>
-          <Ionicons name="person" size={32} color="#fff" />
-        </View>
-        <Text style={styles.userName}>{user?.username || user?.name || 'User'}</Text>
-        <Text style={styles.userBranch}>{user?.branch_name || 'Branch'}</Text>
-      </View>
-      <DrawerItemList {...props} />
-      <View style={styles.drawerFooter}>
-        <DrawerItem
-          label="Logout"
-          icon={({ size }) => (
-            <Ionicons name="log-out-outline" size={size} color={colors.danger} />
-          )}
-          labelStyle={{ color: colors.danger }}
-          onPress={logout}
-        />
-      </View>
-    </DrawerContentScrollView>
+    <View style={styles.headerLogo}>
+      <Image
+        source={require('./assets/icon.png')}
+        style={styles.headerLogoImage}
+        resizeMode="contain"
+      />
+      <Text style={styles.headerLogoText}>Flow360</Text>
+    </View>
   )
 }
 
-function MainDrawer() {
+function MainTabs() {
   return (
-    <Drawer.Navigator
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
-      screenOptions={({ navigation }) => ({
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
         headerStyle: {
           backgroundColor: colors.navBackground,
         },
@@ -57,84 +42,58 @@ function MainDrawer() {
         headerTitleStyle: {
           fontWeight: '600',
         },
-        drawerStyle: {
-          backgroundColor: colors.surface,
-          width: 280,
+        headerTitle: () => <LogoTitle />,
+        tabBarStyle: {
+          backgroundColor: colors.navBackground,
+          borderTopColor: colors.border,
+          paddingBottom: 5,
+          paddingTop: 5,
+          height: 60,
         },
-        drawerActiveTintColor: colors.primary,
-        drawerInactiveTintColor: colors.text,
-        drawerActiveBackgroundColor: colors.primary + '15',
-        drawerLabelStyle: {
-          marginLeft: -10,
-          fontSize: 15,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: '#8e8e93',
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
         },
-        headerLeft: () => (
-          <TouchableOpacity 
-            onPress={() => navigation.toggleDrawer()}
-            style={styles.menuButton}
-          >
-            <Ionicons name="menu" size={28} color="#fff" />
-          </TouchableOpacity>
-        ),
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName: keyof typeof Ionicons.glyphMap = 'home'
+          
+          if (route.name === 'Dashboard') {
+            iconName = focused ? 'home' : 'home-outline'
+          } else if (route.name === 'Sales') {
+            iconName = focused ? 'cart' : 'cart-outline'
+          } else if (route.name === 'Products') {
+            iconName = focused ? 'cube' : 'cube-outline'
+          } else if (route.name === 'Invoices') {
+            iconName = focused ? 'receipt' : 'receipt-outline'
+          }
+          
+          return <Ionicons name={iconName} size={size} color={color} />
+        },
       })}
     >
-      <Drawer.Screen 
+      <Tab.Screen 
         name="Dashboard" 
         component={DashboardScreen}
-        options={{
-          title: 'Dashboard',
-          drawerIcon: ({ focused, size }) => (
-            <Ionicons 
-              name={focused ? 'home' : 'home-outline'} 
-              size={size} 
-              color={focused ? colors.primary : colors.text} 
-            />
-          ),
-        }}
+        options={{ title: 'Home' }}
       />
-      <Drawer.Screen 
+      <Tab.Screen 
         name="Sales" 
         component={SalesScreen}
-        options={{
-          title: 'Sales',
-          drawerIcon: ({ focused, size }) => (
-            <Ionicons 
-              name={focused ? 'cart' : 'cart-outline'} 
-              size={size} 
-              color={focused ? colors.primary : colors.text} 
-            />
-          ),
-        }}
+        options={{ title: 'Sales' }}
       />
-      <Drawer.Screen 
+      <Tab.Screen 
         name="Products" 
         component={ProductsScreen}
-        options={{
-          title: 'Products',
-          drawerIcon: ({ focused, size }) => (
-            <Ionicons 
-              name={focused ? 'cube' : 'cube-outline'} 
-              size={size} 
-              color={focused ? colors.primary : colors.text} 
-            />
-          ),
-        }}
+        options={{ title: 'Products' }}
       />
-      <Drawer.Screen 
+      <Tab.Screen 
         name="Invoices" 
         component={InvoicesScreen}
-        options={{
-          title: 'Invoices',
-          drawerIcon: ({ focused, size }) => (
-            <Ionicons 
-              name={focused ? 'receipt' : 'receipt-outline'} 
-              size={size} 
-              color={focused ? colors.primary : colors.text} 
-            />
-          ),
-        }}
+        options={{ title: 'Invoices' }}
       />
-    </Drawer.Navigator>
+    </Tab.Navigator>
   )
 }
 
@@ -153,7 +112,7 @@ function AppNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
         <>
-          <Stack.Screen name="Main" component={MainDrawer} />
+          <Stack.Screen name="Main" component={MainTabs} />
           <Stack.Screen
             name="CreateInvoice"
             component={CreateInvoiceScreen}
@@ -190,42 +149,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.background,
   },
-  drawerContent: {
-    flex: 1,
-  },
-  drawerHeader: {
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: colors.navBackground,
-    marginBottom: 10,
-  },
-  userAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
+  headerLogo: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
   },
-  userName: {
+  headerLogoImage: {
+    width: 32,
+    height: 32,
+    marginRight: 8,
+  },
+  headerLogoText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#fff',
-  },
-  userBranch: {
-    fontSize: 14,
-    color: colors.primary,
-    marginTop: 4,
-  },
-  drawerFooter: {
-    marginTop: 'auto',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 10,
-  },
-  menuButton: {
-    marginLeft: 16,
-    padding: 4,
   },
 })
