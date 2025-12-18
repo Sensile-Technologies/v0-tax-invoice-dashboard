@@ -1,8 +1,9 @@
+import 'react-native-gesture-handler'
 import React from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer'
 import { Ionicons } from '@expo/vector-icons'
 import { AuthProvider, useAuth } from './src/context/AuthContext'
 import LoginScreen from './src/screens/LoginScreen'
@@ -12,42 +13,128 @@ import InvoicesScreen from './src/screens/InvoicesScreen'
 import SalesScreen from './src/screens/SalesScreen'
 import ProductsScreen from './src/screens/ProductsScreen'
 import { colors } from './src/utils/theme'
-import { View, ActivityIndicator, StyleSheet } from 'react-native'
+import { View, ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native'
 
 const Stack = createNativeStackNavigator()
-const Tab = createBottomTabNavigator()
+const Drawer = createDrawerNavigator()
 
-function MainTabs() {
+function CustomDrawerContent(props: any) {
+  const { user, logout } = useAuth()
+  
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home'
-          if (route.name === 'Dashboard') {
-            iconName = focused ? 'home' : 'home-outline'
-          } else if (route.name === 'Sales') {
-            iconName = focused ? 'cart' : 'cart-outline'
-          } else if (route.name === 'Products') {
-            iconName = focused ? 'cube' : 'cube-outline'
-          } else if (route.name === 'Invoices') {
-            iconName = focused ? 'receipt' : 'receipt-outline'
-          }
-          return <Ionicons name={iconName} size={size} color={color} />
+    <DrawerContentScrollView {...props} style={styles.drawerContent}>
+      <View style={styles.drawerHeader}>
+        <View style={styles.userAvatar}>
+          <Ionicons name="person" size={32} color="#fff" />
+        </View>
+        <Text style={styles.userName}>{user?.username || user?.name || 'User'}</Text>
+        <Text style={styles.userBranch}>{user?.branch_name || 'Branch'}</Text>
+      </View>
+      <DrawerItemList {...props} />
+      <View style={styles.drawerFooter}>
+        <DrawerItem
+          label="Logout"
+          icon={({ size }) => (
+            <Ionicons name="log-out-outline" size={size} color={colors.danger} />
+          )}
+          labelStyle={{ color: colors.danger }}
+          onPress={logout}
+        />
+      </View>
+    </DrawerContentScrollView>
+  )
+}
+
+function MainDrawer() {
+  return (
+    <Drawer.Navigator
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      screenOptions={({ navigation }) => ({
+        headerStyle: {
+          backgroundColor: colors.navBackground,
         },
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textLight,
-        headerShown: false,
-        tabBarStyle: {
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: '600',
+        },
+        drawerStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: colors.border,
+          width: 280,
         },
+        drawerActiveTintColor: colors.primary,
+        drawerInactiveTintColor: colors.text,
+        drawerActiveBackgroundColor: colors.primary + '15',
+        drawerLabelStyle: {
+          marginLeft: -10,
+          fontSize: 15,
+        },
+        headerLeft: () => (
+          <TouchableOpacity 
+            onPress={() => navigation.toggleDrawer()}
+            style={styles.menuButton}
+          >
+            <Ionicons name="menu" size={28} color="#fff" />
+          </TouchableOpacity>
+        ),
       })}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Sales" component={SalesScreen} />
-      <Tab.Screen name="Products" component={ProductsScreen} />
-      <Tab.Screen name="Invoices" component={InvoicesScreen} />
-    </Tab.Navigator>
+      <Drawer.Screen 
+        name="Dashboard" 
+        component={DashboardScreen}
+        options={{
+          title: 'Dashboard',
+          drawerIcon: ({ focused, size }) => (
+            <Ionicons 
+              name={focused ? 'home' : 'home-outline'} 
+              size={size} 
+              color={focused ? colors.primary : colors.text} 
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Sales" 
+        component={SalesScreen}
+        options={{
+          title: 'Sales',
+          drawerIcon: ({ focused, size }) => (
+            <Ionicons 
+              name={focused ? 'cart' : 'cart-outline'} 
+              size={size} 
+              color={focused ? colors.primary : colors.text} 
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Products" 
+        component={ProductsScreen}
+        options={{
+          title: 'Products',
+          drawerIcon: ({ focused, size }) => (
+            <Ionicons 
+              name={focused ? 'cube' : 'cube-outline'} 
+              size={size} 
+              color={focused ? colors.primary : colors.text} 
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Invoices" 
+        component={InvoicesScreen}
+        options={{
+          title: 'Invoices',
+          drawerIcon: ({ focused, size }) => (
+            <Ionicons 
+              name={focused ? 'receipt' : 'receipt-outline'} 
+              size={size} 
+              color={focused ? colors.primary : colors.text} 
+            />
+          ),
+        }}
+      />
+    </Drawer.Navigator>
   )
 }
 
@@ -66,7 +153,7 @@ function AppNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isAuthenticated ? (
         <>
-          <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen name="Main" component={MainDrawer} />
           <Stack.Screen
             name="CreateInvoice"
             component={CreateInvoiceScreen}
@@ -89,7 +176,7 @@ export default function App() {
   return (
     <AuthProvider>
       <NavigationContainer>
-        <StatusBar style="auto" />
+        <StatusBar style="light" />
         <AppNavigator />
       </NavigationContainer>
     </AuthProvider>
@@ -102,5 +189,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background,
+  },
+  drawerContent: {
+    flex: 1,
+  },
+  drawerHeader: {
+    padding: 20,
+    paddingTop: 40,
+    backgroundColor: colors.navBackground,
+    marginBottom: 10,
+  },
+  userAvatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  userBranch: {
+    fontSize: 14,
+    color: colors.primary,
+    marginTop: 4,
+  },
+  drawerFooter: {
+    marginTop: 'auto',
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 10,
+  },
+  menuButton: {
+    marginLeft: 16,
+    padding: 4,
   },
 })

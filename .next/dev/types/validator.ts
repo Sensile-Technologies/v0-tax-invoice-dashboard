@@ -1100,6 +1100,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/api/imports/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/imports">> = Specific
+  const handler = {} as typeof import("../../../app/api/imports/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/api/item-compositions/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/item-compositions">> = Specific
@@ -1356,6 +1365,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/nozzles">> = Specific
   const handler = {} as typeof import("../../../app/api/nozzles/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/purchases/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/purchases">> = Specific
+  const handler = {} as typeof import("../../../app/api/purchases/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

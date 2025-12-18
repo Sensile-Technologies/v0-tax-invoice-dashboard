@@ -20,7 +20,7 @@ interface DashboardStats {
 }
 
 export default function DashboardScreen({ navigation }: any) {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [stats, setStats] = useState<DashboardStats>({
     total_sales: 0,
     total_invoices: 0,
@@ -70,9 +70,6 @@ export default function DashboardScreen({ navigation }: any) {
           <Text style={styles.userName}>{user?.username || user?.name || 'User'}</Text>
           <Text style={styles.branchName}>{user?.branch_name || 'Branch'}</Text>
         </View>
-        <TouchableOpacity onPress={logout} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color={colors.danger} />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.statsGrid}>
@@ -147,12 +144,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
     padding: spacing.lg,
     backgroundColor: colors.navBackground,
-    paddingTop: 60,
+    paddingTop: spacing.md,
   },
   greeting: {
     fontSize: fontSize.md,
@@ -168,9 +162,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginTop: spacing.xs,
     fontWeight: '600',
-  },
-  logoutButton: {
-    padding: spacing.sm,
   },
   statsGrid: {
     flexDirection: 'row',
