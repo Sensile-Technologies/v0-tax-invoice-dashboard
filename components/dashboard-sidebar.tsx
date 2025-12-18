@@ -98,18 +98,18 @@ export function DashboardSidebar({
     <>
       {mobileOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm"
           onClick={onMobileClose}
         />
       )}
       <aside
         className={cn(
-          "flex flex-col text-white transition-all duration-300 min-h-screen z-50",
-          transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-white",
-          "fixed lg:relative",
-          "lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-          collapsed ? "w-16" : "w-64",
+          "flex flex-col text-white transition-transform duration-300 ease-in-out min-h-screen",
+          transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-slate-700",
+          "fixed lg:relative top-0 left-0 h-full",
+          "lg:translate-x-0 z-50",
+          mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
+          collapsed ? "w-16" : "w-72 lg:w-64",
         )}
       >
       <div className="flex h-16 items-center justify-between px-4">

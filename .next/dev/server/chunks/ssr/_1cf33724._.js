@@ -281,7 +281,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
         children: [
             mobileOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "fixed inset-0 bg-black/50 z-40 lg:hidden",
+                className: "fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm",
                 onClick: onMobileClose
             }, void 0, false, {
                 fileName: "[project]/components/dashboard-sidebar.tsx",
@@ -289,7 +289,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
-                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("flex flex-col text-white transition-all duration-300 min-h-screen z-50", transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-white", "fixed lg:relative", "lg:translate-x-0", mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0", collapsed ? "w-16" : "w-64"),
+                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("flex flex-col text-white transition-transform duration-300 ease-in-out min-h-screen", transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-slate-700", "fixed lg:relative top-0 left-0 h-full", "lg:translate-x-0 z-50", mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0", collapsed ? "w-16" : "w-72 lg:w-64"),
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex h-16 items-center justify-between px-4",
@@ -1547,12 +1547,12 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                 className: "flex flex-1 items-center gap-2 md:gap-4",
                 children: [
                     onMobileMenuToggle && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
-                        variant: "ghost",
+                        variant: "outline",
                         size: "icon",
                         onClick: onMobileMenuToggle,
-                        className: "lg:hidden h-9 w-9",
+                        className: "lg:hidden h-10 w-10 flex-shrink-0 border-slate-300 bg-slate-100 hover:bg-slate-200",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$menu$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Menu$3e$__["Menu"], {
-                            className: "h-5 w-5"
+                            className: "h-6 w-6 text-slate-700"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-header.tsx",
                             lineNumber: 142,

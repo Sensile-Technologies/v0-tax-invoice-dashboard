@@ -134,12 +134,12 @@ export function DashboardHeader({
       <div className="flex flex-1 items-center gap-2 md:gap-4">
         {onMobileMenuToggle && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
             onClick={onMobileMenuToggle}
-            className="lg:hidden h-9 w-9"
+            className="lg:hidden h-10 w-10 flex-shrink-0 border-slate-300 bg-slate-100 hover:bg-slate-200"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-6 w-6 text-slate-700" />
           </Button>
         )}
         <div className="flex items-center gap-2">
