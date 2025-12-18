@@ -22,12 +22,12 @@ export async function POST(request: Request) {
         `SELECT s.*, b.name as branch_name, b.kra_pin, b.bhf_id, b.address as branch_address,
                 b.phone as branch_phone,
                 n.nozzle_number, d.dispenser_number,
-                i.item_name, i.item_cd
+                i.item_name, i.item_code
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
-         LEFT JOIN items i ON s.fuel_type = i.item_name AND i.branch_id = s.branch_id
+         LEFT JOIN items i ON UPPER(s.fuel_type) = UPPER(i.item_name) AND i.branch_id = s.branch_id
          WHERE s.id = $1`,
         [sale_id]
       )
@@ -126,7 +126,7 @@ export async function POST(request: Request) {
       const vatAmount = totalAmount - taxableAmount
 
       doc.text(`Item Code:`, leftMargin, y)
-      doc.text(sale.item_cd || sale.fuel_type || "N/A", leftMargin + 22, y)
+      doc.text(sale.item_code || sale.fuel_type || "N/A", leftMargin + 22, y)
       y += 3
       doc.text(`Description:`, leftMargin, y)
       doc.text(sale.item_name || sale.fuel_type || "Fuel", leftMargin + 22, y)

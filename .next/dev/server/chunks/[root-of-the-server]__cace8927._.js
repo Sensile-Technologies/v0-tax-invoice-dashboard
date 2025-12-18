@@ -139,12 +139,12 @@ async function POST(request) {
             const saleResult = await client.query(`SELECT s.*, b.name as branch_name, b.kra_pin, b.bhf_id, b.address as branch_address,
                 b.phone as branch_phone,
                 n.nozzle_number, d.dispenser_number,
-                i.item_nm, i.item_cd
+                i.item_name, i.item_code
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
-         LEFT JOIN items i ON s.fuel_type = i.item_nm AND i.branch_id = s.branch_id
+         LEFT JOIN items i ON UPPER(s.fuel_type) = UPPER(i.item_name) AND i.branch_id = s.branch_id
          WHERE s.id = $1`, [
                 sale_id
             ]);
@@ -249,10 +249,10 @@ async function POST(request) {
             const taxableAmount = totalAmount / 1.16;
             const vatAmount = totalAmount - taxableAmount;
             doc.text(`Item Code:`, leftMargin, y);
-            doc.text(sale.item_cd || sale.fuel_type || "N/A", leftMargin + 22, y);
+            doc.text(sale.item_code || sale.fuel_type || "N/A", leftMargin + 22, y);
             y += 3;
             doc.text(`Description:`, leftMargin, y);
-            doc.text(sale.item_nm || sale.fuel_type || "Fuel", leftMargin + 22, y);
+            doc.text(sale.item_name || sale.fuel_type || "Fuel", leftMargin + 22, y);
             y += 3;
             doc.text(`Dispenser:`, leftMargin, y);
             doc.text(`D${sale.dispenser_number || '0'}N${sale.nozzle_number || '1'}`, leftMargin + 22, y);
