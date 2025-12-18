@@ -11,8 +11,11 @@
   "/api/mobile/products/route": "app/api/mobile/products/route.js",
   "/api/mobile/sales/route": "app/api/mobile/sales/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
+  "/api/receipt/generate/route": "app/api/receipt/generate/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
   "/page": "app/page.js",
-  "/sales/page": "app/sales/page.js"
+  "/sales/page": "app/sales/page.js",
+  "/sales/reports/page": "app/sales/reports/page.js",
+  "/sales/summary/page": "app/sales/summary/page.js"
 }
