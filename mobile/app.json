@@ -30,11 +30,12 @@
     },
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "df90a38c-0626-449f-8e0a-220efa7d847d"
       }
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "owner": "rji"
   }
 }
