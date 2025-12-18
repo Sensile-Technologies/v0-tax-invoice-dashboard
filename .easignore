@@ -1,8 +1,8 @@
 # Exclude Next.js build artifacts
 .next/
 
-# Exclude node_modules at all levels
-node_modules/
+# Exclude root node_modules (mobile has its own)
+/node_modules/
 
 # Git files
 .git/
@@ -13,10 +13,6 @@ node_modules/
 
 # Test files
 __tests__/
-*.test.js
-*.test.ts
-*.spec.js
-*.spec.ts
 
 # Misc
 .DS_Store
@@ -28,24 +24,23 @@ dist/
 build/
 web-build/
 
-# Exclude web app entirely (we only need mobile)
-app/
-components/
-lib/
-hooks/
-public/
-styles/
-*.config.js
-*.config.ts
-*.config.mjs
-next-env.d.ts
-tsconfig.json
-package.json
-package-lock.json
+# Exclude web app directories (keep mobile)
+/app/
+/components/
+/lib/
+/hooks/
+/public/
+/styles/
+/*.config.js
+/*.config.ts
+/*.config.mjs
+/next-env.d.ts
+/tsconfig.json
+/package.json
+/package-lock.json
 
-# Exclude documentation
-*.md
-replit.md
+# Exclude documentation from root only
+/replit.md
 
 # Exclude attached assets
 attached_assets/
