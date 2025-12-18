@@ -44,7 +44,6 @@ export async function POST(request: Request) {
       )
 
       if (tankCheck.rows.length > 0 && !tankCheck.rows[0].kra_item_cd) {
-        client.release()
         return NextResponse.json(
           { error: `Tank "${tankCheck.rows[0].tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
           { status: 400 }
