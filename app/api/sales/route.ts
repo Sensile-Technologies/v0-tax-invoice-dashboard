@@ -8,6 +8,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const branchId = searchParams.get('branch_id')
     const nozzleId = searchParams.get('nozzle_id')
+    const date = searchParams.get('date')
+    const dateFrom = searchParams.get('date_from')
+    const dateTo = searchParams.get('date_to')
     const limit = searchParams.get('limit') || '50'
 
     let sql = 'SELECT * FROM sales WHERE 1=1'
@@ -26,6 +29,24 @@ export async function GET(request: NextRequest) {
       paramIndex++
     }
 
+    if (date) {
+      sql += ` AND DATE(sale_date) = $${paramIndex}`
+      params.push(date)
+      paramIndex++
+    }
+
+    if (dateFrom) {
+      sql += ` AND DATE(sale_date) >= $${paramIndex}`
+      params.push(dateFrom)
+      paramIndex++
+    }
+
+    if (dateTo) {
+      sql += ` AND DATE(sale_date) <= $${paramIndex}`
+      params.push(dateTo)
+      paramIndex++
+    }
+
     sql += ' ORDER BY sale_date DESC'
     sql += ` LIMIT $${paramIndex}`
     params.push(parseInt(limit))
@@ -34,6 +55,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      sales: result,
       data: result
     })
 
