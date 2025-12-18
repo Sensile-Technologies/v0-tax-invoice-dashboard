@@ -11,6 +11,7 @@ import { Search, Users } from "lucide-react"
 
 export default function BranchStaffPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [branchStaff, setBranchStaff] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [isLoading, setIsLoading] = useState(true)
@@ -61,19 +62,24 @@ export default function BranchStaffPage() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
-        <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
+      <div className="flex-1 flex flex-col lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto p-8">
-            <div className="flex items-center justify-between mb-6">
+          <main className="flex-1 overflow-y-auto p-3 md:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-balance">Branch Staff</h1>
-                <p className="mt-1 text-muted-foreground text-pretty">View staff members assigned to this branch</p>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">Branch Staff</h1>
+                <p className="mt-1 text-sm text-muted-foreground text-pretty">View staff members assigned to this branch</p>
               </div>
-              <div className="relative w-96">
+              <div className="relative w-full sm:w-72 md:w-96">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search staff..."
@@ -85,7 +91,7 @@ export default function BranchStaffPage() {
             </div>
 
             <Card className="rounded-2xl">
-              <CardContent className="p-6">
+              <CardContent className="p-3 md:p-6">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="text-center">
@@ -101,36 +107,32 @@ export default function BranchStaffPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-xl border overflow-hidden">
-                    <Table>
+                  <div className="rounded-xl border overflow-hidden overflow-x-auto -mx-3 md:mx-0">
+                    <Table className="min-w-[500px]">
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Staff ID</TableHead>
+                        <TableRow className="text-xs md:text-sm">
                           <TableHead>Name</TableHead>
-                          <TableHead>Username</TableHead>
-                          <TableHead>Email</TableHead>
-                          <TableHead>Phone</TableHead>
+                          <TableHead className="hidden sm:table-cell">Username</TableHead>
+                          <TableHead className="hidden md:table-cell">Email</TableHead>
                           <TableHead>Role</TableHead>
                           <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredStaff.map((member) => (
-                          <TableRow key={member.id}>
-                            <TableCell className="font-medium">{member.staffId}</TableCell>
-                            <TableCell>{member.name}</TableCell>
-                            <TableCell>{member.username}</TableCell>
-                            <TableCell>{member.email}</TableCell>
-                            <TableCell>{member.phone}</TableCell>
+                          <TableRow key={member.id} className="text-xs md:text-sm">
+                            <TableCell className="font-medium">{member.name}</TableCell>
+                            <TableCell className="hidden sm:table-cell">{member.username}</TableCell>
+                            <TableCell className="hidden md:table-cell">{member.email}</TableCell>
                             <TableCell>
-                              <Badge variant="outline" className="rounded-lg">
+                              <Badge variant="outline" className="rounded-lg text-xs">
                                 {member.role}
                               </Badge>
                             </TableCell>
                             <TableCell>
                               <Badge
                                 variant={member.status === "active" ? "default" : "secondary"}
-                                className="rounded-lg"
+                                className="rounded-lg text-xs"
                               >
                                 {member.status}
                               </Badge>
@@ -144,8 +146,8 @@ export default function BranchStaffPage() {
               </CardContent>
             </Card>
 
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-              <p className="text-sm text-blue-800">
+            <div className="mt-6 p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <p className="text-xs md:text-sm text-blue-800">
                 <strong>Note:</strong> To add, edit, or manage staff assignments, please visit the{" "}
                 <a href="/headquarters" className="underline font-semibold hover:text-blue-900">
                   Headquarters
@@ -155,7 +157,7 @@ export default function BranchStaffPage() {
             </div>
           </main>
 
-          <footer className="border-t px-8 py-4 text-center text-sm text-navy-900">
+          <footer className="border-t px-4 md:px-8 py-4 text-center text-sm text-muted-foreground">
             Powered by Sensile Technologies East Africa Ltd
           </footer>
         </div>

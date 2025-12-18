@@ -31,6 +31,7 @@ const paymentMethods = [
 
 export default function PaymentsPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFrom, setDateFrom] = useState("")
@@ -38,7 +39,6 @@ export default function PaymentsPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const { formatCurrency } = useCurrency()
 
-  // Sample transaction data
   const transactions = [
     {
       id: "TXN-001",
@@ -68,34 +68,6 @@ export default function PaymentsPage() {
       method: "cash",
       date: "2023-10-02",
     },
-    {
-      id: "TXN-003",
-      product: "Product C",
-      description: "Furniture",
-      rate: 15000,
-      unit: "unit",
-      quantity: 1,
-      netAmount: 15000,
-      vat: 2400,
-      grossAmount: 17400,
-      customerPin: "",
-      method: "bank",
-      date: "2023-10-03",
-    },
-    {
-      id: "TXN-004",
-      product: "Product D",
-      description: "Software License",
-      rate: 8000,
-      unit: "license",
-      quantity: 3,
-      netAmount: 24000,
-      vat: 3840,
-      grossAmount: 27840,
-      customerPin: "E456789123F",
-      method: "card",
-      date: "2023-10-04",
-    },
   ]
 
   const filteredTransactions = selectedMethod ? transactions.filter((t) => t.method === selectedMethod) : []
@@ -120,23 +92,28 @@ export default function PaymentsPage() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
-        <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
+      <div className="flex-1 flex flex-col lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-            <div className="mx-auto max-w-7xl space-y-6">
-            <div className="mb-6 flex items-center justify-between">
+          <main className="flex-1 overflow-y-auto bg-slate-50 p-3 md:p-6">
+            <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
+            <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Payments</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Payments</h1>
                 <p className="text-sm text-gray-500 mt-1">Manage all payment transactions</p>
               </div>
               <Button
                 onClick={() => (window.location.href = "/payments/running-balance")}
                 variant="outline"
-                className="rounded-xl"
+                className="rounded-xl w-full sm:w-auto"
               >
                 <FileText className="mr-2 h-4 w-4" />
                 Running Balance Report
@@ -144,41 +121,41 @@ export default function PaymentsPage() {
             </div>
 
             {!selectedMethod ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
                 {paymentMethods.map((method) => (
                   <Card
                     key={method.id}
                     onClick={() => setSelectedMethod(method.id)}
                     className="cursor-pointer rounded-2xl transition-all duration-300 hover:shadow-xl hover:scale-105 group"
                   >
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 md:p-6">
                       <div
-                        className={`mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${method.color} transition-transform group-hover:scale-110`}
+                        className={`mb-3 md:mb-4 inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${method.color} transition-transform group-hover:scale-110`}
                       >
-                        <method.icon className="h-8 w-8 text-white" />
+                        <method.icon className="h-6 w-6 md:h-8 md:w-8 text-white" />
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-lg md:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                         {method.name}
                       </h3>
-                      <p className="text-sm text-gray-500 mt-1">View {method.name.toLowerCase()} transactions</p>
+                      <p className="text-xs md:text-sm text-gray-500 mt-1 hidden sm:block">View transactions</p>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             ) : (
               <div>
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <Button variant="outline" onClick={() => setSelectedMethod(null)} className="rounded-xl">
                       ← Back
                     </Button>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {paymentMethods.find((m) => m.id === selectedMethod)?.name} Transactions
+                    <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                      {paymentMethods.find((m) => m.id === selectedMethod)?.name}
                     </h2>
                   </div>
                   <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button className="rounded-xl transition-all hover:shadow-lg">
+                      <Button className="rounded-xl transition-all hover:shadow-lg w-full sm:w-auto">
                         <Plus className="mr-2 h-4 w-4" />
                         Add Payment
                       </Button>
@@ -189,7 +166,7 @@ export default function PaymentsPage() {
                         <DialogDescription>Fill in the payment details below</DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="transactionId">Transaction ID</Label>
                             <Input id="transactionId" placeholder="TXN-XXX" className="rounded-xl" />
@@ -212,53 +189,26 @@ export default function PaymentsPage() {
                             <Label htmlFor="unit">Unit</Label>
                             <Select>
                               <SelectTrigger className="rounded-xl">
-                                <SelectValue placeholder="Select unit" />
+                                <SelectValue placeholder="Select" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="pcs">Pieces</SelectItem>
                                 <SelectItem value="set">Set</SelectItem>
                                 <SelectItem value="unit">Unit</SelectItem>
-                                <SelectItem value="kg">Kilogram</SelectItem>
-                                <SelectItem value="ltr">Liter</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="quantity">Quantity</Label>
+                            <Label htmlFor="quantity">Qty</Label>
                             <Input id="quantity" type="number" placeholder="0" className="rounded-xl" />
                           </div>
                         </div>
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="netAmount">Net Amount (KES)</Label>
-                            <Input id="netAmount" type="number" placeholder="0.00" className="rounded-xl" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="vat">VAT (KES)</Label>
-                            <Input id="vat" type="number" placeholder="0.00" className="rounded-xl" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="grossAmount">Gross Amount (KES)</Label>
-                            <Input id="grossAmount" type="number" placeholder="0.00" className="rounded-xl" />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="customerPin">Customer PIN (Optional)</Label>
-                          <Input id="customerPin" placeholder="Enter customer PIN" className="rounded-xl" />
-                        </div>
                       </div>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsAddDialogOpen(false)}
-                          className="rounded-xl transition-all hover:bg-gray-100"
-                        >
+                      <DialogFooter className="flex-col sm:flex-row gap-2">
+                        <Button variant="outline" onClick={() => setIsAddDialogOpen(false)} className="rounded-xl">
                           Cancel
                         </Button>
-                        <Button
-                          onClick={() => setIsAddDialogOpen(false)}
-                          className="rounded-xl transition-all hover:shadow-lg"
-                        >
+                        <Button onClick={() => setIsAddDialogOpen(false)} className="rounded-xl">
                           Add Payment
                         </Button>
                       </DialogFooter>
@@ -267,12 +217,12 @@ export default function PaymentsPage() {
                 </div>
 
                 <Card className="rounded-2xl">
-                  <CardContent className="p-6">
-                    <div className="mb-6 flex items-center justify-between gap-4">
+                  <CardContent className="p-3 md:p-6">
+                    <div className="mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
                       <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
-                          placeholder="Search by Transaction ID, Product, or PIN..."
+                          placeholder="Search..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="pl-10 rounded-xl"
@@ -283,78 +233,57 @@ export default function PaymentsPage() {
                           type="date"
                           value={dateFrom}
                           onChange={(e) => setDateFrom(e.target.value)}
-                          placeholder="From"
-                          className="rounded-xl w-40"
+                          className="rounded-xl w-full md:w-32"
                         />
-                        <span className="text-sm text-muted-foreground">to</span>
+                        <span className="text-sm text-muted-foreground hidden md:inline">to</span>
                         <Input
                           type="date"
                           value={dateTo}
                           onChange={(e) => setDateTo(e.target.value)}
-                          placeholder="To"
-                          className="rounded-xl w-40"
+                          className="rounded-xl w-full md:w-32"
                         />
                       </div>
                     </div>
 
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Transaction ID</TableHead>
-                          <TableHead>Product</TableHead>
-                          <TableHead>Description</TableHead>
-                          <TableHead>Rate</TableHead>
-                          <TableHead>Unit</TableHead>
-                          <TableHead>Quantity</TableHead>
-                          <TableHead>Net Amount</TableHead>
-                          <TableHead>VAT</TableHead>
-                          <TableHead>Gross Amount</TableHead>
-                          <TableHead>Customer PIN</TableHead>
-                          <TableHead className="w-12"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredByDate.map((transaction) => (
-                          <TableRow key={transaction.id}>
-                            <TableCell className="font-medium">{transaction.id}</TableCell>
-                            <TableCell>{transaction.product}</TableCell>
-                            <TableCell>{transaction.description}</TableCell>
-                            <TableCell>{formatCurrency(transaction.rate)}</TableCell>
-                            <TableCell>{transaction.unit}</TableCell>
-                            <TableCell>{transaction.quantity}</TableCell>
-                            <TableCell>{formatCurrency(transaction.netAmount)}</TableCell>
-                            <TableCell>{formatCurrency(transaction.vat)}</TableCell>
-                            <TableCell className="font-semibold">{formatCurrency(transaction.grossAmount)}</TableCell>
-                            <TableCell>{transaction.customerPin || "-"}</TableCell>
-                            <TableCell>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-lg transition-colors hover:bg-gray-200"
-                                  >
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="rounded-xl">
-                                  <DropdownMenuItem className="rounded-lg cursor-pointer">
-                                    View Details
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem className="rounded-lg cursor-pointer">Edit</DropdownMenuItem>
-                                  <DropdownMenuItem className="rounded-lg cursor-pointer">
-                                    Download Receipt
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-red-600 rounded-lg cursor-pointer">
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </TableCell>
+                    <div className="overflow-x-auto -mx-3 md:mx-0">
+                      <Table className="min-w-[600px]">
+                        <TableHeader>
+                          <TableRow className="text-xs md:text-sm">
+                            <TableHead>ID</TableHead>
+                            <TableHead>Product</TableHead>
+                            <TableHead className="hidden md:table-cell">Description</TableHead>
+                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead className="hidden lg:table-cell">PIN</TableHead>
+                            <TableHead className="w-10"></TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredByDate.map((transaction) => (
+                            <TableRow key={transaction.id} className="text-xs md:text-sm">
+                              <TableCell className="font-medium">{transaction.id}</TableCell>
+                              <TableCell>{transaction.product}</TableCell>
+                              <TableCell className="hidden md:table-cell">{transaction.description}</TableCell>
+                              <TableCell className="text-right font-semibold">{formatCurrency(transaction.grossAmount)}</TableCell>
+                              <TableCell className="hidden lg:table-cell">{transaction.customerPin || "-"}</TableCell>
+                              <TableCell>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="rounded-xl">
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer">View Details</DropdownMenuItem>
+                                    <DropdownMenuItem className="rounded-lg cursor-pointer">Edit</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-600 rounded-lg cursor-pointer">Delete</DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

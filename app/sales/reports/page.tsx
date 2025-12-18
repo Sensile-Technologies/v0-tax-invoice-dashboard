@@ -22,6 +22,7 @@ const PAGE_SIZE = 50
 
 export default function SalesReportsPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { formatCurrency } = useCurrency()
   const [sales, setSales] = useState<any[]>([])
   const [nozzles, setNozzles] = useState<any[]>([])
@@ -278,54 +279,59 @@ export default function SalesReportsPage() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
-        <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
+      <div className="flex-1 flex flex-col lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-            <div className="mx-auto max-w-7xl space-y-6">
+          <main className="flex-1 overflow-y-auto bg-slate-50 p-3 md:p-6">
+            <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Sales Reports</h2>
-                <p className="text-slate-600">View and filter sales transactions</p>
+                <h2 className="text-xl md:text-2xl font-bold text-slate-900">Sales Reports</h2>
+                <p className="text-sm md:text-base text-slate-600">View and filter sales transactions</p>
               </div>
 
               <Card className="rounded-2xl">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
+                <CardHeader className="p-3 md:p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div>
-                      <CardTitle>Sales Report</CardTitle>
-                      <CardDescription>Fuel sales transactions with filters and pagination</CardDescription>
+                      <CardTitle className="text-lg md:text-xl">Sales Report</CardTitle>
+                      <CardDescription className="text-sm">Fuel sales transactions with filters and pagination</CardDescription>
                     </div>
-                    <div className="flex flex-wrap gap-2 items-center ml-auto">
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="date-filter" className="text-sm whitespace-nowrap">Date:</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:flex lg:flex-wrap gap-2 items-center">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <Label htmlFor="date-filter" className="text-xs sm:text-sm whitespace-nowrap">Date:</Label>
                         <Input
                           id="date-filter"
                           type="date"
                           value={filters.date}
                           onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-                          className="w-40 h-9"
+                          className="w-full sm:w-32 h-8 text-sm"
                         />
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="invoice-filter" className="text-sm whitespace-nowrap">Invoice:</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <Label htmlFor="invoice-filter" className="text-xs sm:text-sm whitespace-nowrap">Invoice:</Label>
                         <Input
                           id="invoice-filter"
                           type="text"
                           placeholder="Search..."
                           value={filters.invoiceNumber}
                           onChange={(e) => setFilters({ ...filters, invoiceNumber: e.target.value })}
-                          className="w-32 h-9"
+                          className="w-full sm:w-28 h-8 text-sm"
                         />
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="fuel-filter" className="text-sm whitespace-nowrap">Fuel:</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <Label htmlFor="fuel-filter" className="text-xs sm:text-sm whitespace-nowrap">Fuel:</Label>
                         <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
-                          <SelectTrigger id="fuel-filter" className="w-32 h-9">
+                          <SelectTrigger id="fuel-filter" className="w-full sm:w-28 h-8 text-sm">
                             <SelectValue placeholder="All" />
                           </SelectTrigger>
                           <SelectContent>
@@ -337,10 +343,10 @@ export default function SalesReportsPage() {
                         </Select>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="nozzle-filter" className="text-sm whitespace-nowrap">Nozzle:</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <Label htmlFor="nozzle-filter" className="text-xs sm:text-sm whitespace-nowrap">Nozzle:</Label>
                         <Select value={filters.nozzle} onValueChange={(value) => setFilters({ ...filters, nozzle: value })}>
-                          <SelectTrigger id="nozzle-filter" className="w-32 h-9">
+                          <SelectTrigger id="nozzle-filter" className="w-full sm:w-28 h-8 text-sm">
                             <SelectValue placeholder="All" />
                           </SelectTrigger>
                           <SelectContent>
@@ -358,10 +364,10 @@ export default function SalesReportsPage() {
                         </Select>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="payment-filter" className="text-sm whitespace-nowrap">Payment:</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <Label htmlFor="payment-filter" className="text-xs sm:text-sm whitespace-nowrap">Payment:</Label>
                         <Select value={filters.paymentMethod} onValueChange={(value) => setFilters({ ...filters, paymentMethod: value })}>
-                          <SelectTrigger id="payment-filter" className="w-32 h-9">
+                          <SelectTrigger id="payment-filter" className="w-full sm:w-28 h-8 text-sm">
                             <SelectValue placeholder="All" />
                           </SelectTrigger>
                           <SelectContent>
@@ -374,10 +380,10 @@ export default function SalesReportsPage() {
                         </Select>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="doctype-filter" className="text-sm whitespace-nowrap">Type:</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <Label htmlFor="doctype-filter" className="text-xs sm:text-sm whitespace-nowrap">Type:</Label>
                         <Select value={filters.documentType} onValueChange={(value) => setFilters({ ...filters, documentType: value })}>
-                          <SelectTrigger id="doctype-filter" className="w-36 h-9">
+                          <SelectTrigger id="doctype-filter" className="w-full sm:w-32 h-8 text-sm">
                             <SelectValue placeholder="All" />
                           </SelectTrigger>
                           <SelectContent>
@@ -388,10 +394,10 @@ export default function SalesReportsPage() {
                         </Select>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="loyalty-filter" className="text-sm whitespace-nowrap">Loyalty:</Label>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                        <Label htmlFor="loyalty-filter" className="text-xs sm:text-sm whitespace-nowrap">Loyalty:</Label>
                         <Select value={filters.loyalty} onValueChange={(value) => setFilters({ ...filters, loyalty: value })}>
-                          <SelectTrigger id="loyalty-filter" className="w-32 h-9">
+                          <SelectTrigger id="loyalty-filter" className="w-full sm:w-28 h-8 text-sm">
                             <SelectValue placeholder="All" />
                           </SelectTrigger>
                           <SelectContent>
@@ -402,31 +408,31 @@ export default function SalesReportsPage() {
                         </Select>
                       </div>
 
-                      <Button variant="outline" size="sm" onClick={clearFilters}>Clear</Button>
+                      <Button variant="outline" size="sm" onClick={clearFilters} className="col-span-2 sm:col-span-1 h-8">Clear</Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   <div className="space-y-4">
                     {filteredSales.length === 0 ? (
                       <p className="text-sm text-slate-500">
                         {sales.length === 0 ? "No sales recorded yet" : "No sales match the current filters"}
                       </p>
                     ) : (
-                      <div className="overflow-x-auto">
-                        <Table className="w-full">
+                      <div className="overflow-x-auto -mx-3 md:mx-0">
+                        <Table className="w-full min-w-[800px] md:min-w-0">
                           <TableHeader>
-                            <TableRow>
+                            <TableRow className="text-xs md:text-sm">
                               <TableCell className="text-left p-2">Date</TableCell>
-                              <TableCell className="text-left p-2">Invoice No.</TableCell>
-                              <TableCell className="text-left p-2">Nozzle</TableCell>
-                              <TableCell className="text-left p-2">Fuel Type</TableCell>
-                              <TableCell className="text-right p-2">Quantity (L)</TableCell>
-                              <TableCell className="text-right p-2">Unit Price</TableCell>
+                              <TableCell className="text-left p-2">Invoice</TableCell>
+                              <TableCell className="text-left p-2 hidden sm:table-cell">Nozzle</TableCell>
+                              <TableCell className="text-left p-2">Fuel</TableCell>
+                              <TableCell className="text-right p-2">Qty (L)</TableCell>
+                              <TableCell className="text-right p-2 hidden md:table-cell">Unit Price</TableCell>
                               <TableCell className="text-right p-2">Total</TableCell>
-                              <TableCell className="text-center p-2">Payment</TableCell>
-                              <TableCell className="text-center p-2">Loyalty</TableCell>
-                              <TableCell className="text-right p-2">Meter Reading</TableCell>
+                              <TableCell className="text-center p-2 hidden lg:table-cell">Payment</TableCell>
+                              <TableCell className="text-center p-2 hidden lg:table-cell">Loyalty</TableCell>
+                              <TableCell className="text-right p-2 hidden xl:table-cell">Meter</TableCell>
                               <TableCell className="text-center p-2">Status</TableCell>
                               <TableCell className="text-center p-2">Actions</TableCell>
                             </TableRow>
@@ -437,67 +443,65 @@ export default function SalesReportsPage() {
                               const dispenser = nozzle ? dispensers.find((d) => d.id === nozzle.dispenser_id) : null
 
                               return (
-                                <TableRow key={sale.id} className="hover:bg-slate-50">
-                                  <TableCell className="p-2">
+                                <TableRow key={sale.id} className="hover:bg-slate-50 text-xs md:text-sm">
+                                  <TableCell className="p-1 md:p-2">
                                     {new Date(sale.sale_date).toLocaleDateString("en-US", {
                                       month: "short",
                                       day: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
                                     })}
                                   </TableCell>
-                                  <TableCell className="p-2 text-sm font-mono">
-                                    {sale.invoice_number || sale.receipt_number}
+                                  <TableCell className="p-1 md:p-2 font-mono text-xs">
+                                    {(sale.invoice_number || sale.receipt_number || "").slice(-8)}
                                   </TableCell>
-                                  <TableCell className="p-2 text-sm">
+                                  <TableCell className="p-1 md:p-2 hidden sm:table-cell">
                                     {dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "-"}
                                   </TableCell>
-                                  <TableCell className="p-2">{sale.fuel_type}</TableCell>
-                                  <TableCell className="p-2 text-right">{Number(sale.quantity).toFixed(2)}</TableCell>
-                                  <TableCell className="p-2 text-right">{formatCurrency(sale.unit_price)}</TableCell>
-                                  <TableCell className="p-2 text-right font-medium">{formatCurrency(sale.total_amount)}</TableCell>
-                                  <TableCell className="p-2 text-center">
-                                    <Badge variant="outline" className="capitalize">
+                                  <TableCell className="p-1 md:p-2">{sale.fuel_type}</TableCell>
+                                  <TableCell className="p-1 md:p-2 text-right">{Number(sale.quantity).toFixed(2)}</TableCell>
+                                  <TableCell className="p-1 md:p-2 text-right hidden md:table-cell">{formatCurrency(sale.unit_price)}</TableCell>
+                                  <TableCell className="p-1 md:p-2 text-right font-medium">{formatCurrency(sale.total_amount)}</TableCell>
+                                  <TableCell className="p-1 md:p-2 text-center hidden lg:table-cell">
+                                    <Badge variant="outline" className="capitalize text-xs">
                                       {(() => {
                                         const m = (sale.payment_method || "cash").toLowerCase()
-                                        if (m === "mpesa" || m === "m-pesa" || m === "mobile_money") return "Mobile Money"
+                                        if (m === "mpesa" || m === "m-pesa" || m === "mobile_money") return "Mobile"
                                         if (m === "card") return "Card"
                                         if (m === "credit") return "Credit"
                                         return "Cash"
                                       })()}
                                     </Badge>
                                   </TableCell>
-                                  <TableCell className="p-2 text-center">
+                                  <TableCell className="p-1 md:p-2 text-center hidden lg:table-cell">
                                     {sale.is_loyalty_sale && (
                                       <div className="flex items-center justify-center">
-                                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <svg className="w-4 h-4 md:w-5 md:h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                         </svg>
                                       </div>
                                     )}
                                   </TableCell>
-                                  <TableCell className="p-2 text-right font-mono text-sm">{sale.meter_reading_after.toFixed(2)}</TableCell>
-                                  <TableCell className="p-2 text-center">
+                                  <TableCell className="p-1 md:p-2 text-right font-mono text-xs hidden xl:table-cell">{sale.meter_reading_after.toFixed(2)}</TableCell>
+                                  <TableCell className="p-1 md:p-2 text-center">
                                     {sale.kra_status === 'success' ? (
                                       <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                        className="h-7 w-7 md:h-8 md:w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
                                         onClick={() => handlePrintReceipt(sale)}
                                         title="Print KRA Receipt"
                                       >
-                                        <Printer className="h-5 w-5" />
+                                        <Printer className="h-4 w-4 md:h-5 md:w-5" />
                                       </Button>
                                     ) : (
-                                      <Badge variant={getStatusBadgeVariant(sale.kra_status || sale.transmission_status)} className="capitalize">
+                                      <Badge variant={getStatusBadgeVariant(sale.kra_status || sale.transmission_status)} className="capitalize text-xs">
                                         {sale.kra_status || sale.transmission_status || "pending"}
                                       </Badge>
                                     )}
                                   </TableCell>
-                                  <TableCell className="p-2 text-center">
+                                  <TableCell className="p-1 md:p-2 text-center">
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                        <Button variant="ghost" size="icon" className="h-7 w-7 md:h-8 md:w-8">
                                           <MoreVertical className="h-4 w-4" />
                                         </Button>
                                       </DropdownMenuTrigger>
@@ -527,9 +531,9 @@ export default function SalesReportsPage() {
                     )}
 
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-between pt-4 border-t">
-                        <p className="text-sm text-slate-600">
-                          Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount} transactions
+                      <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t gap-3">
+                        <p className="text-xs sm:text-sm text-slate-600 text-center sm:text-left">
+                          Showing {(currentPage - 1) * PAGE_SIZE + 1}-{Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount}
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
@@ -537,21 +541,23 @@ export default function SalesReportsPage() {
                             size="sm"
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(currentPage - 1)}
+                            className="h-8 px-2 sm:px-3"
                           >
-                            <ChevronLeft className="h-4 w-4 mr-1" />
-                            Previous
+                            <ChevronLeft className="h-4 w-4" />
+                            <span className="hidden sm:inline ml-1">Previous</span>
                           </Button>
-                          <span className="text-sm text-slate-600">
-                            Page {currentPage} of {totalPages}
+                          <span className="text-xs sm:text-sm text-slate-600">
+                            {currentPage}/{totalPages}
                           </span>
                           <Button
                             variant="outline"
                             size="sm"
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage(currentPage + 1)}
+                            className="h-8 px-2 sm:px-3"
                           >
-                            Next
-                            <ChevronRight className="h-4 w-4 ml-1" />
+                            <span className="hidden sm:inline mr-1">Next</span>
+                            <ChevronRight className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>

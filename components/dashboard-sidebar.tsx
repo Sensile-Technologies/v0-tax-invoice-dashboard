@@ -24,6 +24,7 @@ import {
   Leaf,
   ChevronDown,
   Settings,
+  X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -34,9 +35,18 @@ interface DashboardSidebarProps {
   onToggle: () => void
   isHeadquarters?: boolean
   transparent?: boolean
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
-const regularNavigationItems = [
+type NavigationItem = {
+  icon: React.ComponentType<{ className?: string }>
+  label: string
+  href: string
+  hasDropdown?: boolean
+}
+
+const regularNavigationItems: NavigationItem[] = [
   { icon: ShoppingCart, label: "Sales", href: "/sales", hasDropdown: true },
   { icon: ShoppingBag, label: "Purchases", href: "/purchases" },
   { icon: Package, label: "Inventory", href: "/inventory" },
@@ -49,7 +59,7 @@ const regularNavigationItems = [
   { icon: Settings, label: "Configuration", href: "/configuration", hasDropdown: true },
 ]
 
-const headquartersNavigationItems = [
+const headquartersNavigationItems: NavigationItem[] = [
   { icon: LayoutDashboard, label: "Overview", href: "/headquarters" },
   { icon: TrendingUp, label: "Performance", href: "/headquarters/performance" },
   { icon: BarChart3, label: "Analytics", href: "/headquarters/analytics" },
@@ -64,6 +74,8 @@ export function DashboardSidebar({
   onToggle,
   isHeadquarters = false,
   transparent = false,
+  mobileOpen = false,
+  onMobileClose,
 }: DashboardSidebarProps) {
   const pathname = usePathname()
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({})
@@ -76,14 +88,30 @@ export function DashboardSidebar({
     }))
   }
 
+  const handleLinkClick = () => {
+    if (onMobileClose) {
+      onMobileClose()
+    }
+  }
+
   return (
-    <aside
-      className={cn(
-        "relative flex flex-col text-white transition-all duration-300 min-h-screen",
-        transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-white",
-        collapsed ? "w-16" : "w-64",
+    <>
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onMobileClose}
+        />
       )}
-    >
+      <aside
+        className={cn(
+          "flex flex-col text-white transition-all duration-300 min-h-screen z-50",
+          transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-white",
+          "fixed lg:relative",
+          "lg:translate-x-0",
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          collapsed ? "w-16" : "w-64",
+        )}
+      >
       <div className="flex h-16 items-center justify-between px-4">
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
@@ -522,11 +550,23 @@ export function DashboardSidebar({
         variant="ghost"
         size="icon"
         onClick={onToggle}
-        className="absolute right-2 top-5 h-6 w-6 rounded-full bg-white/20 hover:bg-white/30 text-white"
+        className="absolute right-2 top-5 h-6 w-6 rounded-full bg-white/20 hover:bg-white/30 text-white hidden lg:flex"
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>
+
+      {mobileOpen && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMobileClose}
+          className="absolute right-2 top-5 h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 text-white lg:hidden"
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      )}
     </aside>
+    </>
   )
 }
 

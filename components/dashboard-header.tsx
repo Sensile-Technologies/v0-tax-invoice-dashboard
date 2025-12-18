@@ -14,6 +14,7 @@ import {
   Mail,
   Shield,
   FileText,
+  Menu,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -36,12 +37,14 @@ interface DashboardHeaderProps {
   currentBranch?: string
   onBranchChange?: (branchId: string) => void
   showSearch?: boolean
+  onMobileMenuToggle?: () => void
 }
 
 export function DashboardHeader({
   currentBranch = "nairobi",
   onBranchChange,
   showSearch = false,
+  onMobileMenuToggle,
 }: DashboardHeaderProps) {
   const [selectedBranch, setSelectedBranch] = useState(currentBranch)
   const [branches, setBranches] = useState([{ id: "hq", name: "Headquarters", type: "headquarters" }])
@@ -127,13 +130,23 @@ export function DashboardHeader({
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
-      <div className="flex flex-1 items-center gap-4">
+    <header className="flex h-16 items-center justify-between border-b bg-card px-3 md:px-6">
+      <div className="flex flex-1 items-center gap-2 md:gap-4">
+        {onMobileMenuToggle && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onMobileMenuToggle}
+            className="lg:hidden h-9 w-9"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        )}
         <div className="flex items-center gap-2">
-          <Image src="/flow360-logo.png" alt="Flow360 Logo" width={28} height={28} className="rounded-lg" />
+          <Image src="/flow360-logo.png" alt="Flow360 Logo" width={28} height={28} className="rounded-lg hidden sm:block" />
           <div className="flex flex-col">
-            <span className="text-sm text-muted-foreground">Welcome back, {userName}</span>
-            <span className="text-lg font-bold">{currentBranchName}</span>
+            <span className="text-xs md:text-sm text-muted-foreground hidden sm:block">Welcome back, {userName}</span>
+            <span className="text-sm md:text-lg font-bold truncate max-w-[120px] sm:max-w-none">{currentBranchName}</span>
           </div>
         </div>
         {showSearch && (
