@@ -270,7 +270,7 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
           pkgUnitCd: pkgUnitCd,
           pkg: 1,
           qtyUnitCd: qtyUnitCd,
-          qty: qty,
+          qty: parseFloat(qty.toFixed(2)),
           prc: prc,
           splyAmt: toFixed2(qty),
           dcRt: 0.0,

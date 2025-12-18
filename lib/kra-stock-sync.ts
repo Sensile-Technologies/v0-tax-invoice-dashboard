@@ -109,7 +109,7 @@ async function callSaveStockItems(
       pkgUnitCd: item.packageUnit || "NT",
       pkg: Math.ceil(item.quantity),
       qtyUnitCd: item.quantityUnit || "LTR",
-      qty: item.quantity,
+      qty: parseFloat(item.quantity.toFixed(2)),
       itemExprDt: null,
       prc: item.unitPrice,
       splyAmt: toFixed2(splyAmt),
