@@ -7,6 +7,12 @@ import "./globals.css"
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export const metadata: Metadata = {
   title: "Flow360 - Tax Invoice Management",
   description: "Professional tax invoice management system powered by Sensile Technologies East Africa Ltd",

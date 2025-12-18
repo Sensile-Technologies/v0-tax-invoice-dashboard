@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 
 export default function RegisterCustomerPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploadingCsv, setUploadingCsv] = useState(false)
   const [branches, setBranches] = useState<any[]>([])
@@ -290,20 +291,25 @@ P051234568B,Another Customer,another@example.com,+254 700 000001,456 Oak Avenue,
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
-        <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto p-8">
-            <div className="flex items-center justify-between mb-6">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-balance">Register Customer</h1>
-                <p className="mt-1 text-muted-foreground text-pretty">Add a new customer to your database</p>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">Register Customer</h1>
+                <p className="mt-1 text-sm text-muted-foreground text-pretty">Add a new customer to your database</p>
               </div>
-              <div className="relative w-96">
+              <div className="relative w-full sm:w-72 md:w-96">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input placeholder="Search customers..." className="pl-10 rounded-xl" />
               </div>

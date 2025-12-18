@@ -52,6 +52,7 @@ const sampleImports = [
 
 export default function ImportsPage() {
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
 
   const filteredImports = sampleImports.filter((item) =>
@@ -59,21 +60,26 @@ export default function ImportsPage() {
   )
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+      <DashboardSidebar 
+        collapsed={collapsed} 
+        onToggle={() => setCollapsed(!collapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
-        <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-            <div className="mx-auto max-w-7xl space-y-6">
-            <div className="flex items-center justify-between gap-4">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-3 md:p-6">
+            <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight text-balance">Import List</h1>
-                <p className="text-muted-foreground text-pretty">Manage your import declarations</p>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">Import List</h1>
+                <p className="text-sm text-muted-foreground text-pretty">Manage your import declarations</p>
               </div>
-              <div className="relative w-full max-w-xs">
+              <div className="relative w-full sm:max-w-xs">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"

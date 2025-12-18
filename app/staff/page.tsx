@@ -61,7 +61,7 @@ export default function BranchStaffPage() {
   )
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardSidebar 
         collapsed={sidebarCollapsed} 
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
@@ -69,11 +69,11 @@ export default function BranchStaffPage() {
         onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
         <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
           <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto p-3 md:p-8">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">Branch Staff</h1>

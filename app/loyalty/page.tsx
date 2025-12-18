@@ -45,6 +45,7 @@ const earningRules = [
 
 export default function LoyaltyPage() {
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [dateRange, setDateRange] = useState({ from: "", to: "" })
   const [searchTerm, setSearchTerm] = useState("")
   const { formatCurrency } = useCurrency()
@@ -140,8 +141,7 @@ export default function LoyaltyPage() {
   )
 
   return (
-    <div className="flex h-screen overflow-hidden relative">
-      {/* Forest background */}
+    <div className="flex min-h-screen w-full overflow-x-hidden relative">
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -152,40 +152,45 @@ export default function LoyaltyPage() {
         }}
       />
 
-      {/* Sidebar with transparent background */}
       <div className="relative z-10">
-        <DashboardSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} transparent={true} />
+        <DashboardSidebar 
+          collapsed={collapsed} 
+          onToggle={() => setCollapsed(!collapsed)} 
+          transparent={true}
+          mobileOpen={mobileMenuOpen}
+          onMobileClose={() => setMobileMenuOpen(false)}
+        />
       </div>
 
-      {/* Main content area matching sales page structure */}
-      <div className="flex flex-1 flex-col overflow-hidden -ml-6 mt-6 bg-white rounded-tl-3xl shadow-2xl z-10">
-        <DashboardHeader />
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6 relative z-10">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-          <div className="mx-auto max-w-7xl space-y-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green-500">
-                  <Leaf className="h-6 w-6 text-white" />
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-3 md:p-6">
+            <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-xl bg-green-500">
+                    <Leaf className="h-5 w-5 md:h-6 md:w-6 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl md:text-3xl font-bold tracking-tight text-balance">Tuzwa Loyalty Program</h1>
+                    <p className="text-sm text-muted-foreground text-pretty">
+                      Manage rewards, track engagement, and grow customer loyalty
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold tracking-tight text-balance">Tuzwa Loyalty Program</h1>
-                  <p className="text-muted-foreground text-pretty">
-                    Manage rewards, track engagement, and grow customer loyalty
-                  </p>
+                <div className="relative w-full md:max-w-xs">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    type="search"
+                    placeholder="Search customers..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 rounded-xl"
+                  />
                 </div>
               </div>
-              <div className="relative w-full max-w-xs">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search customers..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 rounded-xl"
-                />
-              </div>
-            </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               <Card className="rounded-2xl">

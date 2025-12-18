@@ -608,17 +608,19 @@ export function SalesContent() {
     : "Unknown"
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Sales</h2>
-          <p className="text-slate-600">Record fuel sales and manage transactions</p>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900">Sales</h2>
+          <p className="text-sm text-slate-600">Record fuel sales and manage transactions</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                Shift Management <ChevronDown className="ml-2 h-4 w-4" />
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+                <span className="hidden sm:inline">Shift Management</span>
+                <span className="sm:hidden">Shifts</span>
+                <ChevronDown className="ml-1 sm:ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -631,9 +633,10 @@ export function SalesContent() {
               <DropdownMenuItem>Configure Automatic Shifts</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => setShowSaleDialog(true)} disabled={!currentShift}>
-            <Plus className="h-4 w-4 mr-2" />
-            Record Sale
+          <Button onClick={() => setShowSaleDialog(true)} disabled={!currentShift} size="sm" className="text-xs sm:text-sm">
+            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Record Sale</span>
+            <span className="sm:hidden">Sale</span>
           </Button>
         </div>
       </div>
@@ -974,15 +977,15 @@ export function SalesContent() {
       )}
 
       <Card className="rounded-2xl">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-4">
             <div>
               <CardTitle>Sales Report</CardTitle>
               <CardDescription>Latest fuel sales transactions</CardDescription>
             </div>
-            <div className="flex flex-wrap gap-2 items-center ml-auto">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="date-filter" className="text-sm whitespace-nowrap">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap gap-2 items-end">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="date-filter" className="text-xs text-muted-foreground">
                   Date:
                 </Label>
                 <Input
@@ -990,12 +993,12 @@ export function SalesContent() {
                   type="date"
                   value={filters.date}
                   onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-                  className="w-40 h-9"
+                  className="w-full md:w-36 h-9"
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label htmlFor="invoice-filter" className="text-sm whitespace-nowrap">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="invoice-filter" className="text-xs text-muted-foreground">
                   Invoice:
                 </Label>
                 <Input
@@ -1004,16 +1007,16 @@ export function SalesContent() {
                   placeholder="Search..."
                   value={filters.invoiceNumber}
                   onChange={(e) => setFilters({ ...filters, invoiceNumber: e.target.value })}
-                  className="w-32 h-9"
+                  className="w-full md:w-28 h-9"
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label htmlFor="fuel-filter" className="text-sm whitespace-nowrap">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="fuel-filter" className="text-xs text-muted-foreground">
                   Fuel:
                 </Label>
                 <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
-                  <SelectTrigger id="fuel-filter" className="w-32 h-9">
+                  <SelectTrigger id="fuel-filter" className="w-full md:w-28 h-9">
                     <SelectValue placeholder="All" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1027,12 +1030,12 @@ export function SalesContent() {
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label htmlFor="nozzle-filter" className="text-sm whitespace-nowrap">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="nozzle-filter" className="text-xs text-muted-foreground">
                   Nozzle:
                 </Label>
                 <Select value={filters.nozzle} onValueChange={(value) => setFilters({ ...filters, nozzle: value })}>
-                  <SelectTrigger id="nozzle-filter" className="w-32 h-9">
+                  <SelectTrigger id="nozzle-filter" className="w-full md:w-28 h-9">
                     <SelectValue placeholder="All" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1050,12 +1053,12 @@ export function SalesContent() {
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Label htmlFor="loyalty-filter" className="text-sm whitespace-nowrap">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="loyalty-filter" className="text-xs text-muted-foreground">
                   Loyalty:
                 </Label>
                 <Select value={filters.loyalty} onValueChange={(value) => setFilters({ ...filters, loyalty: value })}>
-                  <SelectTrigger id="loyalty-filter" className="w-32 h-9">
+                  <SelectTrigger id="loyalty-filter" className="w-full md:w-28 h-9">
                     <SelectValue placeholder="All" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1069,6 +1072,7 @@ export function SalesContent() {
               <Button
                 variant="outline"
                 size="sm"
+                className="h-9 self-end"
                 onClick={() => setFilters({ date: "", invoiceNumber: "", fuelType: "", nozzle: "", loyalty: "all" })}
               >
                 Clear
