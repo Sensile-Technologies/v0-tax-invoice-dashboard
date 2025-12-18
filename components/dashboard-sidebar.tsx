@@ -105,7 +105,7 @@ export function DashboardSidebar({
       <aside
         className={cn(
           "flex flex-col text-white transition-transform duration-300 ease-in-out min-h-screen",
-          transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 via-blue-900 to-slate-700",
+          transparent ? "bg-transparent" : "bg-gradient-to-b from-slate-900 to-white",
           "fixed lg:relative top-0 left-0 h-full",
           "lg:translate-x-0 z-50",
           mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
