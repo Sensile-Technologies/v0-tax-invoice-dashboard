@@ -1,5 +1,6 @@
 import { query } from "@/lib/db"
 import { logApiCall } from "@/lib/api-logger"
+import { syncStockAfterSale, syncStockAfterCreditNote } from "@/lib/kra-stock-sync"
 
 const KRA_BASE_URL = "http://20.224.40.56:8088"
 
@@ -351,6 +352,31 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
 
     const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
     
+    if (isSuccess) {
+      console.log(`[KRA Sales API] saveSales successful, now syncing stock with KRA`)
+      
+      try {
+        const stockSyncResult = await syncStockAfterSale(saleData.branch_id, [{
+          itemCode: itemCd,
+          itemClassCode: itemClsCd,
+          itemName: itemNm,
+          packageUnit: pkgUnitCd,
+          quantityUnit: qtyUnitCd,
+          quantity: qty,
+          unitPrice: prc,
+          taxType: taxTyCd
+        }])
+        
+        if (stockSyncResult.success) {
+          console.log(`[KRA Sales API] Stock sync completed successfully`)
+        } else {
+          console.log(`[KRA Sales API] Stock sync failed: ${stockSyncResult.error}`)
+        }
+      } catch (stockError: any) {
+        console.error(`[KRA Sales API] Error during stock sync:`, stockError.message)
+      }
+    }
+    
     return {
       success: isSuccess,
       kraResponse
@@ -607,6 +633,33 @@ export async function callKraCreditNote(creditNoteData: CreditNoteData): Promise
     })
 
     const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
+    
+    if (isSuccess) {
+      console.log(`[KRA Credit Note API] saveSales successful for credit note, now syncing stock with KRA`)
+      
+      try {
+        const stockItems = creditNoteData.items.map(item => ({
+          itemCode: item.item_code,
+          itemClassCode: item.item_class_code,
+          itemName: item.item_name,
+          packageUnit: item.package_unit,
+          quantityUnit: item.quantity_unit,
+          quantity: item.quantity,
+          unitPrice: item.price,
+          taxType: item.tax_type
+        }))
+        
+        const stockSyncResult = await syncStockAfterCreditNote(creditNoteData.branch_id, stockItems)
+        
+        if (stockSyncResult.success) {
+          console.log(`[KRA Credit Note API] Stock sync completed successfully for credit note`)
+        } else {
+          console.log(`[KRA Credit Note API] Stock sync failed for credit note: ${stockSyncResult.error}`)
+        }
+      } catch (stockError: any) {
+        console.error(`[KRA Credit Note API] Error during stock sync for credit note:`, stockError.message)
+      }
+    }
     
     return {
       success: isSuccess,
