@@ -615,5 +615,6 @@ export default function LoyaltyPage() {
         </main>
       </div>
     </div>
+    </div>
   )
 }
