@@ -1,0 +1,3 @@
+module.exports=[60585,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"flex h-screen items-center justify-center",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto"}),(0,b.jsx)("p",{className:"mt-4 text-muted-foreground",children:"Loading staff..."})]})})}a.s(["default",()=>c])}];
+
+//# sourceMappingURL=app_staff_loading_tsx_e6afd847._.js.map

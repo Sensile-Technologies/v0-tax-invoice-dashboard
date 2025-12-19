@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/headquarters/layout,_N_T_/headquarters/staff-management/layout,_N_T_/headquarters/staff-management/page,_N_T_/headquarters/staff-management"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/headquarters/staff-management/__PAGE__",
+    "/headquarters/staff-management",
+    "/headquarters",
+    "/_index",
+    "/_head"
+  ]
+}

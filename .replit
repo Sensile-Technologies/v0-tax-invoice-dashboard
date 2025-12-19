@@ -45,6 +45,10 @@ task = "shell.exec"
 args = "cd mobile && EXPO_NO_PROMPT=1 npx expo start --tunnel --non-interactive"
 
 [[ports]]
+localPort = 3001
+externalPort = 3000
+
+[[ports]]
 localPort = 5000
 externalPort = 80
 
@@ -57,9 +61,9 @@ localPort = 8082
 externalPort = 3001
 
 [deployment]
-deploymentTarget = "vm"
+deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["node", "scripts/start.js"]
+run = ["node", ".next/standalone/server.js"]
 
 [userenv]
 

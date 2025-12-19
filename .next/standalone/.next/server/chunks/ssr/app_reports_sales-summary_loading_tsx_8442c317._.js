@@ -1,0 +1,3 @@
+module.exports=[18474,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"flex h-screen items-center justify-center",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"}),(0,b.jsx)("p",{className:"mt-4 text-slate-600",children:"Loading sales summary..."})]})})}a.s(["default",()=>c])}];
+
+//# sourceMappingURL=app_reports_sales-summary_loading_tsx_8442c317._.js.map
