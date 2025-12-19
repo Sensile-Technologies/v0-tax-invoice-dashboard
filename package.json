@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
+    "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
     "start": "node scripts/start.js"
