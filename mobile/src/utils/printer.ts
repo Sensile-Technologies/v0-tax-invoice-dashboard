@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import QRCode from 'qrcode';
 
 export interface InvoiceItem {
   name: string;
@@ -33,6 +34,12 @@ export interface InvoiceData {
   cuSerialNumber?: string;
   receiptSignature?: string;
   qrCodeData?: string;
+  controlCode?: string;
+  invoiceDate?: string;
+  invoiceTime?: string;
+  mrcNo?: string;
+  rcptSign?: string;
+  intrlData?: string;
 }
 
 export type PrinterType = 'pdf';
@@ -54,11 +61,33 @@ class PrinterService {
     return `KES ${amount.toFixed(2)}`;
   }
 
+  async generateQRCodeBase64(data: string): Promise<string> {
+    try {
+      const qrDataUrl = await QRCode.toDataURL(data, {
+        width: 120,
+        margin: 1,
+        errorCorrectionLevel: 'M',
+      });
+      return qrDataUrl;
+    } catch (error) {
+      console.error('[PrinterService] QR generation error:', error);
+      return '';
+    }
+  }
+
   async printInvoice(invoice: InvoiceData): Promise<{ success: boolean; message: string }> {
     console.log('[PrinterService] Generating PDF receipt...');
     
     try {
-      const html = this.generateReceiptHtml(invoice);
+      let qrCodeBase64 = '';
+      if (invoice.qrCodeData) {
+        qrCodeBase64 = await this.generateQRCodeBase64(invoice.qrCodeData);
+      } else if (invoice.receiptSignature) {
+        const qrData = `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
+        qrCodeBase64 = await this.generateQRCodeBase64(qrData);
+      }
+
+      const html = this.generateReceiptHtml(invoice, qrCodeBase64);
       
       const { uri } = await Print.printToFileAsync({
         html,
@@ -94,23 +123,25 @@ class PrinterService {
     }
   }
 
-  private generateReceiptHtml(invoice: InvoiceData): string {
+  private generateReceiptHtml(invoice: InvoiceData, qrCodeBase64: string): string {
     const itemsHtml = invoice.items.map(item => {
       const lineTotal = item.quantity * item.unitPrice;
-      const discountHtml = item.discount && item.discount > 0 
-        ? `<div style="font-size: 10px; color: #666; padding-left: 10px;">Discount: -${this.formatCurrency(item.discount)}</div>`
-        : '';
-      
       return `
         <tr>
-          <td style="padding: 3px 0; font-size: 11px;">${item.name}</td>
-          <td style="text-align: center; font-size: 11px;">${item.quantity.toFixed(2)}</td>
-          <td style="text-align: right; font-size: 11px;">${this.formatCurrency(item.unitPrice)}</td>
-          <td style="text-align: right; font-size: 11px;">${this.formatCurrency(lineTotal)}</td>
+          <td style="font-size: 7px; padding: 1px 0;">${item.name}</td>
+          <td style="text-align: right; font-size: 7px;">${item.quantity.toFixed(2)}</td>
+          <td style="text-align: right; font-size: 7px;">${item.unitPrice.toFixed(2)}</td>
+          <td style="text-align: right; font-size: 7px;">${lineTotal.toFixed(2)}</td>
         </tr>
-        ${discountHtml ? `<tr><td colspan="4">${discountHtml}</td></tr>` : ''}
       `;
     }).join('');
+
+    const qrHtml = qrCodeBase64 ? `
+      <div style="text-align: center; margin: 4px 0;">
+        <img src="${qrCodeBase64}" style="width: 80px; height: 80px;" />
+        <div style="font-size: 5px; margin-top: 2px;">Scan to verify on KRA</div>
+      </div>
+    ` : '';
 
     return `
       <!DOCTYPE html>
@@ -120,51 +151,55 @@ class PrinterService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
           @page {
-            size: 80mm auto;
+            size: 57mm auto;
             margin: 0;
+          }
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
           }
           body {
             font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
-            line-height: 1.3;
-            width: 72mm;
-            margin: 4mm auto;
+            font-size: 7px;
+            line-height: 1.2;
+            width: 54mm;
+            margin: 1.5mm auto;
             padding: 0;
             color: #000;
           }
           .header {
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 3px;
             border-bottom: 1px dashed #000;
-            padding-bottom: 8px;
+            padding-bottom: 3px;
           }
           .header h1 {
-            font-size: 18px;
-            margin: 0 0 4px 0;
+            font-size: 10px;
+            margin: 0;
             font-weight: bold;
-            letter-spacing: 2px;
           }
           .header h2 {
-            font-size: 12px;
-            margin: 2px 0;
+            font-size: 7px;
+            margin: 1px 0;
             font-weight: normal;
           }
           .divider {
             border-top: 1px dashed #000;
-            margin: 6px 0;
+            margin: 3px 0;
           }
-          .info-row {
+          .row {
             display: flex;
             justify-content: space-between;
-            margin: 2px 0;
-            font-size: 11px;
+            font-size: 6px;
+            margin: 1px 0;
           }
           .tax-invoice {
             text-align: center;
             font-weight: bold;
-            font-size: 14px;
-            margin: 8px 0;
-            padding: 4px;
+            font-size: 8px;
+            margin: 3px 0;
+            padding: 2px;
             border: 1px solid #000;
           }
           table {
@@ -173,44 +208,45 @@ class PrinterService {
           }
           th {
             text-align: left;
-            font-size: 10px;
+            font-size: 6px;
             border-bottom: 1px solid #000;
-            padding: 3px 0;
-          }
-          .totals {
-            margin-top: 8px;
+            padding: 1px 0;
           }
           .totals .row {
-            display: flex;
-            justify-content: space-between;
-            margin: 2px 0;
-            font-size: 11px;
+            font-size: 6px;
           }
           .totals .grand-total {
-            font-size: 14px;
+            font-size: 9px;
             font-weight: bold;
-            margin: 6px 0;
-            padding: 4px 0;
+            margin: 2px 0;
+            padding: 2px 0;
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
           }
           .kra-section {
-            margin-top: 8px;
-            padding: 6px;
+            margin-top: 3px;
+            padding: 3px;
             background: #f5f5f5;
-            font-size: 10px;
+            font-size: 5px;
           }
           .kra-title {
             font-weight: bold;
             text-align: center;
-            margin-bottom: 4px;
-            font-size: 11px;
+            margin-bottom: 2px;
+            font-size: 6px;
+          }
+          .kra-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 5px;
+            margin: 1px 0;
+            word-break: break-all;
           }
           .footer {
             text-align: center;
-            margin-top: 12px;
-            font-size: 10px;
-            padding-top: 8px;
+            margin-top: 4px;
+            font-size: 6px;
+            padding-top: 3px;
             border-top: 1px dashed #000;
           }
         </style>
@@ -219,14 +255,14 @@ class PrinterService {
         <div class="header">
           <h1>FLOW360</h1>
           <h2>${invoice.branchName}</h2>
-          ${invoice.branchAddress ? `<div style="font-size: 10px;">${invoice.branchAddress}</div>` : ''}
+          ${invoice.branchAddress ? `<div style="font-size: 6px;">${invoice.branchAddress}</div>` : ''}
         </div>
         
-        <div class="info-row"><span>Invoice:</span><span><b>${invoice.invoiceNumber}</b></span></div>
-        <div class="info-row"><span>Date:</span><span>${invoice.date} ${invoice.time}</span></div>
-        <div class="info-row"><span>Cashier:</span><span>${invoice.cashierName}</span></div>
-        ${invoice.customerName ? `<div class="info-row"><span>Customer:</span><span>${invoice.customerName}</span></div>` : ''}
-        ${invoice.customerPin ? `<div class="info-row"><span>PIN:</span><span>${invoice.customerPin}</span></div>` : ''}
+        <div class="row"><span>Invoice:</span><span><b>${invoice.invoiceNumber}</b></span></div>
+        <div class="row"><span>Date:</span><span>${invoice.date} ${invoice.time}</span></div>
+        <div class="row"><span>Cashier:</span><span>${invoice.cashierName}</span></div>
+        ${invoice.customerName ? `<div class="row"><span>Customer:</span><span>${invoice.customerName}</span></div>` : ''}
+        ${invoice.customerPin ? `<div class="row"><span>PIN:</span><span>${invoice.customerPin}</span></div>` : ''}
         
         <div class="tax-invoice">TAX INVOICE</div>
         
@@ -234,9 +270,9 @@ class PrinterService {
           <thead>
             <tr>
               <th>Item</th>
-              <th style="text-align: center;">Qty</th>
+              <th style="text-align: right;">Qty</th>
               <th style="text-align: right;">Price</th>
-              <th style="text-align: right;">Amount</th>
+              <th style="text-align: right;">Amt</th>
             </tr>
           </thead>
           <tbody>
@@ -249,27 +285,31 @@ class PrinterService {
         <div class="totals">
           <div class="row"><span>Subtotal:</span><span>${this.formatCurrency(invoice.subtotal)}</span></div>
           ${invoice.totalDiscount > 0 ? `<div class="row"><span>Discount:</span><span>-${this.formatCurrency(invoice.totalDiscount)}</span></div>` : ''}
-          <div class="row"><span>Taxable Amount:</span><span>${this.formatCurrency(invoice.taxableAmount)}</span></div>
-          <div class="row"><span>VAT (16%):</span><span>${this.formatCurrency(invoice.totalTax)}</span></div>
+          <div class="row"><span>Taxable:</span><span>${this.formatCurrency(invoice.taxableAmount)}</span></div>
+          <div class="row"><span>VAT 16%:</span><span>${this.formatCurrency(invoice.totalTax)}</span></div>
           <div class="row grand-total"><span>TOTAL:</span><span>${this.formatCurrency(invoice.grandTotal)}</span></div>
         </div>
         
-        <div class="divider"></div>
-        
-        <div class="info-row"><span>Payment:</span><span><b>${invoice.paymentMethod}</b></span></div>
-        ${invoice.amountPaid !== undefined ? `<div class="info-row"><span>Amount Paid:</span><span>${this.formatCurrency(invoice.amountPaid)}</span></div>` : ''}
-        ${invoice.change !== undefined && invoice.change > 0 ? `<div class="info-row"><span>Change:</span><span>${this.formatCurrency(invoice.change)}</span></div>` : ''}
+        <div class="row"><span>Payment:</span><span><b>${invoice.paymentMethod}</b></span></div>
+        ${invoice.amountPaid !== undefined ? `<div class="row"><span>Paid:</span><span>${this.formatCurrency(invoice.amountPaid)}</span></div>` : ''}
+        ${invoice.change !== undefined && invoice.change > 0 ? `<div class="row"><span>Change:</span><span>${this.formatCurrency(invoice.change)}</span></div>` : ''}
         
         <div class="kra-section">
           <div class="kra-title">KRA TIMS DETAILS</div>
-          ${invoice.kraPin ? `<div class="info-row"><span>KRA PIN:</span><span>${invoice.kraPin}</span></div>` : ''}
-          ${invoice.cuSerialNumber ? `<div class="info-row"><span>CU S/N:</span><span>${invoice.cuSerialNumber}</span></div>` : ''}
-          ${invoice.receiptSignature ? `<div class="info-row"><span>Signature:</span><span style="font-size: 9px;">${invoice.receiptSignature.substring(0, 24)}...</span></div>` : ''}
+          ${invoice.kraPin ? `<div class="kra-row"><span>KRA PIN:</span><span>${invoice.kraPin}</span></div>` : ''}
+          ${invoice.cuSerialNumber ? `<div class="kra-row"><span>CU S/N:</span><span>${invoice.cuSerialNumber}</span></div>` : ''}
+          ${invoice.mrcNo ? `<div class="kra-row"><span>MRC No:</span><span>${invoice.mrcNo}</span></div>` : ''}
+          ${invoice.controlCode ? `<div class="kra-row"><span>Control:</span><span>${invoice.controlCode}</span></div>` : ''}
+          ${invoice.rcptSign ? `<div class="kra-row"><span>Sign:</span><span style="font-size: 4px;">${invoice.rcptSign.substring(0, 32)}...</span></div>` : 
+            (invoice.receiptSignature ? `<div class="kra-row"><span>Sign:</span><span style="font-size: 4px;">${invoice.receiptSignature.substring(0, 32)}...</span></div>` : '')}
+          ${invoice.intrlData ? `<div class="kra-row"><span>Data:</span><span style="font-size: 4px;">${invoice.intrlData.substring(0, 20)}...</span></div>` : ''}
         </div>
+        
+        ${qrHtml}
         
         <div class="footer">
           <div>Thank you for your business!</div>
-          <div style="margin-top: 4px; font-weight: bold;">Powered by Flow360</div>
+          <div style="margin-top: 2px; font-weight: bold;">Powered by Flow360</div>
         </div>
       </body>
       </html>
@@ -289,22 +329,24 @@ class PrinterService {
           name: 'Diesel',
           quantity: 50,
           unitPrice: 180.00,
-          discount: 5,
-          discountType: 'percentage',
           taxRate: 16
         }
       ],
       subtotal: 9000.00,
-      totalDiscount: 450.00,
-      taxableAmount: 7370.69,
-      totalTax: 1179.31,
-      grandTotal: 8550.00,
+      totalDiscount: 0,
+      taxableAmount: 7758.62,
+      totalTax: 1241.38,
+      grandTotal: 9000.00,
       paymentMethod: 'Cash',
       amountPaid: 9000.00,
-      change: 450.00,
+      change: 0,
       kraPin: 'P000000000A',
       cuSerialNumber: 'CU123456789',
-      receiptSignature: 'ABC123DEF456GHI789JKL012MNO'
+      mrcNo: 'MRC-001',
+      controlCode: 'CTL-12345',
+      rcptSign: 'ABC123DEF456GHI789JKL012MNO345PQR678STU',
+      intrlData: 'ABCD1234EFGH5678IJKL',
+      qrCodeData: 'https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=TEST-001'
     };
 
     return this.printInvoice(testInvoice);

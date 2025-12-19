@@ -9,16 +9,19 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
+  Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { sunmiPrinter, InvoiceData } from '../utils/printer'
 
 interface SaleInvoice {
   id: string
   invoice_number: string
   customer_name: string
+  customer_pin?: string
   sale_date: string
   fuel_type: string
   quantity: number
@@ -26,6 +29,18 @@ interface SaleInvoice {
   total_amount: number
   payment_method: string
   status: string
+  kra_pin?: string
+  cu_serial_number?: string
+  receipt_signature?: string
+  control_code?: string
+  mrc_no?: string
+  intrl_data?: string
+  branch_name?: string
+  branch_address?: string
+  cashier_name?: string
+  tax_amount?: number
+  taxable_amount?: number
+  discount_amount?: number
 }
 
 type DateFilter = 'today' | 'week' | 'month' | 'all' | 'custom'
@@ -40,6 +55,57 @@ export default function InvoicesScreen({ navigation }: any) {
   const [showDateFilter, setShowDateFilter] = useState(false)
   const [customDateFrom, setCustomDateFrom] = useState('')
   const [customDateTo, setCustomDateTo] = useState('')
+  const [printingId, setPrintingId] = useState<string | null>(null)
+
+  const handleReprintInvoice = async (invoice: SaleInvoice) => {
+    setPrintingId(invoice.id)
+    try {
+      const saleDate = new Date(invoice.sale_date)
+      const invoiceData: InvoiceData = {
+        invoiceNumber: invoice.invoice_number || `SALE-${invoice.id.slice(0, 8)}`,
+        date: saleDate.toLocaleDateString('en-KE'),
+        time: saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }),
+        branchName: invoice.branch_name || user?.branch_name || 'Flow360 Station',
+        branchAddress: invoice.branch_address,
+        customerName: invoice.customer_name || 'Walk-in Customer',
+        customerPin: invoice.customer_pin,
+        cashierName: invoice.cashier_name || user?.name || 'Cashier',
+        items: [
+          {
+            name: invoice.fuel_type,
+            quantity: invoice.quantity,
+            unitPrice: invoice.unit_price,
+            taxRate: 16,
+          },
+        ],
+        subtotal: invoice.total_amount,
+        totalDiscount: invoice.discount_amount || 0,
+        taxableAmount: invoice.taxable_amount || (invoice.total_amount / 1.16),
+        totalTax: invoice.tax_amount || (invoice.total_amount - invoice.total_amount / 1.16),
+        grandTotal: invoice.total_amount,
+        paymentMethod: invoice.payment_method === 'mobile_money' ? 'M-Pesa' : 
+                       invoice.payment_method.charAt(0).toUpperCase() + invoice.payment_method.slice(1),
+        kraPin: invoice.kra_pin,
+        cuSerialNumber: invoice.cu_serial_number,
+        receiptSignature: invoice.receipt_signature,
+        controlCode: invoice.control_code,
+        mrcNo: invoice.mrc_no,
+        intrlData: invoice.intrl_data,
+        qrCodeData: invoice.invoice_number 
+          ? `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoice_number}`
+          : undefined,
+      }
+
+      const result = await sunmiPrinter.printInvoice(invoiceData)
+      if (!result.success) {
+        Alert.alert('Print Error', result.message)
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error?.message || 'Failed to print receipt')
+    } finally {
+      setPrintingId(null)
+    }
+  }
 
   const branchId = user?.branch_id || user?.vendor_id
 
@@ -277,8 +343,24 @@ export default function InvoicesScreen({ navigation }: any) {
               </View>
             </View>
             <View style={styles.invoiceFooter}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalAmount}>{formatCurrency(item.total_amount)}</Text>
+              <View>
+                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalAmount}>{formatCurrency(item.total_amount)}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.reprintButton}
+                onPress={() => handleReprintInvoice(item)}
+                disabled={printingId === item.id}
+              >
+                {printingId === item.id ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="print-outline" size={16} color="#fff" />
+                    <Text style={styles.reprintButtonText}>Reprint</Text>
+                  </>
+                )}
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -539,6 +621,20 @@ const styles = StyleSheet.create({
     fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: colors.primary,
+  },
+  reprintButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    gap: spacing.xs,
+  },
+  reprintButtonText: {
+    color: '#fff',
+    fontSize: fontSize.sm,
+    fontWeight: '600',
   },
   emptyState: {
     flex: 1,
