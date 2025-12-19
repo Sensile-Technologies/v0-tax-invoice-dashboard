@@ -59,7 +59,7 @@ externalPort = 3001
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+run = ["npm", "run", "start", "--", "--port", "5000", "--hostname", "0.0.0.0"]
 
 [userenv]
 
