@@ -33,33 +33,9 @@ export interface InvoiceData {
   qrCodeData?: string;
 }
 
-let SunmiPrinterLib: any = null;
-
-async function loadSunmiLibrary(): Promise<boolean> {
-  if (Platform.OS !== 'android') {
-    console.log('[SunmiPrinter] Not Android, skipping library load');
-    return false;
-  }
-  
-  if (SunmiPrinterLib !== null) {
-    return true;
-  }
-  
-  try {
-    console.log('[SunmiPrinter] Loading Sunmi library...');
-    const module = require('@es-webdev/react-native-sunmi-printer');
-    SunmiPrinterLib = module.default || module;
-    console.log('[SunmiPrinter] Library loaded successfully');
-    return true;
-  } catch (error) {
-    console.warn('[SunmiPrinter] Failed to load library:', error);
-    return false;
-  }
-}
-
 class PrinterService {
   private isReady: boolean = false;
-  private libraryLoaded: boolean = false;
+  private SunmiLib: any = null;
 
   async initialize(): Promise<boolean> {
     console.log('[SunmiPrinter] initialize() called, Platform:', Platform.OS);
@@ -70,30 +46,37 @@ class PrinterService {
     }
 
     try {
-      this.libraryLoaded = await loadSunmiLibrary();
-      if (!this.libraryLoaded || !SunmiPrinterLib) {
-        console.log('[SunmiPrinter] Library not available');
+      console.log('[SunmiPrinter] Attempting to load Sunmi library...');
+      this.SunmiLib = require('@es-webdev/react-native-sunmi-printer').default;
+      
+      if (this.SunmiLib && typeof this.SunmiLib.printerInit === 'function') {
+        console.log('[SunmiPrinter] Library loaded, calling printerInit()...');
+        this.SunmiLib.printerInit();
+        this.isReady = true;
+        console.log('[SunmiPrinter] Printer initialized successfully');
+        return true;
+      } else {
+        console.log('[SunmiPrinter] Library loaded but printerInit not available');
         return false;
       }
-      
-      console.log('[SunmiPrinter] Calling printerInit()...');
-      SunmiPrinterLib.printerInit();
-      this.isReady = true;
-      console.log('[SunmiPrinter] Initialization successful, printer ready');
-      return true;
-    } catch (error) {
-      console.warn('[SunmiPrinter] Initialization failed:', error);
+    } catch (error: any) {
+      console.log('[SunmiPrinter] Failed to initialize (expected on non-Sunmi devices):', error?.message || error);
       this.isReady = false;
+      this.SunmiLib = null;
       return false;
     }
   }
 
+  isAvailable(): boolean {
+    return this.isReady && this.SunmiLib !== null;
+  }
+
   async getPrinterStatus(): Promise<string> {
-    if (!this.isReady || !SunmiPrinterLib) {
-      return 'Not initialized';
+    if (!this.isAvailable()) {
+      return 'Printer not available';
     }
     try {
-      const status = await SunmiPrinterLib.updatePrinterState();
+      const status = await this.SunmiLib.updatePrinterState();
       return `Status: ${status}`;
     } catch (error) {
       return 'Error checking status';
@@ -105,165 +88,151 @@ class PrinterService {
   }
 
   async printInvoice(invoice: InvoiceData): Promise<boolean> {
-    console.log('[SunmiPrinter] printInvoice() called, isReady:', this.isReady);
+    console.log('[SunmiPrinter] printInvoice() called');
     
-    if (Platform.OS !== 'android') {
-      console.log('[SunmiPrinter] Not Android, skipping print');
-      return false;
-    }
-
-    if (!this.isReady) {
-      console.log('[SunmiPrinter] Printer not ready, attempting re-init...');
-      const ready = await this.initialize();
-      if (!ready) {
-        console.log('[SunmiPrinter] Re-init failed, cannot print');
-        return false;
-      }
-    }
-
-    if (!SunmiPrinterLib) {
-      console.log('[SunmiPrinter] Library not available');
+    if (!this.isAvailable()) {
+      console.log('[SunmiPrinter] Printer not available, skipping print');
       return false;
     }
 
     try {
       console.log('[SunmiPrinter] Starting print job...');
+      const P = this.SunmiLib;
       
-      SunmiPrinterLib.enterPrinterBuffer(true);
+      P.enterPrinterBuffer(true);
 
-      SunmiPrinterLib.setAlignment(1);
-      SunmiPrinterLib.setFontSize(28);
-      SunmiPrinterLib.setFontWeight(true);
-      SunmiPrinterLib.printerText('FLOW360\n');
-      SunmiPrinterLib.setFontSize(24);
-      SunmiPrinterLib.printerText(`${invoice.branchName}\n`);
-      SunmiPrinterLib.setFontWeight(false);
+      P.setAlignment(1);
+      P.setFontSize(28);
+      P.setFontWeight(true);
+      P.printerText('FLOW360\n');
+      P.setFontSize(24);
+      P.printerText(`${invoice.branchName}\n`);
+      P.setFontWeight(false);
       
       if (invoice.branchAddress) {
-        SunmiPrinterLib.setFontSize(20);
-        SunmiPrinterLib.printerText(`${invoice.branchAddress}\n`);
+        P.setFontSize(20);
+        P.printerText(`${invoice.branchAddress}\n`);
       }
 
-      SunmiPrinterLib.setFontSize(24);
-      SunmiPrinterLib.printerText('--------------------------------\n');
+      P.setFontSize(24);
+      P.printerText('--------------------------------\n');
 
-      SunmiPrinterLib.setAlignment(0);
-      SunmiPrinterLib.printerText(`Invoice: ${invoice.invoiceNumber}\n`);
-      SunmiPrinterLib.printerText(`Date: ${invoice.date} ${invoice.time}\n`);
-      SunmiPrinterLib.printerText(`Cashier: ${invoice.cashierName}\n`);
+      P.setAlignment(0);
+      P.printerText(`Invoice: ${invoice.invoiceNumber}\n`);
+      P.printerText(`Date: ${invoice.date} ${invoice.time}\n`);
+      P.printerText(`Cashier: ${invoice.cashierName}\n`);
 
       if (invoice.customerName) {
-        SunmiPrinterLib.printerText(`Customer: ${invoice.customerName}\n`);
+        P.printerText(`Customer: ${invoice.customerName}\n`);
       }
       if (invoice.customerPin) {
-        SunmiPrinterLib.printerText(`PIN: ${invoice.customerPin}\n`);
+        P.printerText(`PIN: ${invoice.customerPin}\n`);
       }
 
-      SunmiPrinterLib.printerText('--------------------------------\n');
+      P.printerText('--------------------------------\n');
 
-      SunmiPrinterLib.setAlignment(1);
-      SunmiPrinterLib.setFontSize(22);
-      SunmiPrinterLib.setFontWeight(true);
-      SunmiPrinterLib.printerText('TAX INVOICE\n');
-      SunmiPrinterLib.setFontWeight(false);
+      P.setAlignment(1);
+      P.setFontSize(22);
+      P.setFontWeight(true);
+      P.printerText('TAX INVOICE\n');
+      P.setFontWeight(false);
 
-      SunmiPrinterLib.setFontSize(24);
-      SunmiPrinterLib.printerText('--------------------------------\n');
+      P.setFontSize(24);
+      P.printerText('--------------------------------\n');
 
-      SunmiPrinterLib.setAlignment(0);
-      SunmiPrinterLib.printerText('ITEM           QTY    AMOUNT\n');
-      SunmiPrinterLib.printerText('--------------------------------\n');
+      P.setAlignment(0);
+      P.printerText('ITEM           QTY    AMOUNT\n');
+      P.printerText('--------------------------------\n');
 
       for (const item of invoice.items) {
         const itemName = item.name.length > 14 ? item.name.substring(0, 14) : item.name;
         const lineTotal = item.quantity * item.unitPrice;
         const itemDiscount = item.discount || 0;
 
-        SunmiPrinterLib.printerText(`${itemName}\n`);
+        P.printerText(`${itemName}\n`);
         
         const qtyStr = item.quantity.toFixed(2);
         const priceStr = this.formatCurrency(item.unitPrice);
         const totalStr = this.formatCurrency(lineTotal);
         
-        SunmiPrinterLib.printerText(`  ${qtyStr} x ${priceStr}\n`);
+        P.printerText(`  ${qtyStr} x ${priceStr}\n`);
         
-        SunmiPrinterLib.setAlignment(2);
-        SunmiPrinterLib.printerText(`${totalStr}\n`);
-        SunmiPrinterLib.setAlignment(0);
+        P.setAlignment(2);
+        P.printerText(`${totalStr}\n`);
+        P.setAlignment(0);
 
         if (itemDiscount > 0) {
-          SunmiPrinterLib.printerText(`  Discount: -${this.formatCurrency(itemDiscount)}\n`);
+          P.printerText(`  Discount: -${this.formatCurrency(itemDiscount)}\n`);
         }
       }
 
-      SunmiPrinterLib.printerText('--------------------------------\n');
+      P.printerText('--------------------------------\n');
 
-      SunmiPrinterLib.setAlignment(2);
-      
-      SunmiPrinterLib.printerText(`Subtotal: ${this.formatCurrency(invoice.subtotal)}\n`);
+      P.setAlignment(2);
+      P.printerText(`Subtotal: ${this.formatCurrency(invoice.subtotal)}\n`);
 
       if (invoice.totalDiscount > 0) {
-        SunmiPrinterLib.printerText(`Total Discount: -${this.formatCurrency(invoice.totalDiscount)}\n`);
+        P.printerText(`Total Discount: -${this.formatCurrency(invoice.totalDiscount)}\n`);
       }
 
-      SunmiPrinterLib.printerText(`Taxable Amount: ${this.formatCurrency(invoice.taxableAmount)}\n`);
-      SunmiPrinterLib.printerText(`VAT (16%): ${this.formatCurrency(invoice.totalTax)}\n`);
+      P.printerText(`Taxable Amount: ${this.formatCurrency(invoice.taxableAmount)}\n`);
+      P.printerText(`VAT (16%): ${this.formatCurrency(invoice.totalTax)}\n`);
 
-      SunmiPrinterLib.setFontSize(26);
-      SunmiPrinterLib.setFontWeight(true);
-      SunmiPrinterLib.printerText(`TOTAL: ${this.formatCurrency(invoice.grandTotal)}\n`);
-      SunmiPrinterLib.setFontWeight(false);
-      SunmiPrinterLib.setFontSize(24);
+      P.setFontSize(26);
+      P.setFontWeight(true);
+      P.printerText(`TOTAL: ${this.formatCurrency(invoice.grandTotal)}\n`);
+      P.setFontWeight(false);
+      P.setFontSize(24);
 
-      SunmiPrinterLib.printerText('--------------------------------\n');
+      P.printerText('--------------------------------\n');
 
-      SunmiPrinterLib.setAlignment(0);
-      SunmiPrinterLib.printerText(`Payment: ${invoice.paymentMethod}\n`);
+      P.setAlignment(0);
+      P.printerText(`Payment: ${invoice.paymentMethod}\n`);
 
       if (invoice.amountPaid !== undefined) {
-        SunmiPrinterLib.printerText(`Amount Paid: ${this.formatCurrency(invoice.amountPaid)}\n`);
+        P.printerText(`Amount Paid: ${this.formatCurrency(invoice.amountPaid)}\n`);
       }
       if (invoice.change !== undefined && invoice.change > 0) {
-        SunmiPrinterLib.printerText(`Change: ${this.formatCurrency(invoice.change)}\n`);
+        P.printerText(`Change: ${this.formatCurrency(invoice.change)}\n`);
       }
 
-      SunmiPrinterLib.printerText('--------------------------------\n');
+      P.printerText('--------------------------------\n');
 
-      SunmiPrinterLib.setAlignment(1);
-      SunmiPrinterLib.setFontSize(20);
-      SunmiPrinterLib.setFontWeight(true);
-      SunmiPrinterLib.printerText('KRA TIMS DETAILS\n');
-      SunmiPrinterLib.setFontWeight(false);
-      SunmiPrinterLib.setFontSize(24);
+      P.setAlignment(1);
+      P.setFontSize(20);
+      P.setFontWeight(true);
+      P.printerText('KRA TIMS DETAILS\n');
+      P.setFontWeight(false);
+      P.setFontSize(24);
 
-      SunmiPrinterLib.setAlignment(0);
+      P.setAlignment(0);
       if (invoice.kraPin) {
-        SunmiPrinterLib.printerText(`KRA PIN: ${invoice.kraPin}\n`);
+        P.printerText(`KRA PIN: ${invoice.kraPin}\n`);
       }
       if (invoice.cuSerialNumber) {
-        SunmiPrinterLib.printerText(`CU S/N: ${invoice.cuSerialNumber}\n`);
+        P.printerText(`CU S/N: ${invoice.cuSerialNumber}\n`);
       }
       if (invoice.receiptSignature) {
         const sig = invoice.receiptSignature.length > 20 
           ? invoice.receiptSignature.substring(0, 20) + '...'
           : invoice.receiptSignature;
-        SunmiPrinterLib.printerText(`Sign: ${sig}\n`);
+        P.printerText(`Sign: ${sig}\n`);
       }
 
       if (invoice.qrCodeData) {
-        SunmiPrinterLib.lineWrap(1);
-        SunmiPrinterLib.setAlignment(1);
-        SunmiPrinterLib.printQRCode(invoice.qrCodeData, 6, 1);
-        SunmiPrinterLib.lineWrap(1);
+        P.lineWrap(1);
+        P.setAlignment(1);
+        P.printQRCode(invoice.qrCodeData, 6, 1);
+        P.lineWrap(1);
       }
 
-      SunmiPrinterLib.printerText('--------------------------------\n');
-      SunmiPrinterLib.setAlignment(1);
-      SunmiPrinterLib.printerText('Thank you for your business!\n');
-      SunmiPrinterLib.printerText('Powered by Flow360\n');
-      SunmiPrinterLib.lineWrap(4);
+      P.printerText('--------------------------------\n');
+      P.setAlignment(1);
+      P.printerText('Thank you for your business!\n');
+      P.printerText('Powered by Flow360\n');
+      P.lineWrap(4);
 
-      SunmiPrinterLib.exitPrinterBuffer(true);
+      P.exitPrinterBuffer(true);
 
       console.log('[SunmiPrinter] Print job completed successfully');
       return true;
