@@ -58,8 +58,8 @@ externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["pnpm", "build"]
-run = ["pnpm", "start", "--", "-p", "5000"]
+build = ["bash", "-c", "pnpm install --frozen-lockfile && pnpm build"]
+run = ["pnpm", "start"]
 
 [userenv]
 
