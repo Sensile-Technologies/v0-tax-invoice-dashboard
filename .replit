@@ -68,4 +68,3 @@ run = ["npm", "run", "deploy"]
 [userenv]
 
 [userenv.production]
-HOSTNAME = "0.0.0.0"
