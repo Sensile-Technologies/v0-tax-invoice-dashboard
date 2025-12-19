@@ -58,8 +58,8 @@ externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["bash", "-c", "pnpm install && pnpm build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static"]
-run = ["node", ".next/standalone/server.js"]
+build = ["pnpm", "build"]
+run = ["pnpm", "start", "--", "-p", "5000"]
 
 [userenv]
 
