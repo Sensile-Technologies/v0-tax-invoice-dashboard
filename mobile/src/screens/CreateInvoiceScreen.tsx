@@ -63,9 +63,9 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   useEffect(() => {
     console.log('[CreateInvoice] Initializing printer, Platform:', Platform.OS)
     sunmiPrinter.initialize().then(ready => {
-      console.log('[CreateInvoice] Printer initialization result:', ready, 'type:', sunmiPrinter.getPrinterType())
+      console.log('[CreateInvoice] Printer initialization result:', ready)
       setPrinterReady(ready)
-      setPrinterType(sunmiPrinter.getPrinterType())
+      setPrinterType(ready ? 'sunmi' : 'none')
     }).catch(err => {
       console.log('[CreateInvoice] Printer initialization error:', err)
     })
@@ -218,12 +218,12 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   }
   const totalAmount = Math.max(grossAmount - discountAmount, 0)
 
-  async function printInvoice(saleId: string): Promise<{ success: boolean; method: string; message: string }> {
+  async function printInvoice(saleId: string): Promise<{ success: boolean; message: string }> {
     console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady, 'printerType:', printerType)
     
     if (!printerReady) {
       console.log('[CreateInvoice] Printer not ready, skipping print')
-      return { success: false, method: 'none', message: 'Printer not available' }
+      return { success: false, message: 'Printer not available' }
     }
     
     setPrinting(true)
@@ -264,7 +264,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       return result
     } catch (error: any) {
       console.log('Print error:', error)
-      return { success: false, method: 'none', message: error?.message || 'Print failed' }
+      return { success: false, message: error?.message || 'Print failed' }
     } finally {
       setPrinting(false)
     }
@@ -321,11 +321,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         console.log('[CreateInvoice] Calling printInvoice...')
         const printResult = await printInvoice(saleResponse.sale_id)
         if (printResult.success) {
-          if (printResult.method === 'sunmi') {
-            printMessage = ' - Receipt printed'
-          } else if (printResult.method === 'pdf') {
-            printMessage = ' - Receipt PDF ready'
-          }
+          printMessage = ' - Receipt printed'
         }
       }
       
