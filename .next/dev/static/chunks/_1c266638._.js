@@ -3254,6 +3254,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$credit$2d$card$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CreditCard$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/credit-card.js [app-client] (ecmascript) <export default as CreditCard>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$ellipsis$2d$vertical$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MoreVertical$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/ellipsis-vertical.js [app-client] (ecmascript) <export default as MoreVertical>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$printer$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Printer$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/printer.js [app-client] (ecmascript) <export default as Printer>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/download.js [app-client] (ecmascript) <export default as Download>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$spreadsheet$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileSpreadsheet$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-spreadsheet.js [app-client] (ecmascript) <export default as FileSpreadsheet>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/dropdown-menu.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/dialog.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$radio$2d$group$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/radio-group.tsx [app-client] (ecmascript)");
@@ -3278,7 +3280,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 20;
 function SalesReportsPage() {
     _s();
     const [sidebarCollapsed, setSidebarCollapsed] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -3328,7 +3330,7 @@ function SalesReportsPage() {
             const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
                 fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
                 fetch(`/api/dispensers?branch_id=${branchId}`),
-                fetch(`/api/sales?branch_id=${branchId}`)
+                fetch(`/api/sales?branch_id=${branchId}&page=${currentPage}&limit=${PAGE_SIZE}`)
             ]);
             const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
                 nozzlesRes.json(),
@@ -3337,11 +3339,9 @@ function SalesReportsPage() {
             ]);
             setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : []);
             setDispensers(dispensersResult.success ? dispensersResult.data || [] : []);
-            const allSales = salesResult.success ? salesResult.data || [] : [];
-            setTotalCount(allSales.length);
-            const offset = (currentPage - 1) * PAGE_SIZE;
-            const paginatedSales = allSales.slice(offset, offset + PAGE_SIZE);
-            const processedSales = paginatedSales.map((sale)=>({
+            const salesData = salesResult.success ? salesResult.data || [] : [];
+            setTotalCount(salesResult.totalCount || 0);
+            const processedSales = salesData.map((sale)=>({
                     ...sale,
                     quantity: Number(sale.quantity) || 0,
                     unit_price: Number(sale.unit_price) || 0,
@@ -3354,6 +3354,73 @@ function SalesReportsPage() {
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Failed to load sales data");
         } finally{
             setLoading(false);
+        }
+    }
+    function buildExportUrl(format) {
+        const currentBranch = localStorage.getItem("selectedBranch");
+        if (!currentBranch) return null;
+        const branchData = JSON.parse(currentBranch);
+        const params = new URLSearchParams();
+        params.set('branch_id', branchData.id);
+        params.set('format', format);
+        params.set('export', 'true');
+        if (filters.date) params.set('date', filters.date);
+        if (filters.fuelType && filters.fuelType !== 'all') params.set('fuel_type', filters.fuelType);
+        if (filters.nozzle && filters.nozzle !== 'all') params.set('nozzle_id', filters.nozzle);
+        if (filters.paymentMethod && filters.paymentMethod !== 'all') params.set('payment_method', filters.paymentMethod);
+        if (filters.documentType && filters.documentType !== 'all') params.set('document_type', filters.documentType);
+        return `/api/sales/export?${params.toString()}`;
+    }
+    async function exportToPDF() {
+        try {
+            const url = buildExportUrl('pdf');
+            if (!url) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("No branch selected");
+                return;
+            }
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].loading("Generating PDF...");
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Failed to export");
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `sales-report-${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].dismiss();
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("PDF downloaded");
+        } catch (error) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].dismiss();
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Failed to export PDF");
+        }
+    }
+    async function exportToExcel() {
+        try {
+            const url = buildExportUrl('excel');
+            if (!url) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("No branch selected");
+                return;
+            }
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].loading("Generating Excel...");
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Failed to export");
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `sales-report-${new Date().toISOString().split('T')[0]}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].dismiss();
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].success("Excel downloaded");
+        } catch (error) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].dismiss();
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Failed to export Excel");
         }
     }
     const filteredSales = sales.filter((sale)=>{
@@ -3538,7 +3605,7 @@ function SalesReportsPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/sales/reports/page.tsx",
-                lineNumber: 282,
+                lineNumber: 358,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3550,7 +3617,7 @@ function SalesReportsPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/sales/reports/page.tsx",
-                            lineNumber: 291,
+                            lineNumber: 367,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -3565,7 +3632,7 @@ function SalesReportsPage() {
                                                 children: "Sales Reports"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                lineNumber: 296,
+                                                lineNumber: 372,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3573,13 +3640,13 @@ function SalesReportsPage() {
                                                 children: "View and filter sales transactions"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                lineNumber: 297,
+                                                lineNumber: 373,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                        lineNumber: 295,
+                                        lineNumber: 371,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3597,7 +3664,7 @@ function SalesReportsPage() {
                                                                     children: "Sales Report"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 304,
+                                                                    lineNumber: 380,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -3605,13 +3672,13 @@ function SalesReportsPage() {
                                                                     children: "Fuel sales transactions with filters and pagination"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 305,
+                                                                    lineNumber: 381,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 303,
+                                                            lineNumber: 379,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3626,7 +3693,7 @@ function SalesReportsPage() {
                                                                             children: "Date:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 309,
+                                                                            lineNumber: 385,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3640,13 +3707,13 @@ function SalesReportsPage() {
                                                                             className: "w-full sm:w-32 h-8 text-sm"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 310,
+                                                                            lineNumber: 386,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 308,
+                                                                    lineNumber: 384,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3658,7 +3725,7 @@ function SalesReportsPage() {
                                                                             children: "Invoice:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 320,
+                                                                            lineNumber: 396,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3673,13 +3740,13 @@ function SalesReportsPage() {
                                                                             className: "w-full sm:w-28 h-8 text-sm"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 321,
+                                                                            lineNumber: 397,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 319,
+                                                                    lineNumber: 395,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3691,7 +3758,7 @@ function SalesReportsPage() {
                                                                             children: "Fuel:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 332,
+                                                                            lineNumber: 408,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3708,12 +3775,12 @@ function SalesReportsPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 335,
+                                                                                        lineNumber: 411,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 334,
+                                                                                    lineNumber: 410,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3723,7 +3790,7 @@ function SalesReportsPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 338,
+                                                                                            lineNumber: 414,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         uniqueFuelTypes.map((type)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3731,25 +3798,25 @@ function SalesReportsPage() {
                                                                                                 children: type
                                                                                             }, type, false, {
                                                                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                lineNumber: 340,
+                                                                                                lineNumber: 416,
                                                                                                 columnNumber: 31
                                                                                             }, this))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 337,
+                                                                                    lineNumber: 413,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 333,
+                                                                            lineNumber: 409,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 331,
+                                                                    lineNumber: 407,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3761,7 +3828,7 @@ function SalesReportsPage() {
                                                                             children: "Nozzle:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 347,
+                                                                            lineNumber: 423,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3778,12 +3845,12 @@ function SalesReportsPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 350,
+                                                                                        lineNumber: 426,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 349,
+                                                                                    lineNumber: 425,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3793,7 +3860,7 @@ function SalesReportsPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 353,
+                                                                                            lineNumber: 429,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         uniqueNozzles.map((nozzleId)=>{
@@ -3804,26 +3871,26 @@ function SalesReportsPage() {
                                                                                                 children: dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "Unknown"
                                                                                             }, nozzleId, false, {
                                                                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                lineNumber: 358,
+                                                                                                lineNumber: 434,
                                                                                                 columnNumber: 33
                                                                                             }, this);
                                                                                         })
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 352,
+                                                                                    lineNumber: 428,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 348,
+                                                                            lineNumber: 424,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 346,
+                                                                    lineNumber: 422,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3835,7 +3902,7 @@ function SalesReportsPage() {
                                                                             children: "Payment:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 368,
+                                                                            lineNumber: 444,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3852,12 +3919,12 @@ function SalesReportsPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 371,
+                                                                                        lineNumber: 447,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 370,
+                                                                                    lineNumber: 446,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3867,7 +3934,7 @@ function SalesReportsPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 374,
+                                                                                            lineNumber: 450,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3875,7 +3942,7 @@ function SalesReportsPage() {
                                                                                             children: "Cash"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 375,
+                                                                                            lineNumber: 451,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3883,7 +3950,7 @@ function SalesReportsPage() {
                                                                                             children: "Mobile Money"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 376,
+                                                                                            lineNumber: 452,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3891,7 +3958,7 @@ function SalesReportsPage() {
                                                                                             children: "Card"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 377,
+                                                                                            lineNumber: 453,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3899,25 +3966,25 @@ function SalesReportsPage() {
                                                                                             children: "Credit"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 378,
+                                                                                            lineNumber: 454,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 373,
+                                                                                    lineNumber: 449,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 369,
+                                                                            lineNumber: 445,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 367,
+                                                                    lineNumber: 443,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3929,7 +3996,7 @@ function SalesReportsPage() {
                                                                             children: "Type:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 384,
+                                                                            lineNumber: 460,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -3946,12 +4013,12 @@ function SalesReportsPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 387,
+                                                                                        lineNumber: 463,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 386,
+                                                                                    lineNumber: 462,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3961,7 +4028,7 @@ function SalesReportsPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 390,
+                                                                                            lineNumber: 466,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3969,7 +4036,7 @@ function SalesReportsPage() {
                                                                                             children: "Invoices"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 391,
+                                                                                            lineNumber: 467,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3977,25 +4044,25 @@ function SalesReportsPage() {
                                                                                             children: "Credit Notes"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 392,
+                                                                                            lineNumber: 468,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 389,
+                                                                                    lineNumber: 465,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 385,
+                                                                            lineNumber: 461,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 383,
+                                                                    lineNumber: 459,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4007,7 +4074,7 @@ function SalesReportsPage() {
                                                                             children: "Loyalty:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 398,
+                                                                            lineNumber: 474,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4024,12 +4091,12 @@ function SalesReportsPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 401,
+                                                                                        lineNumber: 477,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 400,
+                                                                                    lineNumber: 476,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4039,7 +4106,7 @@ function SalesReportsPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 404,
+                                                                                            lineNumber: 480,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4047,7 +4114,7 @@ function SalesReportsPage() {
                                                                                             children: "Loyalty Only"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 405,
+                                                                                            lineNumber: 481,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4055,25 +4122,25 @@ function SalesReportsPage() {
                                                                                             children: "Walk-in"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 406,
+                                                                                            lineNumber: 482,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 403,
+                                                                                    lineNumber: 479,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 399,
+                                                                            lineNumber: 475,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 397,
+                                                                    lineNumber: 473,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4084,24 +4151,64 @@ function SalesReportsPage() {
                                                                     children: "Clear"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 411,
+                                                                    lineNumber: 487,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    onClick: exportToPDF,
+                                                                    className: "h-8",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                                                            className: "w-4 h-4 mr-1"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/sales/reports/page.tsx",
+                                                                            lineNumber: 489,
+                                                                            columnNumber: 25
+                                                                        }, this),
+                                                                        "PDF"
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/sales/reports/page.tsx",
+                                                                    lineNumber: 488,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    onClick: exportToExcel,
+                                                                    className: "h-8",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$spreadsheet$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileSpreadsheet$3e$__["FileSpreadsheet"], {
+                                                                            className: "w-4 h-4 mr-1"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/sales/reports/page.tsx",
+                                                                            lineNumber: 493,
+                                                                            columnNumber: 25
+                                                                        }, this),
+                                                                        "Excel"
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/sales/reports/page.tsx",
+                                                                    lineNumber: 492,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 307,
+                                                            lineNumber: 383,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                    lineNumber: 302,
+                                                    lineNumber: 378,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                lineNumber: 301,
+                                                lineNumber: 377,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4114,7 +4221,7 @@ function SalesReportsPage() {
                                                             children: sales.length === 0 ? "No sales recorded yet" : "No sales match the current filters"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 418,
+                                                            lineNumber: 502,
                                                             columnNumber: 23
                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             className: "overflow-x-auto -mx-3 md:mx-0",
@@ -4130,7 +4237,7 @@ function SalesReportsPage() {
                                                                                     children: "Date"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 426,
+                                                                                    lineNumber: 510,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4138,7 +4245,7 @@ function SalesReportsPage() {
                                                                                     children: "Invoice"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 427,
+                                                                                    lineNumber: 511,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4146,7 +4253,7 @@ function SalesReportsPage() {
                                                                                     children: "Nozzle"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 428,
+                                                                                    lineNumber: 512,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4154,7 +4261,7 @@ function SalesReportsPage() {
                                                                                     children: "Fuel"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 429,
+                                                                                    lineNumber: 513,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4162,7 +4269,7 @@ function SalesReportsPage() {
                                                                                     children: "Qty (L)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 430,
+                                                                                    lineNumber: 514,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4170,7 +4277,7 @@ function SalesReportsPage() {
                                                                                     children: "Unit Price"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 431,
+                                                                                    lineNumber: 515,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4178,7 +4285,7 @@ function SalesReportsPage() {
                                                                                     children: "Total"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 432,
+                                                                                    lineNumber: 516,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4186,7 +4293,7 @@ function SalesReportsPage() {
                                                                                     children: "Payment"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 433,
+                                                                                    lineNumber: 517,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4194,7 +4301,7 @@ function SalesReportsPage() {
                                                                                     children: "Loyalty"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 434,
+                                                                                    lineNumber: 518,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4202,7 +4309,7 @@ function SalesReportsPage() {
                                                                                     children: "Meter"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 435,
+                                                                                    lineNumber: 519,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4210,7 +4317,7 @@ function SalesReportsPage() {
                                                                                     children: "Status"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 436,
+                                                                                    lineNumber: 520,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4218,18 +4325,18 @@ function SalesReportsPage() {
                                                                                     children: "Actions"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 437,
+                                                                                    lineNumber: 521,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 425,
+                                                                            lineNumber: 509,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                        lineNumber: 424,
+                                                                        lineNumber: 508,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -4247,7 +4354,7 @@ function SalesReportsPage() {
                                                                                         })
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 447,
+                                                                                        lineNumber: 531,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4255,7 +4362,7 @@ function SalesReportsPage() {
                                                                                         children: (sale.invoice_number || sale.receipt_number || "").slice(-8)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 453,
+                                                                                        lineNumber: 537,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4263,7 +4370,7 @@ function SalesReportsPage() {
                                                                                         children: dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "-"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 456,
+                                                                                        lineNumber: 540,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4271,7 +4378,7 @@ function SalesReportsPage() {
                                                                                         children: sale.fuel_type
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 459,
+                                                                                        lineNumber: 543,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4279,7 +4386,7 @@ function SalesReportsPage() {
                                                                                         children: Number(sale.quantity).toFixed(2)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 460,
+                                                                                        lineNumber: 544,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4287,7 +4394,7 @@ function SalesReportsPage() {
                                                                                         children: formatCurrency(sale.unit_price)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 461,
+                                                                                        lineNumber: 545,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4295,7 +4402,7 @@ function SalesReportsPage() {
                                                                                         children: formatCurrency(sale.total_amount)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 462,
+                                                                                        lineNumber: 546,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4312,12 +4419,12 @@ function SalesReportsPage() {
                                                                                             })()
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 464,
+                                                                                            lineNumber: 548,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 463,
+                                                                                        lineNumber: 547,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4334,22 +4441,22 @@ function SalesReportsPage() {
                                                                                                     clipRule: "evenodd"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                    lineNumber: 478,
+                                                                                                    lineNumber: 562,
                                                                                                     columnNumber: 43
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                lineNumber: 477,
+                                                                                                lineNumber: 561,
                                                                                                 columnNumber: 41
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 476,
+                                                                                            lineNumber: 560,
                                                                                             columnNumber: 39
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 474,
+                                                                                        lineNumber: 558,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4357,7 +4464,7 @@ function SalesReportsPage() {
                                                                                         children: sale.meter_reading_after.toFixed(2)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 483,
+                                                                                        lineNumber: 567,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4372,12 +4479,12 @@ function SalesReportsPage() {
                                                                                                 className: "h-4 w-4 md:h-5 md:w-5"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                lineNumber: 493,
+                                                                                                lineNumber: 577,
                                                                                                 columnNumber: 41
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 486,
+                                                                                            lineNumber: 570,
                                                                                             columnNumber: 39
                                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                                                                                             variant: getStatusBadgeVariant(sale.kra_status || sale.transmission_status),
@@ -4385,12 +4492,12 @@ function SalesReportsPage() {
                                                                                             children: sale.kra_status || sale.transmission_status || "pending"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 496,
+                                                                                            lineNumber: 580,
                                                                                             columnNumber: 39
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 484,
+                                                                                        lineNumber: 568,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4407,17 +4514,17 @@ function SalesReportsPage() {
                                                                                                             className: "h-4 w-4"
                                                                                                         }, void 0, false, {
                                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                            lineNumber: 505,
+                                                                                                            lineNumber: 589,
                                                                                                             columnNumber: 43
                                                                                                         }, this)
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                        lineNumber: 504,
+                                                                                                        lineNumber: 588,
                                                                                                         columnNumber: 41
                                                                                                     }, this)
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                    lineNumber: 503,
+                                                                                                    lineNumber: 587,
                                                                                                     columnNumber: 39
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -4430,14 +4537,14 @@ function SalesReportsPage() {
                                                                                                                     className: "h-4 w-4 mr-2"
                                                                                                                 }, void 0, false, {
                                                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                                    lineNumber: 510,
+                                                                                                                    lineNumber: 594,
                                                                                                                     columnNumber: 43
                                                                                                                 }, this),
                                                                                                                 "View Invoice"
                                                                                                             ]
                                                                                                         }, void 0, true, {
                                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                            lineNumber: 509,
+                                                                                                            lineNumber: 593,
                                                                                                             columnNumber: 41
                                                                                                         }, this),
                                                                                                         !sale.is_credit_note && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -4448,54 +4555,54 @@ function SalesReportsPage() {
                                                                                                                     className: "h-4 w-4 mr-2"
                                                                                                                 }, void 0, false, {
                                                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                                    lineNumber: 518,
+                                                                                                                    lineNumber: 602,
                                                                                                                     columnNumber: 45
                                                                                                                 }, this),
                                                                                                                 sale.has_credit_note ? "Credit Note Issued" : "Issue Credit Note"
                                                                                                             ]
                                                                                                         }, void 0, true, {
                                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                            lineNumber: 514,
+                                                                                                            lineNumber: 598,
                                                                                                             columnNumber: 43
                                                                                                         }, this)
                                                                                                     ]
                                                                                                 }, void 0, true, {
                                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                                    lineNumber: 508,
+                                                                                                    lineNumber: 592,
                                                                                                     columnNumber: 39
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                            lineNumber: 502,
+                                                                                            lineNumber: 586,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                        lineNumber: 501,
+                                                                                        lineNumber: 585,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, sale.id, true, {
                                                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                lineNumber: 446,
+                                                                                lineNumber: 530,
                                                                                 columnNumber: 33
                                                                             }, this);
                                                                         })
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                                        lineNumber: 440,
+                                                                        lineNumber: 524,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                                lineNumber: 423,
+                                                                lineNumber: 507,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 422,
+                                                            lineNumber: 506,
                                                             columnNumber: 23
                                                         }, this),
                                                         totalPages > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4513,7 +4620,7 @@ function SalesReportsPage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 535,
+                                                                    lineNumber: 619,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4530,7 +4637,7 @@ function SalesReportsPage() {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 546,
+                                                                                    lineNumber: 630,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4538,13 +4645,13 @@ function SalesReportsPage() {
                                                                                     children: "Previous"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 547,
+                                                                                    lineNumber: 631,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 539,
+                                                                            lineNumber: 623,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4556,7 +4663,7 @@ function SalesReportsPage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 549,
+                                                                            lineNumber: 633,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4571,49 +4678,49 @@ function SalesReportsPage() {
                                                                                     children: "Next"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 559,
+                                                                                    lineNumber: 643,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__["ChevronRight"], {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                                    lineNumber: 560,
+                                                                                    lineNumber: 644,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                                            lineNumber: 552,
+                                                                            lineNumber: 636,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                                    lineNumber: 538,
+                                                                    lineNumber: 622,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 534,
+                                                            lineNumber: 618,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                    lineNumber: 416,
+                                                    lineNumber: 500,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                lineNumber: 415,
+                                                lineNumber: 499,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                        lineNumber: 300,
+                                        lineNumber: 376,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -4625,35 +4732,35 @@ function SalesReportsPage() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                lineNumber: 570,
+                                                lineNumber: 654,
                                                 columnNumber: 28
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                        lineNumber: 569,
+                                        lineNumber: 653,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                lineNumber: 294,
+                                lineNumber: 370,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/sales/reports/page.tsx",
-                            lineNumber: 293,
+                            lineNumber: 369,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/sales/reports/page.tsx",
-                    lineNumber: 290,
+                    lineNumber: 366,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/sales/reports/page.tsx",
-                lineNumber: 289,
+                lineNumber: 365,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -4668,7 +4775,7 @@ function SalesReportsPage() {
                                     children: "Issue Credit Note"
                                 }, void 0, false, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 580,
+                                    lineNumber: 664,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -4679,7 +4786,7 @@ function SalesReportsPage() {
                                                 children: selectedSaleForCreditNote.invoice_number
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/reports/page.tsx",
-                                                lineNumber: 584,
+                                                lineNumber: 668,
                                                 columnNumber: 52
                                             }, this),
                                             " ",
@@ -4690,13 +4797,13 @@ function SalesReportsPage() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 581,
+                                    lineNumber: 665,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/sales/reports/page.tsx",
-                            lineNumber: 579,
+                            lineNumber: 663,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4709,7 +4816,7 @@ function SalesReportsPage() {
                                             children: "Refund Type"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 593,
+                                            lineNumber: 677,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$radio$2d$group$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RadioGroup"], {
@@ -4728,7 +4835,7 @@ function SalesReportsPage() {
                                                             id: "full"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 600,
+                                                            lineNumber: 684,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -4737,13 +4844,13 @@ function SalesReportsPage() {
                                                             children: "Full Refund"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 601,
+                                                            lineNumber: 685,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                    lineNumber: 599,
+                                                    lineNumber: 683,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4754,7 +4861,7 @@ function SalesReportsPage() {
                                                             id: "partial"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 604,
+                                                            lineNumber: 688,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -4763,25 +4870,25 @@ function SalesReportsPage() {
                                                             children: "Partial Refund"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 605,
+                                                            lineNumber: 689,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                    lineNumber: 603,
+                                                    lineNumber: 687,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 594,
+                                            lineNumber: 678,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 592,
+                                    lineNumber: 676,
                                     columnNumber: 13
                                 }, this),
                                 creditNoteForm.refundType === "partial" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4792,7 +4899,7 @@ function SalesReportsPage() {
                                             children: "Refund Amount (KES)"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 612,
+                                            lineNumber: 696,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4809,7 +4916,7 @@ function SalesReportsPage() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 613,
+                                            lineNumber: 697,
                                             columnNumber: 17
                                         }, this),
                                         selectedSaleForCreditNote && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4820,13 +4927,13 @@ function SalesReportsPage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 624,
+                                            lineNumber: 708,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 611,
+                                    lineNumber: 695,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4837,7 +4944,7 @@ function SalesReportsPage() {
                                             children: "Reason for Credit Note"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 632,
+                                            lineNumber: 716,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4853,12 +4960,12 @@ function SalesReportsPage() {
                                                         placeholder: "Select reason"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/reports/page.tsx",
-                                                        lineNumber: 638,
+                                                        lineNumber: 722,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                    lineNumber: 637,
+                                                    lineNumber: 721,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4868,7 +4975,7 @@ function SalesReportsPage() {
                                                             children: "Wrong quantity delivered"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 641,
+                                                            lineNumber: 725,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4876,7 +4983,7 @@ function SalesReportsPage() {
                                                             children: "Wrong product delivered"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 642,
+                                                            lineNumber: 726,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4884,7 +4991,7 @@ function SalesReportsPage() {
                                                             children: "Product returned"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 643,
+                                                            lineNumber: 727,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4892,7 +4999,7 @@ function SalesReportsPage() {
                                                             children: "Goods damaged"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 644,
+                                                            lineNumber: 728,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4900,7 +5007,7 @@ function SalesReportsPage() {
                                                             children: "Goods rejected"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 645,
+                                                            lineNumber: 729,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4908,25 +5015,25 @@ function SalesReportsPage() {
                                                             children: "Other"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                                            lineNumber: 646,
+                                                            lineNumber: 730,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                                    lineNumber: 640,
+                                                    lineNumber: 724,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 633,
+                                            lineNumber: 717,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 631,
+                                    lineNumber: 715,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4937,7 +5044,7 @@ function SalesReportsPage() {
                                             children: "Additional Notes (Optional)"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 652,
+                                            lineNumber: 736,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -4951,19 +5058,19 @@ function SalesReportsPage() {
                                             rows: 3
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/reports/page.tsx",
-                                            lineNumber: 653,
+                                            lineNumber: 737,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 651,
+                                    lineNumber: 735,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/sales/reports/page.tsx",
-                            lineNumber: 591,
+                            lineNumber: 675,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -4975,7 +5082,7 @@ function SalesReportsPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 664,
+                                    lineNumber: 748,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4984,30 +5091,30 @@ function SalesReportsPage() {
                                     children: issuingCreditNote ? "Issuing..." : "Issue Credit Note"
                                 }, void 0, false, {
                                     fileName: "[project]/app/sales/reports/page.tsx",
-                                    lineNumber: 671,
+                                    lineNumber: 755,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/sales/reports/page.tsx",
-                            lineNumber: 663,
+                            lineNumber: 747,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/sales/reports/page.tsx",
-                    lineNumber: 578,
+                    lineNumber: 662,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/sales/reports/page.tsx",
-                lineNumber: 577,
+                lineNumber: 661,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/sales/reports/page.tsx",
-        lineNumber: 281,
+        lineNumber: 357,
         columnNumber: 5
     }, this);
 }

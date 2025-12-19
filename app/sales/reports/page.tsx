@@ -12,13 +12,13 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
-import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical, Printer } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical, Printer, Download, FileSpreadsheet } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
 
-const PAGE_SIZE = 50
+const PAGE_SIZE = 20
 
 export default function SalesReportsPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -69,7 +69,7 @@ export default function SalesReportsPage() {
       const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
         fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
         fetch(`/api/dispensers?branch_id=${branchId}`),
-        fetch(`/api/sales?branch_id=${branchId}`)
+        fetch(`/api/sales?branch_id=${branchId}&page=${currentPage}&limit=${PAGE_SIZE}`)
       ])
 
       const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
@@ -81,13 +81,10 @@ export default function SalesReportsPage() {
       setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
       setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
 
-      const allSales = salesResult.success ? salesResult.data || [] : []
-      setTotalCount(allSales.length)
+      const salesData = salesResult.success ? salesResult.data || [] : []
+      setTotalCount(salesResult.totalCount || 0)
 
-      const offset = (currentPage - 1) * PAGE_SIZE
-      const paginatedSales = allSales.slice(offset, offset + PAGE_SIZE)
-
-      const processedSales = paginatedSales.map((sale: any) => ({
+      const processedSales = salesData.map((sale: any) => ({
         ...sale,
         quantity: Number(sale.quantity) || 0,
         unit_price: Number(sale.unit_price) || 0,
@@ -100,6 +97,85 @@ export default function SalesReportsPage() {
       toast.error("Failed to load sales data")
     } finally {
       setLoading(false)
+    }
+  }
+
+  function buildExportUrl(format: string) {
+    const currentBranch = localStorage.getItem("selectedBranch")
+    if (!currentBranch) return null
+    const branchData = JSON.parse(currentBranch)
+    
+    const params = new URLSearchParams()
+    params.set('branch_id', branchData.id)
+    params.set('format', format)
+    params.set('export', 'true')
+    
+    if (filters.date) params.set('date', filters.date)
+    if (filters.fuelType && filters.fuelType !== 'all') params.set('fuel_type', filters.fuelType)
+    if (filters.nozzle && filters.nozzle !== 'all') params.set('nozzle_id', filters.nozzle)
+    if (filters.paymentMethod && filters.paymentMethod !== 'all') params.set('payment_method', filters.paymentMethod)
+    if (filters.documentType && filters.documentType !== 'all') params.set('document_type', filters.documentType)
+    
+    return `/api/sales/export?${params.toString()}`
+  }
+
+  async function exportToPDF() {
+    try {
+      const url = buildExportUrl('pdf')
+      if (!url) {
+        toast.error("No branch selected")
+        return
+      }
+      
+      toast.loading("Generating PDF...")
+      const response = await fetch(url)
+      
+      if (!response.ok) throw new Error("Failed to export")
+      
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = `sales-report-${new Date().toISOString().split('T')[0]}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+      toast.dismiss()
+      toast.success("PDF downloaded")
+    } catch (error) {
+      toast.dismiss()
+      toast.error("Failed to export PDF")
+    }
+  }
+
+  async function exportToExcel() {
+    try {
+      const url = buildExportUrl('excel')
+      if (!url) {
+        toast.error("No branch selected")
+        return
+      }
+      
+      toast.loading("Generating Excel...")
+      const response = await fetch(url)
+      
+      if (!response.ok) throw new Error("Failed to export")
+      
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = `sales-report-${new Date().toISOString().split('T')[0]}.xlsx`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+      toast.dismiss()
+      toast.success("Excel downloaded")
+    } catch (error) {
+      toast.dismiss()
+      toast.error("Failed to export Excel")
     }
   }
 
@@ -409,6 +485,14 @@ export default function SalesReportsPage() {
                       </div>
 
                       <Button variant="outline" size="sm" onClick={clearFilters} className="col-span-2 sm:col-span-1 h-8">Clear</Button>
+                      <Button variant="outline" size="sm" onClick={exportToPDF} className="h-8">
+                        <Download className="w-4 h-4 mr-1" />
+                        PDF
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={exportToExcel} className="h-8">
+                        <FileSpreadsheet className="w-4 h-4 mr-1" />
+                        Excel
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>

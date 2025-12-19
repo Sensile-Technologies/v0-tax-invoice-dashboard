@@ -1503,43 +1503,54 @@ async function GET(request) {
         const date = searchParams.get('date');
         const dateFrom = searchParams.get('date_from');
         const dateTo = searchParams.get('date_to');
-        const limit = searchParams.get('limit') || '50';
-        let sql = 'SELECT * FROM sales WHERE 1=1';
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '20');
+        const exportAll = searchParams.get('export') === 'true';
+        let whereClause = 'WHERE 1=1';
         const params = [];
         let paramIndex = 1;
         if (branchId) {
-            sql += ` AND branch_id = $${paramIndex}`;
+            whereClause += ` AND branch_id = $${paramIndex}`;
             params.push(branchId);
             paramIndex++;
         }
         if (nozzleId) {
-            sql += ` AND nozzle_id = $${paramIndex}`;
+            whereClause += ` AND nozzle_id = $${paramIndex}`;
             params.push(nozzleId);
             paramIndex++;
         }
         if (date) {
-            sql += ` AND DATE(sale_date) = $${paramIndex}`;
+            whereClause += ` AND DATE(sale_date) = $${paramIndex}`;
             params.push(date);
             paramIndex++;
         }
         if (dateFrom) {
-            sql += ` AND DATE(sale_date) >= $${paramIndex}`;
+            whereClause += ` AND DATE(sale_date) >= $${paramIndex}`;
             params.push(dateFrom);
             paramIndex++;
         }
         if (dateTo) {
-            sql += ` AND DATE(sale_date) <= $${paramIndex}`;
+            whereClause += ` AND DATE(sale_date) <= $${paramIndex}`;
             params.push(dateTo);
             paramIndex++;
         }
-        sql += ' ORDER BY sale_date DESC';
-        sql += ` LIMIT $${paramIndex}`;
-        params.push(parseInt(limit));
+        const countResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT COUNT(*) as count FROM sales ${whereClause}`, params);
+        const totalCount = parseInt(countResult[0]?.count || '0');
+        let sql = `SELECT * FROM sales ${whereClause} ORDER BY sale_date DESC`;
+        if (!exportAll) {
+            const offset = (page - 1) * limit;
+            sql += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+            params.push(limit, offset);
+        }
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, params);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             sales: result,
-            data: result
+            data: result,
+            totalCount,
+            page,
+            limit,
+            totalPages: Math.ceil(totalCount / limit)
         });
     } catch (error) {
         console.error("Error fetching sales:", error);
