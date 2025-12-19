@@ -23,8 +23,7 @@
       },
       "package": "com.flow360.sales",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "enableProguardInReleaseBuilds": true
+      "predictiveBackGestureEnabled": false
     },
     "jsEngine": "hermes",
     "web": {
