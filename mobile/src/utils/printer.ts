@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import SunmiPrinterLib from '@es-webdev/react-native-sunmi-printer';
 
 export interface InvoiceItem {
   name: string;
@@ -34,8 +33,33 @@ export interface InvoiceData {
   qrCodeData?: string;
 }
 
+let SunmiPrinterLib: any = null;
+
+async function loadSunmiLibrary(): Promise<boolean> {
+  if (Platform.OS !== 'android') {
+    console.log('[SunmiPrinter] Not Android, skipping library load');
+    return false;
+  }
+  
+  if (SunmiPrinterLib !== null) {
+    return true;
+  }
+  
+  try {
+    console.log('[SunmiPrinter] Loading Sunmi library...');
+    const module = require('@es-webdev/react-native-sunmi-printer');
+    SunmiPrinterLib = module.default || module;
+    console.log('[SunmiPrinter] Library loaded successfully');
+    return true;
+  } catch (error) {
+    console.warn('[SunmiPrinter] Failed to load library:', error);
+    return false;
+  }
+}
+
 class PrinterService {
   private isReady: boolean = false;
+  private libraryLoaded: boolean = false;
 
   async initialize(): Promise<boolean> {
     console.log('[SunmiPrinter] initialize() called, Platform:', Platform.OS);
@@ -46,6 +70,12 @@ class PrinterService {
     }
 
     try {
+      this.libraryLoaded = await loadSunmiLibrary();
+      if (!this.libraryLoaded || !SunmiPrinterLib) {
+        console.log('[SunmiPrinter] Library not available');
+        return false;
+      }
+      
       console.log('[SunmiPrinter] Calling printerInit()...');
       SunmiPrinterLib.printerInit();
       this.isReady = true;
@@ -59,7 +89,7 @@ class PrinterService {
   }
 
   async getPrinterStatus(): Promise<string> {
-    if (!this.isReady) {
+    if (!this.isReady || !SunmiPrinterLib) {
       return 'Not initialized';
     }
     try {
@@ -89,6 +119,11 @@ class PrinterService {
         console.log('[SunmiPrinter] Re-init failed, cannot print');
         return false;
       }
+    }
+
+    if (!SunmiPrinterLib) {
+      console.log('[SunmiPrinter] Library not available');
+      return false;
     }
 
     try {
