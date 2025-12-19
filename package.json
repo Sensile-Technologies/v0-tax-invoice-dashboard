@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "node scripts/start.js"
+    "start": "node scripts/start.js",
+    "deploy": "node .next/standalone/server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
