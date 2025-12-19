@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import SunmiPrinter from '@es-webdev/react-native-sunmi-printer';
 
 export interface InvoiceItem {
   name: string;
@@ -36,33 +35,55 @@ export interface InvoiceData {
 
 export type PrinterType = 'sunmi' | 'none';
 
+let SunmiPrinter: any = null;
+
 class PrinterService {
   private initialized: boolean = false;
+  private initError: string | null = null;
 
   async initialize(): Promise<boolean> {
     if (this.initialized) {
-      return true;
+      return SunmiPrinter !== null;
     }
 
     if (Platform.OS !== 'android') {
       console.log('[PrinterService] Not Android - Sunmi printer not available');
+      this.initialized = true;
       return false;
     }
 
     try {
-      console.log('[PrinterService] Initializing Sunmi printer...');
-      SunmiPrinter.printerInit();
-      this.initialized = true;
-      console.log('[PrinterService] Sunmi printer ready');
-      return true;
+      console.log('[PrinterService] Loading Sunmi printer module...');
+      const module = require('@es-webdev/react-native-sunmi-printer');
+      SunmiPrinter = module.default || module;
+      
+      if (SunmiPrinter && typeof SunmiPrinter.printerInit === 'function') {
+        console.log('[PrinterService] Initializing Sunmi printer...');
+        SunmiPrinter.printerInit();
+        this.initialized = true;
+        console.log('[PrinterService] Sunmi printer ready');
+        return true;
+      } else {
+        console.log('[PrinterService] Sunmi printer module invalid');
+        this.initError = 'Invalid printer module';
+        this.initialized = true;
+        return false;
+      }
     } catch (error: any) {
       console.error('[PrinterService] Sunmi init failed:', error?.message || error);
+      this.initError = error?.message || 'Failed to load printer';
+      this.initialized = true;
+      SunmiPrinter = null;
       return false;
     }
   }
 
   isAvailable(): boolean {
-    return Platform.OS === 'android' && this.initialized;
+    return Platform.OS === 'android' && SunmiPrinter !== null;
+  }
+
+  getInitError(): string | null {
+    return this.initError;
   }
 
   formatCurrency(amount: number): string {
@@ -76,8 +97,8 @@ class PrinterService {
       await this.initialize();
     }
 
-    if (!this.initialized) {
-      return { success: false, message: 'Printer not available' };
+    if (!SunmiPrinter) {
+      return { success: false, message: this.initError || 'Printer not available' };
     }
 
     try {
