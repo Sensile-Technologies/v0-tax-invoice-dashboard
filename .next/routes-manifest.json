@@ -276,6 +276,24 @@
       "namedRegex": "^/api/admin/vendors(?:/)?$"
     },
     {
+      "page": "/api/auth/reset/complete",
+      "regex": "^/api/auth/reset/complete(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/reset/complete(?:/)?$"
+    },
+    {
+      "page": "/api/auth/reset/issue",
+      "regex": "^/api/auth/reset/issue(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/reset/issue(?:/)?$"
+    },
+    {
+      "page": "/api/auth/reset/request",
+      "regex": "^/api/auth/reset/request(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/reset/request(?:/)?$"
+    },
+    {
       "page": "/api/auth/session",
       "regex": "^/api/auth/session(?:/)?$",
       "routeKeys": {},
@@ -436,6 +454,12 @@
       "regex": "^/api/hardware/create(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/hardware/create(?:/)?$"
+    },
+    {
+      "page": "/api/imports",
+      "regex": "^/api/imports(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/imports(?:/)?$"
     },
     {
       "page": "/api/item-compositions",
@@ -600,6 +624,24 @@
       "namedRegex": "^/api/nozzles(?:/)?$"
     },
     {
+      "page": "/api/purchases",
+      "regex": "^/api/purchases(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/purchases(?:/)?$"
+    },
+    {
+      "page": "/api/receipt/credit-note",
+      "regex": "^/api/receipt/credit\\-note(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/receipt/credit\\-note(?:/)?$"
+    },
+    {
+      "page": "/api/receipt/generate",
+      "regex": "^/api/receipt/generate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/receipt/generate(?:/)?$"
+    },
+    {
       "page": "/api/sales",
       "regex": "^/api/sales(?:/)?$",
       "routeKeys": {},
@@ -708,6 +750,12 @@
       "namedRegex": "^/api/test\\-connection(?:/)?$"
     },
     {
+      "page": "/api/users",
+      "regex": "^/api/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/users(?:/)?$"
+    },
+    {
       "page": "/auth/callback",
       "regex": "^/auth/callback(?:/)?$",
       "routeKeys": {},
@@ -724,6 +772,12 @@
       "regex": "^/auth/login(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/auth/login(?:/)?$"
+    },
+    {
+      "page": "/auth/reset-password",
+      "regex": "^/auth/reset\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/reset\\-password(?:/)?$"
     },
     {
       "page": "/auth/sign-up",

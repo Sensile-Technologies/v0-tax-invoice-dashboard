@@ -352,6 +352,31 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/auth/reset-password": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/auth/reset-password",
+      "dataRoute": "/auth/reset-password.rsc",
+      "prefetchDataRoute": null,
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/auth/sign-up-success": {
       "experimentalBypassFor": [
         {
@@ -1656,8 +1681,8 @@
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "fa5a2752a544683f9bd5c58092aad54a",
-    "previewModeSigningKey": "5116e2f3a8c3c493ead7dd4ad7cf161d1c779924c775567f61e503623efb64a3",
-    "previewModeEncryptionKey": "7757847a2e405c10f7a40fbd2da993a8f81cc8d4954f38dc9f0abb4e279b24c0"
+    "previewModeId": "e9d47d75c121f19f236a63dce87e6498",
+    "previewModeSigningKey": "0bc0e06a02a59891c5f8a483b7491893ce178a52d8c5b94298bd43e10b55ba16",
+    "previewModeEncryptionKey": "8148bff83cdf94f24474f5d6b2dd42149db3d1b68e191be9bdd418db27cc1f4d"
   }
 }
