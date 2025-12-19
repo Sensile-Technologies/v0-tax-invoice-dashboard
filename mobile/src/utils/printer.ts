@@ -1,7 +1,13 @@
 import { Platform } from 'react-native';
 import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 import QRCode from 'qrcode';
+
+let SunmiPrinter: any = null;
+try {
+  SunmiPrinter = require('react-native-sunmi-printer').default;
+} catch (e) {
+  console.log('[PrinterService] Sunmi printer module not available');
+}
 
 export interface InvoiceItem {
   name: string;
@@ -42,19 +48,33 @@ export interface InvoiceData {
   intrlData?: string;
 }
 
-export type PrinterType = 'pdf';
+export type PrinterType = 'sunmi' | 'pdf';
 
 class PrinterService {
   private initialized: boolean = false;
+  private isSunmiDevice: boolean = false;
 
   async initialize(): Promise<boolean> {
+    if (Platform.OS === 'android' && SunmiPrinter) {
+      try {
+        await SunmiPrinter.printerInit();
+        this.isSunmiDevice = true;
+        console.log('[PrinterService] Sunmi printer initialized');
+      } catch (e) {
+        console.log('[PrinterService] Not a Sunmi device, using PDF fallback');
+        this.isSunmiDevice = false;
+      }
+    }
     this.initialized = true;
-    console.log('[PrinterService] PDF printing ready');
     return true;
   }
 
   isAvailable(): boolean {
     return true;
+  }
+
+  isSunmiPrinterAvailable(): boolean {
+    return this.isSunmiDevice;
   }
 
   formatCurrency(amount: number): string {
@@ -76,6 +96,108 @@ class PrinterService {
   }
 
   async printInvoice(invoice: InvoiceData): Promise<{ success: boolean; message: string }> {
+    if (this.isSunmiDevice && SunmiPrinter) {
+      return this.printWithSunmi(invoice);
+    }
+    return this.printWithPdf(invoice);
+  }
+
+  private async printWithSunmi(invoice: InvoiceData): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('[PrinterService] Printing with Sunmi native printer...');
+      
+      await SunmiPrinter.printerInit();
+      
+      await SunmiPrinter.setAlignment(1);
+      await SunmiPrinter.printText('FLOW360\n');
+      await SunmiPrinter.printText(`${invoice.branchName}\n`);
+      if (invoice.branchAddress) {
+        await SunmiPrinter.printText(`${invoice.branchAddress}\n`);
+      }
+      await SunmiPrinter.printText('--------------------------------\n');
+      
+      await SunmiPrinter.setAlignment(0);
+      await SunmiPrinter.printText(`Invoice: ${invoice.invoiceNumber}\n`);
+      await SunmiPrinter.printText(`Date: ${invoice.date} ${invoice.time}\n`);
+      await SunmiPrinter.printText(`Cashier: ${invoice.cashierName}\n`);
+      if (invoice.customerName) {
+        await SunmiPrinter.printText(`Customer: ${invoice.customerName}\n`);
+      }
+      if (invoice.customerPin) {
+        await SunmiPrinter.printText(`PIN: ${invoice.customerPin}\n`);
+      }
+      
+      await SunmiPrinter.setAlignment(1);
+      await SunmiPrinter.printText('*** TAX INVOICE ***\n');
+      await SunmiPrinter.printText('--------------------------------\n');
+      
+      await SunmiPrinter.setAlignment(0);
+      for (const item of invoice.items) {
+        const lineTotal = item.quantity * item.unitPrice;
+        await SunmiPrinter.printText(`${item.name}\n`);
+        await SunmiPrinter.printText(`  ${item.quantity.toFixed(2)} x ${item.unitPrice.toFixed(2)} = ${lineTotal.toFixed(2)}\n`);
+      }
+      
+      await SunmiPrinter.printText('--------------------------------\n');
+      await SunmiPrinter.printText(`Subtotal:    ${this.formatCurrency(invoice.subtotal)}\n`);
+      if (invoice.totalDiscount > 0) {
+        await SunmiPrinter.printText(`Discount:   -${this.formatCurrency(invoice.totalDiscount)}\n`);
+      }
+      await SunmiPrinter.printText(`Taxable:     ${this.formatCurrency(invoice.taxableAmount)}\n`);
+      await SunmiPrinter.printText(`VAT 16%:     ${this.formatCurrency(invoice.totalTax)}\n`);
+      await SunmiPrinter.printText('--------------------------------\n');
+      await SunmiPrinter.setFontSize(28);
+      await SunmiPrinter.printText(`TOTAL: ${this.formatCurrency(invoice.grandTotal)}\n`);
+      await SunmiPrinter.setFontSize(24);
+      await SunmiPrinter.printText('--------------------------------\n');
+      
+      await SunmiPrinter.printText(`Payment: ${invoice.paymentMethod}\n`);
+      if (invoice.amountPaid !== undefined) {
+        await SunmiPrinter.printText(`Paid: ${this.formatCurrency(invoice.amountPaid)}\n`);
+      }
+      if (invoice.change !== undefined && invoice.change > 0) {
+        await SunmiPrinter.printText(`Change: ${this.formatCurrency(invoice.change)}\n`);
+      }
+      
+      await SunmiPrinter.printText('--------------------------------\n');
+      await SunmiPrinter.printText('KRA TIMS DETAILS\n');
+      if (invoice.kraPin) {
+        await SunmiPrinter.printText(`KRA PIN: ${invoice.kraPin}\n`);
+      }
+      if (invoice.cuSerialNumber) {
+        await SunmiPrinter.printText(`CU S/N: ${invoice.cuSerialNumber}\n`);
+      }
+      if (invoice.mrcNo) {
+        await SunmiPrinter.printText(`MRC: ${invoice.mrcNo}\n`);
+      }
+      if (invoice.controlCode) {
+        await SunmiPrinter.printText(`Control: ${invoice.controlCode}\n`);
+      }
+      if (invoice.rcptSign || invoice.receiptSignature) {
+        const sign = invoice.rcptSign || invoice.receiptSignature || '';
+        await SunmiPrinter.printText(`Sign: ${sign.substring(0, 20)}...\n`);
+      }
+      
+      const qrData = invoice.qrCodeData || 
+        `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
+      await SunmiPrinter.setAlignment(1);
+      await SunmiPrinter.printQRCode(qrData, 6, 0);
+      await SunmiPrinter.printText('Scan to verify on KRA\n');
+      
+      await SunmiPrinter.printText('\n');
+      await SunmiPrinter.printText('Thank you for your business!\n');
+      await SunmiPrinter.printText('Powered by Flow360\n');
+      await SunmiPrinter.printText('\n\n\n');
+      
+      return { success: true, message: 'Receipt printed successfully' };
+    } catch (error: any) {
+      console.error('[PrinterService] Sunmi print error:', error);
+      console.log('[PrinterService] Falling back to PDF...');
+      return this.printWithPdf(invoice);
+    }
+  }
+
+  private async printWithPdf(invoice: InvoiceData): Promise<{ success: boolean; message: string }> {
     console.log('[PrinterService] Generating PDF receipt...');
     
     try {
@@ -96,26 +218,11 @@ class PrinterService {
       
       console.log('[PrinterService] PDF generated at:', uri);
 
-      // Use print dialog directly on Android (not share)
       if (Platform.OS === 'android') {
         await Print.printAsync({ uri });
         return { 
           success: true, 
           message: 'Receipt sent to printer' 
-        };
-      }
-      
-      // iOS: use share as fallback
-      const canShare = await Sharing.isAvailableAsync();
-      if (canShare) {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'application/pdf',
-          dialogTitle: `Receipt ${invoice.invoiceNumber}`,
-          UTI: 'com.adobe.pdf',
-        });
-        return { 
-          success: true, 
-          message: 'Receipt ready - select printer or save' 
         };
       }
       
