@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store'
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://ceaad22e-7426-4b1f-a645-d2bab46d41d2-00-2750hh3y918g9.janeway.replit.dev'
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://flow360-rji.replit.app'
 const REQUEST_TIMEOUT = 30000
 
 class ApiClient {
