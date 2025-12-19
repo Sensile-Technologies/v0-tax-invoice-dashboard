@@ -60,8 +60,14 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [printerReady, setPrinterReady] = useState(false)
   
   useEffect(() => {
+    console.log('[CreateInvoice] Initializing printer, Platform:', Platform.OS)
     if (Platform.OS === 'android') {
-      sunmiPrinter.initialize().then(ready => setPrinterReady(ready))
+      sunmiPrinter.initialize().then(ready => {
+        console.log('[CreateInvoice] Printer initialization result:', ready)
+        setPrinterReady(ready)
+      }).catch(err => {
+        console.log('[CreateInvoice] Printer initialization error:', err)
+      })
     }
   }, [])
 
@@ -213,11 +219,15 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const totalAmount = Math.max(grossAmount - discountAmount, 0)
 
   async function printInvoice(saleId: string) {
+    console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady, 'Platform:', Platform.OS)
+    
     if (!printerReady || Platform.OS !== 'android') {
+      console.log('[CreateInvoice] Skipping print - printerReady:', printerReady, 'isAndroid:', Platform.OS === 'android')
       return
     }
     
     setPrinting(true)
+    console.log('[CreateInvoice] Starting print...')
     try {
       const now = new Date()
       // Calculate VAT: Total is VAT-inclusive, so taxable = total/1.16, VAT = total - taxable
@@ -303,8 +313,12 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       }
       
       // Print invoice on Sunmi device
+      console.log('[CreateInvoice] Sale created successfully, sale_id:', saleResponse.sale_id, 'printerReady:', printerReady)
       if (printerReady && saleResponse.sale_id) {
+        console.log('[CreateInvoice] Calling printInvoice...')
         await printInvoice(saleResponse.sale_id)
+      } else {
+        console.log('[CreateInvoice] Print skipped - printerReady:', printerReady, 'sale_id:', saleResponse.sale_id)
       }
       
       Alert.alert('Success', 'Sale created successfully' + (printerReady ? ' and printed' : ''), [

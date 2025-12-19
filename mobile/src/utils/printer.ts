@@ -38,17 +38,21 @@ class SunmiPrinter {
   private isReady: boolean = false;
 
   async initialize(): Promise<boolean> {
+    console.log('[SunmiPrinter] initialize() called, Platform:', Platform.OS);
+    
     if (Platform.OS !== 'android') {
-      console.log('Sunmi printer only available on Android');
+      console.log('[SunmiPrinter] Not Android, skipping initialization');
       return false;
     }
 
     try {
+      console.log('[SunmiPrinter] Calling SunmiPrinterLibrary.prepare()...');
       await SunmiPrinterLibrary.prepare();
       this.isReady = true;
+      console.log('[SunmiPrinter] Initialization successful, printer ready');
       return true;
     } catch (error) {
-      console.warn('Sunmi printer not available:', error);
+      console.warn('[SunmiPrinter] Initialization failed:', error);
       this.isReady = false;
       return false;
     }
@@ -97,15 +101,18 @@ class SunmiPrinter {
   }
 
   async printInvoice(invoice: InvoiceData): Promise<boolean> {
+    console.log('[SunmiPrinter] printInvoice() called, isReady:', this.isReady);
+    
     if (Platform.OS !== 'android') {
-      console.log('Printing not available on this platform');
+      console.log('[SunmiPrinter] Not Android, skipping print');
       return false;
     }
 
     if (!this.isReady) {
-      const initialized = await this.initialize();
-      if (!initialized) {
-        console.log('Failed to initialize printer');
+      console.log('[SunmiPrinter] Printer not ready, attempting re-init...');
+      const ready = await this.initialize();
+      if (!ready) {
+        console.log('[SunmiPrinter] Re-init failed, cannot print');
         return false;
       }
     }
