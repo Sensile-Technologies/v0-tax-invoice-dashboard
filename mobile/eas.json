@@ -17,9 +17,10 @@
     },
     "preview": {
       "distribution": "internal",
-      "credentialsSource": "local",
+      "developmentClient": false,
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://ceaad22e-7426-4b1f-a645-d2bab46d41d2-00-2750hh3y918g9.janeway.replit.dev"
