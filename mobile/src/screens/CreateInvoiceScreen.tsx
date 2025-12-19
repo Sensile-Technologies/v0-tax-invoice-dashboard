@@ -8,12 +8,14 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import sunmiPrinter, { InvoiceData } from '../utils/printer'
 
 interface Nozzle {
   id: string
@@ -52,6 +54,16 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [verifyingLoyalty, setVerifyingLoyalty] = useState(false)
   const [loyaltyVerified, setLoyaltyVerified] = useState(false)
   const [verifiedCustomer, setVerifiedCustomer] = useState<{id: string, name: string, phone: string} | null>(null)
+  
+  // Printing
+  const [printing, setPrinting] = useState(false)
+  const [printerReady, setPrinterReady] = useState(false)
+  
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      sunmiPrinter.initialize().then(ready => setPrinterReady(ready))
+    }
+  }, [])
 
   useEffect(() => {
     fetchNozzles()
@@ -185,6 +197,9 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const grossAmount = parseFloat(amount) || 0
   const unitPrice = selectedNozzleData?.price || 0
   
+  // Calculate gross quantity from gross amount (before discount)
+  const grossQuantity = unitPrice > 0 ? grossAmount / unitPrice : 0
+  
   // Calculate discount with validation
   let discountAmount = 0
   if (discountValue && parseFloat(discountValue) > 0) {
@@ -196,7 +211,52 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     }
   }
   const totalAmount = Math.max(grossAmount - discountAmount, 0)
-  const quantity = unitPrice > 0 ? totalAmount / unitPrice : 0
+
+  async function printInvoice(saleId: string) {
+    if (!printerReady || Platform.OS !== 'android') {
+      return
+    }
+    
+    setPrinting(true)
+    try {
+      const now = new Date()
+      // Calculate VAT: Total is VAT-inclusive, so taxable = total/1.16, VAT = total - taxable
+      const taxableAmount = Math.round((totalAmount / 1.16) * 100) / 100
+      const vatAmount = Math.round((totalAmount - taxableAmount) * 100) / 100
+      
+      const invoiceData: InvoiceData = {
+        invoiceNumber: saleId.substring(0, 8).toUpperCase(),
+        date: now.toLocaleDateString('en-KE'),
+        time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }),
+        branchName: user?.branch_name || 'Flow360 Station',
+        cashierName: user?.username || 'Cashier',
+        customerName: customerName.trim() || 'Walk-in Customer',
+        customerPin: kraPin || undefined,
+        items: [{
+          name: selectedNozzleData?.fuel_type || 'Fuel',
+          quantity: grossQuantity,
+          unitPrice: unitPrice,
+          discount: 0,
+          discountType: 'amount',
+          taxRate: 16,
+        }],
+        subtotal: grossAmount,
+        totalDiscount: discountAmount,
+        taxableAmount: taxableAmount,
+        totalTax: vatAmount,
+        grandTotal: totalAmount,
+        paymentMethod: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).replace('_', ' '),
+        kraPin: kraPin || undefined,
+        cuSerialNumber: user?.bhf_id || undefined,
+      }
+      
+      await sunmiPrinter.printInvoice(invoiceData)
+    } catch (error) {
+      console.log('Print error:', error)
+    } finally {
+      setPrinting(false)
+    }
+  }
 
   async function handleCreateSale() {
     setSubmitting(true)
@@ -206,8 +266,13 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         user_id: user?.id,
         nozzle_id: selectedNozzle,
         fuel_type: selectedNozzleData?.fuel_type,
-        quantity: quantity,
+        quantity: grossQuantity,
         unit_price: unitPrice,
+        gross_amount: grossAmount,
+        discount_type: discountType,
+        discount_value: discountValue ? parseFloat(discountValue) : 0,
+        discount_amount: discountAmount,
+        net_amount: totalAmount,
         total_amount: totalAmount,
         payment_method: paymentMethod,
         customer_name: customerName.trim() || 'Walk-in Customer',
@@ -229,7 +294,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
             customer_pin: verifiedCustomer.phone,
             transaction_amount: totalAmount,
             fuel_type: selectedNozzleData?.fuel_type,
-            quantity: quantity,
+            quantity: grossQuantity,
             payment_method: paymentMethod,
           })
         } catch (loyaltyError) {
@@ -237,7 +302,12 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         }
       }
       
-      Alert.alert('Success', 'Sale created successfully', [
+      // Print invoice on Sunmi device
+      if (printerReady && saleResponse.sale_id) {
+        await printInvoice(saleResponse.sale_id)
+      }
+      
+      Alert.alert('Success', 'Sale created successfully' + (printerReady ? ' and printed' : ''), [
         { text: 'OK', onPress: () => navigation.goBack() },
       ])
     } catch (error: any) {
@@ -324,7 +394,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
               <View style={styles.quantityInfo}>
                 <Text style={styles.quantityLabel}>Quantity:</Text>
                 <Text style={styles.quantityValue}>
-                  {quantity.toFixed(2)} Litres
+                  {grossQuantity.toFixed(2)} Litres
                 </Text>
               </View>
             )}
@@ -483,7 +553,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Quantity:</Text>
-              <Text style={styles.summaryValue}>{quantity.toFixed(2)} L</Text>
+              <Text style={styles.summaryValue}>{grossQuantity.toFixed(2)} L</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Unit Price:</Text>
@@ -577,7 +647,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Quantity:</Text>
-              <Text style={styles.summaryValue}>{quantity.toFixed(2)} L</Text>
+              <Text style={styles.summaryValue}>{grossQuantity.toFixed(2)} L</Text>
             </View>
             <View style={[styles.summaryRow, styles.totalRow]}>
               <Text style={styles.totalLabel}>Total:</Text>

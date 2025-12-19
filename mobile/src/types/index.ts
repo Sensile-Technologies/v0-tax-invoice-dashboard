@@ -6,6 +6,7 @@ export interface User {
   role: 'cashier' | 'supervisor' | 'admin' | 'sales' | 'vendor' | 'merchant'
   branch_id?: string
   branch_name?: string
+  bhf_id?: string
   vendor_id?: string
   vendor_name?: string
 }
