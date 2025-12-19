@@ -96,6 +96,16 @@ class PrinterService {
       
       console.log('[PrinterService] PDF generated at:', uri);
 
+      // Use print dialog directly on Android (not share)
+      if (Platform.OS === 'android') {
+        await Print.printAsync({ uri });
+        return { 
+          success: true, 
+          message: 'Receipt sent to printer' 
+        };
+      }
+      
+      // iOS: use share as fallback
       const canShare = await Sharing.isAvailableAsync();
       if (canShare) {
         await Sharing.shareAsync(uri, {
@@ -107,13 +117,12 @@ class PrinterService {
           success: true, 
           message: 'Receipt ready - select printer or save' 
         };
-      } else {
-        await Print.printAsync({ uri });
-        return { 
-          success: true, 
-          message: 'Receipt sent to printer' 
-        };
       }
+      
+      return { 
+        success: true, 
+        message: 'PDF saved' 
+      };
     } catch (error: any) {
       console.error('[PrinterService] PDF generation error:', error);
       return { 

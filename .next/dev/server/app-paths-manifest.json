@@ -8,6 +8,7 @@
   "/api/mobile/create-sale/route": "app/api/mobile/create-sale/route.js",
   "/api/mobile/dashboard/route": "app/api/mobile/dashboard/route.js",
   "/api/mobile/nozzles/route": "app/api/mobile/nozzles/route.js",
+  "/api/mobile/products/route": "app/api/mobile/products/route.js",
   "/api/mobile/sales/route": "app/api/mobile/sales/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
   "/api/sales/route": "app/api/sales/route.js",
