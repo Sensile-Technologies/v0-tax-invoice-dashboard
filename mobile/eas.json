@@ -26,13 +26,25 @@
         "EXPO_PUBLIC_API_URL": "https://ceaad22e-7426-4b1f-a645-d2bab46d41d2-00-2750hh3y918g9.janeway.replit.dev"
       }
     },
+    "sunmi": {
+      "distribution": "internal",
+      "developmentClient": false,
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
+      },
+      "env": {
+        "SUNMI_BUILD": "1",
+        "EXPO_PUBLIC_API_URL": "https://ceaad22e-7426-4b1f-a645-d2bab46d41d2-00-2750hh3y918g9.janeway.replit.dev"
+      }
+    },
     "production": {
       "distribution": "internal",
-      "credentialsSource": "local",
       "android": {
         "buildType": "apk"
       },
       "env": {
+        "SUNMI_BUILD": "1",
         "EXPO_PUBLIC_API_URL": "https://flow360-rji.replit.app"
       }
     }
