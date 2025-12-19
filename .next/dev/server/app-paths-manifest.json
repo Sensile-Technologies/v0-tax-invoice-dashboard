@@ -5,6 +5,7 @@
   "/api/customers/route": "app/api/customers/route.js",
   "/api/dispensers/route": "app/api/dispensers/route.js",
   "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
+  "/api/mobile/dashboard/route": "app/api/mobile/dashboard/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
