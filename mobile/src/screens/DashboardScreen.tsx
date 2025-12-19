@@ -20,7 +20,7 @@ interface DashboardStats {
 }
 
 export default function DashboardScreen({ navigation }: any) {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [stats, setStats] = useState<DashboardStats>({
     total_sales: 0,
     total_invoices: 0,
@@ -65,11 +65,15 @@ export default function DashboardScreen({ navigation }: any) {
       }
     >
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerLeft}>
           <Text style={styles.greeting}>Welcome back,</Text>
           <Text style={styles.userName}>{user?.username || user?.name || 'User'}</Text>
           <Text style={styles.branchName}>{user?.branch_name || 'Branch'}</Text>
         </View>
+        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+          <Ionicons name="log-out-outline" size={24} color={colors.danger} />
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.statsGrid}>
@@ -147,6 +151,26 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     backgroundColor: colors.navBackground,
     paddingTop: spacing.md,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    gap: spacing.xs,
+  },
+  logoutText: {
+    color: colors.danger,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
   },
   greeting: {
     fontSize: fontSize.md,

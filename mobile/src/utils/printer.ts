@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import * as SunmiPrinterLibrary from '@mitsuharu/react-native-sunmi-printer-library';
+import SunmiPrinterLib from '@es-webdev/react-native-sunmi-printer';
 
 export interface InvoiceItem {
   name: string;
@@ -34,7 +34,7 @@ export interface InvoiceData {
   qrCodeData?: string;
 }
 
-class SunmiPrinter {
+class PrinterService {
   private isReady: boolean = false;
 
   async initialize(): Promise<boolean> {
@@ -46,8 +46,8 @@ class SunmiPrinter {
     }
 
     try {
-      console.log('[SunmiPrinter] Calling SunmiPrinterLibrary.prepare()...');
-      await SunmiPrinterLibrary.prepare();
+      console.log('[SunmiPrinter] Calling printerInit()...');
+      SunmiPrinterLib.printerInit();
       this.isReady = true;
       console.log('[SunmiPrinter] Initialization successful, printer ready');
       return true;
@@ -63,41 +63,15 @@ class SunmiPrinter {
       return 'Not initialized';
     }
     try {
-      const status = await SunmiPrinterLibrary.getPrinterState();
-      return status.description || `Status: ${status.value}`;
+      const status = await SunmiPrinterLib.updatePrinterState();
+      return `Status: ${status}`;
     } catch (error) {
       return 'Error checking status';
     }
   }
 
-  calculateItemDiscount(item: InvoiceItem): number {
-    if (!item.discount || item.discount <= 0) return 0;
-    
-    const lineTotal = item.quantity * item.unitPrice;
-    
-    if (item.discountType === 'percentage') {
-      return (lineTotal * item.discount) / 100;
-    } else {
-      return Math.min(item.discount, lineTotal);
-    }
-  }
-
-  calculateItemTax(item: InvoiceItem): { taxableAmount: number; taxAmount: number } {
-    const lineTotal = item.quantity * item.unitPrice;
-    const discount = this.calculateItemDiscount(item);
-    const taxableAmount = lineTotal - discount;
-    const taxAmount = (taxableAmount * item.taxRate) / 100;
-    
-    return { taxableAmount, taxAmount };
-  }
-
   formatCurrency(amount: number): string {
     return `KES ${amount.toFixed(2)}`;
-  }
-
-  formatLine(left: string, right: string, width: number = 32): string {
-    const spaces = Math.max(1, width - left.length - right.length);
-    return left + ' '.repeat(spaces) + right;
   }
 
   async printInvoice(invoice: InvoiceData): Promise<boolean> {
@@ -118,163 +92,148 @@ class SunmiPrinter {
     }
 
     try {
-      await SunmiPrinterLibrary.enterPrinterBuffer(true);
+      console.log('[SunmiPrinter] Starting print job...');
+      
+      SunmiPrinterLib.enterPrinterBuffer(true);
 
-      await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.printTextWithFont('FLOW360', 'default', 28);
-      await SunmiPrinterLibrary.lineWrap(1);
-      await SunmiPrinterLibrary.printTextWithFont(invoice.branchName, 'default', 24);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setAlignment(1);
+      SunmiPrinterLib.setFontSize(28);
+      SunmiPrinterLib.setFontWeight(true);
+      SunmiPrinterLib.printerText('FLOW360\n');
+      SunmiPrinterLib.setFontSize(24);
+      SunmiPrinterLib.printerText(`${invoice.branchName}\n`);
+      SunmiPrinterLib.setFontWeight(false);
       
       if (invoice.branchAddress) {
-        await SunmiPrinterLibrary.printTextWithFont(invoice.branchAddress, 'default', 20);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.setFontSize(20);
+        SunmiPrinterLib.printerText(`${invoice.branchAddress}\n`);
       }
 
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setFontSize(24);
+      SunmiPrinterLib.printerText('--------------------------------\n');
 
-      await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.printText(`Invoice: ${invoice.invoiceNumber}`);
-      await SunmiPrinterLibrary.lineWrap(1);
-      await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}`);
-      await SunmiPrinterLibrary.lineWrap(1);
-      await SunmiPrinterLibrary.printText(`Cashier: ${invoice.cashierName}`);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setAlignment(0);
+      SunmiPrinterLib.printerText(`Invoice: ${invoice.invoiceNumber}\n`);
+      SunmiPrinterLib.printerText(`Date: ${invoice.date} ${invoice.time}\n`);
+      SunmiPrinterLib.printerText(`Cashier: ${invoice.cashierName}\n`);
 
       if (invoice.customerName) {
-        await SunmiPrinterLibrary.printText(`Customer: ${invoice.customerName}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`Customer: ${invoice.customerName}\n`);
       }
       if (invoice.customerPin) {
-        await SunmiPrinterLibrary.printText(`PIN: ${invoice.customerPin}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`PIN: ${invoice.customerPin}\n`);
       }
 
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.printerText('--------------------------------\n');
 
-      await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.printTextWithFont('TAX INVOICE', 'default', 22);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setAlignment(1);
+      SunmiPrinterLib.setFontSize(22);
+      SunmiPrinterLib.setFontWeight(true);
+      SunmiPrinterLib.printerText('TAX INVOICE\n');
+      SunmiPrinterLib.setFontWeight(false);
 
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setFontSize(24);
+      SunmiPrinterLib.printerText('--------------------------------\n');
 
-      await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.printText('ITEM           QTY    AMOUNT');
-      await SunmiPrinterLibrary.lineWrap(1);
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setAlignment(0);
+      SunmiPrinterLib.printerText('ITEM           QTY    AMOUNT\n');
+      SunmiPrinterLib.printerText('--------------------------------\n');
 
       for (const item of invoice.items) {
         const itemName = item.name.length > 14 ? item.name.substring(0, 14) : item.name;
         const lineTotal = item.quantity * item.unitPrice;
         const itemDiscount = item.discount || 0;
 
-        await SunmiPrinterLibrary.printText(itemName);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`${itemName}\n`);
         
         const qtyStr = item.quantity.toFixed(2);
         const priceStr = this.formatCurrency(item.unitPrice);
         const totalStr = this.formatCurrency(lineTotal);
         
-        await SunmiPrinterLibrary.printText(`  ${qtyStr} x ${priceStr}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`  ${qtyStr} x ${priceStr}\n`);
         
-        await SunmiPrinterLibrary.setAlignment('right');
-        await SunmiPrinterLibrary.printText(totalStr);
-        await SunmiPrinterLibrary.lineWrap(1);
-        await SunmiPrinterLibrary.setAlignment('left');
+        SunmiPrinterLib.setAlignment(2);
+        SunmiPrinterLib.printerText(`${totalStr}\n`);
+        SunmiPrinterLib.setAlignment(0);
 
         if (itemDiscount > 0) {
-          await SunmiPrinterLibrary.printText(`  Discount: -${this.formatCurrency(itemDiscount)}`);
-          await SunmiPrinterLibrary.lineWrap(1);
+          SunmiPrinterLib.printerText(`  Discount: -${this.formatCurrency(itemDiscount)}\n`);
         }
       }
 
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.printerText('--------------------------------\n');
 
-      await SunmiPrinterLibrary.setAlignment('right');
+      SunmiPrinterLib.setAlignment(2);
       
-      await SunmiPrinterLibrary.printText(`Subtotal: ${this.formatCurrency(invoice.subtotal)}`);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.printerText(`Subtotal: ${this.formatCurrency(invoice.subtotal)}\n`);
 
       if (invoice.totalDiscount > 0) {
-        await SunmiPrinterLibrary.printText(`Total Discount: -${this.formatCurrency(invoice.totalDiscount)}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`Total Discount: -${this.formatCurrency(invoice.totalDiscount)}\n`);
       }
 
-      await SunmiPrinterLibrary.printText(`Taxable Amount: ${this.formatCurrency(invoice.taxableAmount)}`);
-      await SunmiPrinterLibrary.lineWrap(1);
-      
-      await SunmiPrinterLibrary.printText(`VAT (16%): ${this.formatCurrency(invoice.totalTax)}`);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.printerText(`Taxable Amount: ${this.formatCurrency(invoice.taxableAmount)}\n`);
+      SunmiPrinterLib.printerText(`VAT (16%): ${this.formatCurrency(invoice.totalTax)}\n`);
 
-      await SunmiPrinterLibrary.printTextWithFont(`TOTAL: ${this.formatCurrency(invoice.grandTotal)}`, 'default', 24);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setFontSize(26);
+      SunmiPrinterLib.setFontWeight(true);
+      SunmiPrinterLib.printerText(`TOTAL: ${this.formatCurrency(invoice.grandTotal)}\n`);
+      SunmiPrinterLib.setFontWeight(false);
+      SunmiPrinterLib.setFontSize(24);
 
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.printerText('--------------------------------\n');
 
-      await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.printText(`Payment: ${invoice.paymentMethod}`);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setAlignment(0);
+      SunmiPrinterLib.printerText(`Payment: ${invoice.paymentMethod}\n`);
 
       if (invoice.amountPaid !== undefined) {
-        await SunmiPrinterLibrary.printText(`Amount Paid: ${this.formatCurrency(invoice.amountPaid)}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`Amount Paid: ${this.formatCurrency(invoice.amountPaid)}\n`);
       }
       if (invoice.change !== undefined && invoice.change > 0) {
-        await SunmiPrinterLibrary.printText(`Change: ${this.formatCurrency(invoice.change)}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`Change: ${this.formatCurrency(invoice.change)}\n`);
       }
 
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.printerText('--------------------------------\n');
 
-      await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.printTextWithFont('KRA TIMS DETAILS', 'default', 20);
-      await SunmiPrinterLibrary.lineWrap(1);
+      SunmiPrinterLib.setAlignment(1);
+      SunmiPrinterLib.setFontSize(20);
+      SunmiPrinterLib.setFontWeight(true);
+      SunmiPrinterLib.printerText('KRA TIMS DETAILS\n');
+      SunmiPrinterLib.setFontWeight(false);
+      SunmiPrinterLib.setFontSize(24);
 
-      await SunmiPrinterLibrary.setAlignment('left');
+      SunmiPrinterLib.setAlignment(0);
       if (invoice.kraPin) {
-        await SunmiPrinterLibrary.printText(`KRA PIN: ${invoice.kraPin}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`KRA PIN: ${invoice.kraPin}\n`);
       }
       if (invoice.cuSerialNumber) {
-        await SunmiPrinterLibrary.printText(`CU S/N: ${invoice.cuSerialNumber}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`CU S/N: ${invoice.cuSerialNumber}\n`);
       }
       if (invoice.receiptSignature) {
         const sig = invoice.receiptSignature.length > 20 
           ? invoice.receiptSignature.substring(0, 20) + '...'
           : invoice.receiptSignature;
-        await SunmiPrinterLibrary.printText(`Sign: ${sig}`);
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.printerText(`Sign: ${sig}\n`);
       }
 
       if (invoice.qrCodeData) {
-        await SunmiPrinterLibrary.lineWrap(1);
-        await SunmiPrinterLibrary.setAlignment('center');
-        await SunmiPrinterLibrary.printQRCode(invoice.qrCodeData, 6, 'middle');
-        await SunmiPrinterLibrary.lineWrap(1);
+        SunmiPrinterLib.lineWrap(1);
+        SunmiPrinterLib.setAlignment(1);
+        SunmiPrinterLib.printQRCode(invoice.qrCodeData, 6, 1);
+        SunmiPrinterLib.lineWrap(1);
       }
 
-      await SunmiPrinterLibrary.printText('--------------------------------');
-      await SunmiPrinterLibrary.lineWrap(1);
-      await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.printText('Thank you for your business!');
-      await SunmiPrinterLibrary.lineWrap(1);
-      await SunmiPrinterLibrary.printText('Powered by Flow360');
-      await SunmiPrinterLibrary.lineWrap(4);
+      SunmiPrinterLib.printerText('--------------------------------\n');
+      SunmiPrinterLib.setAlignment(1);
+      SunmiPrinterLib.printerText('Thank you for your business!\n');
+      SunmiPrinterLib.printerText('Powered by Flow360\n');
+      SunmiPrinterLib.lineWrap(4);
 
-      await SunmiPrinterLibrary.exitPrinterBuffer(true);
+      SunmiPrinterLib.exitPrinterBuffer(true);
 
+      console.log('[SunmiPrinter] Print job completed successfully');
       return true;
     } catch (error) {
-      console.error('Print error:', error);
+      console.error('[SunmiPrinter] Print error:', error);
       return false;
     }
   }
@@ -295,22 +254,16 @@ class SunmiPrinter {
           discount: 5,
           discountType: 'percentage',
           taxRate: 16
-        },
-        {
-          name: 'Petrol',
-          quantity: 30,
-          unitPrice: 200.00,
-          taxRate: 16
         }
       ],
-      subtotal: 15000.00,
+      subtotal: 9000.00,
       totalDiscount: 450.00,
-      taxableAmount: 14550.00,
-      totalTax: 2328.00,
-      grandTotal: 16878.00,
+      taxableAmount: 7370.69,
+      totalTax: 1179.31,
+      grandTotal: 8550.00,
       paymentMethod: 'Cash',
-      amountPaid: 17000.00,
-      change: 122.00,
+      amountPaid: 9000.00,
+      change: 450.00,
       kraPin: 'P000000000A',
       cuSerialNumber: 'CU123456789',
       receiptSignature: 'ABC123DEF456'
@@ -320,5 +273,5 @@ class SunmiPrinter {
   }
 }
 
-export const sunmiPrinter = new SunmiPrinter();
+export const sunmiPrinter = new PrinterService();
 export default sunmiPrinter;

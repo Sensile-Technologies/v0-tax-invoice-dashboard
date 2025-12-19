@@ -9,8 +9,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@es-webdev/react-native-sunmi-printer": "^2.0.10",
     "@expo/vector-icons": "^15.0.3",
-    "@mitsuharu/react-native-sunmi-printer-library": "^2.4.0",
     "@react-native-community/datetimepicker": "^8.5.1",
     "@react-native-picker/picker": "^2.11.4",
     "@react-navigation/bottom-tabs": "^7.9.0",
