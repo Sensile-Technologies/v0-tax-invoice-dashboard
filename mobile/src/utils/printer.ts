@@ -108,7 +108,7 @@ class PrinterService {
       
       await SunmiPrinterLibrary.prepare();
       
-      await SunmiPrinterLibrary.setAlignment(1);
+      await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.printText('FLOW360\n');
       await SunmiPrinterLibrary.printText(`${invoice.branchName}\n`);
       if (invoice.branchAddress) {
@@ -116,7 +116,7 @@ class PrinterService {
       }
       await SunmiPrinterLibrary.printText('--------------------------------\n');
       
-      await SunmiPrinterLibrary.setAlignment(0);
+      await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.printText(`Invoice: ${invoice.invoiceNumber}\n`);
       await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}\n`);
       await SunmiPrinterLibrary.printText(`Cashier: ${invoice.cashierName}\n`);
@@ -127,11 +127,11 @@ class PrinterService {
         await SunmiPrinterLibrary.printText(`PIN: ${invoice.customerPin}\n`);
       }
       
-      await SunmiPrinterLibrary.setAlignment(1);
+      await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.printText('*** TAX INVOICE ***\n');
       await SunmiPrinterLibrary.printText('--------------------------------\n');
       
-      await SunmiPrinterLibrary.setAlignment(0);
+      await SunmiPrinterLibrary.setAlignment('left');
       for (const item of invoice.items) {
         const lineTotal = item.quantity * item.unitPrice;
         await SunmiPrinterLibrary.printText(`${item.name}\n`);
@@ -180,8 +180,8 @@ class PrinterService {
       
       const qrData = invoice.qrCodeData || 
         `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
-      await SunmiPrinterLibrary.setAlignment(1);
-      await SunmiPrinterLibrary.printQRCode(qrData, 6);
+      await SunmiPrinterLibrary.setAlignment('center');
+      await SunmiPrinterLibrary.printQRCode(qrData, 8, 'middle');
       await SunmiPrinterLibrary.printText('Scan to verify on KRA\n');
       
       await SunmiPrinterLibrary.printText('\n');
