@@ -163,15 +163,14 @@ class SunmiPrinter {
       for (const item of invoice.items) {
         const itemName = item.name.length > 14 ? item.name.substring(0, 14) : item.name;
         const lineTotal = item.quantity * item.unitPrice;
-        const discount = this.calculateItemDiscount(item);
-        const netAmount = lineTotal - discount;
+        const itemDiscount = item.discount || 0;
 
         await SunmiPrinterLibrary.printText(itemName);
         await SunmiPrinterLibrary.lineWrap(1);
         
-        const qtyStr = item.quantity.toString().padStart(3);
+        const qtyStr = item.quantity.toFixed(2);
         const priceStr = this.formatCurrency(item.unitPrice);
-        const totalStr = this.formatCurrency(netAmount);
+        const totalStr = this.formatCurrency(lineTotal);
         
         await SunmiPrinterLibrary.printText(`  ${qtyStr} x ${priceStr}`);
         await SunmiPrinterLibrary.lineWrap(1);
@@ -181,11 +180,8 @@ class SunmiPrinter {
         await SunmiPrinterLibrary.lineWrap(1);
         await SunmiPrinterLibrary.setAlignment('left');
 
-        if (discount > 0) {
-          const discountLabel = item.discountType === 'percentage' 
-            ? `Discount (${item.discount}%):` 
-            : 'Discount:';
-          await SunmiPrinterLibrary.printText(`  ${discountLabel} -${this.formatCurrency(discount)}`);
+        if (itemDiscount > 0) {
+          await SunmiPrinterLibrary.printText(`  Discount: -${this.formatCurrency(itemDiscount)}`);
           await SunmiPrinterLibrary.lineWrap(1);
         }
       }

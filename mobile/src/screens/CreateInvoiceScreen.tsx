@@ -236,7 +236,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
           name: selectedNozzleData?.fuel_type || 'Fuel',
           quantity: grossQuantity,
           unitPrice: unitPrice,
-          discount: 0,
+          discount: discountAmount,
           discountType: 'amount',
           taxRate: 16,
         }],
