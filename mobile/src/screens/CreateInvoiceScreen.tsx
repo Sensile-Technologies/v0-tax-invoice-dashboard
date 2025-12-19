@@ -58,17 +58,17 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   // Printing
   const [printing, setPrinting] = useState(false)
   const [printerReady, setPrinterReady] = useState(false)
+  const [printerType, setPrinterType] = useState<string>('none')
   
   useEffect(() => {
     console.log('[CreateInvoice] Initializing printer, Platform:', Platform.OS)
-    if (Platform.OS === 'android') {
-      sunmiPrinter.initialize().then(ready => {
-        console.log('[CreateInvoice] Printer initialization result:', ready)
-        setPrinterReady(ready)
-      }).catch(err => {
-        console.log('[CreateInvoice] Printer initialization error:', err)
-      })
-    }
+    sunmiPrinter.initialize().then(ready => {
+      console.log('[CreateInvoice] Printer initialization result:', ready, 'type:', sunmiPrinter.getPrinterType())
+      setPrinterReady(ready)
+      setPrinterType(sunmiPrinter.getPrinterType())
+    }).catch(err => {
+      console.log('[CreateInvoice] Printer initialization error:', err)
+    })
   }, [])
 
   useEffect(() => {
@@ -218,19 +218,18 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   }
   const totalAmount = Math.max(grossAmount - discountAmount, 0)
 
-  async function printInvoice(saleId: string) {
-    console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady, 'Platform:', Platform.OS)
+  async function printInvoice(saleId: string): Promise<{ success: boolean; method: string; message: string }> {
+    console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady, 'printerType:', printerType)
     
-    if (!printerReady || Platform.OS !== 'android') {
-      console.log('[CreateInvoice] Skipping print - printerReady:', printerReady, 'isAndroid:', Platform.OS === 'android')
-      return
+    if (!printerReady) {
+      console.log('[CreateInvoice] Printer not ready, skipping print')
+      return { success: false, method: 'none', message: 'Printer not available' }
     }
     
     setPrinting(true)
     console.log('[CreateInvoice] Starting print...')
     try {
       const now = new Date()
-      // Calculate VAT: Total is VAT-inclusive, so taxable = total/1.16, VAT = total - taxable
       const taxableAmount = Math.round((totalAmount / 1.16) * 100) / 100
       const vatAmount = Math.round((totalAmount - taxableAmount) * 100) / 100
       
@@ -260,9 +259,12 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         cuSerialNumber: user?.bhf_id || undefined,
       }
       
-      await sunmiPrinter.printInvoice(invoiceData)
-    } catch (error) {
+      const result = await sunmiPrinter.printInvoice(invoiceData)
+      console.log('[CreateInvoice] Print result:', result)
+      return result
+    } catch (error: any) {
       console.log('Print error:', error)
+      return { success: false, method: 'none', message: error?.message || 'Print failed' }
     } finally {
       setPrinting(false)
     }
@@ -312,16 +314,22 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         }
       }
       
-      // Print invoice on Sunmi device
+      // Print invoice
       console.log('[CreateInvoice] Sale created successfully, sale_id:', saleResponse.sale_id, 'printerReady:', printerReady)
+      let printMessage = ''
       if (printerReady && saleResponse.sale_id) {
         console.log('[CreateInvoice] Calling printInvoice...')
-        await printInvoice(saleResponse.sale_id)
-      } else {
-        console.log('[CreateInvoice] Print skipped - printerReady:', printerReady, 'sale_id:', saleResponse.sale_id)
+        const printResult = await printInvoice(saleResponse.sale_id)
+        if (printResult.success) {
+          if (printResult.method === 'sunmi') {
+            printMessage = ' - Receipt printed'
+          } else if (printResult.method === 'pdf') {
+            printMessage = ' - Receipt PDF ready'
+          }
+        }
       }
       
-      Alert.alert('Success', 'Sale created successfully' + (printerReady ? ' and printed' : ''), [
+      Alert.alert('Success', 'Sale created successfully' + printMessage, [
         { text: 'OK', onPress: () => navigation.goBack() },
       ])
     } catch (error: any) {
