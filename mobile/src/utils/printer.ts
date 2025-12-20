@@ -118,7 +118,6 @@ class PrinterService {
       console.log('[PrinterService] Printing with Sunmi native printer...');
       
       await SunmiPrinterLibrary.prepare();
-      await SunmiPrinterLibrary.setLineSpacing(0);
       const LINE = '------------------------';
       const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
       

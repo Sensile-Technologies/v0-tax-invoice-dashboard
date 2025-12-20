@@ -183,9 +183,6 @@ export default function InvoicesScreen({ navigation }: any) {
       if (branchId) {
         params.push(`branch_id=${branchId}`)
       }
-      if (user?.id) {
-        params.push(`user_id=${user.id}`)
-      }
       if (dateFrom) {
         params.push(`date_from=${dateFrom}`)
       }
