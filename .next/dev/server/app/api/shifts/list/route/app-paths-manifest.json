@@ -1,0 +1,3 @@
+{
+  "/api/shifts/list/route": "app/api/shifts/list/route.js"
+}

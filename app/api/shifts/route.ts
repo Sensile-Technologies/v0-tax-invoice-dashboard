@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, end_time, closing_cash, notes, status } = body
+    const { id, end_time, closing_cash, total_sales, notes, status } = body
 
     if (!id) {
       return NextResponse.json(
@@ -101,10 +101,10 @@ export async function PATCH(request: NextRequest) {
 
     const result = await pool.query(
       `UPDATE shifts 
-       SET end_time = $1, closing_cash = $2, notes = $3, status = $4, updated_at = NOW()
-       WHERE id = $5
+       SET end_time = $1, closing_cash = $2, total_sales = $3, notes = $4, status = $5, updated_at = NOW()
+       WHERE id = $6
        RETURNING *`,
-      [end_time || new Date().toISOString(), closing_cash || 0, notes || null, status || 'completed', id]
+      [end_time || new Date().toISOString(), closing_cash || 0, total_sales || 0, notes || null, status || 'completed', id]
     )
 
     if (result.rows.length === 0) {

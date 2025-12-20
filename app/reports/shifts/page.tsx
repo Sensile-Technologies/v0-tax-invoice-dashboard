@@ -1,13 +1,37 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import DashboardSidebar from "@/components/dashboard-sidebar"
 import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Download, Printer } from "lucide-react"
+import { Search, Download, Printer, RefreshCw, Clock, AlertCircle } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
+import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "sonner"
+
+interface Shift {
+  id: string
+  branch_id: string
+  staff_id: string
+  start_time: string
+  end_time: string | null
+  opening_cash: number
+  closing_cash: number
+  total_sales: number
+  status: string
+  notes: string | null
+  branch_name: string
+  cashier: string
+  variance: number
+}
+
+interface Branch {
+  id: string
+  name: string
+}
 
 export default function ShiftsReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -15,39 +39,104 @@ export default function ShiftsReportPage() {
   const { formatCurrency } = useCurrency()
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
+  const [shifts, setShifts] = useState<Shift[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [selectedBranch, setSelectedBranch] = useState<string>("all")
+  const [loading, setLoading] = useState(true)
+  const [summary, setSummary] = useState({
+    totalShifts: 0,
+    totalSales: 0,
+    averagePerShift: 0,
+    totalVariance: 0
+  })
 
-  const shifts = [
-    {
-      id: "SH001",
-      cashier: "John Doe",
-      startTime: "08:00",
-      endTime: "16:00",
-      openingCash: 50000,
-      sales: 245000,
-      closingCash: 295000,
-      variance: 0,
-    },
-    {
-      id: "SH002",
-      cashier: "Jane Smith",
-      startTime: "16:00",
-      endTime: "00:00",
-      openingCash: 50000,
-      sales: 189000,
-      closingCash: 239000,
-      variance: 0,
-    },
-    {
-      id: "SH003",
-      cashier: "Mike Johnson",
-      startTime: "00:00",
-      endTime: "08:00",
-      openingCash: 50000,
-      sales: 134000,
-      closingCash: 184000,
-      variance: 0,
-    },
-  ]
+  useEffect(() => {
+    fetchBranches()
+    fetchShifts()
+  }, [])
+
+  useEffect(() => {
+    fetchShifts()
+  }, [dateFrom, dateTo, selectedBranch, searchQuery])
+
+  async function fetchBranches() {
+    try {
+      const response = await fetch('/api/branches/list')
+      const data = await response.json()
+      if (data.success) {
+        setBranches(data.data || [])
+      }
+    } catch (error) {
+      console.error('Error fetching branches:', error)
+    }
+  }
+
+  async function fetchShifts() {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (selectedBranch && selectedBranch !== 'all') {
+        params.append('branch_id', selectedBranch)
+      }
+      if (dateFrom) params.append('date_from', dateFrom)
+      if (dateTo) params.append('date_to', dateTo)
+      if (searchQuery) params.append('search', searchQuery)
+
+      const response = await fetch(`/api/shifts/list?${params.toString()}`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setShifts(data.data || [])
+        
+        const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
+        const totalVariance = data.data.reduce((sum: number, s: Shift) => sum + (s.variance || 0), 0)
+        setSummary({
+          totalShifts: data.data.length,
+          totalSales,
+          averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
+          totalVariance
+        })
+      } else {
+        toast.error(data.error || 'Failed to fetch shifts')
+      }
+    } catch (error) {
+      console.error('Error fetching shifts:', error)
+      toast.error('Failed to fetch shifts')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function formatDateTime(dateString: string | null) {
+    if (!dateString) return '-'
+    const date = new Date(dateString)
+    return date.toLocaleString('en-KE', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  function formatTime(dateString: string | null) {
+    if (!dateString) return '-'
+    const date = new Date(dateString)
+    return date.toLocaleTimeString('en-KE', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  function getStatusBadge(status: string) {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-100 text-green-700">Active</Badge>
+      case 'completed':
+        return <Badge className="bg-blue-100 text-blue-700">Completed</Badge>
+      default:
+        return <Badge variant="outline">{status}</Badge>
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
@@ -64,6 +153,10 @@ export default function ShiftsReportPage() {
                 <p className="text-slate-600 mt-1">Cashier shift performance and reconciliation</p>
               </div>
               <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={fetchShifts}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
                 <Button variant="outline" size="sm">
                   <Printer className="h-4 w-4 mr-2" />
                   Print
@@ -83,19 +176,21 @@ export default function ShiftsReportPage() {
                 <div className="grid grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-slate-600">Total Shifts</p>
-                    <p className="text-2xl font-bold">{shifts.length}</p>
+                    <p className="text-2xl font-bold">{summary.totalShifts}</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-600">Total Sales</p>
-                    <p className="text-2xl font-bold">{formatCurrency(568000)}</p>
+                    <p className="text-2xl font-bold">{formatCurrency(summary.totalSales)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-600">Average Per Shift</p>
-                    <p className="text-2xl font-bold">{formatCurrency(189333)}</p>
+                    <p className="text-2xl font-bold">{formatCurrency(summary.averagePerShift)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600">Variance</p>
-                    <p className="text-2xl font-bold text-green-600">{formatCurrency(0)}</p>
+                    <p className="text-sm text-slate-600">Total Variance</p>
+                    <p className={`text-2xl font-bold ${summary.totalVariance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(summary.totalVariance)}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -103,21 +198,32 @@ export default function ShiftsReportPage() {
 
             <Card className="rounded-2xl">
               <CardHeader>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="relative flex-1 min-w-[200px]">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                     <Input
-                      placeholder="Search shifts..."
+                      placeholder="Search by cashier or branch..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 rounded-xl"
                     />
                   </div>
+                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                    <SelectTrigger className="w-48 rounded-xl">
+                      <SelectValue placeholder="All Branches" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Branches</SelectItem>
+                      {branches.map(branch => (
+                        <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Input
                     type="date"
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
-                    className="w-40 rounded-full"
+                    className="w-40 rounded-xl"
                     placeholder="From"
                   />
                   <span className="text-slate-600">to</span>
@@ -125,46 +231,66 @@ export default function ShiftsReportPage() {
                     type="date"
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
-                    className="w-40 rounded-full"
+                    className="w-40 rounded-xl"
                     placeholder="To"
                   />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Shift ID</th>
-                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Cashier</th>
-                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Start Time</th>
-                        <th className="text-left py-3 px-4 font-semibold text-slate-700">End Time</th>
-                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening Cash</th>
-                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Sales</th>
-                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Cash</th>
-                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Variance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {shifts.map((shift) => (
-                        <tr key={shift.id} className="border-b hover:bg-slate-50">
-                          <td className="py-3 px-4">{shift.id}</td>
-                          <td className="py-3 px-4">{shift.cashier}</td>
-                          <td className="py-3 px-4">{shift.startTime}</td>
-                          <td className="py-3 px-4">{shift.endTime}</td>
-                          <td className="py-3 px-4 text-right">{formatCurrency(shift.openingCash)}</td>
-                          <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.sales)}</td>
-                          <td className="py-3 px-4 text-right">{formatCurrency(shift.closingCash)}</td>
-                          <td className="py-3 px-4 text-right">
-                            <span className={shift.variance === 0 ? "text-green-600" : "text-red-600"}>
-                              {formatCurrency(shift.variance)}
-                            </span>
-                          </td>
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <RefreshCw className="h-8 w-8 animate-spin text-slate-400" />
+                    <span className="ml-2 text-slate-500">Loading shifts...</span>
+                  </div>
+                ) : shifts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+                    <Clock className="h-12 w-12 mb-4 text-slate-300" />
+                    <p className="text-lg font-medium">No shifts found</p>
+                    <p className="text-sm">Try adjusting your filters or date range</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Branch</th>
+                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Cashier</th>
+                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Start Time</th>
+                          <th className="text-left py-3 px-4 font-semibold text-slate-700">End Time</th>
+                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening Cash</th>
+                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Sales</th>
+                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Cash</th>
+                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Variance</th>
+                          <th className="text-center py-3 px-4 font-semibold text-slate-700">Status</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {shifts.map((shift) => (
+                          <tr key={shift.id} className="border-b hover:bg-slate-50">
+                            <td className="py-3 px-4">{shift.branch_name || 'Unknown'}</td>
+                            <td className="py-3 px-4">{shift.cashier}</td>
+                            <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
+                            <td className="py-3 px-4">{formatDateTime(shift.end_time)}</td>
+                            <td className="py-3 px-4 text-right">{formatCurrency(shift.opening_cash)}</td>
+                            <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.total_sales)}</td>
+                            <td className="py-3 px-4 text-right">{formatCurrency(shift.closing_cash)}</td>
+                            <td className="py-3 px-4 text-right">
+                              <span className={shift.variance >= 0 ? "text-green-600" : "text-red-600"}>
+                                {shift.variance !== 0 && (
+                                  <AlertCircle className="h-4 w-4 inline mr-1" />
+                                )}
+                                {formatCurrency(shift.variance)}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              {getStatusBadge(shift.status)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

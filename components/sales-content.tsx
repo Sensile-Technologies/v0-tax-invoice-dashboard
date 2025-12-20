@@ -557,6 +557,8 @@ export function SalesContent() {
 
     setShiftLoading(true)
     try {
+      const totalSales = sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0)
+      
       const response = await fetch('/api/shifts', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -565,6 +567,7 @@ export function SalesContent() {
           end_time: new Date().toISOString(),
           status: "completed",
           closing_cash: shiftForm.closing_cash ? Number.parseFloat(shiftForm.closing_cash) : 0,
+          total_sales: totalSales,
           notes: shiftForm.notes || null,
         })
       })
@@ -627,10 +630,12 @@ export function SalesContent() {
               <DropdownMenuItem onClick={() => openShiftDialog("start")} disabled={!!currentShift}>
                 Start Shift
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openShiftDialog("end")} disabled={!currentShift}>
+                End Shift (Quick)
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShiftManagementOpen(true)} disabled={!currentShift}>
                 End Shift (Excel Upload)
               </DropdownMenuItem>
-              <DropdownMenuItem>Configure Automatic Shifts</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={() => setShowSaleDialog(true)} disabled={!currentShift} size="sm" className="text-xs sm:text-sm">
@@ -1575,17 +1580,45 @@ export function SalesContent() {
                 </div>
               </div>
             )}
-            {shiftAction === "end" && (
-              <div className="space-y-2">
-                <Label htmlFor="closing_cash">Closing Cash (Optional)</Label>
-                <Input
-                  id="closing_cash"
-                  type="number"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={shiftForm.closing_cash}
-                  onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
-                />
+            {shiftAction === "end" && currentShift && (
+              <div className="space-y-4">
+                <div className="bg-slate-50 p-4 rounded-lg space-y-2">
+                  <h4 className="font-semibold text-slate-700">Shift Summary</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-slate-500">Started:</span>
+                      <span className="ml-2 font-medium">{shiftStartTime}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Duration:</span>
+                      <span className="ml-2 font-medium">
+                        {Math.round((Date.now() - new Date(currentShift.start_time).getTime()) / 3600000)}h
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Opening Cash:</span>
+                      <span className="ml-2 font-medium">KES {(currentShift.opening_cash || 0).toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Total Sales:</span>
+                      <span className="ml-2 font-medium text-green-600">
+                        KES {sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="closing_cash">Closing Cash Amount</Label>
+                  <Input
+                    id="closing_cash"
+                    type="number"
+                    step="0.01"
+                    placeholder="Enter actual cash in drawer"
+                    value={shiftForm.closing_cash}
+                    onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
+                  />
+                  <p className="text-xs text-slate-500">Enter the actual cash amount in the drawer to calculate variance</p>
+                </div>
               </div>
             )}
             <div className="space-y-2">
