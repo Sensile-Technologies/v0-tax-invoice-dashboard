@@ -1699,18 +1699,29 @@ export function SalesContent() {
                     />
                     <p className="text-xs text-slate-500">Enter the actual cash amount in the drawer to calculate variance</p>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes (Optional)</Label>
+                    <Textarea
+                      id="notes"
+                      placeholder="Add any notes about this shift"
+                      value={shiftForm.notes}
+                      onChange={(e) => setShiftForm({ ...shiftForm, notes: e.target.value })}
+                    />
+                  </div>
                 </div>
               </ScrollArea>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
-              <Textarea
-                id="notes"
-                placeholder="Add any notes about this shift"
-                value={shiftForm.notes}
-                onChange={(e) => setShiftForm({ ...shiftForm, notes: e.target.value })}
-              />
-            </div>
+            {shiftAction === "start" && (
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Add any notes about this shift"
+                  value={shiftForm.notes}
+                  onChange={(e) => setShiftForm({ ...shiftForm, notes: e.target.value })}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowShiftDialog(false)}>
