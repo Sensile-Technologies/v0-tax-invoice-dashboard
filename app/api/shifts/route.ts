@@ -88,18 +88,22 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const client = await pool.connect()
   try {
     const body = await request.json()
     const { id, end_time, closing_cash, total_sales, notes, status, nozzle_readings, tank_stocks } = body
 
     if (!id) {
+      client.release()
       return NextResponse.json(
         { error: "Shift ID is required" },
         { status: 400 }
       )
     }
 
-    const result = await pool.query(
+    await client.query('BEGIN')
+
+    const result = await client.query(
       `UPDATE shifts 
        SET end_time = $1, closing_cash = $2, total_sales = $3, notes = $4, status = $5, updated_at = NOW()
        WHERE id = $6
@@ -108,6 +112,8 @@ export async function PATCH(request: NextRequest) {
     )
 
     if (result.rows.length === 0) {
+      await client.query('ROLLBACK')
+      client.release()
       return NextResponse.json(
         { error: "Shift not found" },
         { status: 404 }
@@ -116,30 +122,41 @@ export async function PATCH(request: NextRequest) {
 
     const shift = result.rows[0]
 
+    await client.query(
+      `DELETE FROM shift_readings WHERE shift_id = $1`,
+      [id]
+    )
+
     if (nozzle_readings && nozzle_readings.length > 0) {
       for (const reading of nozzle_readings) {
-        await pool.query(
-          `INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, closing_reading)
-           VALUES ($1, $2, 'nozzle', $3, $4)`,
-          [id, shift.branch_id, reading.nozzle_id, reading.closing_reading]
-        )
+        if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
+          await client.query(
+            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, closing_reading)
+             VALUES ($1, $2, 'nozzle', $3, $4)`,
+            [id, shift.branch_id, reading.nozzle_id, reading.closing_reading]
+          )
+        }
       }
     }
 
     if (tank_stocks && tank_stocks.length > 0) {
       for (const stock of tank_stocks) {
-        await pool.query(
-          `INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, closing_reading)
-           VALUES ($1, $2, 'tank', $3, $4)`,
-          [id, shift.branch_id, stock.tank_id, stock.closing_reading]
-        )
+        if (stock.tank_id && !isNaN(stock.closing_reading)) {
+          await client.query(
+            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, closing_reading)
+             VALUES ($1, $2, 'tank', $3, $4)`,
+            [id, shift.branch_id, stock.tank_id, stock.closing_reading]
+          )
 
-        await pool.query(
-          `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
-          [stock.closing_reading, stock.tank_id]
-        )
+          await client.query(
+            `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
+            [stock.closing_reading, stock.tank_id]
+          )
+        }
       }
     }
+
+    await client.query('COMMIT')
 
     return NextResponse.json({
       success: true,
@@ -147,10 +164,13 @@ export async function PATCH(request: NextRequest) {
     })
 
   } catch (error: any) {
+    await client.query('ROLLBACK')
     console.error("Error updating shift:", error)
     return NextResponse.json(
       { error: "Failed to update shift", details: error.message },
       { status: 500 }
     )
+  } finally {
+    client.release()
   }
 }
