@@ -13,6 +13,7 @@ import {
   ScrollView,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { useNavigation } from '@react-navigation/native'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
@@ -53,6 +54,7 @@ interface FuelPrice {
 
 export default function SalesScreen() {
   const { user } = useAuth()
+  const navigation = useNavigation<any>()
   const [sales, setSales] = useState<Sale[]>([])
   const [currentShift, setCurrentShift] = useState<Shift | null>(null)
   const [nozzles, setNozzles] = useState<Nozzle[]>([])
@@ -143,34 +145,8 @@ export default function SalesScreen() {
     }
   }
 
-  async function handleEndShift() {
-    Alert.alert(
-      'End Shift',
-      'Are you sure you want to end the current shift?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'End Shift',
-          style: 'destructive',
-          onPress: async () => {
-            setSubmitting(true)
-            try {
-              await api.post('/api/mobile/sales/shift', {
-                action: 'end',
-                shift_id: currentShift?.id,
-              })
-              
-              Alert.alert('Success', 'Shift ended successfully')
-              fetchData()
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to end shift')
-            } finally {
-              setSubmitting(false)
-            }
-          },
-        },
-      ]
-    )
+  function handleEndShift() {
+    navigation.navigate('EndShift')
   }
 
   async function handleRecordSale() {
