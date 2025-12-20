@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  Platform,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
@@ -40,6 +41,7 @@ interface SaleInvoice {
   branch_address?: string
   branch_phone?: string
   branch_pin?: string
+  bhf_id?: string
   cashier_name?: string
   tax_amount?: number
   taxable_amount?: number
@@ -59,8 +61,23 @@ export default function InvoicesScreen({ navigation }: any) {
   const [customDateFrom, setCustomDateFrom] = useState('')
   const [customDateTo, setCustomDateTo] = useState('')
   const [printingId, setPrintingId] = useState<string | null>(null)
+  const [printerReady, setPrinterReady] = useState(false)
+
+  useEffect(() => {
+    console.log('[Invoices] Initializing printer, Platform:', Platform.OS)
+    sunmiPrinter.initialize().then(ready => {
+      console.log('[Invoices] Printer initialization result:', ready)
+      setPrinterReady(ready)
+    }).catch(err => {
+      console.log('[Invoices] Printer initialization error:', err)
+    })
+  }, [])
 
   const handleReprintInvoice = async (invoice: SaleInvoice) => {
+    if (!printerReady) {
+      Alert.alert('Printer Not Ready', 'The printer is not available. Please try again.')
+      return
+    }
     setPrintingId(invoice.id)
     try {
       const saleDate = new Date(invoice.sale_date)
@@ -107,8 +124,8 @@ export default function InvoicesScreen({ navigation }: any) {
         intrlData: invoice.intrl_data,
         co2PerLitre: co2PerLitre,
         totalCo2: totalCo2,
-        qrCodeData: invoice.receipt_signature 
-          ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${invoice.branch_pin || 'P052344628B'}03${invoice.receipt_signature}`
+        qrCodeData: (invoice.receipt_signature && invoice.branch_pin)
+          ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${invoice.branch_pin}${invoice.bhf_id || '03'}${invoice.receipt_signature}`
           : undefined,
       }
 
