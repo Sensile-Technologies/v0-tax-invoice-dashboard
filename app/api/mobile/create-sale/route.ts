@@ -139,6 +139,18 @@ export async function POST(request: Request) {
 
       await client.query('COMMIT')
 
+      const branchResult = await client.query(
+        `SELECT name, address, phone, tin FROM branches WHERE id = $1`,
+        [branch_id]
+      )
+      const branchData = branchResult.rows[0] || {}
+
+      const itemResult = await client.query(
+        `SELECT item_cd FROM items WHERE branch_id = $1 AND item_name ILIKE $2 LIMIT 1`,
+        [branch_id, `%${fuel_type}%`]
+      )
+      const itemCode = itemResult.rows[0]?.item_cd || null
+
       console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
       
       const kraResult = await callKraSaveSales({
@@ -187,7 +199,19 @@ export async function POST(request: Request) {
         invoice_number: invoiceNumber,
         receipt_number: receiptNumber,
         kra_response: kraResult.kraResponse,
-        kra_success: kraResult.success
+        kra_success: kraResult.success,
+        print_data: {
+          invoice_number: kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : invoiceNumber,
+          receipt_no: kraData.rcptNo?.toString() || null,
+          cu_serial_number: kraData.sdcId || null,
+          cu_invoice_no: kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
+          intrl_data: kraData.intrlData || null,
+          branch_name: branchData.name || null,
+          branch_address: branchData.address || null,
+          branch_phone: branchData.phone || null,
+          branch_pin: branchData.tin || null,
+          item_code: itemCode,
+        }
       })
     } catch (error) {
       await client.query('ROLLBACK')

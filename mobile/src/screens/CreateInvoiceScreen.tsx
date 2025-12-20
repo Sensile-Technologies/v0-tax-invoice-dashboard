@@ -298,7 +298,21 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   async function handleCreateSale() {
     setSubmitting(true)
     try {
-      const saleResponse = await api.post<{sale_id: string}>('/api/mobile/create-sale', {
+      const saleResponse = await api.post<{
+        sale_id: string;
+        print_data?: {
+          invoice_number?: string;
+          receipt_no?: string;
+          cu_serial_number?: string;
+          cu_invoice_no?: string;
+          intrl_data?: string;
+          branch_name?: string;
+          branch_address?: string;
+          branch_phone?: string;
+          branch_pin?: string;
+          item_code?: string;
+        };
+      }>('/api/mobile/create-sale', {
         branch_id: user?.branch_id,
         user_id: user?.id,
         nozzle_id: selectedNozzle,
@@ -343,8 +357,8 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       console.log('[CreateInvoice] Sale created successfully, sale_id:', saleResponse.sale_id, 'printerReady:', printerReady)
       let printMessage = ''
       if (printerReady && saleResponse.sale_id) {
-        console.log('[CreateInvoice] Calling printInvoice...')
-        const printResult = await printInvoice(saleResponse.sale_id)
+        console.log('[CreateInvoice] Calling printInvoice with KRA data...')
+        const printResult = await printInvoice(saleResponse.sale_id, saleResponse.print_data)
         if (printResult.success) {
           printMessage = ' - Receipt printed'
         }

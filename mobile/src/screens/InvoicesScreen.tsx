@@ -31,12 +31,15 @@ interface SaleInvoice {
   status: string
   kra_pin?: string
   cu_serial_number?: string
+  cu_invoice_no?: string
   receipt_signature?: string
   control_code?: string
   mrc_no?: string
   intrl_data?: string
   branch_name?: string
   branch_address?: string
+  branch_phone?: string
+  branch_pin?: string
   cashier_name?: string
   tax_amount?: number
   taxable_amount?: number
@@ -71,6 +74,8 @@ export default function InvoicesScreen({ navigation }: any) {
         time: saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         branchName: invoice.branch_name || user?.branch_name || 'Flow360 Station',
         branchAddress: invoice.branch_address,
+        branchPhone: invoice.branch_phone,
+        branchPin: invoice.branch_pin,
         customerName: invoice.customer_name || 'Walk-in Customer',
         customerPin: invoice.customer_pin,
         cashierName: invoice.cashier_name || user?.name || 'Cashier',

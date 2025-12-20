@@ -17,44 +17,56 @@ export async function GET(request: NextRequest) {
     try {
       let sql = `
         SELECT 
-          id,
-          invoice_number,
-          customer_name,
-          sale_date,
-          fuel_type,
-          quantity,
-          unit_price,
-          total_amount,
-          payment_method,
+          s.id,
+          s.invoice_number,
+          s.customer_name,
+          s.customer_pin,
+          s.sale_date,
+          s.fuel_type,
+          s.quantity,
+          s.unit_price,
+          s.total_amount,
+          s.payment_method,
+          s.kra_scu_id as cu_serial_number,
+          s.kra_cu_inv as cu_invoice_no,
+          s.kra_internal_data as intrl_data,
+          s.kra_rcpt_sign as receipt_signature,
+          b.name as branch_name,
+          b.address as branch_address,
+          b.phone as branch_phone,
+          b.tin as branch_pin,
+          u.username as cashier_name,
           CASE 
-            WHEN payment_method = 'credit' THEN 'pending'
+            WHEN s.payment_method = 'credit' THEN 'pending'
             ELSE 'paid'
           END as status
-        FROM sales
+        FROM sales s
+        LEFT JOIN branches b ON s.branch_id = b.id
+        LEFT JOIN users u ON s.created_by = u.id
         WHERE 1=1
       `
       const params: any[] = []
       let paramIndex = 1
 
       if (branchId) {
-        sql += ` AND branch_id = $${paramIndex}`
+        sql += ` AND s.branch_id = $${paramIndex}`
         params.push(branchId)
         paramIndex++
       }
 
       if (dateFrom) {
-        sql += ` AND DATE(sale_date) >= $${paramIndex}`
+        sql += ` AND DATE(s.sale_date) >= $${paramIndex}`
         params.push(dateFrom)
         paramIndex++
       }
 
       if (dateTo) {
-        sql += ` AND DATE(sale_date) <= $${paramIndex}`
+        sql += ` AND DATE(s.sale_date) <= $${paramIndex}`
         params.push(dateTo)
         paramIndex++
       }
 
-      sql += ` ORDER BY sale_date DESC LIMIT $${paramIndex}`
+      sql += ` ORDER BY s.sale_date DESC LIMIT $${paramIndex}`
       params.push(limit)
 
       const result = await client.query(sql, params)
