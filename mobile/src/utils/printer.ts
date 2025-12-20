@@ -179,13 +179,9 @@ class PrinterService {
       const taxable16 = invoice.taxableAmount || 0;
       const vat16 = invoice.totalTax || 0;
       
-      if (taxExempt > 0) {
-        await SunmiPrinterLibrary.printText(`EX  ${this.formatCurrency(taxExempt).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
-      }
+      await SunmiPrinterLibrary.printText(`EX  ${this.formatCurrency(taxExempt).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       await SunmiPrinterLibrary.printText(`16% ${this.formatCurrency(taxable16).padStart(10)} ${this.formatCurrency(vat16).padStart(9)}\n`);
-      if (taxZeroRated > 0) {
-        await SunmiPrinterLibrary.printText(`0%  ${this.formatCurrency(taxZeroRated).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
-      }
+      await SunmiPrinterLibrary.printText(`0%  ${this.formatCurrency(taxZeroRated).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(18);
