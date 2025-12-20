@@ -153,7 +153,7 @@ class PrinterService {
       await SunmiPrinterLibrary.printText('BUYER INFORMATION\n');
       await SunmiPrinterLibrary.setFontWeight(false);
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`Buyer PIN: ${invoice.customerPin || 'NOT PROVIDED'}\n`);
       await SunmiPrinterLibrary.printText(`Buyer Name: ${invoice.customerName || 'Walk-in Customer'}\n`);
       
@@ -163,7 +163,7 @@ class PrinterService {
       await SunmiPrinterLibrary.printText('PRODUCT DETAILS\n');
       await SunmiPrinterLibrary.setFontWeight(false);
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.setFontSize(26);
       
       for (const item of invoice.items) {
         const lineTotal = (item.quantity * item.unitPrice) - (item.discount || 0);
@@ -179,7 +179,7 @@ class PrinterService {
         await SunmiPrinterLibrary.setFontSize(24);
         await SunmiPrinterLibrary.printText(`TOTAL: ${this.formatCurrency(lineTotal)}\n`);
         await SunmiPrinterLibrary.setFontWeight(false);
-        await SunmiPrinterLibrary.setFontSize(22);
+        await SunmiPrinterLibrary.setFontSize(26);
       }
       
       await SunmiPrinterLibrary.setAlignment('center');
@@ -200,10 +200,10 @@ class PrinterService {
       await SunmiPrinterLibrary.printText(`0%  ${this.formatCurrency(taxZeroRated).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}\n`);
       
-      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.setFontSize(22);
       if (invoice.cuSerialNumber) {
         await SunmiPrinterLibrary.printText(`SCU ID: ${invoice.cuSerialNumber}\n`);
       }
@@ -217,7 +217,7 @@ class PrinterService {
       }
       
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`Receipt No: ${invoice.receiptNo || invoice.invoiceNumber}\n`);
       await SunmiPrinterLibrary.printText(`Served by: ${invoice.cashierName}\n`);
       await SunmiPrinterLibrary.printText(`Payment: ${invoice.paymentMethod.toLowerCase()}\n`);
