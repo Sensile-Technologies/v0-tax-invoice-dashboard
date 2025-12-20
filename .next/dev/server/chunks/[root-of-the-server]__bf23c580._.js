@@ -102,6 +102,7 @@ async function GET(request) {
           b.address as branch_address,
           b.phone as branch_phone,
           b.kra_pin as branch_pin,
+          b.bhf_id as bhf_id,
           u.username as cashier_name,
           CASE 
             WHEN s.payment_method = 'credit' THEN 'pending'

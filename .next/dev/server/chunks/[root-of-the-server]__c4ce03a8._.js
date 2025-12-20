@@ -1594,7 +1594,7 @@ async function POST(request) {
                 }
             }
             await client.query('COMMIT');
-            const branchResult = await client.query(`SELECT name, address, phone, kra_pin FROM branches WHERE id = $1`, [
+            const branchResult = await client.query(`SELECT name, address, phone, kra_pin, bhf_id FROM branches WHERE id = $1`, [
                 branch_id
             ]);
             const branchData = branchResult.rows[0] || {};
@@ -1657,7 +1657,9 @@ async function POST(request) {
                     branch_address: branchData.address || null,
                     branch_phone: branchData.phone || null,
                     branch_pin: branchData.kra_pin || null,
-                    item_code: itemCode
+                    item_code: itemCode,
+                    receipt_signature: kraData.rcptSign || null,
+                    bhf_id: branchData.bhf_id || '03'
                 }
             });
         } catch (error) {
