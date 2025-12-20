@@ -151,9 +151,6 @@ class PrinterService {
       
       for (const item of invoice.items) {
         const lineTotal = (item.quantity * item.unitPrice) - (item.discount || 0);
-        if (item.itemCode) {
-          await SunmiPrinterLibrary.printText(`Item Code: ${item.itemCode}\n`);
-        }
         await SunmiPrinterLibrary.printText(`Desc: ${item.name}\n`);
         if (item.dispenser) {
           await SunmiPrinterLibrary.printText(`Dispenser: ${item.dispenser}\n`);
@@ -200,16 +197,6 @@ class PrinterService {
         await SunmiPrinterLibrary.printText(`Int Data: ${invoice.intrlData}\n`);
       }
       
-      await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.setFontSize(18);
-      await SunmiPrinterLibrary.printText('KRA eTIMS Verification\n');
-      
-      const qrData = invoice.qrCodeData || 
-        `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
-      await SunmiPrinterLibrary.printQRCode(qrData, 6, 'middle');
-      await SunmiPrinterLibrary.setFontSize(16);
-      await SunmiPrinterLibrary.printText('Scan to verify with KRA eTIMS\n');
-      
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(18);
       await SunmiPrinterLibrary.printText(`Receipt No: ${invoice.receiptNo || invoice.invoiceNumber}\n`);
@@ -217,10 +204,11 @@ class PrinterService {
       await SunmiPrinterLibrary.printText(`Payment: ${invoice.paymentMethod.toLowerCase()}\n`);
       
       await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.setFontSize(20);
-      await SunmiPrinterLibrary.printText('THANK YOU FOR SHOPPING WITH US\n');
-      await SunmiPrinterLibrary.setFontSize(18);
-      await SunmiPrinterLibrary.printText('Powered by Flow360\n');
+      const qrData = invoice.qrCodeData || 
+        `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
+      await SunmiPrinterLibrary.printQRCode(qrData, 6, 'middle');
+      await SunmiPrinterLibrary.setFontSize(16);
+      await SunmiPrinterLibrary.printText('Scan to verify with KRA eTIMS\n');
       await SunmiPrinterLibrary.setFontSize(20);
       await SunmiPrinterLibrary.printText('END OF LEGAL RECEIPT\n');
       await SunmiPrinterLibrary.lineWrap(2);
