@@ -16,7 +16,7 @@ export default function Home() {
       } else if (user.role === "sales") {
         router.replace("/admin/sales")
       } else {
-        router.replace("/sales")
+        router.replace("/sales/summary")
       }
     } else {
       router.replace("/auth/login")

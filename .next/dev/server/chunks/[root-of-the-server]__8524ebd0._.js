@@ -1499,6 +1499,7 @@ async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
+        const shiftId = searchParams.get('shift_id');
         const nozzleId = searchParams.get('nozzle_id');
         const date = searchParams.get('date');
         const dateFrom = searchParams.get('date_from');
@@ -1512,6 +1513,11 @@ async function GET(request) {
         if (branchId) {
             whereClause += ` AND branch_id = $${paramIndex}`;
             params.push(branchId);
+            paramIndex++;
+        }
+        if (shiftId) {
+            whereClause += ` AND shift_id = $${paramIndex}`;
+            params.push(shiftId);
             paramIndex++;
         }
         if (nozzleId) {

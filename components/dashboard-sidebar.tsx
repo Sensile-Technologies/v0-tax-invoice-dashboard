@@ -47,7 +47,7 @@ type NavigationItem = {
 }
 
 const regularNavigationItems: NavigationItem[] = [
-  { icon: ShoppingCart, label: "Sales", href: "/sales", hasDropdown: true },
+  { icon: ShoppingCart, label: "Sales", href: "/sales/summary", hasDropdown: true },
   { icon: ShoppingBag, label: "Purchases", href: "/purchases" },
   { icon: Package, label: "Inventory", href: "/inventory" },
   { icon: CreditCard, label: "Payments", href: "/payments" },
