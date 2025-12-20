@@ -9,11 +9,20 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const branchId = searchParams.get("branch_id")
+    const shiftId = searchParams.get("shift_id")
 
     const client = await pool.connect()
     try {
       let salesResult
-      if (branchId) {
+      if (shiftId) {
+        salesResult = await client.query(`
+          SELECT 
+            COALESCE(SUM(total_amount), 0) as total_sales,
+            COUNT(*) as total_invoices
+          FROM sales
+          WHERE shift_id = $1
+        `, [shiftId])
+      } else if (branchId) {
         salesResult = await client.query(`
           SELECT 
             COALESCE(SUM(total_amount), 0) as total_sales,
@@ -32,7 +41,15 @@ export async function GET(request: NextRequest) {
       }
 
       let invoiceResult
-      if (branchId) {
+      if (shiftId) {
+        invoiceResult = await client.query(`
+          SELECT 
+            COUNT(CASE WHEN payment_method = 'credit' THEN 1 END) as pending_invoices,
+            COUNT(CASE WHEN payment_method != 'credit' THEN 1 END) as paid_invoices
+          FROM sales
+          WHERE shift_id = $1
+        `, [shiftId])
+      } else if (branchId) {
         invoiceResult = await client.query(`
           SELECT 
             COUNT(CASE WHEN payment_method = 'credit' THEN 1 END) as pending_invoices,

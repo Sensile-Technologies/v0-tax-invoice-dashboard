@@ -66,6 +66,12 @@ export async function POST(request: Request) {
       
       console.log(`[Mobile Create Sale] Price from items table: ${correctUnitPrice}, Calculated quantity: ${correctQuantity}`)
 
+      const shiftResult = await client.query(
+        `SELECT id FROM shifts WHERE branch_id = $1 AND status = 'active' ORDER BY created_at DESC LIMIT 1`,
+        [branch_id]
+      )
+      const shiftId = shiftResult.rows[0]?.id || null
+
       await client.query('BEGIN')
 
       const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`
@@ -95,8 +101,8 @@ export async function POST(request: Request) {
           unit_price, total_amount, payment_method, customer_name, 
           vehicle_number, invoice_number, receipt_number, sale_date,
           customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin,
-          meter_reading_after
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15, $16)
+          meter_reading_after, shift_id
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15, $16, $17)
         RETURNING *`,
         [
           branch_id,
@@ -115,6 +121,7 @@ export async function POST(request: Request) {
           is_loyalty_customer ? customer_name : null,
           is_loyalty_customer ? kra_pin : null,
           meterReadingAfter,
+          shiftId,
         ]
       )
 
