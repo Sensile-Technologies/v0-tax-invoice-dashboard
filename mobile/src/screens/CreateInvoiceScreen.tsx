@@ -281,6 +281,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         intrlData: kraDetails?.intrl_data,
         co2PerLitre: co2PerLitre,
         totalCo2: totalCo2,
+        isReprint: false,
         qrCodeData: (kraDetails?.receipt_signature && kraDetails?.branch_pin && kraDetails?.bhf_id)
           ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${kraDetails.branch_pin}${kraDetails.bhf_id}${kraDetails.receipt_signature}`
           : undefined,

@@ -124,6 +124,7 @@ export default function InvoicesScreen({ navigation }: any) {
         intrlData: invoice.intrl_data,
         co2PerLitre: co2PerLitre,
         totalCo2: totalCo2,
+        isReprint: true,
         qrCodeData: (invoice.receipt_signature && invoice.branch_pin)
           ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${invoice.branch_pin}${invoice.bhf_id || '03'}${invoice.receipt_signature}`
           : undefined,
@@ -176,30 +177,41 @@ export default function InvoicesScreen({ navigation }: any) {
   const fetchInvoices = useCallback(async () => {
     try {
       const { dateFrom, dateTo } = getDateRange()
-      let url = `/api/mobile/invoices?branch_id=${branchId}`
+      let url = `/api/mobile/invoices`
+      const params: string[] = []
+      
+      if (branchId) {
+        params.push(`branch_id=${branchId}`)
+      }
       if (dateFrom) {
-        url += `&date_from=${dateFrom}`
+        params.push(`date_from=${dateFrom}`)
       }
       if (dateTo) {
-        url += `&date_to=${dateTo}`
+        params.push(`date_to=${dateTo}`)
       }
       
+      if (params.length > 0) {
+        url += `?${params.join('&')}`
+      }
+      
+      console.log('[Invoices] Fetching from:', url)
+      console.log('[Invoices] User branch_id:', user?.branch_id, 'vendor_id:', user?.vendor_id)
+      
       const data = await api.get<{ sales: SaleInvoice[] }>(url)
+      console.log('[Invoices] Received:', data?.sales?.length || 0, 'invoices')
       setInvoices(data.sales || [])
     } catch (error) {
-      console.error('Error fetching invoices:', error)
+      console.error('[Invoices] Error fetching:', error)
       setInvoices([])
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
-  }, [branchId, getDateRange])
+  }, [branchId, getDateRange, user])
 
   useEffect(() => {
-    if (branchId) {
-      fetchInvoices()
-    }
-  }, [branchId, fetchInvoices])
+    fetchInvoices()
+  }, [fetchInvoices])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
