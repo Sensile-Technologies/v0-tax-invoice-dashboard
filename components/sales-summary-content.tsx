@@ -44,6 +44,9 @@ export function SalesSummaryContent() {
   const [fuelPrices, setFuelPrices] = useState<any[]>([])
   const [nozzleReadings, setNozzleReadings] = useState<Record<string, string>>({})
   const [tankStocks, setTankStocks] = useState<Record<string, string>>({})
+  const [tankStockReceived, setTankStockReceived] = useState<Record<string, string>>({})
+  const [nozzleBaselines, setNozzleBaselines] = useState<Record<string, number>>({})
+  const [tankBaselines, setTankBaselines] = useState<Record<string, number>>({})
   const [currentShift, setCurrentShift] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
   const [showSaleDialog, setShowSaleDialog] = useState(false)
@@ -419,7 +422,8 @@ export function SalesSummaryContent() {
         .filter(([_, value]) => value !== "")
         .map(([tankId, stock]) => ({
           tank_id: tankId,
-          closing_reading: parseFloat(stock)
+          closing_reading: parseFloat(stock),
+          stock_received: parseFloat(tankStockReceived[tankId] || "0") || 0
         }))
       
       const response = await fetch('/api/shifts', {
@@ -441,10 +445,12 @@ export function SalesSummaryContent() {
 
       if (!response.ok || !result.success) {
         console.error("Error ending shift:", result.error)
-        toast.error("Failed to end shift")
+        toast.error(result.error || "Failed to end shift")
       } else {
-        toast.success("Shift ended successfully")
-        setCurrentShift(null)
+        toast.success("Shift ended & new shift started")
+        if (result.newShift) {
+          setCurrentShift(result.newShift)
+        }
         setShowShiftDialog(false)
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
@@ -454,6 +460,8 @@ export function SalesSummaryContent() {
         })
         setNozzleReadings({})
         setTankStocks({})
+        setTankStockReceived({})
+        fetchData()
       }
     } catch (error) {
       console.error("Error ending shift:", error)
@@ -463,9 +471,22 @@ export function SalesSummaryContent() {
     }
   }
 
-  function openShiftDialog(action: "start" | "end") {
+  async function openShiftDialog(action: "start" | "end") {
     setShiftAction(action)
     setShowShiftDialog(true)
+    
+    if (action === "end" && currentBranchData?.id) {
+      try {
+        const res = await fetch(`/api/shifts/baselines?branch_id=${currentBranchData.id}`)
+        const data = await res.json()
+        if (data.success) {
+          setNozzleBaselines(data.nozzleBaselines || {})
+          setTankBaselines(data.tankBaselines || {})
+        }
+      } catch (error) {
+        console.error("Error fetching baselines:", error)
+      }
+    }
   }
 
   const shiftStartTime = currentShift
@@ -862,22 +883,31 @@ export function SalesSummaryContent() {
                       <div className="grid gap-3">
                         {nozzles.map((nozzle) => {
                           const dispenser = dispensers.find((d: any) => d.id === nozzle.dispenser_id)
+                          const openingReading = nozzleBaselines[nozzle.id] || 0
                           return (
-                            <div key={nozzle.id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
-                              <div className="flex-1">
-                                <p className="text-sm font-medium">
-                                  {dispenser?.name || 'Dispenser'} - Nozzle {nozzle.nozzle_number}
-                                </p>
-                                <p className="text-xs text-slate-500 capitalize">{nozzle.fuel_type}</p>
+                            <div key={nozzle.id} className="bg-slate-50 p-3 rounded-lg space-y-2">
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">
+                                    {dispenser?.name || 'Dispenser'} - Nozzle {nozzle.nozzle_number}
+                                  </p>
+                                  <p className="text-xs text-slate-500 capitalize">
+                                    {nozzle.fuel_type} - Opening: {openingReading.toLocaleString()}
+                                  </p>
+                                </div>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min={openingReading}
+                                  placeholder="Closing reading"
+                                  className="w-36"
+                                  value={nozzleReadings[nozzle.id] || ""}
+                                  onChange={(e) => setNozzleReadings({ ...nozzleReadings, [nozzle.id]: e.target.value })}
+                                />
                               </div>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                placeholder="Closing reading"
-                                className="w-36"
-                                value={nozzleReadings[nozzle.id] || ""}
-                                onChange={(e) => setNozzleReadings({ ...nozzleReadings, [nozzle.id]: e.target.value })}
-                              />
+                              {nozzleReadings[nozzle.id] && parseFloat(nozzleReadings[nozzle.id]) < openingReading && (
+                                <p className="text-xs text-red-500">Closing reading cannot be less than opening ({openingReading})</p>
+                              )}
                             </div>
                           )
                         })}
@@ -889,24 +919,44 @@ export function SalesSummaryContent() {
                     <div className="space-y-3">
                       <h4 className="font-semibold text-slate-700">Tank Closing Stock</h4>
                       <div className="grid gap-3">
-                        {tanks.map((tank) => (
-                          <div key={tank.id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">{tank.tank_name}</p>
-                              <p className="text-xs text-slate-500 capitalize">
-                                {tank.fuel_type} - Current: {parseFloat(tank.current_stock || 0).toLocaleString()} L
-                              </p>
+                        {tanks.map((tank) => {
+                          const openingStock = tankBaselines[tank.id] || 0
+                          const closingStock = parseFloat(tankStocks[tank.id] || "0") || 0
+                          const needsStockReceived = closingStock > openingStock
+                          return (
+                            <div key={tank.id} className="bg-slate-50 p-3 rounded-lg space-y-2">
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">{tank.tank_name}</p>
+                                  <p className="text-xs text-slate-500 capitalize">
+                                    {tank.fuel_type} - Opening: {openingStock.toLocaleString()} L
+                                  </p>
+                                </div>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Closing stock (L)"
+                                  className="w-36"
+                                  value={tankStocks[tank.id] || ""}
+                                  onChange={(e) => setTankStocks({ ...tankStocks, [tank.id]: e.target.value })}
+                                />
+                              </div>
+                              {needsStockReceived && (
+                                <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
+                                  <span className="text-xs text-amber-600 flex-1">Stock increased - enter fuel received:</span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Stock received (L)"
+                                    className="w-36"
+                                    value={tankStockReceived[tank.id] || ""}
+                                    onChange={(e) => setTankStockReceived({ ...tankStockReceived, [tank.id]: e.target.value })}
+                                  />
+                                </div>
+                              )}
                             </div>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="Closing stock (L)"
-                              className="w-36"
-                              value={tankStocks[tank.id] || ""}
-                              onChange={(e) => setTankStocks({ ...tankStocks, [tank.id]: e.target.value })}
-                            />
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     </div>
                   )}

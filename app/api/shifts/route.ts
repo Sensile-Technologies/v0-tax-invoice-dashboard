@@ -103,15 +103,12 @@ export async function PATCH(request: NextRequest) {
 
     await client.query('BEGIN')
 
-    const result = await client.query(
-      `UPDATE shifts 
-       SET end_time = $1, closing_cash = $2, total_sales = $3, notes = $4, status = $5, updated_at = NOW()
-       WHERE id = $6
-       RETURNING *`,
-      [end_time || new Date().toISOString(), closing_cash || 0, total_sales || 0, notes || null, status || 'completed', id]
+    const shiftCheck = await client.query(
+      `SELECT * FROM shifts WHERE id = $1`,
+      [id]
     )
 
-    if (result.rows.length === 0) {
+    if (shiftCheck.rows.length === 0) {
       await client.query('ROLLBACK')
       client.release()
       return NextResponse.json(
@@ -119,6 +116,64 @@ export async function PATCH(request: NextRequest) {
         { status: 404 }
       )
     }
+
+    const currentShift = shiftCheck.rows[0]
+    const branchId = currentShift.branch_id
+    const endTimeValue = end_time || new Date().toISOString()
+
+    const nozzlesResult = await client.query(
+      `SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1`,
+      [branchId]
+    )
+    const nozzleBaseReadings: Record<string, number> = {}
+    for (const n of nozzlesResult.rows) {
+      nozzleBaseReadings[n.id] = parseFloat(n.initial_meter_reading) || 0
+    }
+
+    const prevNozzleReadings = await client.query(
+      `SELECT nozzle_id, closing_reading FROM shift_readings 
+       WHERE branch_id = $1 AND reading_type = 'nozzle' AND nozzle_id IS NOT NULL
+       ORDER BY created_at DESC`,
+      [branchId]
+    )
+    for (const r of prevNozzleReadings.rows) {
+      if (!nozzleBaseReadings[r.nozzle_id] || parseFloat(r.closing_reading) > nozzleBaseReadings[r.nozzle_id]) {
+        nozzleBaseReadings[r.nozzle_id] = parseFloat(r.closing_reading)
+      }
+    }
+
+    const tanksResult = await client.query(
+      `SELECT id, current_stock FROM tanks WHERE branch_id = $1`,
+      [branchId]
+    )
+    const tankBaseStocks: Record<string, number> = {}
+    for (const t of tanksResult.rows) {
+      tankBaseStocks[t.id] = parseFloat(t.current_stock) || 0
+    }
+
+    if (nozzle_readings && nozzle_readings.length > 0) {
+      for (const reading of nozzle_readings) {
+        if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
+          const openingReading = nozzleBaseReadings[reading.nozzle_id] || 0
+          if (reading.closing_reading < openingReading) {
+            await client.query('ROLLBACK')
+            client.release()
+            return NextResponse.json(
+              { error: `Nozzle closing reading (${reading.closing_reading}) cannot be less than opening reading (${openingReading})` },
+              { status: 400 }
+            )
+          }
+        }
+      }
+    }
+
+    const result = await client.query(
+      `UPDATE shifts 
+       SET end_time = $1, closing_cash = $2, total_sales = $3, notes = $4, status = $5, updated_at = NOW()
+       WHERE id = $6
+       RETURNING *`,
+      [endTimeValue, closing_cash || 0, total_sales || 0, notes || null, status || 'completed', id]
+    )
 
     const shift = result.rows[0]
 
@@ -130,10 +185,11 @@ export async function PATCH(request: NextRequest) {
     if (nozzle_readings && nozzle_readings.length > 0) {
       for (const reading of nozzle_readings) {
         if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
+          const openingReading = nozzleBaseReadings[reading.nozzle_id] || 0
           await client.query(
-            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, closing_reading)
-             VALUES ($1, $2, 'nozzle', $3, $4)`,
-            [id, shift.branch_id, reading.nozzle_id, reading.closing_reading]
+            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading)
+             VALUES ($1, $2, 'nozzle', $3, $4, $5)`,
+            [id, branchId, reading.nozzle_id, openingReading, reading.closing_reading]
           )
         }
       }
@@ -142,10 +198,13 @@ export async function PATCH(request: NextRequest) {
     if (tank_stocks && tank_stocks.length > 0) {
       for (const stock of tank_stocks) {
         if (stock.tank_id && !isNaN(stock.closing_reading)) {
+          const openingStock = tankBaseStocks[stock.tank_id] || 0
+          const stockReceived = stock.stock_received || 0
+
           await client.query(
-            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, closing_reading)
-             VALUES ($1, $2, 'tank', $3, $4)`,
-            [id, shift.branch_id, stock.tank_id, stock.closing_reading]
+            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, opening_reading, closing_reading, stock_received)
+             VALUES ($1, $2, 'tank', $3, $4, $5, $6)`,
+            [id, branchId, stock.tank_id, openingStock, stock.closing_reading, stockReceived]
           )
 
           await client.query(
@@ -156,11 +215,20 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    const newShiftResult = await client.query(
+      `INSERT INTO shifts (branch_id, start_time, status, opening_cash, notes, created_at)
+       VALUES ($1, $2, 'active', $3, NULL, NOW())
+       RETURNING *`,
+      [branchId, endTimeValue, closing_cash || 0]
+    )
+    const newShift = newShiftResult.rows[0]
+
     await client.query('COMMIT')
 
     return NextResponse.json({
       success: true,
-      data: shift
+      data: shift,
+      newShift: newShift
     })
 
   } catch (error: any) {
