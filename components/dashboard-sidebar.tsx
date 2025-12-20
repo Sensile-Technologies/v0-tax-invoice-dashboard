@@ -137,7 +137,7 @@ export function DashboardSidebar({
                   className={cn(
                     "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                     "hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md",
-                    (pathname.startsWith(item.href) || pathname.startsWith(item.href.toLowerCase() + "-list")) &&
+                    (pathname === item.href || (pathname.startsWith(item.href + "/") && !pathname.includes("/reports/"))) &&
                       "bg-white/30 backdrop-blur-sm shadow-md",
                   )}
                 >

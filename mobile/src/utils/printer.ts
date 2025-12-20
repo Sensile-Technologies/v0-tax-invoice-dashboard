@@ -118,6 +118,14 @@ class PrinterService {
       console.log('[PrinterService] Printing with Sunmi native printer...');
       
       await SunmiPrinterLibrary.prepare();
+      
+      // Set tight line spacing for compact receipt (value in pixels, lower = tighter)
+      try {
+        await SunmiPrinterLibrary.setParagraphStyle('lineSpacing', 0);
+      } catch (e) {
+        console.log('[PrinterService] setParagraphStyle not available, using default spacing');
+      }
+      
       const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
       
       await SunmiPrinterLibrary.setAlignment('center');
