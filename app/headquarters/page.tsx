@@ -58,6 +58,8 @@ interface HQStats {
   totalTransactions: number
   totalEmployees: number
   totalInventory: number
+  dieselStock: number
+  petrolStock: number
   inventoryGrowth: number
   branchPerformance: { branch: string; sales: number; purchases: number }[]
   monthlyRevenue: { month: string; revenue: number }[]
@@ -753,9 +755,16 @@ export default function HeadquartersPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{totalInventory.toLocaleString()}</div>
-                  <p className={`text-xs mt-1 ${inventoryGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {inventoryGrowth >= 0 ? '+' : ''}{inventoryGrowth}% change
-                  </p>
+                  <div className="flex gap-4 mt-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-amber-500" />
+                      <span className="text-xs text-gray-600">Diesel: {(hqStats?.dieselStock || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      <span className="text-xs text-gray-600">Petrol: {(hqStats?.petrolStock || 0).toLocaleString()}</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

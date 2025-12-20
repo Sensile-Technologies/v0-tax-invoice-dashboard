@@ -257,19 +257,25 @@ async function GET(request) {
                 branchIds
             ]) : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT 0 as total_employees`),
             vendorId ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
-        SELECT COALESCE(SUM(current_stock), 0) as total_inventory
+        SELECT 
+          COALESCE(SUM(current_stock), 0) as total_inventory,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%petrol%' OR LOWER(fuel_type) LIKE '%super%' OR LOWER(fuel_type) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
         FROM tanks t
         JOIN branches b ON t.branch_id = b.id
         WHERE b.vendor_id = $1 AND (t.status = 'active' OR t.status IS NULL)
       `, [
                 vendorId
             ]) : branchIds && branchIds.length > 0 ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
-        SELECT COALESCE(SUM(current_stock), 0) as total_inventory
+        SELECT 
+          COALESCE(SUM(current_stock), 0) as total_inventory,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%petrol%' OR LOWER(fuel_type) LIKE '%super%' OR LOWER(fuel_type) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
         FROM tanks t
         WHERE t.branch_id = ANY($1::uuid[]) AND (t.status = 'active' OR t.status IS NULL)
       `, [
                 branchIds
-            ]) : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT 0 as total_inventory`),
+            ]) : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT 0 as total_inventory, 0 as diesel_stock, 0 as petrol_stock`),
             vendorId ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT 
           b.id,
@@ -326,6 +332,8 @@ async function GET(request) {
         const lastMonthRevenue = parseFloat(lastMonthRevenueResult.rows[0]?.total_revenue || 0);
         const revenueGrowth = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1) : '0';
         const currentInventory = parseFloat(inventoryResult.rows[0]?.total_inventory || 0);
+        const dieselStock = parseFloat(inventoryResult.rows[0]?.diesel_stock || 0);
+        const petrolStock = parseFloat(inventoryResult.rows[0]?.petrol_stock || 0);
         const branchPerformance = branchStatsResult.rows.map((row)=>({
                 branch: row.name,
                 sales: parseFloat(row.mtd_sales) / 1000,
@@ -341,6 +349,8 @@ async function GET(request) {
             totalTransactions: parseInt(transactionsResult.rows[0]?.total_transactions || 0),
             totalEmployees: parseInt(employeesResult.rows[0]?.total_employees || 0),
             totalInventory: Math.round(currentInventory),
+            dieselStock: Math.round(dieselStock),
+            petrolStock: Math.round(petrolStock),
             inventoryGrowth: 0,
             branchPerformance,
             monthlyRevenue

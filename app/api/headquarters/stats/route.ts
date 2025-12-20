@@ -121,15 +121,21 @@ export async function GET(request: Request) {
       `, [branchIds]) : pool.query(`SELECT 0 as total_employees`)),
       
       vendorId ? pool.query(`
-        SELECT COALESCE(SUM(current_stock), 0) as total_inventory
+        SELECT 
+          COALESCE(SUM(current_stock), 0) as total_inventory,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%petrol%' OR LOWER(fuel_type) LIKE '%super%' OR LOWER(fuel_type) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
         FROM tanks t
         JOIN branches b ON t.branch_id = b.id
         WHERE b.vendor_id = $1 AND (t.status = 'active' OR t.status IS NULL)
       `, [vendorId]) : (branchIds && branchIds.length > 0 ? pool.query(`
-        SELECT COALESCE(SUM(current_stock), 0) as total_inventory
+        SELECT 
+          COALESCE(SUM(current_stock), 0) as total_inventory,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
+          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%petrol%' OR LOWER(fuel_type) LIKE '%super%' OR LOWER(fuel_type) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
         FROM tanks t
         WHERE t.branch_id = ANY($1::uuid[]) AND (t.status = 'active' OR t.status IS NULL)
-      `, [branchIds]) : pool.query(`SELECT 0 as total_inventory`)),
+      `, [branchIds]) : pool.query(`SELECT 0 as total_inventory, 0 as diesel_stock, 0 as petrol_stock`)),
       
       vendorId ? pool.query(`
         SELECT 
@@ -182,6 +188,8 @@ export async function GET(request: Request) {
       : '0';
 
     const currentInventory = parseFloat(inventoryResult.rows[0]?.total_inventory || 0);
+    const dieselStock = parseFloat(inventoryResult.rows[0]?.diesel_stock || 0);
+    const petrolStock = parseFloat(inventoryResult.rows[0]?.petrol_stock || 0);
 
     const branchPerformance = branchStatsResult.rows.map((row: any) => ({
       branch: row.name,
@@ -200,6 +208,8 @@ export async function GET(request: Request) {
       totalTransactions: parseInt(transactionsResult.rows[0]?.total_transactions || 0),
       totalEmployees: parseInt(employeesResult.rows[0]?.total_employees || 0),
       totalInventory: Math.round(currentInventory),
+      dieselStock: Math.round(dieselStock),
+      petrolStock: Math.round(petrolStock),
       inventoryGrowth: 0,
       branchPerformance,
       monthlyRevenue
