@@ -64,8 +64,10 @@ export default function InvoicesScreen({ navigation }: any) {
     setPrintingId(invoice.id)
     try {
       const saleDate = new Date(invoice.sale_date)
-      const co2PerLitre = invoice.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
-      const totalCo2 = invoice.quantity * co2PerLitre
+      const co2PerLitre = invoice.fuel_type?.toLowerCase()?.includes('diesel') ? 2.68 : 2.31
+      const quantity = invoice.quantity || 0
+      const unitPrice = invoice.unit_price || 0
+      const totalCo2 = quantity * co2PerLitre
       
       const invoiceData: InvoiceData = {
         invoiceNumber: invoice.invoice_number || `SALE-${invoice.id.slice(0, 8)}`,
@@ -81,9 +83,9 @@ export default function InvoicesScreen({ navigation }: any) {
         cashierName: invoice.cashier_name || user?.name || 'Cashier',
         items: [
           {
-            name: invoice.fuel_type,
-            quantity: invoice.quantity,
-            unitPrice: invoice.unit_price,
+            name: invoice.fuel_type || 'Fuel',
+            quantity: quantity,
+            unitPrice: unitPrice,
             taxRate: 16,
           },
         ],
@@ -95,7 +97,7 @@ export default function InvoicesScreen({ navigation }: any) {
         taxZeroRated: 0,
         grandTotal: invoice.total_amount,
         paymentMethod: invoice.payment_method === 'mobile_money' ? 'M-Pesa' : 
-                       invoice.payment_method.charAt(0).toUpperCase() + invoice.payment_method.slice(1),
+                       (invoice.payment_method?.charAt(0)?.toUpperCase() || '') + (invoice.payment_method?.slice(1) || ''),
         kraPin: invoice.kra_pin,
         cuSerialNumber: invoice.cu_serial_number,
         cuInvoiceNo: invoice.invoice_number,
