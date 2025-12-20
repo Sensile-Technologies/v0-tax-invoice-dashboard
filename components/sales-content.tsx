@@ -17,7 +17,6 @@ import { useCurrency } from "@/lib/currency-utils"
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { ShiftManagementDialog } from "@/components/shift-management-dialog"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ChevronsUpDown } from "lucide-react"
@@ -51,7 +50,6 @@ export function SalesContent() {
   const [shiftAction, setShiftAction] = useState<"start" | "end" | null>(null)
   const [showCreditNoteDialog, setShowCreditNoteDialog] = useState(false)
   const [selectedSale, setSelectedSale] = useState<any | null>(null)
-  const [shiftManagementOpen, setShiftManagementOpen] = useState(false)
   const [currentBranchData, setCurrentBranchData] = useState<any>(null)
   const [loyaltyCustomers, setLoyaltyCustomers] = useState<Array<{ id: string; name: string; pin: string }>>([])
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
@@ -631,10 +629,7 @@ export function SalesContent() {
                 Start Shift
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => openShiftDialog("end")} disabled={!currentShift}>
-                End Shift (Quick)
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShiftManagementOpen(true)} disabled={!currentShift}>
-                End Shift (Excel Upload)
+                End Shift
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -1642,12 +1637,6 @@ export function SalesContent() {
         </DialogContent>
       </Dialog>
 
-      <ShiftManagementDialog
-        open={shiftManagementOpen}
-        onOpenChange={setShiftManagementOpen}
-        branchName={currentBranchData?.name}
-        branchId={currentBranchData?.id}
-      />
     </div>
   )
 }

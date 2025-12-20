@@ -1,7 +1,4 @@
 {
-  "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/shifts/list/route": "app/api/shifts/list/route.js",
   "/page": "app/page.js",
-  "/reports/shifts/page": "app/reports/shifts/page.js",
   "/sales/page": "app/sales/page.js"
 }

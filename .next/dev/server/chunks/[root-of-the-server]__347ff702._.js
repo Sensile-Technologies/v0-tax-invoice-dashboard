@@ -152,7 +152,7 @@ async function GET(request) {
 async function PATCH(request) {
     try {
         const body = await request.json();
-        const { id, end_time, closing_cash, notes, status } = body;
+        const { id, end_time, closing_cash, total_sales, notes, status } = body;
         if (!id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Shift ID is required"
@@ -161,11 +161,12 @@ async function PATCH(request) {
             });
         }
         const result = await pool.query(`UPDATE shifts 
-       SET end_time = $1, closing_cash = $2, notes = $3, status = $4, updated_at = NOW()
-       WHERE id = $5
+       SET end_time = $1, closing_cash = $2, total_sales = $3, notes = $4, status = $5, updated_at = NOW()
+       WHERE id = $6
        RETURNING *`, [
             end_time || new Date().toISOString(),
             closing_cash || 0,
+            total_sales || 0,
             notes || null,
             status || 'completed',
             id

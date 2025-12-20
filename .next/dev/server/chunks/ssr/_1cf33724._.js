@@ -4339,19 +4339,10 @@ function SalesContent() {
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
                                                 onClick: ()=>openShiftDialog("end"),
                                                 disabled: !currentShift,
-                                                children: "End Shift (Quick)"
+                                                children: "End Shift"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
                                                 lineNumber: 633,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                onClick: ()=>setShiftManagementOpen(true),
-                                                disabled: !currentShift,
-                                                children: "End Shift (Excel Upload)"
-                                            }, void 0, false, {
-                                                fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 636,
                                                 columnNumber: 15
                                             }, this)
                                         ]
@@ -4376,7 +4367,7 @@ function SalesContent() {
                                         className: "h-4 w-4 mr-1 sm:mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 642,
+                                        lineNumber: 639,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4384,7 +4375,7 @@ function SalesContent() {
                                         children: "Record Sale"
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 643,
+                                        lineNumber: 640,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4392,13 +4383,13 @@ function SalesContent() {
                                         children: "Sale"
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 644,
+                                        lineNumber: 641,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 641,
+                                lineNumber: 638,
                                 columnNumber: 11
                             }, this)
                         ]
@@ -4423,12 +4414,12 @@ function SalesContent() {
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/sales-content.tsx",
-                    lineNumber: 651,
+                    lineNumber: 648,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/sales-content.tsx",
-                lineNumber: 650,
+                lineNumber: 647,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Alert"], {
                 className: "bg-amber-50 border-amber-200",
@@ -4437,7 +4428,7 @@ function SalesContent() {
                         className: "h-4 w-4 text-amber-600"
                     }, void 0, false, {
                         fileName: "[project]/components/sales-content.tsx",
-                        lineNumber: 657,
+                        lineNumber: 654,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDescription"], {
@@ -4445,13 +4436,13 @@ function SalesContent() {
                         children: "No active shift. Please start a shift before recording sales."
                     }, void 0, false, {
                         fileName: "[project]/components/sales-content.tsx",
-                        lineNumber: 658,
+                        lineNumber: 655,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/sales-content.tsx",
-                lineNumber: 656,
+                lineNumber: 653,
                 columnNumber: 9
             }, this),
             sales.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -4469,7 +4460,7 @@ function SalesContent() {
                                                 children: "Sales by Fuel Type"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 671,
+                                                lineNumber: 668,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -4477,13 +4468,13 @@ function SalesContent() {
                                                 children: "Revenue by fuel type"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 672,
+                                                lineNumber: 669,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 670,
+                                        lineNumber: 667,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4523,7 +4514,7 @@ function SalesContent() {
                                                                 children: `${name} ${(percent * 100).toFixed(0)}%`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 694,
+                                                                lineNumber: 691,
                                                                 columnNumber: 27
                                                             }, void 0);
                                                         },
@@ -4545,13 +4536,13 @@ function SalesContent() {
                                                                     fill: FUEL_COLORS[fuelType] || "#6B7280"
                                                                 }, `cell-${index}`, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 723,
+                                                                    lineNumber: 720,
                                                                     columnNumber: 27
                                                                 }, this));
                                                         })()
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 677,
+                                                        lineNumber: 674,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -4561,29 +4552,29 @@ function SalesContent() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 727,
+                                                        lineNumber: 724,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 676,
+                                                lineNumber: 673,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 675,
+                                            lineNumber: 672,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 674,
+                                        lineNumber: 671,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 669,
+                                lineNumber: 666,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -4596,7 +4587,7 @@ function SalesContent() {
                                                 children: "Payment Methods"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 736,
+                                                lineNumber: 733,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -4604,13 +4595,13 @@ function SalesContent() {
                                                 children: "Payment breakdown"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 737,
+                                                lineNumber: 734,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 735,
+                                        lineNumber: 732,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4659,7 +4650,7 @@ function SalesContent() {
                                                                 children: `${displayName} ${(percent * 100).toFixed(0)}%`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 768,
+                                                                lineNumber: 765,
                                                                 columnNumber: 27
                                                             }, void 0);
                                                         },
@@ -4689,13 +4680,13 @@ function SalesContent() {
                                                                     fill: PAYMENT_COLORS[method] || "#6B7280"
                                                                 }, `cell-${index}`, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 805,
+                                                                    lineNumber: 802,
                                                                     columnNumber: 27
                                                                 }, this));
                                                         })()
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 742,
+                                                        lineNumber: 739,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -4705,29 +4696,29 @@ function SalesContent() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 809,
+                                                        lineNumber: 806,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 741,
+                                                lineNumber: 738,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 740,
+                                            lineNumber: 737,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 739,
+                                        lineNumber: 736,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 734,
+                                lineNumber: 731,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -4740,7 +4731,7 @@ function SalesContent() {
                                                 children: "Loyalty Program"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 818,
+                                                lineNumber: 815,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -4748,13 +4739,13 @@ function SalesContent() {
                                                 children: "Loyalty vs Walk-in sales"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 819,
+                                                lineNumber: 816,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 817,
+                                        lineNumber: 814,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4798,7 +4789,7 @@ function SalesContent() {
                                                                 children: `${name} ${(percent * 100).toFixed(0)}%`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 846,
+                                                                lineNumber: 843,
                                                                 columnNumber: 27
                                                             }, void 0);
                                                         },
@@ -4810,20 +4801,20 @@ function SalesContent() {
                                                                 fill: "#C8A2C8"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 863,
+                                                                lineNumber: 860,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Cell$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Cell"], {
                                                                 fill: "#87CEEB"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 865,
+                                                                lineNumber: 862,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 824,
+                                                        lineNumber: 821,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -4833,29 +4824,29 @@ function SalesContent() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 867,
+                                                        lineNumber: 864,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 823,
+                                                lineNumber: 820,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 822,
+                                            lineNumber: 819,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 821,
+                                        lineNumber: 818,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 816,
+                                lineNumber: 813,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -4868,7 +4859,7 @@ function SalesContent() {
                                                 children: "Revenue vs VAT"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 876,
+                                                lineNumber: 873,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -4876,13 +4867,13 @@ function SalesContent() {
                                                 children: "Month-to-date comparison"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 877,
+                                                lineNumber: 874,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 875,
+                                        lineNumber: 872,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4920,7 +4911,7 @@ function SalesContent() {
                                                         strokeDasharray: "3 3"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 896,
+                                                        lineNumber: 893,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -4931,7 +4922,7 @@ function SalesContent() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 897,
+                                                        lineNumber: 894,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -4941,7 +4932,7 @@ function SalesContent() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 898,
+                                                        lineNumber: 895,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -4951,7 +4942,7 @@ function SalesContent() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 899,
+                                                        lineNumber: 896,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -4961,48 +4952,48 @@ function SalesContent() {
                                                                 fill: "#15426D"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 901,
+                                                                lineNumber: 898,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Cell$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Cell"], {
                                                                 fill: "#D55402"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 902,
+                                                                lineNumber: 899,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 900,
+                                                        lineNumber: 897,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 881,
+                                                lineNumber: 878,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 880,
+                                            lineNumber: 877,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 879,
+                                        lineNumber: 876,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 874,
+                                lineNumber: 871,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/sales-content.tsx",
-                        lineNumber: 667,
+                        lineNumber: 664,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -5016,7 +5007,7 @@ function SalesContent() {
                                         children: "Daily Sales Trend"
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 913,
+                                        lineNumber: 910,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -5024,13 +5015,13 @@ function SalesContent() {
                                         children: "Sales per product over 7 days"
                                     }, void 0, false, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 914,
+                                        lineNumber: 911,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 912,
+                                lineNumber: 909,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5073,7 +5064,7 @@ function SalesContent() {
                                                 stroke: "#e5e7eb"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 944,
+                                                lineNumber: 941,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -5088,7 +5079,7 @@ function SalesContent() {
                                                     })
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 945,
+                                                lineNumber: 942,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -5098,7 +5089,7 @@ function SalesContent() {
                                                 }
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 952,
+                                                lineNumber: 949,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -5109,7 +5100,7 @@ function SalesContent() {
                                                 labelFormatter: (label)=>new Date(label).toLocaleDateString()
                                             }, void 0, false, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 953,
+                                                lineNumber: 950,
                                                 columnNumber: 19
                                             }, this),
                                             [
@@ -5132,30 +5123,30 @@ function SalesContent() {
                                                     name: fuelType
                                                 }, fuelType, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 966,
+                                                    lineNumber: 963,
                                                     columnNumber: 23
                                                 }, this);
                                             })
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/sales-content.tsx",
-                                        lineNumber: 918,
+                                        lineNumber: 915,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 917,
+                                    lineNumber: 914,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 916,
+                                lineNumber: 913,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/sales-content.tsx",
-                        lineNumber: 911,
+                        lineNumber: 908,
                         columnNumber: 11
                     }, this)
                 ]
@@ -5174,20 +5165,20 @@ function SalesContent() {
                                             children: "Sales Report"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 988,
+                                            lineNumber: 985,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                             children: "Latest fuel sales transactions"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 989,
+                                            lineNumber: 986,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 987,
+                                    lineNumber: 984,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5202,7 +5193,7 @@ function SalesContent() {
                                                     children: "Date:"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 993,
+                                                    lineNumber: 990,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5216,13 +5207,13 @@ function SalesContent() {
                                                     className: "w-full md:w-36 h-9"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 996,
+                                                    lineNumber: 993,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 992,
+                                            lineNumber: 989,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5234,7 +5225,7 @@ function SalesContent() {
                                                     children: "Invoice:"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1006,
+                                                    lineNumber: 1003,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5249,13 +5240,13 @@ function SalesContent() {
                                                     className: "w-full md:w-28 h-9"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1009,
+                                                    lineNumber: 1006,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1005,
+                                            lineNumber: 1002,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5267,7 +5258,7 @@ function SalesContent() {
                                                     children: "Fuel:"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1020,
+                                                    lineNumber: 1017,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -5284,12 +5275,12 @@ function SalesContent() {
                                                                 placeholder: "All"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1025,
+                                                                lineNumber: 1022,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1024,
+                                                            lineNumber: 1021,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -5299,7 +5290,7 @@ function SalesContent() {
                                                                     children: "All"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1028,
+                                                                    lineNumber: 1025,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 uniqueFuelTypes.map((type)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5307,25 +5298,25 @@ function SalesContent() {
                                                                         children: type
                                                                     }, type, false, {
                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                        lineNumber: 1030,
+                                                                        lineNumber: 1027,
                                                                         columnNumber: 23
                                                                     }, this))
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1027,
+                                                            lineNumber: 1024,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1023,
+                                                    lineNumber: 1020,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1019,
+                                            lineNumber: 1016,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5337,7 +5328,7 @@ function SalesContent() {
                                                     children: "Nozzle:"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1039,
+                                                    lineNumber: 1036,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -5354,12 +5345,12 @@ function SalesContent() {
                                                                 placeholder: "All"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1044,
+                                                                lineNumber: 1041,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1043,
+                                                            lineNumber: 1040,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -5369,7 +5360,7 @@ function SalesContent() {
                                                                     children: "All"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1047,
+                                                                    lineNumber: 1044,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 uniqueNozzles.map((nozzleId)=>{
@@ -5380,26 +5371,26 @@ function SalesContent() {
                                                                         children: dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "Unknown"
                                                                     }, nozzleId, false, {
                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                        lineNumber: 1052,
+                                                                        lineNumber: 1049,
                                                                         columnNumber: 25
                                                                     }, this);
                                                                 })
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1046,
+                                                            lineNumber: 1043,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1042,
+                                                    lineNumber: 1039,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1038,
+                                            lineNumber: 1035,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5411,7 +5402,7 @@ function SalesContent() {
                                                     children: "Loyalty:"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1062,
+                                                    lineNumber: 1059,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -5428,12 +5419,12 @@ function SalesContent() {
                                                                 placeholder: "All"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1067,
+                                                                lineNumber: 1064,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1066,
+                                                            lineNumber: 1063,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -5443,7 +5434,7 @@ function SalesContent() {
                                                                     children: "All"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1070,
+                                                                    lineNumber: 1067,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5451,7 +5442,7 @@ function SalesContent() {
                                                                     children: "Loyalty Only"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1071,
+                                                                    lineNumber: 1068,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5459,25 +5450,25 @@ function SalesContent() {
                                                                     children: "Walk-in"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1072,
+                                                                    lineNumber: 1069,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1069,
+                                                            lineNumber: 1066,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1065,
+                                                    lineNumber: 1062,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1061,
+                                            lineNumber: 1058,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -5494,24 +5485,24 @@ function SalesContent() {
                                             children: "Clear"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1077,
+                                            lineNumber: 1074,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 991,
+                                    lineNumber: 988,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 986,
+                            lineNumber: 983,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/sales-content.tsx",
-                        lineNumber: 985,
+                        lineNumber: 982,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5522,7 +5513,7 @@ function SalesContent() {
                                 children: sales.length === 0 ? "No sales recorded yet" : "No sales match the current filters"
                             }, void 0, false, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 1091,
+                                lineNumber: 1088,
                                 columnNumber: 15
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "overflow-x-auto",
@@ -5537,7 +5528,7 @@ function SalesContent() {
                                                         children: "Date"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1099,
+                                                        lineNumber: 1096,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5545,7 +5536,7 @@ function SalesContent() {
                                                         children: "Invoice No."
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1100,
+                                                        lineNumber: 1097,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5553,7 +5544,7 @@ function SalesContent() {
                                                         children: "Nozzle"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1101,
+                                                        lineNumber: 1098,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5561,7 +5552,7 @@ function SalesContent() {
                                                         children: "Fuel Type"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1102,
+                                                        lineNumber: 1099,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5569,7 +5560,7 @@ function SalesContent() {
                                                         children: "Quantity (L)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1103,
+                                                        lineNumber: 1100,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5577,7 +5568,7 @@ function SalesContent() {
                                                         children: "Unit Price"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1104,
+                                                        lineNumber: 1101,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5585,7 +5576,7 @@ function SalesContent() {
                                                         children: "Total"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1105,
+                                                        lineNumber: 1102,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5593,7 +5584,7 @@ function SalesContent() {
                                                         children: "Payment"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1106,
+                                                        lineNumber: 1103,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5601,7 +5592,7 @@ function SalesContent() {
                                                         children: "Loyalty"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1107,
+                                                        lineNumber: 1104,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5609,7 +5600,7 @@ function SalesContent() {
                                                         children: "Meter Reading"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1108,
+                                                        lineNumber: 1105,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5617,7 +5608,7 @@ function SalesContent() {
                                                         children: "Status"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1109,
+                                                        lineNumber: 1106,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5625,18 +5616,18 @@ function SalesContent() {
                                                         children: "Actions"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/sales-content.tsx",
-                                                        lineNumber: 1110,
+                                                        lineNumber: 1107,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/sales-content.tsx",
-                                                lineNumber: 1098,
+                                                lineNumber: 1095,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1097,
+                                            lineNumber: 1094,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -5656,7 +5647,7 @@ function SalesContent() {
                                                             })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1120,
+                                                            lineNumber: 1117,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5664,7 +5655,7 @@ function SalesContent() {
                                                             children: sale.invoice_number || sale.receipt_number
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1128,
+                                                            lineNumber: 1125,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5672,7 +5663,7 @@ function SalesContent() {
                                                             children: dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "-"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1131,
+                                                            lineNumber: 1128,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5680,7 +5671,7 @@ function SalesContent() {
                                                             children: sale.fuel_type
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1134,
+                                                            lineNumber: 1131,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5688,7 +5679,7 @@ function SalesContent() {
                                                             children: Number(sale.quantity).toFixed(2)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1135,
+                                                            lineNumber: 1132,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5696,7 +5687,7 @@ function SalesContent() {
                                                             children: formatCurrency(sale.unit_price)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1136,
+                                                            lineNumber: 1133,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5704,7 +5695,7 @@ function SalesContent() {
                                                             children: formatCurrency(sale.total_amount)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1137,
+                                                            lineNumber: 1134,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5721,12 +5712,12 @@ function SalesContent() {
                                                                 })()
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1141,
+                                                                lineNumber: 1138,
                                                                 columnNumber: 29
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1140,
+                                                            lineNumber: 1137,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5745,30 +5736,30 @@ function SalesContent() {
                                                                             clipRule: "evenodd"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/sales-content.tsx",
-                                                                            lineNumber: 1160,
+                                                                            lineNumber: 1157,
                                                                             columnNumber: 35
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                                                             d: "M12 4.354a4 4 0 110 5.292M15.465 5.464A5.973 5.973 0 0112 4c-3.314 0-6 2.686-6 6 0 1.369.465 2.628 1.243 3.636l-1.06 1.06a7.966 7.966 0 01-1.383-4.696c0-4.418 3.582-8 8-8 1.823 0 3.5.611 4.85 1.636l-1.185 1.185z"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/sales-content.tsx",
-                                                                            lineNumber: 1165,
+                                                                            lineNumber: 1162,
                                                                             columnNumber: 35
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1154,
+                                                                    lineNumber: 1151,
                                                                     columnNumber: 33
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1153,
+                                                                lineNumber: 1150,
                                                                 columnNumber: 31
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1151,
+                                                            lineNumber: 1148,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5776,7 +5767,7 @@ function SalesContent() {
                                                             children: sale.meter_reading_after ? Number(sale.meter_reading_after).toFixed(2) : "-"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1170,
+                                                            lineNumber: 1167,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5786,12 +5777,12 @@ function SalesContent() {
                                                                 children: (sale.transmission_status || "pending").charAt(0).toUpperCase() + (sale.transmission_status || "pending").slice(1)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1174,
+                                                                lineNumber: 1171,
                                                                 columnNumber: 29
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1173,
+                                                            lineNumber: 1170,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -5807,17 +5798,17 @@ function SalesContent() {
                                                                                 className: "h-4 w-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                lineNumber: 1183,
+                                                                                lineNumber: 1180,
                                                                                 columnNumber: 35
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/sales-content.tsx",
-                                                                            lineNumber: 1182,
+                                                                            lineNumber: 1179,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                        lineNumber: 1181,
+                                                                        lineNumber: 1178,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -5830,14 +5821,14 @@ function SalesContent() {
                                                                                         className: "h-4 w-4 mr-2"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                                        lineNumber: 1188,
+                                                                                        lineNumber: 1185,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     "View Invoice"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                lineNumber: 1187,
+                                                                                lineNumber: 1184,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -5847,70 +5838,70 @@ function SalesContent() {
                                                                                         className: "h-4 w-4 mr-2"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                                        lineNumber: 1192,
+                                                                                        lineNumber: 1189,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     "Generate Credit Note"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                lineNumber: 1191,
+                                                                                lineNumber: 1188,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                        lineNumber: 1186,
+                                                                        lineNumber: 1183,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1180,
+                                                                lineNumber: 1177,
                                                                 columnNumber: 29
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1179,
+                                                            lineNumber: 1176,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, sale.id, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1119,
+                                                    lineNumber: 1116,
                                                     columnNumber: 25
                                                 }, this);
                                             })
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1113,
+                                            lineNumber: 1110,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1096,
+                                    lineNumber: 1093,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/sales-content.tsx",
-                                lineNumber: 1095,
+                                lineNumber: 1092,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1089,
+                            lineNumber: 1086,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/sales-content.tsx",
-                        lineNumber: 1088,
+                        lineNumber: 1085,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/sales-content.tsx",
-                lineNumber: 984,
+                lineNumber: 981,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -5925,20 +5916,20 @@ function SalesContent() {
                                     children: "Record Fuel Sale"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1213,
+                                    lineNumber: 1210,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Enter the details of the fuel sale transaction"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1214,
+                                    lineNumber: 1211,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1212,
+                            lineNumber: 1209,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5955,7 +5946,7 @@ function SalesContent() {
                                                     children: "Nozzle"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1219,
+                                                    lineNumber: 1216,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -5975,12 +5966,12 @@ function SalesContent() {
                                                                 placeholder: "Select nozzle"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1228,
+                                                                lineNumber: 1225,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1227,
+                                                            lineNumber: 1224,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -5996,25 +5987,25 @@ function SalesContent() {
                                                                     ]
                                                                 }, nozzle.id, true, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1234,
+                                                                    lineNumber: 1231,
                                                                     columnNumber: 25
                                                                 }, this);
                                                             })
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1230,
+                                                            lineNumber: 1227,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1220,
+                                                    lineNumber: 1217,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1218,
+                                            lineNumber: 1215,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6025,7 +6016,7 @@ function SalesContent() {
                                                     children: "Fuel Type"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1246,
+                                                    lineNumber: 1243,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6034,19 +6025,19 @@ function SalesContent() {
                                                     disabled: true
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1247,
+                                                    lineNumber: 1244,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1245,
+                                            lineNumber: 1242,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1217,
+                                    lineNumber: 1214,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6060,7 +6051,7 @@ function SalesContent() {
                                                     children: "Sale Amount (KES)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1252,
+                                                    lineNumber: 1249,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6075,7 +6066,7 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1253,
+                                                    lineNumber: 1250,
                                                     columnNumber: 17
                                                 }, this),
                                                 saleForm.amount && saleForm.fuel_type && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6089,13 +6080,13 @@ function SalesContent() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1262,
+                                                    lineNumber: 1259,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1251,
+                                            lineNumber: 1248,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6106,7 +6097,7 @@ function SalesContent() {
                                                     children: "Payment Method"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1273,
+                                                    lineNumber: 1270,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -6120,12 +6111,12 @@ function SalesContent() {
                                                             id: "payment_method",
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1279,
+                                                                lineNumber: 1276,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1278,
+                                                            lineNumber: 1275,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -6135,7 +6126,7 @@ function SalesContent() {
                                                                     children: "Cash"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1282,
+                                                                    lineNumber: 1279,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -6143,7 +6134,7 @@ function SalesContent() {
                                                                     children: "Mobile Money"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1283,
+                                                                    lineNumber: 1280,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -6151,7 +6142,7 @@ function SalesContent() {
                                                                     children: "Card"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1284,
+                                                                    lineNumber: 1281,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -6159,31 +6150,31 @@ function SalesContent() {
                                                                     children: "Credit"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1285,
+                                                                    lineNumber: 1282,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1281,
+                                                            lineNumber: 1278,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1274,
+                                                    lineNumber: 1271,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1272,
+                                            lineNumber: 1269,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1250,
+                                    lineNumber: 1247,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6197,7 +6188,7 @@ function SalesContent() {
                                                     children: "Customer Name (Optional)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1292,
+                                                    lineNumber: 1289,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6210,13 +6201,13 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1293,
+                                                    lineNumber: 1290,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1291,
+                                            lineNumber: 1288,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6227,7 +6218,7 @@ function SalesContent() {
                                                     children: "PIN/TIN Number (Optional)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1301,
+                                                    lineNumber: 1298,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6240,19 +6231,19 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1302,
+                                                    lineNumber: 1299,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1300,
+                                            lineNumber: 1297,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1290,
+                                    lineNumber: 1287,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6266,7 +6257,7 @@ function SalesContent() {
                                                     children: "Discount Type (Optional)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1312,
+                                                    lineNumber: 1309,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -6280,12 +6271,12 @@ function SalesContent() {
                                                             id: "discount_type",
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                lineNumber: 1318,
+                                                                lineNumber: 1315,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1317,
+                                                            lineNumber: 1314,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -6295,7 +6286,7 @@ function SalesContent() {
                                                                     children: "Fixed Amount (KES)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1321,
+                                                                    lineNumber: 1318,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -6303,25 +6294,25 @@ function SalesContent() {
                                                                     children: "Percentage (%)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1322,
+                                                                    lineNumber: 1319,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1320,
+                                                            lineNumber: 1317,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1313,
+                                                    lineNumber: 1310,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1311,
+                                            lineNumber: 1308,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6335,7 +6326,7 @@ function SalesContent() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1327,
+                                                    lineNumber: 1324,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6350,7 +6341,7 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1330,
+                                                    lineNumber: 1327,
                                                     columnNumber: 17
                                                 }, this),
                                                 saleForm.amount && saleForm.discount_value && Number.parseFloat(saleForm.discount_value) > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -6362,19 +6353,19 @@ function SalesContent() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1339,
+                                                    lineNumber: 1336,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1326,
+                                            lineNumber: 1323,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1310,
+                                    lineNumber: 1307,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6394,7 +6385,7 @@ function SalesContent() {
                                                     className: "rounded border-gray-300"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1353,
+                                                    lineNumber: 1350,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Label"], {
@@ -6413,33 +6404,33 @@ function SalesContent() {
                                                                     clipRule: "evenodd"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1367,
+                                                                    lineNumber: 1364,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                                                                     d: "M12 4.354a4 4 0 110 5.292M15.465 5.464A5.973 5.973 0 0112 4c-3.314 0-6 2.686-6 6 0 1.369.465 2.628 1.243 3.636l-1.06 1.06a7.966 7.966 0 01-1.383-4.696c0-4.418 3.582-8 8-8 1.823 0 3.5.611 4.85 1.636l-1.185 1.185z"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1372,
+                                                                    lineNumber: 1369,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1361,
+                                                            lineNumber: 1358,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Loyalty Customer Transaction"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1360,
+                                                    lineNumber: 1357,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1352,
+                                            lineNumber: 1349,
                                             columnNumber: 15
                                         }, this),
                                         saleForm.is_loyalty_sale && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6453,7 +6444,7 @@ function SalesContent() {
                                                             children: "Loyalty Customer Name *"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1380,
+                                                            lineNumber: 1377,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Popover"], {
@@ -6473,18 +6464,18 @@ function SalesContent() {
                                                                                 className: "ml-2 h-4 w-4 shrink-0 opacity-50"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                lineNumber: 1390,
+                                                                                lineNumber: 1387,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                        lineNumber: 1383,
+                                                                        lineNumber: 1380,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1382,
+                                                                    lineNumber: 1379,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PopoverContent"], {
@@ -6495,7 +6486,7 @@ function SalesContent() {
                                                                                 placeholder: "Search customer..."
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                lineNumber: 1395,
+                                                                                lineNumber: 1392,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CommandList"], {
@@ -6504,7 +6495,7 @@ function SalesContent() {
                                                                                         children: "No customer found."
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                                        lineNumber: 1397,
+                                                                                        lineNumber: 1394,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CommandGroup"], {
@@ -6524,7 +6515,7 @@ function SalesContent() {
                                                                                                         className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("mr-2 h-4 w-4", saleForm.loyalty_customer_name === customer.name ? "opacity-100" : "opacity-0")
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                                                        lineNumber: 1412,
+                                                                                                        lineNumber: 1409,
                                                                                                         columnNumber: 35
                                                                                                     }, this),
                                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6535,7 +6526,7 @@ function SalesContent() {
                                                                                                                 children: customer.name
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                                                lineNumber: 1419,
+                                                                                                                lineNumber: 1416,
                                                                                                                 columnNumber: 37
                                                                                                             }, this),
                                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6543,53 +6534,53 @@ function SalesContent() {
                                                                                                                 children: customer.pin
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                                                lineNumber: 1420,
+                                                                                                                lineNumber: 1417,
                                                                                                                 columnNumber: 37
                                                                                                             }, this)
                                                                                                         ]
                                                                                                     }, void 0, true, {
                                                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                                                        lineNumber: 1418,
+                                                                                                        lineNumber: 1415,
                                                                                                         columnNumber: 35
                                                                                                     }, this)
                                                                                                 ]
                                                                                             }, customer.id, true, {
                                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                                lineNumber: 1400,
+                                                                                                lineNumber: 1397,
                                                                                                 columnNumber: 33
                                                                                             }, this))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                                        lineNumber: 1398,
+                                                                                        lineNumber: 1395,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/components/sales-content.tsx",
-                                                                                lineNumber: 1396,
+                                                                                lineNumber: 1393,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/components/sales-content.tsx",
-                                                                        lineNumber: 1394,
+                                                                        lineNumber: 1391,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1393,
+                                                                    lineNumber: 1390,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1381,
+                                                            lineNumber: 1378,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1379,
+                                                    lineNumber: 1376,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6600,7 +6591,7 @@ function SalesContent() {
                                                             children: "Loyalty Customer PIN *"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1431,
+                                                            lineNumber: 1428,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6611,13 +6602,13 @@ function SalesContent() {
                                                             className: "bg-gray-50"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1432,
+                                                            lineNumber: 1429,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1430,
+                                                    lineNumber: 1427,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6625,19 +6616,19 @@ function SalesContent() {
                                                     children: "Points will be calculated at 1 point per KES 100 spent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1440,
+                                                    lineNumber: 1437,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1378,
+                                            lineNumber: 1375,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1351,
+                                    lineNumber: 1348,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6648,7 +6639,7 @@ function SalesContent() {
                                             children: "Vehicle Number (Optional)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1447,
+                                            lineNumber: 1444,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6661,19 +6652,19 @@ function SalesContent() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1448,
+                                            lineNumber: 1445,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1446,
+                                    lineNumber: 1443,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1216,
+                            lineNumber: 1213,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -6684,7 +6675,7 @@ function SalesContent() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1457,
+                                    lineNumber: 1454,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -6693,24 +6684,24 @@ function SalesContent() {
                                     children: loading ? "Recording..." : "Record Sale"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1460,
+                                    lineNumber: 1457,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1456,
+                            lineNumber: 1453,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/sales-content.tsx",
-                    lineNumber: 1211,
+                    lineNumber: 1208,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/sales-content.tsx",
-                lineNumber: 1210,
+                lineNumber: 1207,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -6725,7 +6716,7 @@ function SalesContent() {
                                     children: "Generate Credit Note"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1471,
+                                    lineNumber: 1468,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -6735,13 +6726,13 @@ function SalesContent() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1472,
+                                    lineNumber: 1469,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1470,
+                            lineNumber: 1467,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6755,7 +6746,7 @@ function SalesContent() {
                                             children: "Reason for Credit Note *"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1478,
+                                            lineNumber: 1475,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -6768,13 +6759,13 @@ function SalesContent() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1479,
+                                            lineNumber: 1476,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1477,
+                                    lineNumber: 1474,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6788,7 +6779,7 @@ function SalesContent() {
                                                     children: "Return Quantity (Liters)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1488,
+                                                    lineNumber: 1485,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6803,13 +6794,13 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1489,
+                                                    lineNumber: 1486,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1487,
+                                            lineNumber: 1484,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6820,7 +6811,7 @@ function SalesContent() {
                                                     children: "Refund Amount (KES) *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1499,
+                                                    lineNumber: 1496,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6835,19 +6826,19 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1500,
+                                                    lineNumber: 1497,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1498,
+                                            lineNumber: 1495,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1486,
+                                    lineNumber: 1483,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6861,7 +6852,7 @@ function SalesContent() {
                                                     children: "Approved By"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1512,
+                                                    lineNumber: 1509,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6874,13 +6865,13 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1513,
+                                                    lineNumber: 1510,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1511,
+                                            lineNumber: 1508,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6891,7 +6882,7 @@ function SalesContent() {
                                                     children: "Customer Signature"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1521,
+                                                    lineNumber: 1518,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -6904,19 +6895,19 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1522,
+                                                    lineNumber: 1519,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1520,
+                                            lineNumber: 1517,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1510,
+                                    lineNumber: 1507,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6927,7 +6918,7 @@ function SalesContent() {
                                             children: "Additional Notes"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1531,
+                                            lineNumber: 1528,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -6940,19 +6931,19 @@ function SalesContent() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1532,
+                                            lineNumber: 1529,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1530,
+                                    lineNumber: 1527,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1476,
+                            lineNumber: 1473,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -6963,7 +6954,7 @@ function SalesContent() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1541,
+                                    lineNumber: 1538,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -6972,24 +6963,24 @@ function SalesContent() {
                                     children: "Generate Credit Note"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1544,
+                                    lineNumber: 1541,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1540,
+                            lineNumber: 1537,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/sales-content.tsx",
-                    lineNumber: 1469,
+                    lineNumber: 1466,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/sales-content.tsx",
-                lineNumber: 1468,
+                lineNumber: 1465,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -7003,20 +6994,20 @@ function SalesContent() {
                                     children: shiftAction === "start" ? "Start New Shift" : "End Current Shift"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1555,
+                                    lineNumber: 1552,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: shiftAction === "start" ? "Enter the shift start details" : "Enter the shift closing details"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1556,
+                                    lineNumber: 1553,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1554,
+                            lineNumber: 1551,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7033,7 +7024,7 @@ function SalesContent() {
                                                     children: "Date"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1564,
+                                                    lineNumber: 1561,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -7046,13 +7037,13 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1565,
+                                                    lineNumber: 1562,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1563,
+                                            lineNumber: 1560,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7063,7 +7054,7 @@ function SalesContent() {
                                                     children: "Time"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1573,
+                                                    lineNumber: 1570,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -7076,19 +7067,19 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1574,
+                                                    lineNumber: 1571,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1572,
+                                            lineNumber: 1569,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1562,
+                                    lineNumber: 1559,
                                     columnNumber: 15
                                 }, this),
                                 shiftAction === "end" && currentShift && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7102,7 +7093,7 @@ function SalesContent() {
                                                     children: "Shift Summary"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1586,
+                                                    lineNumber: 1583,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7115,7 +7106,7 @@ function SalesContent() {
                                                                     children: "Started:"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1589,
+                                                                    lineNumber: 1586,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7123,13 +7114,13 @@ function SalesContent() {
                                                                     children: shiftStartTime
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1590,
+                                                                    lineNumber: 1587,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1588,
+                                                            lineNumber: 1585,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7139,7 +7130,7 @@ function SalesContent() {
                                                                     children: "Duration:"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1593,
+                                                                    lineNumber: 1590,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7150,13 +7141,13 @@ function SalesContent() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1594,
+                                                                    lineNumber: 1591,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1592,
+                                                            lineNumber: 1589,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7166,7 +7157,7 @@ function SalesContent() {
                                                                     children: "Opening Cash:"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1599,
+                                                                    lineNumber: 1596,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7177,13 +7168,13 @@ function SalesContent() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1600,
+                                                                    lineNumber: 1597,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1598,
+                                                            lineNumber: 1595,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7193,7 +7184,7 @@ function SalesContent() {
                                                                     children: "Total Sales:"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1603,
+                                                                    lineNumber: 1600,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7204,25 +7195,25 @@ function SalesContent() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/sales-content.tsx",
-                                                                    lineNumber: 1604,
+                                                                    lineNumber: 1601,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/sales-content.tsx",
-                                                            lineNumber: 1602,
+                                                            lineNumber: 1599,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1587,
+                                                    lineNumber: 1584,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1585,
+                                            lineNumber: 1582,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7233,7 +7224,7 @@ function SalesContent() {
                                                     children: "Closing Cash Amount"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1611,
+                                                    lineNumber: 1608,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -7248,7 +7239,7 @@ function SalesContent() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1612,
+                                                    lineNumber: 1609,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -7256,19 +7247,19 @@ function SalesContent() {
                                                     children: "Enter the actual cash amount in the drawer to calculate variance"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/sales-content.tsx",
-                                                    lineNumber: 1620,
+                                                    lineNumber: 1617,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1610,
+                                            lineNumber: 1607,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1584,
+                                    lineNumber: 1581,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7279,7 +7270,7 @@ function SalesContent() {
                                             children: "Notes (Optional)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1625,
+                                            lineNumber: 1622,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -7292,19 +7283,19 @@ function SalesContent() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-content.tsx",
-                                            lineNumber: 1626,
+                                            lineNumber: 1623,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1624,
+                                    lineNumber: 1621,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1560,
+                            lineNumber: 1557,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -7315,7 +7306,7 @@ function SalesContent() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1635,
+                                    lineNumber: 1632,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -7324,24 +7315,24 @@ function SalesContent() {
                                     children: shiftAction === "start" ? "Start Shift" : "End Shift"
                                 }, void 0, false, {
                                     fileName: "[project]/components/sales-content.tsx",
-                                    lineNumber: 1638,
+                                    lineNumber: 1635,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/sales-content.tsx",
-                            lineNumber: 1634,
+                            lineNumber: 1631,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/sales-content.tsx",
-                    lineNumber: 1553,
+                    lineNumber: 1550,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/sales-content.tsx",
-                lineNumber: 1552,
+                lineNumber: 1549,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$shift$2d$management$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ShiftManagementDialog"], {
@@ -7351,7 +7342,7 @@ function SalesContent() {
                 branchId: currentBranchData?.id
             }, void 0, false, {
                 fileName: "[project]/components/sales-content.tsx",
-                lineNumber: 1645,
+                lineNumber: 1642,
                 columnNumber: 7
             }, this)
         ]

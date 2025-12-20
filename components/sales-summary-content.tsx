@@ -15,7 +15,6 @@ import { AlertCircle, ChevronDown, Plus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useCurrency } from "@/lib/currency-utils"
 import { Textarea } from "@/components/ui/textarea"
-import { ShiftManagementDialog } from "@/components/shift-management-dialog"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ChevronsUpDown, Check } from "lucide-react"
@@ -46,7 +45,6 @@ export function SalesSummaryContent() {
   const [showSaleDialog, setShowSaleDialog] = useState(false)
   const [showShiftDialog, setShowShiftDialog] = useState(false)
   const [shiftAction, setShiftAction] = useState<"start" | "end" | null>(null)
-  const [shiftManagementOpen, setShiftManagementOpen] = useState(false)
   const [currentBranchData, setCurrentBranchData] = useState<any>(null)
   const [loyaltyCustomers, setLoyaltyCustomers] = useState<Array<{ id: string; name: string; pin: string }>>([])
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
@@ -398,6 +396,8 @@ export function SalesSummaryContent() {
 
     setShiftLoading(true)
     try {
+      const totalSales = sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0)
+      
       const response = await fetch('/api/shifts', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -406,6 +406,7 @@ export function SalesSummaryContent() {
           end_time: new Date().toISOString(),
           status: "completed",
           closing_cash: shiftForm.closing_cash ? Number.parseFloat(shiftForm.closing_cash) : 0,
+          total_sales: totalSales,
           notes: shiftForm.notes || null,
         })
       })
@@ -466,10 +467,9 @@ export function SalesSummaryContent() {
               <DropdownMenuItem onClick={() => openShiftDialog("start")} disabled={!!currentShift}>
                 Start Shift
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShiftManagementOpen(true)} disabled={!currentShift}>
-                End Shift (Excel Upload)
+              <DropdownMenuItem onClick={() => openShiftDialog("end")} disabled={!currentShift}>
+                End Shift
               </DropdownMenuItem>
-              <DropdownMenuItem>Configure Automatic Shifts</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={() => setShowSaleDialog(true)} disabled={!currentShift}>
@@ -799,16 +799,44 @@ export function SalesSummaryContent() {
                 </div>
               </div>
             )}
-            {shiftAction === "end" && (
-              <div>
-                <Label htmlFor="closing-cash">Closing Cash</Label>
-                <Input
-                  id="closing-cash"
-                  type="number"
-                  placeholder="0.00"
-                  value={shiftForm.closing_cash}
-                  onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
-                />
+            {shiftAction === "end" && currentShift && (
+              <div className="space-y-4">
+                <div className="bg-slate-50 p-4 rounded-lg space-y-2">
+                  <h4 className="font-semibold text-slate-700">Shift Summary</h4>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>
+                      <span className="text-slate-500">Started:</span>
+                      <span className="ml-2 font-medium">{shiftStartTime}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Duration:</span>
+                      <span className="ml-2 font-medium">
+                        {Math.round((Date.now() - new Date(currentShift.start_time).getTime()) / 3600000)}h
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Opening Cash:</span>
+                      <span className="ml-2 font-medium">KES {(currentShift.opening_cash || 0).toLocaleString()}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500">Total Sales:</span>
+                      <span className="ml-2 font-medium text-green-600">
+                        KES {sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="closing-cash">Closing Cash Amount</Label>
+                  <Input
+                    id="closing-cash"
+                    type="number"
+                    placeholder="Enter actual cash in drawer"
+                    value={shiftForm.closing_cash}
+                    onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Enter the actual cash amount in the drawer to calculate variance</p>
+                </div>
               </div>
             )}
             <div>
@@ -986,15 +1014,6 @@ export function SalesSummaryContent() {
         </DialogContent>
       </Dialog>
 
-      <ShiftManagementDialog
-        open={shiftManagementOpen}
-        onOpenChange={setShiftManagementOpen}
-        currentShift={currentShift}
-        onShiftEnded={() => {
-          setCurrentShift(null)
-          fetchData()
-        }}
-      />
     </div>
   )
 }
