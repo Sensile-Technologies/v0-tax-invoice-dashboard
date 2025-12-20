@@ -1550,6 +1550,16 @@ async function POST(request) {
                     ]);
                 }
             }
+            // Validate user_id exists in users table before using it
+            let validStaffId = null;
+            if (user_id) {
+                const userCheck = await client.query(`SELECT id FROM users WHERE id = $1`, [
+                    user_id
+                ]);
+                if (userCheck.rows.length > 0) {
+                    validStaffId = user_id;
+                }
+            }
             const saleResult = await client.query(`INSERT INTO sales (
           branch_id, staff_id, nozzle_id, fuel_type, quantity, 
           unit_price, total_amount, payment_method, customer_name, 
@@ -1559,7 +1569,7 @@ async function POST(request) {
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), $13, $14, $15, $16, $17)
         RETURNING *`, [
                 branch_id,
-                user_id || null,
+                validStaffId,
                 nozzle_id || null,
                 fuel_type,
                 correctQuantity,
