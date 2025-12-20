@@ -92,7 +92,10 @@ export default function HeadquartersPage() {
   const fetchHQStats = async () => {
     try {
       setIsLoadingStats(true)
-      const response = await fetch('/api/headquarters/stats')
+      const currentUser = getCurrentUser()
+      const userId = currentUser?.id
+      const url = userId ? `/api/headquarters/stats?user_id=${userId}` : '/api/headquarters/stats'
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         setHqStats(data)

@@ -134,50 +134,143 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
 ;
-async function GET() {
+async function getUserVendorFilter(userId) {
+    if (!userId) {
+        return {
+            vendorId: null,
+            branchIds: null
+        };
+    }
+    let vendorId = null;
+    const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
+     JOIN vendors v ON v.email = u.email 
+     WHERE u.id = $1`, [
+        userId
+    ]);
+    if (userResult && userResult.length > 0) {
+        vendorId = userResult[0].vendor_id;
+    }
+    if (!vendorId) {
+        const staffResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
+       JOIN branches b ON s.branch_id = b.id
+       WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
+            userId
+        ]);
+        if (staffResult && staffResult.length > 0) {
+            vendorId = staffResult[0].vendor_id;
+        }
+    }
+    if (!vendorId) {
+        const staffBranchIds = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT branch_id FROM staff WHERE user_id = $1`, [
+            userId
+        ]);
+        if (staffBranchIds && staffBranchIds.length > 0) {
+            return {
+                vendorId: null,
+                branchIds: staffBranchIds.map((s)=>s.branch_id)
+            };
+        }
+        return {
+            vendorId: null,
+            branchIds: []
+        };
+    }
+    return {
+        vendorId,
+        branchIds: null
+    };
+}
+async function GET(request) {
     try {
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('user_id');
+        const { vendorId, branchIds } = await getUserVendorFilter(userId);
+        if (userId && !vendorId && branchIds && branchIds.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                totalRevenue: 0,
+                revenueGrowth: 0,
+                totalTransactions: 0,
+                totalEmployees: 0,
+                totalInventory: 0,
+                inventoryGrowth: 0,
+                branchPerformance: [],
+                monthlyRevenue: []
+            });
+        }
         const today = new Date();
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        const [revenueResult, lastMonthRevenueResult, transactionsResult, employeesResult, inventoryResult, lastMonthInventoryResult, branchStatsResult, monthlyRevenueResult] = await Promise.all([
+        let branchFilter = '';
+        let branchFilterParams = [];
+        if (vendorId) {
+            branchFilter = 'AND s.branch_id IN (SELECT id FROM branches WHERE vendor_id = $2)';
+            branchFilterParams = [
+                vendorId
+            ];
+        } else if (branchIds && branchIds.length > 0) {
+            branchFilter = 'AND s.branch_id = ANY($2::uuid[])';
+            branchFilterParams = [
+                branchIds
+            ];
+        }
+        const [revenueResult, lastMonthRevenueResult, transactionsResult, employeesResult, inventoryResult, branchStatsResult, monthlyRevenueResult] = await Promise.all([
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT COALESCE(SUM(total_amount), 0) as total_revenue
-        FROM sales
-        WHERE created_at >= $1
+        FROM sales s
+        WHERE created_at >= $1 ${branchFilter}
       `, [
-                startOfMonth
+                startOfMonth,
+                ...branchFilterParams
             ]),
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT COALESCE(SUM(total_amount), 0) as total_revenue
-        FROM sales
-        WHERE created_at >= $1 AND created_at <= $2
+        FROM sales s
+        WHERE created_at >= $1 AND created_at <= $2 ${branchFilter.replace('$2', '$3')}
       `, [
                 startOfLastMonth,
-                endOfLastMonth
+                endOfLastMonth,
+                ...branchFilterParams
             ]),
             __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT COUNT(*) as total_transactions
-        FROM sales
-        WHERE created_at >= $1
+        FROM sales s
+        WHERE created_at >= $1 ${branchFilter}
       `, [
-                startOfMonth
+                startOfMonth,
+                ...branchFilterParams
             ]),
-            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
-        SELECT COUNT(*) as total_employees
-        FROM users
-      `),
-            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+            vendorId ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+        SELECT COUNT(DISTINCT u.id) as total_employees
+        FROM users u
+        JOIN staff st ON st.user_id = u.id
+        JOIN branches b ON st.branch_id = b.id
+        WHERE b.vendor_id = $1
+      `, [
+                vendorId
+            ]) : branchIds && branchIds.length > 0 ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+        SELECT COUNT(DISTINCT u.id) as total_employees
+        FROM users u
+        JOIN staff st ON st.user_id = u.id
+        WHERE st.branch_id = ANY($1::uuid[])
+      `, [
+                branchIds
+            ]) : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT 0 as total_employees`),
+            vendorId ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT COALESCE(SUM(current_stock), 0) as total_inventory
-        FROM tanks
-        WHERE status = 'active' OR status IS NULL
-      `),
-            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
-        SELECT COALESCE(SUM(current_stock), 0) as last_inventory
-        FROM tanks
-        WHERE status = 'active' OR status IS NULL
-      `),
-            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+        FROM tanks t
+        JOIN branches b ON t.branch_id = b.id
+        WHERE b.vendor_id = $1 AND (t.status = 'active' OR t.status IS NULL)
+      `, [
+                vendorId
+            ]) : branchIds && branchIds.length > 0 ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+        SELECT COALESCE(SUM(current_stock), 0) as total_inventory
+        FROM tanks t
+        WHERE t.branch_id = ANY($1::uuid[]) AND (t.status = 'active' OR t.status IS NULL)
+      `, [
+                branchIds
+            ]) : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT 0 as total_inventory`),
+            vendorId ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT 
           b.id,
           b.name,
@@ -185,28 +278,54 @@ async function GET() {
           0 as mtd_purchases
         FROM branches b
         LEFT JOIN sales s ON s.branch_id = b.id
-        WHERE b.status = 'active' OR b.status IS NULL
+        WHERE b.vendor_id = $2 AND (b.status = 'active' OR b.status IS NULL)
         GROUP BY b.id, b.name
         ORDER BY b.name
       `, [
-                startOfMonth
-            ]),
-            __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+                startOfMonth,
+                vendorId
+            ]) : branchIds && branchIds.length > 0 ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT 
-          TO_CHAR(DATE_TRUNC('month', created_at), 'Mon') as month,
-          COALESCE(SUM(total_amount), 0) as revenue
-        FROM sales
-        WHERE created_at >= NOW() - INTERVAL '6 months'
-        GROUP BY DATE_TRUNC('month', created_at)
-        ORDER BY DATE_TRUNC('month', created_at)
-      `)
+          b.id,
+          b.name,
+          COALESCE(SUM(CASE WHEN s.created_at >= $1 THEN s.total_amount ELSE 0 END), 0) as mtd_sales,
+          0 as mtd_purchases
+        FROM branches b
+        LEFT JOIN sales s ON s.branch_id = b.id
+        WHERE b.id = ANY($2::uuid[]) AND (b.status = 'active' OR b.status IS NULL)
+        GROUP BY b.id, b.name
+        ORDER BY b.name
+      `, [
+                startOfMonth,
+                branchIds
+            ]) : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT NULL as id, NULL as name, 0 as mtd_sales, 0 as mtd_purchases WHERE false`),
+            vendorId ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+        SELECT 
+          TO_CHAR(DATE_TRUNC('month', s.created_at), 'Mon') as month,
+          COALESCE(SUM(s.total_amount), 0) as revenue
+        FROM sales s
+        JOIN branches b ON s.branch_id = b.id
+        WHERE s.created_at >= NOW() - INTERVAL '6 months' AND b.vendor_id = $1
+        GROUP BY DATE_TRUNC('month', s.created_at)
+        ORDER BY DATE_TRUNC('month', s.created_at)
+      `, [
+                vendorId
+            ]) : branchIds && branchIds.length > 0 ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
+        SELECT 
+          TO_CHAR(DATE_TRUNC('month', s.created_at), 'Mon') as month,
+          COALESCE(SUM(s.total_amount), 0) as revenue
+        FROM sales s
+        WHERE s.created_at >= NOW() - INTERVAL '6 months' AND s.branch_id = ANY($1::uuid[])
+        GROUP BY DATE_TRUNC('month', s.created_at)
+        ORDER BY DATE_TRUNC('month', s.created_at)
+      `, [
+                branchIds
+            ]) : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`SELECT NULL as month, 0 as revenue WHERE false`)
         ]);
         const currentRevenue = parseFloat(revenueResult.rows[0]?.total_revenue || 0);
         const lastMonthRevenue = parseFloat(lastMonthRevenueResult.rows[0]?.total_revenue || 0);
         const revenueGrowth = lastMonthRevenue > 0 ? ((currentRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1) : '0';
         const currentInventory = parseFloat(inventoryResult.rows[0]?.total_inventory || 0);
-        const lastInventory = parseFloat(lastMonthInventoryResult.rows[0]?.last_inventory || 0);
-        const inventoryGrowth = lastInventory > 0 ? ((currentInventory - lastInventory) / lastInventory * 100).toFixed(1) : '0';
         const branchPerformance = branchStatsResult.rows.map((row)=>({
                 branch: row.name,
                 sales: parseFloat(row.mtd_sales) / 1000,
@@ -222,7 +341,7 @@ async function GET() {
             totalTransactions: parseInt(transactionsResult.rows[0]?.total_transactions || 0),
             totalEmployees: parseInt(employeesResult.rows[0]?.total_employees || 0),
             totalInventory: Math.round(currentInventory),
-            inventoryGrowth: parseFloat(inventoryGrowth),
+            inventoryGrowth: 0,
             branchPerformance,
             monthlyRevenue
         });

@@ -2490,7 +2490,10 @@ function HeadquartersPage() {
     const fetchHQStats = async ()=>{
         try {
             setIsLoadingStats(true);
-            const response = await fetch('/api/headquarters/stats');
+            const currentUser = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$auth$2f$client$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getCurrentUser"])();
+            const userId = currentUser?.id;
+            const url = userId ? `/api/headquarters/stats?user_id=${userId}` : '/api/headquarters/stats';
+            const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
                 setHqStats(data);
@@ -2914,7 +2917,7 @@ function HeadquartersPage() {
                 currentBranch: "hq"
             }, void 0, false, {
                 fileName: "[project]/app/headquarters/page.tsx",
-                lineNumber: 579,
+                lineNumber: 582,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2930,7 +2933,7 @@ function HeadquartersPage() {
                                         children: "Headquarters Overview"
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 585,
+                                        lineNumber: 588,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2938,13 +2941,13 @@ function HeadquartersPage() {
                                         children: "Monitor all branches and organization performance"
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 586,
+                                        lineNumber: 589,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 584,
+                                lineNumber: 587,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2962,7 +2965,7 @@ function HeadquartersPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 593,
+                                                            lineNumber: 596,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Branches",
@@ -2970,18 +2973,18 @@ function HeadquartersPage() {
                                                             className: "ml-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 595,
+                                                            lineNumber: 598,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 592,
+                                                    lineNumber: 595,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 591,
+                                                lineNumber: 594,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -2996,14 +2999,14 @@ function HeadquartersPage() {
                                                                 className: "mr-2 h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 600,
+                                                                lineNumber: 603,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Create Branch"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 599,
+                                                        lineNumber: 602,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuSub"], {
@@ -3015,14 +3018,14 @@ function HeadquartersPage() {
                                                                         className: "mr-2 h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 605,
+                                                                        lineNumber: 608,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     "Edit Branch Details"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 604,
+                                                                lineNumber: 607,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuSubContent"], {
@@ -3033,18 +3036,18 @@ function HeadquartersPage() {
                                                                         children: branch.name
                                                                     }, branch.id, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 610,
+                                                                        lineNumber: 613,
                                                                         columnNumber: 23
                                                                     }, this))
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 608,
+                                                                lineNumber: 611,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 603,
+                                                        lineNumber: 606,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -3055,14 +3058,14 @@ function HeadquartersPage() {
                                                                 className: "mr-2 h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 624,
+                                                                lineNumber: 627,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Inventory"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 620,
+                                                        lineNumber: 623,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -3073,26 +3076,26 @@ function HeadquartersPage() {
                                                                 className: "mr-2 h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 628,
+                                                                lineNumber: 631,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Global Uploads"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 627,
+                                                        lineNumber: 630,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 598,
+                                                lineNumber: 601,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 590,
+                                        lineNumber: 593,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -3107,7 +3110,7 @@ function HeadquartersPage() {
                                                             className: "h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 638,
+                                                            lineNumber: 641,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Users",
@@ -3115,18 +3118,18 @@ function HeadquartersPage() {
                                                             className: "h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 640,
+                                                            lineNumber: 643,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 637,
+                                                    lineNumber: 640,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 636,
+                                                lineNumber: 639,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -3144,19 +3147,19 @@ function HeadquartersPage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 646,
+                                                                    lineNumber: 649,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 "Staff Management"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 645,
+                                                            lineNumber: 648,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 644,
+                                                        lineNumber: 647,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -3170,19 +3173,19 @@ function HeadquartersPage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 652,
+                                                                    lineNumber: 655,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 "Roles & Permissions"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 651,
+                                                            lineNumber: 654,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 650,
+                                                        lineNumber: 653,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -3196,31 +3199,31 @@ function HeadquartersPage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 658,
+                                                                    lineNumber: 661,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 "Approval Workflows"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 657,
+                                                            lineNumber: 660,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 656,
+                                                        lineNumber: 659,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 643,
+                                                lineNumber: 646,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 635,
+                                        lineNumber: 638,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -3235,7 +3238,7 @@ function HeadquartersPage() {
                                                             className: "mr-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 668,
+                                                            lineNumber: 671,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Shift Management",
@@ -3243,18 +3246,18 @@ function HeadquartersPage() {
                                                             className: "ml-2 h-4 w-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 670,
+                                                            lineNumber: 673,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 667,
+                                                    lineNumber: 670,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 666,
+                                                lineNumber: 669,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -3269,14 +3272,14 @@ function HeadquartersPage() {
                                                                 className: "mr-2 h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 675,
+                                                                lineNumber: 678,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Global Shift Upload"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 674,
+                                                        lineNumber: 677,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -3289,43 +3292,43 @@ function HeadquartersPage() {
                                                                     className: "mr-2 h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 680,
+                                                                    lineNumber: 683,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 "View Shift Reports"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 679,
+                                                            lineNumber: 682,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 678,
+                                                        lineNumber: 681,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 673,
+                                                lineNumber: 676,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 665,
+                                        lineNumber: 668,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 588,
+                                lineNumber: 591,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 583,
+                        lineNumber: 586,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3336,7 +3339,7 @@ function HeadquartersPage() {
                                 children: "Organization Summary"
                             }, void 0, false, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 691,
+                                lineNumber: 694,
                                 columnNumber: 11
                             }, this),
                             isLoadingStats ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3345,12 +3348,12 @@ function HeadquartersPage() {
                                     className: "h-8 w-8 animate-spin text-white"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 694,
+                                    lineNumber: 697,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 693,
+                                lineNumber: 696,
                                 columnNumber: 13
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "grid gap-6 md:grid-cols-2 lg:grid-cols-4",
@@ -3368,7 +3371,7 @@ function HeadquartersPage() {
                                                             children: "MTD Revenue"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 701,
+                                                            lineNumber: 704,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3377,23 +3380,23 @@ function HeadquartersPage() {
                                                                 className: "h-5 w-5 text-blue-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 703,
+                                                                lineNumber: 706,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 702,
+                                                            lineNumber: 705,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 700,
+                                                    lineNumber: 703,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 699,
+                                                lineNumber: 702,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3403,7 +3406,7 @@ function HeadquartersPage() {
                                                         children: formatCurrency(totalRevenue)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 708,
+                                                        lineNumber: 711,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3415,19 +3418,19 @@ function HeadquartersPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 709,
+                                                        lineNumber: 712,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 707,
+                                                lineNumber: 710,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 698,
+                                        lineNumber: 701,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -3443,7 +3446,7 @@ function HeadquartersPage() {
                                                             children: "MTD Transactions"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 717,
+                                                            lineNumber: 720,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3452,23 +3455,23 @@ function HeadquartersPage() {
                                                                 className: "h-5 w-5 text-purple-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 719,
+                                                                lineNumber: 722,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 718,
+                                                            lineNumber: 721,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 716,
+                                                    lineNumber: 719,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 715,
+                                                lineNumber: 718,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3478,7 +3481,7 @@ function HeadquartersPage() {
                                                         children: totalTransactions.toLocaleString()
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 724,
+                                                        lineNumber: 727,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3486,19 +3489,19 @@ function HeadquartersPage() {
                                                         children: "Across all branches"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 725,
+                                                        lineNumber: 728,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 723,
+                                                lineNumber: 726,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 714,
+                                        lineNumber: 717,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -3514,7 +3517,7 @@ function HeadquartersPage() {
                                                             children: "Total Staff"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 731,
+                                                            lineNumber: 734,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3523,23 +3526,23 @@ function HeadquartersPage() {
                                                                 className: "h-5 w-5 text-orange-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 733,
+                                                                lineNumber: 736,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 732,
+                                                            lineNumber: 735,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 730,
+                                                    lineNumber: 733,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 729,
+                                                lineNumber: 732,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3549,7 +3552,7 @@ function HeadquartersPage() {
                                                         children: totalEmployees
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 738,
+                                                        lineNumber: 741,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3562,19 +3565,19 @@ function HeadquartersPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 739,
+                                                        lineNumber: 742,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 737,
+                                                lineNumber: 740,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 728,
+                                        lineNumber: 731,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -3590,7 +3593,7 @@ function HeadquartersPage() {
                                                             children: "Tank Stock (L)"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 745,
+                                                            lineNumber: 748,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3599,23 +3602,23 @@ function HeadquartersPage() {
                                                                 className: "h-5 w-5 text-green-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 747,
+                                                                lineNumber: 750,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 746,
+                                                            lineNumber: 749,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 744,
+                                                    lineNumber: 747,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 743,
+                                                lineNumber: 746,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3625,7 +3628,7 @@ function HeadquartersPage() {
                                                         children: totalInventory.toLocaleString()
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 752,
+                                                        lineNumber: 755,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3637,31 +3640,31 @@ function HeadquartersPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 753,
+                                                        lineNumber: 756,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 751,
+                                                lineNumber: 754,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 742,
+                                        lineNumber: 745,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 697,
+                                lineNumber: 700,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 690,
+                        lineNumber: 693,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3672,7 +3675,7 @@ function HeadquartersPage() {
                                 children: "Performance Analytics"
                             }, void 0, false, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 764,
+                                lineNumber: 767,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3687,20 +3690,20 @@ function HeadquartersPage() {
                                                         children: "Revenue Trend (6 Months)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 768,
+                                                        lineNumber: 771,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                         children: "Monthly revenue across all branches"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 769,
+                                                        lineNumber: 772,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 767,
+                                                lineNumber: 770,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3713,12 +3716,12 @@ function HeadquartersPage() {
                                                             className: "h-8 w-8 animate-spin text-gray-400"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 775,
+                                                            lineNumber: 778,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 774,
+                                                        lineNumber: 777,
                                                         columnNumber: 21
                                                     }, this) : hqStats?.monthlyRevenue && hqStats.monthlyRevenue.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
                                                         width: "100%",
@@ -3730,21 +3733,21 @@ function HeadquartersPage() {
                                                                     strokeDasharray: "3 3"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 780,
+                                                                    lineNumber: 783,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
                                                                     dataKey: "month"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 781,
+                                                                    lineNumber: 784,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
                                                                     tickFormatter: (value)=>`${(value / 1000000).toFixed(1)}M`
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 782,
+                                                                    lineNumber: 785,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -3754,7 +3757,7 @@ function HeadquartersPage() {
                                                                         ]
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 783,
+                                                                    lineNumber: 786,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Line"], {
@@ -3767,41 +3770,41 @@ function HeadquartersPage() {
                                                                     }
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 784,
+                                                                    lineNumber: 787,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 779,
+                                                            lineNumber: 782,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 778,
+                                                        lineNumber: 781,
                                                         columnNumber: 21
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex items-center justify-center h-full text-gray-400",
                                                         children: "No revenue data available"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 788,
+                                                        lineNumber: 791,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 772,
+                                                    lineNumber: 775,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 771,
+                                                lineNumber: 774,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 766,
+                                        lineNumber: 769,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -3813,20 +3816,20 @@ function HeadquartersPage() {
                                                         children: "Branch Performance (MTD)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 798,
+                                                        lineNumber: 801,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                         children: "Sales vs Purchases by branch (in thousands)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 799,
+                                                        lineNumber: 802,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 797,
+                                                lineNumber: 800,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3839,12 +3842,12 @@ function HeadquartersPage() {
                                                             className: "h-8 w-8 animate-spin text-gray-400"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 805,
+                                                            lineNumber: 808,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 804,
+                                                        lineNumber: 807,
                                                         columnNumber: 21
                                                     }, this) : hqStats?.branchPerformance && hqStats.branchPerformance.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
                                                         width: "100%",
@@ -3856,21 +3859,21 @@ function HeadquartersPage() {
                                                                     strokeDasharray: "3 3"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 810,
+                                                                    lineNumber: 813,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
                                                                     dataKey: "branch"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 811,
+                                                                    lineNumber: 814,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
                                                                     tickFormatter: (value)=>`${value}K`
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 812,
+                                                                    lineNumber: 815,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -3880,12 +3883,12 @@ function HeadquartersPage() {
                                                                         ]
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 813,
+                                                                    lineNumber: 816,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {}, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 814,
+                                                                    lineNumber: 817,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -3894,7 +3897,7 @@ function HeadquartersPage() {
                                                                     name: "Sales"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 815,
+                                                                    lineNumber: 818,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -3903,53 +3906,53 @@ function HeadquartersPage() {
                                                                     name: "Purchases"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 816,
+                                                                    lineNumber: 819,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 809,
+                                                            lineNumber: 812,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 808,
+                                                        lineNumber: 811,
                                                         columnNumber: 21
                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex items-center justify-center h-full text-gray-400",
                                                         children: "No branch performance data available"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 820,
+                                                        lineNumber: 823,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 802,
+                                                    lineNumber: 805,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 801,
+                                                lineNumber: 804,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 796,
+                                        lineNumber: 799,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 765,
+                                lineNumber: 768,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 763,
+                        lineNumber: 766,
                         columnNumber: 9
                     }, this),
                     isLoadingBranches ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3958,12 +3961,12 @@ function HeadquartersPage() {
                             children: "Loading branches..."
                         }, void 0, false, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 833,
+                            lineNumber: 836,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 832,
+                        lineNumber: 835,
                         columnNumber: 11
                     }, this) : branches.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "text-center py-12 text-white",
@@ -3971,12 +3974,12 @@ function HeadquartersPage() {
                             children: "No branches found. Create your first branch to get started."
                         }, void 0, false, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 837,
+                            lineNumber: 840,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 836,
+                        lineNumber: 839,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "grid gap-6 md:grid-cols-2 lg:grid-cols-3",
@@ -3988,7 +3991,7 @@ function HeadquartersPage() {
                                         className: `h-3 bg-gradient-to-r ${branch.gradient}`
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 847,
+                                        lineNumber: 850,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardHeader"], {
@@ -4005,12 +4008,12 @@ function HeadquartersPage() {
                                                                 className: "h-6 w-6 text-white"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 854,
+                                                                lineNumber: 857,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 851,
+                                                            lineNumber: 854,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4020,7 +4023,7 @@ function HeadquartersPage() {
                                                                     children: branch.name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 857,
+                                                                    lineNumber: 860,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -4028,19 +4031,19 @@ function HeadquartersPage() {
                                                                     children: branch.location
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 860,
+                                                                    lineNumber: 863,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 856,
+                                                            lineNumber: 859,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 850,
+                                                    lineNumber: 853,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4051,7 +4054,7 @@ function HeadquartersPage() {
                                                             children: branch.status
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 864,
+                                                            lineNumber: 867,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -4066,29 +4069,29 @@ function HeadquartersPage() {
                                                                 className: "h-4 w-4"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 878,
+                                                                lineNumber: 881,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 869,
+                                                            lineNumber: 872,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 863,
+                                                    lineNumber: 866,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 849,
+                                            lineNumber: 852,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 848,
+                                        lineNumber: 851,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4105,14 +4108,14 @@ function HeadquartersPage() {
                                                                     className: "h-3 w-3"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 887,
+                                                                    lineNumber: 890,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 "MTD Revenue"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 886,
+                                                            lineNumber: 889,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4120,13 +4123,13 @@ function HeadquartersPage() {
                                                             children: formatCurrency(branch.monthToDateRevenue)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 890,
+                                                            lineNumber: 893,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 885,
+                                                    lineNumber: 888,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4139,7 +4142,7 @@ function HeadquartersPage() {
                                                                     className: "h-3 w-3"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 894,
+                                                                    lineNumber: 897,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 " ",
@@ -4147,7 +4150,7 @@ function HeadquartersPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 893,
+                                                            lineNumber: 896,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4155,13 +4158,13 @@ function HeadquartersPage() {
                                                             children: formatCurrency(branch.currentShiftRevenue)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 897,
+                                                            lineNumber: 900,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 892,
+                                                    lineNumber: 895,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4174,14 +4177,14 @@ function HeadquartersPage() {
                                                                     className: "h-3 w-3"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 901,
+                                                                    lineNumber: 904,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 "Growth"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 900,
+                                                            lineNumber: 903,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4189,41 +4192,41 @@ function HeadquartersPage() {
                                                             children: branch.performance
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                            lineNumber: 904,
+                                                            lineNumber: 907,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 899,
+                                                    lineNumber: 902,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 884,
+                                            lineNumber: 887,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 883,
+                                        lineNumber: 886,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, branch.id, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 842,
+                                lineNumber: 845,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 840,
+                        lineNumber: 843,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/headquarters/page.tsx",
-                lineNumber: 581,
+                lineNumber: 584,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -4241,19 +4244,19 @@ function HeadquartersPage() {
                                     className: "h-5 w-5 mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 918,
+                                    lineNumber: 921,
                                     columnNumber: 13
                                 }, this),
                                 "Create New Branch"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 917,
+                            lineNumber: 920,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 916,
+                        lineNumber: 919,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogContent"], {
@@ -4266,20 +4269,20 @@ function HeadquartersPage() {
                                         children: "Create New Branch"
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 924,
+                                        lineNumber: 927,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                         children: "Fill in the details to create a new branch location with device initialization"
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 925,
+                                        lineNumber: 928,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 923,
+                                lineNumber: 926,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4293,7 +4296,7 @@ function HeadquartersPage() {
                                                 children: "Branch Information"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 931,
+                                                lineNumber: 934,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4307,7 +4310,7 @@ function HeadquartersPage() {
                                                                 children: "Branch Name *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 934,
+                                                                lineNumber: 937,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4321,13 +4324,13 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 935,
+                                                                lineNumber: 938,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 933,
+                                                        lineNumber: 936,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4338,7 +4341,7 @@ function HeadquartersPage() {
                                                                 children: "Location *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 944,
+                                                                lineNumber: 947,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4352,19 +4355,19 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 945,
+                                                                lineNumber: 948,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 943,
+                                                        lineNumber: 946,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 932,
+                                                lineNumber: 935,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4375,7 +4378,7 @@ function HeadquartersPage() {
                                                         children: "Physical Address"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 955,
+                                                        lineNumber: 958,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4389,13 +4392,13 @@ function HeadquartersPage() {
                                                         className: "rounded-xl"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 956,
+                                                        lineNumber: 959,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 954,
+                                                lineNumber: 957,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4409,7 +4412,7 @@ function HeadquartersPage() {
                                                                 children: "County *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 966,
+                                                                lineNumber: 969,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4423,13 +4426,13 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 967,
+                                                                lineNumber: 970,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 965,
+                                                        lineNumber: 968,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4440,7 +4443,7 @@ function HeadquartersPage() {
                                                                 children: "Local Tax Office *"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 976,
+                                                                lineNumber: 979,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4454,25 +4457,25 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 977,
+                                                                lineNumber: 980,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 975,
+                                                        lineNumber: 978,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 964,
+                                                lineNumber: 967,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 930,
+                                        lineNumber: 933,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4483,7 +4486,7 @@ function HeadquartersPage() {
                                                 children: "Staff Information"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 989,
+                                                lineNumber: 992,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4497,7 +4500,7 @@ function HeadquartersPage() {
                                                                 children: "Branch Manager"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 992,
+                                                                lineNumber: 995,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4511,13 +4514,13 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 993,
+                                                                lineNumber: 996,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 991,
+                                                        lineNumber: 994,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4528,7 +4531,7 @@ function HeadquartersPage() {
                                                                 children: "Email"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1002,
+                                                                lineNumber: 1005,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4543,13 +4546,13 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1003,
+                                                                lineNumber: 1006,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1001,
+                                                        lineNumber: 1004,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4560,7 +4563,7 @@ function HeadquartersPage() {
                                                                 children: "Phone Number"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1013,
+                                                                lineNumber: 1016,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4575,25 +4578,25 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1014,
+                                                                lineNumber: 1017,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1012,
+                                                        lineNumber: 1015,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 990,
+                                                lineNumber: 993,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 988,
+                                        lineNumber: 991,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4604,7 +4607,7 @@ function HeadquartersPage() {
                                                 children: "Hardware Assignment"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 1027,
+                                                lineNumber: 1030,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4618,7 +4621,7 @@ function HeadquartersPage() {
                                                                 children: "Hardware Type"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1030,
+                                                                lineNumber: 1033,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -4634,12 +4637,12 @@ function HeadquartersPage() {
                                                                             placeholder: "Select hardware type"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                                            lineNumber: 1036,
+                                                                            lineNumber: 1039,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1035,
+                                                                        lineNumber: 1038,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4650,7 +4653,7 @@ function HeadquartersPage() {
                                                                                 children: "Controller"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1039,
+                                                                                lineNumber: 1042,
                                                                                 columnNumber: 23
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4658,7 +4661,7 @@ function HeadquartersPage() {
                                                                                 children: "Mini PC"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1040,
+                                                                                lineNumber: 1043,
                                                                                 columnNumber: 23
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4666,25 +4669,25 @@ function HeadquartersPage() {
                                                                                 children: "POS"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1041,
+                                                                                lineNumber: 1044,
                                                                                 columnNumber: 23
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1038,
+                                                                        lineNumber: 1041,
                                                                         columnNumber: 21
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1031,
+                                                                lineNumber: 1034,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1029,
+                                                        lineNumber: 1032,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4695,7 +4698,7 @@ function HeadquartersPage() {
                                                                 children: "Serial Number"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1046,
+                                                                lineNumber: 1049,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4709,25 +4712,25 @@ function HeadquartersPage() {
                                                                 className: "rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1047,
+                                                                lineNumber: 1050,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1045,
+                                                        lineNumber: 1048,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 1028,
+                                                lineNumber: 1031,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 1026,
+                                        lineNumber: 1029,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4738,7 +4741,7 @@ function HeadquartersPage() {
                                                 children: "Storage Indices"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 1060,
+                                                lineNumber: 1063,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4746,7 +4749,7 @@ function HeadquartersPage() {
                                                 children: "Configure unique storage locations for this branch (e.g., Tank, Warehouse, Cold Storage)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 1061,
+                                                lineNumber: 1064,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4765,12 +4768,12 @@ function HeadquartersPage() {
                                                                     placeholder: "Select storage type"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                                    lineNumber: 1070,
+                                                                    lineNumber: 1073,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1069,
+                                                                lineNumber: 1072,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4780,7 +4783,7 @@ function HeadquartersPage() {
                                                                         children: "Tank"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1073,
+                                                                        lineNumber: 1076,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4788,7 +4791,7 @@ function HeadquartersPage() {
                                                                         children: "Warehouse"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1074,
+                                                                        lineNumber: 1077,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4796,7 +4799,7 @@ function HeadquartersPage() {
                                                                         children: "Cold Storage"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1075,
+                                                                        lineNumber: 1078,
                                                                         columnNumber: 21
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4804,19 +4807,19 @@ function HeadquartersPage() {
                                                                         children: "Dry Storage"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1076,
+                                                                        lineNumber: 1079,
                                                                         columnNumber: 21
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1072,
+                                                                lineNumber: 1075,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1065,
+                                                        lineNumber: 1068,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4832,7 +4835,7 @@ function HeadquartersPage() {
                                                         className: "rounded-xl"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1079,
+                                                        lineNumber: 1082,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -4876,13 +4879,13 @@ function HeadquartersPage() {
                                                         children: "Add"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1088,
+                                                        lineNumber: 1091,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 1064,
+                                                lineNumber: 1067,
                                                 columnNumber: 15
                                             }, this),
                                             branchForm.storageIndices.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4899,7 +4902,7 @@ function HeadquartersPage() {
                                                                         children: index
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1124,
+                                                                        lineNumber: 1127,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4919,13 +4922,13 @@ function HeadquartersPage() {
                                                                         children: "Remove"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1127,
+                                                                        lineNumber: 1130,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1123,
+                                                                lineNumber: 1126,
                                                                 columnNumber: 23
                                                             }, this),
                                                             index.toLowerCase().includes("tank") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4938,7 +4941,7 @@ function HeadquartersPage() {
                                                                                 children: "Fuel Type"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1147,
+                                                                                lineNumber: 1150,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -4967,12 +4970,12 @@ function HeadquartersPage() {
                                                                                             placeholder: "Select fuel type"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/headquarters/page.tsx",
-                                                                                            lineNumber: 1162,
+                                                                                            lineNumber: 1165,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                                        lineNumber: 1161,
+                                                                                        lineNumber: 1164,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4982,7 +4985,7 @@ function HeadquartersPage() {
                                                                                                 children: "Petrol"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                lineNumber: 1165,
+                                                                                                lineNumber: 1168,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4990,7 +4993,7 @@ function HeadquartersPage() {
                                                                                                 children: "Diesel"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                lineNumber: 1166,
+                                                                                                lineNumber: 1169,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4998,7 +5001,7 @@ function HeadquartersPage() {
                                                                                                 children: "Kerosene"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                lineNumber: 1167,
+                                                                                                lineNumber: 1170,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5006,25 +5009,25 @@ function HeadquartersPage() {
                                                                                                 children: "Super"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                lineNumber: 1168,
+                                                                                                lineNumber: 1171,
                                                                                                 columnNumber: 33
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                                        lineNumber: 1164,
+                                                                                        lineNumber: 1167,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1148,
+                                                                                lineNumber: 1151,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1146,
+                                                                        lineNumber: 1149,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5035,7 +5038,7 @@ function HeadquartersPage() {
                                                                                 children: "Tank Capacity (Litres) *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1175,
+                                                                                lineNumber: 1178,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5064,13 +5067,13 @@ function HeadquartersPage() {
                                                                                 className: "rounded-xl"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1176,
+                                                                                lineNumber: 1179,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1174,
+                                                                        lineNumber: 1177,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5080,7 +5083,7 @@ function HeadquartersPage() {
                                                                                 children: "Dispensers Served by This Tank *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1199,
+                                                                                lineNumber: 1202,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5092,7 +5095,7 @@ function HeadquartersPage() {
                                                                                         className: "rounded-xl"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                                        lineNumber: 1201,
+                                                                                        lineNumber: 1204,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -5128,13 +5131,13 @@ function HeadquartersPage() {
                                                                                         children: "Add Dispenser"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                                        lineNumber: 1206,
+                                                                                        lineNumber: 1209,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1200,
+                                                                                lineNumber: 1203,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             branchForm.tankConfig[index]?.dispensers?.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5147,7 +5150,7 @@ function HeadquartersPage() {
                                                                                                 children: dispenser
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                lineNumber: 1243,
+                                                                                                lineNumber: 1246,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5160,7 +5163,7 @@ function HeadquartersPage() {
                                                                                                         id: `meter-${i}-${dIdx}`
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                        lineNumber: 1245,
+                                                                                                        lineNumber: 1248,
                                                                                                         columnNumber: 39
                                                                                                     }, this),
                                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5188,30 +5191,30 @@ function HeadquartersPage() {
                                                                                                         children: "Remove"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                        lineNumber: 1251,
+                                                                                                        lineNumber: 1254,
                                                                                                         columnNumber: 39
                                                                                                     }, this)
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                                lineNumber: 1244,
+                                                                                                lineNumber: 1247,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         ]
                                                                                     }, dIdx, true, {
                                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                                        lineNumber: 1239,
+                                                                                        lineNumber: 1242,
                                                                                         columnNumber: 35
                                                                                     }, this))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1237,
+                                                                                lineNumber: 1240,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1198,
+                                                                        lineNumber: 1201,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5222,7 +5225,7 @@ function HeadquartersPage() {
                                                                                 children: "Initial Stock Position (Litres) *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1281,
+                                                                                lineNumber: 1284,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5252,42 +5255,42 @@ function HeadquartersPage() {
                                                                                 required: true
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                                lineNumber: 1282,
+                                                                                lineNumber: 1285,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                                        lineNumber: 1280,
+                                                                        lineNumber: 1283,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                                lineNumber: 1145,
+                                                                lineNumber: 1148,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, i, true, {
                                                         fileName: "[project]/app/headquarters/page.tsx",
-                                                        lineNumber: 1122,
+                                                        lineNumber: 1125,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/headquarters/page.tsx",
-                                                lineNumber: 1120,
+                                                lineNumber: 1123,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 1059,
+                                        lineNumber: 1062,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 929,
+                                lineNumber: 932,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5301,7 +5304,7 @@ function HeadquartersPage() {
                                         children: "Cancel"
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 1314,
+                                        lineNumber: 1317,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -5311,25 +5314,25 @@ function HeadquartersPage() {
                                         children: isSubmitting ? "Creating..." : "Create Branch"
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
-                                        lineNumber: 1322,
+                                        lineNumber: 1325,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 1313,
+                                lineNumber: 1316,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/headquarters/page.tsx",
-                        lineNumber: 922,
+                        lineNumber: 925,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/headquarters/page.tsx",
-                lineNumber: 915,
+                lineNumber: 918,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -5345,7 +5348,7 @@ function HeadquartersPage() {
                                     children: "Edit Branch Details"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1343,
+                                    lineNumber: 1346,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -5355,13 +5358,13 @@ function HeadquartersPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1344,
+                                    lineNumber: 1347,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1342,
+                            lineNumber: 1345,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5378,7 +5381,7 @@ function HeadquartersPage() {
                                                     children: "Branch Name *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1349,
+                                                    lineNumber: 1352,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5392,13 +5395,13 @@ function HeadquartersPage() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1350,
+                                                    lineNumber: 1353,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1348,
+                                            lineNumber: 1351,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5409,7 +5412,7 @@ function HeadquartersPage() {
                                                     children: "Location *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1359,
+                                                    lineNumber: 1362,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5423,19 +5426,19 @@ function HeadquartersPage() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1360,
+                                                    lineNumber: 1363,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1358,
+                                            lineNumber: 1361,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1347,
+                                    lineNumber: 1350,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5446,7 +5449,7 @@ function HeadquartersPage() {
                                             children: "Physical Address"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1370,
+                                            lineNumber: 1373,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5460,13 +5463,13 @@ function HeadquartersPage() {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1371,
+                                            lineNumber: 1374,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1369,
+                                    lineNumber: 1372,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5480,7 +5483,7 @@ function HeadquartersPage() {
                                                     children: "Branch Manager"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1381,
+                                                    lineNumber: 1384,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5494,13 +5497,13 @@ function HeadquartersPage() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1382,
+                                                    lineNumber: 1385,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1380,
+                                            lineNumber: 1383,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5511,7 +5514,7 @@ function HeadquartersPage() {
                                                     children: "Email"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1391,
+                                                    lineNumber: 1394,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5526,13 +5529,13 @@ function HeadquartersPage() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1392,
+                                                    lineNumber: 1395,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1390,
+                                            lineNumber: 1393,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5543,7 +5546,7 @@ function HeadquartersPage() {
                                                     children: "Phone Number"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1402,
+                                                    lineNumber: 1405,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5558,25 +5561,25 @@ function HeadquartersPage() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1403,
+                                                    lineNumber: 1406,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1401,
+                                            lineNumber: 1404,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1379,
+                                    lineNumber: 1382,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1346,
+                            lineNumber: 1349,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5590,7 +5593,7 @@ function HeadquartersPage() {
                                             children: "Staff Password Reset"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1416,
+                                            lineNumber: 1419,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -5634,13 +5637,13 @@ function HeadquartersPage() {
                                             children: "Generate Reset Code"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1417,
+                                            lineNumber: 1420,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1415,
+                                    lineNumber: 1418,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5648,13 +5651,13 @@ function HeadquartersPage() {
                                     children: "Generate a password reset code for a staff member in this branch"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1463,
+                                    lineNumber: 1466,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1414,
+                            lineNumber: 1417,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5672,7 +5675,7 @@ function HeadquartersPage() {
                                     children: "Delete Branch"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1469,
+                                    lineNumber: 1472,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5685,7 +5688,7 @@ function HeadquartersPage() {
                                             children: "Cancel"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1482,
+                                            lineNumber: 1485,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -5695,30 +5698,30 @@ function HeadquartersPage() {
                                             children: "Update Branch"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1485,
+                                            lineNumber: 1488,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1481,
+                                    lineNumber: 1484,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1468,
+                            lineNumber: 1471,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/headquarters/page.tsx",
-                    lineNumber: 1341,
+                    lineNumber: 1344,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/headquarters/page.tsx",
-                lineNumber: 1340,
+                lineNumber: 1343,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -5734,20 +5737,20 @@ function HeadquartersPage() {
                                     children: "Hardware Inventory"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1506,
+                                    lineNumber: 1509,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "View all hardware assigned to branches"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1507,
+                                    lineNumber: 1510,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1505,
+                            lineNumber: 1508,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5757,23 +5760,23 @@ function HeadquartersPage() {
                                 children: "Hardware inventory data will be displayed here. Navigate to the Inventory page for full details."
                             }, void 0, false, {
                                 fileName: "[project]/app/headquarters/page.tsx",
-                                lineNumber: 1510,
+                                lineNumber: 1513,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1509,
+                            lineNumber: 1512,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/headquarters/page.tsx",
-                    lineNumber: 1504,
+                    lineNumber: 1507,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/headquarters/page.tsx",
-                lineNumber: 1503,
+                lineNumber: 1506,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -5789,20 +5792,20 @@ function HeadquartersPage() {
                                     children: "Global Uploads"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1520,
+                                    lineNumber: 1523,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Upload meter readings and stock positions for all branches"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1521,
+                                    lineNumber: 1524,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1519,
+                            lineNumber: 1522,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5816,7 +5819,7 @@ function HeadquartersPage() {
                                             children: "File Requirements"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1525,
+                                            lineNumber: 1528,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -5826,40 +5829,40 @@ function HeadquartersPage() {
                                                     children: "Excel or CSV file format"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1527,
+                                                    lineNumber: 1530,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                     children: "Must include: Branch Name, Dispenser ID, Opening Meter Reading, Closing Meter Reading"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1528,
+                                                    lineNumber: 1531,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                     children: "Must include: Tank ID, Opening Stock, Closing Stock"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1529,
+                                                    lineNumber: 1532,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
                                                     children: "One row per dispenser/tank reading"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1530,
+                                                    lineNumber: 1533,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1526,
+                                            lineNumber: 1529,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1524,
+                                    lineNumber: 1527,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5870,7 +5873,7 @@ function HeadquartersPage() {
                                             children: "Select File *"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1535,
+                                            lineNumber: 1538,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -5881,7 +5884,7 @@ function HeadquartersPage() {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1536,
+                                            lineNumber: 1539,
                                             columnNumber: 15
                                         }, this),
                                         uploadFile && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5892,13 +5895,13 @@ function HeadquartersPage() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1543,
+                                            lineNumber: 1546,
                                             columnNumber: 30
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1534,
+                                    lineNumber: 1537,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5909,7 +5912,7 @@ function HeadquartersPage() {
                                             children: "Sample Format"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1547,
+                                            lineNumber: 1550,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5919,39 +5922,39 @@ function HeadquartersPage() {
                                                     children: "Branch,Dispenser,Opening,Closing,Tank,Opening Stock,Closing Stock"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1549,
+                                                    lineNumber: 1552,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     children: "Nairobi,Dispenser 01,1000,1500,Tank 1,5000,4200"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1550,
+                                                    lineNumber: 1553,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     children: "Mombasa,Dispenser 02,2000,2300,Tank 2,6000,5800"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/headquarters/page.tsx",
-                                                    lineNumber: 1551,
+                                                    lineNumber: 1554,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1548,
+                                            lineNumber: 1551,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1546,
+                                    lineNumber: 1549,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1523,
+                            lineNumber: 1526,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -5963,7 +5966,7 @@ function HeadquartersPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1557,
+                                    lineNumber: 1560,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -5975,31 +5978,31 @@ function HeadquartersPage() {
                                             className: "mr-2 h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/headquarters/page.tsx",
-                                            lineNumber: 1561,
+                                            lineNumber: 1564,
                                             columnNumber: 15
                                         }, this),
                                         "Upload"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/headquarters/page.tsx",
-                                    lineNumber: 1560,
+                                    lineNumber: 1563,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/headquarters/page.tsx",
-                            lineNumber: 1556,
+                            lineNumber: 1559,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/headquarters/page.tsx",
-                    lineNumber: 1518,
+                    lineNumber: 1521,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/headquarters/page.tsx",
-                lineNumber: 1517,
+                lineNumber: 1520,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$global$2d$shift$2d$upload$2d$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["GlobalShiftUploadDialog"], {
@@ -6007,13 +6010,13 @@ function HeadquartersPage() {
                 onOpenChange: setGlobalShiftUploadOpen
             }, void 0, false, {
                 fileName: "[project]/app/headquarters/page.tsx",
-                lineNumber: 1568,
+                lineNumber: 1571,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/headquarters/page.tsx",
-        lineNumber: 578,
+        lineNumber: 581,
         columnNumber: 5
     }, this);
 }
