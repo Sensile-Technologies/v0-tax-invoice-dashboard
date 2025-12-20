@@ -19,6 +19,11 @@ interface DashboardStats {
   paid_invoices: number
 }
 
+interface ShiftData {
+  id: number
+  status: string
+}
+
 export default function DashboardScreen({ navigation }: any) {
   const { user, logout } = useAuth()
   const [stats, setStats] = useState<DashboardStats>({
@@ -27,12 +32,30 @@ export default function DashboardScreen({ navigation }: any) {
     pending_invoices: 0,
     paid_invoices: 0,
   })
+  const [activeShift, setActiveShift] = useState<ShiftData | null>(null)
   const [refreshing, setRefreshing] = useState(false)
 
-  const fetchStats = useCallback(async () => {
+  const fetchShift = useCallback(async () => {
     try {
       if (!user?.branch_id) return
-      const data = await api.get<DashboardStats>(`/api/mobile/dashboard?branch_id=${user.branch_id}`)
+      const data = await api.get<{ shift: ShiftData | null }>(`/api/shifts?branch_id=${user.branch_id}`)
+      setActiveShift(data?.shift || null)
+      return data?.shift
+    } catch (error) {
+      console.log('Failed to fetch shift')
+      setActiveShift(null)
+      return null
+    }
+  }, [user?.branch_id])
+
+  const fetchStats = useCallback(async (shiftId?: number) => {
+    try {
+      if (!user?.branch_id) return
+      let url = `/api/mobile/dashboard?branch_id=${user.branch_id}`
+      if (shiftId) {
+        url += `&shift_id=${shiftId}`
+      }
+      const data = await api.get<DashboardStats>(url)
       if (data) setStats(data)
     } catch (error) {
       console.log('Using default stats')
@@ -40,14 +63,27 @@ export default function DashboardScreen({ navigation }: any) {
   }, [user?.branch_id])
 
   useEffect(() => {
-    fetchStats()
-  }, [fetchStats])
+    const loadData = async () => {
+      const shift = await fetchShift()
+      if (shift) {
+        await fetchStats(shift.id)
+      } else {
+        setStats({ total_sales: 0, total_invoices: 0, pending_invoices: 0, paid_invoices: 0 })
+      }
+    }
+    loadData()
+  }, [fetchShift, fetchStats])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
-    await fetchStats()
+    const shift = await fetchShift()
+    if (shift) {
+      await fetchStats(shift.id)
+    } else {
+      setStats({ total_sales: 0, total_invoices: 0, pending_invoices: 0, paid_invoices: 0 })
+    }
     setRefreshing(false)
-  }, [fetchStats])
+  }, [fetchShift, fetchStats])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-KE', {
@@ -76,43 +112,51 @@ export default function DashboardScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.statsGrid}>
-        <View style={[styles.statCard, styles.primaryCard]}>
-          <Ionicons name="cash-outline" size={28} color="#fff" />
-          <Text style={styles.statValue}>{formatCurrency(stats.total_sales)}</Text>
-          <Text style={styles.statLabel}>Today's Sales</Text>
-        </View>
+      {activeShift ? (
+        <View style={styles.statsGrid}>
+          <View style={[styles.statCard, styles.primaryCard]}>
+            <Ionicons name="cash-outline" size={28} color="#fff" />
+            <Text style={styles.statValue}>{formatCurrency(stats.total_sales)}</Text>
+            <Text style={styles.statLabel}>Shift Sales</Text>
+          </View>
 
-        <View style={styles.statCard}>
-          <Ionicons name="receipt-outline" size={28} color={colors.primary} />
-          <Text style={[styles.statValue, { color: colors.text }]}>
-            {stats.total_invoices}
-          </Text>
-          <Text style={[styles.statLabel, { color: colors.textLight }]}>
-            Total Invoices
-          </Text>
-        </View>
+          <View style={styles.statCard}>
+            <Ionicons name="receipt-outline" size={28} color={colors.primary} />
+            <Text style={[styles.statValue, { color: colors.text }]}>
+              {stats.total_invoices}
+            </Text>
+            <Text style={[styles.statLabel, { color: colors.textLight }]}>
+              Total Invoices
+            </Text>
+          </View>
 
-        <View style={styles.statCard}>
-          <Ionicons name="time-outline" size={28} color={colors.warning} />
-          <Text style={[styles.statValue, { color: colors.text }]}>
-            {stats.pending_invoices}
-          </Text>
-          <Text style={[styles.statLabel, { color: colors.textLight }]}>
-            Pending
-          </Text>
-        </View>
+          <View style={styles.statCard}>
+            <Ionicons name="time-outline" size={28} color={colors.warning} />
+            <Text style={[styles.statValue, { color: colors.text }]}>
+              {stats.pending_invoices}
+            </Text>
+            <Text style={[styles.statLabel, { color: colors.textLight }]}>
+              Pending
+            </Text>
+          </View>
 
-        <View style={styles.statCard}>
-          <Ionicons name="checkmark-circle-outline" size={28} color={colors.success} />
-          <Text style={[styles.statValue, { color: colors.text }]}>
-            {stats.paid_invoices}
-          </Text>
-          <Text style={[styles.statLabel, { color: colors.textLight }]}>
-            Paid
-          </Text>
+          <View style={styles.statCard}>
+            <Ionicons name="checkmark-circle-outline" size={28} color={colors.success} />
+            <Text style={[styles.statValue, { color: colors.text }]}>
+              {stats.paid_invoices}
+            </Text>
+            <Text style={[styles.statLabel, { color: colors.textLight }]}>
+              Paid
+            </Text>
+          </View>
         </View>
-      </View>
+      ) : (
+        <View style={styles.noShiftContainer}>
+          <Ionicons name="time-outline" size={48} color={colors.textLight} />
+          <Text style={styles.noShiftTitle}>No Active Shift</Text>
+          <Text style={styles.noShiftText}>Start a shift from the admin dashboard to begin recording sales</Text>
+        </View>
+      )}
 
       <View style={styles.quickActions}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
@@ -257,5 +301,25 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     fontWeight: '500',
     color: colors.text,
+  },
+  noShiftContainer: {
+    margin: spacing.lg,
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
+    borderRadius: borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noShiftTitle: {
+    fontSize: fontSize.lg,
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.md,
+  },
+  noShiftText: {
+    fontSize: fontSize.sm,
+    color: colors.textLight,
+    textAlign: 'center',
+    marginTop: spacing.sm,
   },
 })
