@@ -6,11 +6,22 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Download, Printer, RefreshCw, Clock, AlertCircle } from "lucide-react"
+import { Search, Download, Printer, RefreshCw, Clock, AlertCircle, StopCircle, Loader2 } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 
 interface Shift {
   id: string
@@ -33,6 +44,32 @@ interface Branch {
   name: string
 }
 
+interface Nozzle {
+  id: string
+  name: string
+  fuel_type: string
+  initial_meter_reading: number
+}
+
+interface Tank {
+  id: string
+  tank_name: string
+  fuel_type: string
+  current_stock: number
+  capacity: number
+}
+
+interface NozzleReading {
+  nozzle_id: string
+  closing_reading: string
+}
+
+interface TankStock {
+  tank_id: string
+  closing_reading: string
+  stock_received: string
+}
+
 export default function ShiftsReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -49,6 +86,16 @@ export default function ShiftsReportPage() {
     averagePerShift: 0,
     totalVariance: 0
   })
+
+  const [endShiftDialogOpen, setEndShiftDialogOpen] = useState(false)
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null)
+  const [endShiftLoading, setEndShiftLoading] = useState(false)
+  const [closingCash, setClosingCash] = useState("")
+  const [nozzles, setNozzles] = useState<Nozzle[]>([])
+  const [tanks, setTanks] = useState<Tank[]>([])
+  const [nozzleReadings, setNozzleReadings] = useState<NozzleReading[]>([])
+  const [tankStocks, setTankStocks] = useState<TankStock[]>([])
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     fetchBranches()
@@ -135,6 +182,106 @@ export default function ShiftsReportPage() {
         return <Badge className="bg-blue-100 text-blue-700">Completed</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
+    }
+  }
+
+  async function openEndShiftDialog(shift: Shift) {
+    setSelectedShift(shift)
+    setEndShiftLoading(true)
+    setClosingCash("")
+    setNozzleReadings([])
+    setTankStocks([])
+    setEndShiftDialogOpen(true)
+
+    try {
+      const [nozzlesRes, tanksRes] = await Promise.all([
+        fetch(`/api/nozzles?branch_id=${shift.branch_id}&status=active`),
+        fetch(`/api/tanks?branch_id=${shift.branch_id}`)
+      ])
+      
+      const nozzlesData = await nozzlesRes.json()
+      const tanksData = await tanksRes.json()
+
+      if (nozzlesData.success) {
+        setNozzles(nozzlesData.data || [])
+        setNozzleReadings((nozzlesData.data || []).map((n: Nozzle) => ({
+          nozzle_id: n.id,
+          closing_reading: ""
+        })))
+      }
+
+      if (tanksData.success) {
+        setTanks(tanksData.data || [])
+        setTankStocks((tanksData.data || []).map((t: Tank) => ({
+          tank_id: t.id,
+          closing_reading: t.current_stock?.toString() || "",
+          stock_received: "0"
+        })))
+      }
+    } catch (error) {
+      console.error('Error fetching nozzles/tanks:', error)
+      toast.error('Failed to load nozzle and tank data')
+    } finally {
+      setEndShiftLoading(false)
+    }
+  }
+
+  function updateNozzleReading(nozzleId: string, value: string) {
+    setNozzleReadings(prev =>
+      prev.map(r => r.nozzle_id === nozzleId ? { ...r, closing_reading: value } : r)
+    )
+  }
+
+  function updateTankStock(tankId: string, field: 'closing_reading' | 'stock_received', value: string) {
+    setTankStocks(prev =>
+      prev.map(t => t.tank_id === tankId ? { ...t, [field]: value } : t)
+    )
+  }
+
+  async function handleEndShift() {
+    if (!selectedShift) return
+
+    setSubmitting(true)
+    try {
+      const payload = {
+        id: selectedShift.id,
+        closing_cash: closingCash ? parseFloat(closingCash) : 0,
+        status: 'completed',
+        nozzle_readings: nozzleReadings
+          .filter(r => r.closing_reading)
+          .map(r => ({
+            nozzle_id: r.nozzle_id,
+            closing_reading: parseFloat(r.closing_reading)
+          })),
+        tank_stocks: tankStocks
+          .filter(t => t.closing_reading)
+          .map(t => ({
+            tank_id: t.tank_id,
+            closing_reading: parseFloat(t.closing_reading),
+            stock_received: t.stock_received ? parseFloat(t.stock_received) : 0
+          }))
+      }
+
+      const response = await fetch('/api/shifts', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        toast.success('Shift ended successfully')
+        setEndShiftDialogOpen(false)
+        fetchShifts()
+      } else {
+        toast.error(data.error || 'Failed to end shift')
+      }
+    } catch (error) {
+      console.error('Error ending shift:', error)
+      toast.error('Failed to end shift')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -262,6 +409,7 @@ export default function ShiftsReportPage() {
                           <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Cash</th>
                           <th className="text-right py-3 px-4 font-semibold text-slate-700">Variance</th>
                           <th className="text-center py-3 px-4 font-semibold text-slate-700">Status</th>
+                          <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -285,6 +433,18 @@ export default function ShiftsReportPage() {
                             <td className="py-3 px-4 text-center">
                               {getStatusBadge(shift.status)}
                             </td>
+                            <td className="py-3 px-4 text-center">
+                              {shift.status === 'active' && (
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => openEndShiftDialog(shift)}
+                                >
+                                  <StopCircle className="h-4 w-4 mr-1" />
+                                  End Shift
+                                </Button>
+                              )}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -300,6 +460,141 @@ export default function ShiftsReportPage() {
           </div>
         </main>
       </div>
+
+      <Dialog open={endShiftDialogOpen} onOpenChange={setEndShiftDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <StopCircle className="h-5 w-5 text-red-500" />
+              End Shift
+            </DialogTitle>
+            <DialogDescription>
+              {selectedShift && (
+                <>End shift for <strong>{selectedShift.branch_name}</strong> started at {formatDateTime(selectedShift.start_time)}</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {endShiftLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+              <span className="ml-2 text-slate-500">Loading shift data...</span>
+            </div>
+          ) : (
+            <ScrollArea className="max-h-[60vh] pr-4">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="closing-cash">Closing Cash (KES)</Label>
+                  <Input
+                    id="closing-cash"
+                    type="number"
+                    placeholder="Enter closing cash amount"
+                    value={closingCash}
+                    onChange={(e) => setClosingCash(e.target.value)}
+                    className="rounded-xl"
+                  />
+                </div>
+
+                {nozzles.length > 0 && (
+                  <div className="space-y-3">
+                    <Separator />
+                    <Label className="text-base font-semibold">Nozzle Readings</Label>
+                    <p className="text-sm text-slate-500">Enter closing meter readings for each nozzle</p>
+                    <div className="grid gap-3">
+                      {nozzles.map((nozzle) => {
+                        const reading = nozzleReadings.find(r => r.nozzle_id === nozzle.id)
+                        return (
+                          <div key={nozzle.id} className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg">
+                            <div className="flex-1">
+                              <p className="font-medium">{nozzle.name}</p>
+                              <p className="text-sm text-slate-500">{nozzle.fuel_type} - Current: {nozzle.initial_meter_reading?.toLocaleString() || 0}</p>
+                            </div>
+                            <Input
+                              type="number"
+                              placeholder="Closing reading"
+                              value={reading?.closing_reading || ""}
+                              onChange={(e) => updateNozzleReading(nozzle.id, e.target.value)}
+                              className="w-40 rounded-xl"
+                            />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {tanks.length > 0 && (
+                  <div className="space-y-3">
+                    <Separator />
+                    <Label className="text-base font-semibold">Tank Volumes</Label>
+                    <p className="text-sm text-slate-500">Enter closing stock levels and any stock received</p>
+                    <div className="grid gap-3">
+                      {tanks.map((tank) => {
+                        const stock = tankStocks.find(t => t.tank_id === tank.id)
+                        return (
+                          <div key={tank.id} className="p-3 bg-slate-50 rounded-lg space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium">{tank.tank_name}</p>
+                                <p className="text-sm text-slate-500">{tank.fuel_type} - Current: {tank.current_stock?.toLocaleString() || 0}L / {tank.capacity?.toLocaleString() || 0}L</p>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <Label className="text-xs text-slate-500">Closing Stock (L)</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="Closing stock"
+                                  value={stock?.closing_reading || ""}
+                                  onChange={(e) => updateTankStock(tank.id, 'closing_reading', e.target.value)}
+                                  className="rounded-xl"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-slate-500">Stock Received (L)</Label>
+                                <Input
+                                  type="number"
+                                  placeholder="0"
+                                  value={stock?.stock_received || ""}
+                                  onChange={(e) => updateTankStock(tank.id, 'stock_received', e.target.value)}
+                                  className="rounded-xl"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEndShiftDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleEndShift}
+              disabled={submitting || endShiftLoading}
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Ending Shift...
+                </>
+              ) : (
+                <>
+                  <StopCircle className="h-4 w-4 mr-2" />
+                  End Shift
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
