@@ -119,6 +119,13 @@ class PrinterService {
       
       await SunmiPrinterLibrary.prepare();
       
+      // Use transaction printing for smooth, continuous output (no pulsing)
+      try {
+        await SunmiPrinterLibrary.enterPrinterBuffer(true);
+      } catch (e) {
+        console.log('[PrinterService] enterPrinterBuffer not available');
+      }
+      
       // Set tight line spacing for compact receipt (value in pixels, lower = tighter)
       try {
         await SunmiPrinterLibrary.setParagraphStyle('lineSpacing', 0);
@@ -233,6 +240,13 @@ class PrinterService {
       await SunmiPrinterLibrary.printText('END OF LEGAL RECEIPT\n');
       await SunmiPrinterLibrary.setFontWeight(false);
       await SunmiPrinterLibrary.lineWrap(2);
+      
+      // Commit the buffer for smooth, continuous printing
+      try {
+        await SunmiPrinterLibrary.commitPrinterBuffer();
+      } catch (e) {
+        console.log('[PrinterService] commitPrinterBuffer not available');
+      }
       
       return { success: true, message: 'Receipt printed successfully' };
     } catch (error: any) {
