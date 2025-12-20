@@ -105,8 +105,8 @@ export default function InvoicesScreen({ navigation }: any) {
         intrlData: invoice.intrl_data,
         co2PerLitre: co2PerLitre,
         totalCo2: totalCo2,
-        qrCodeData: invoice.invoice_number 
-          ? `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoice_number}`
+        qrCodeData: invoice.receipt_signature 
+          ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${invoice.branch_pin || 'P052344628B'}03${invoice.receipt_signature}`
           : undefined,
       }
 

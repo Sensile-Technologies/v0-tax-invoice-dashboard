@@ -211,6 +211,8 @@ export async function POST(request: Request) {
           branch_phone: branchData.phone || null,
           branch_pin: branchData.kra_pin || null,
           item_code: itemCode,
+          receipt_signature: kraData.rcptSign || null,
+          bhf_id: '03',
         }
       })
     } catch (error) {

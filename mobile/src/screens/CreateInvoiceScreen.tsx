@@ -227,6 +227,8 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     branch_phone?: string;
     branch_pin?: string;
     item_code?: string;
+    receipt_signature?: string;
+    bhf_id?: string;
   }): Promise<{ success: boolean; message: string }> {
     console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady, 'printerType:', printerType)
     
@@ -279,8 +281,8 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         intrlData: kraDetails?.intrl_data,
         co2PerLitre: co2PerLitre,
         totalCo2: totalCo2,
-        qrCodeData: kraDetails?.invoice_number 
-          ? `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${kraDetails.invoice_number}`
+        qrCodeData: kraDetails?.receipt_signature 
+          ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${kraDetails.branch_pin || 'P052344628B'}${kraDetails.bhf_id || '03'}${kraDetails.receipt_signature}`
           : undefined,
       }
       
@@ -311,6 +313,8 @@ export default function CreateInvoiceScreen({ navigation }: any) {
           branch_phone?: string;
           branch_pin?: string;
           item_code?: string;
+          receipt_signature?: string;
+          bhf_id?: string;
         };
       }>('/api/mobile/create-sale', {
         branch_id: user?.branch_id,
