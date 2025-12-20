@@ -4,9 +4,14 @@ import QRCode from 'qrcode';
 
 let SunmiPrinterLibrary: any = null;
 try {
-  SunmiPrinterLibrary = require('@mitsuharu/react-native-sunmi-printer-library');
-} catch (e) {
-  console.log('[PrinterService] Sunmi printer library not available');
+  // Use require for compatibility with Expo/React Native bundler
+  const lib = require('@mitsuharu/react-native-sunmi-printer-library');
+  // Handle both default and named exports
+  SunmiPrinterLibrary = lib.default ?? lib;
+  console.log('[PrinterService] Sunmi library loaded, methods:', Object.keys(SunmiPrinterLibrary || {}).slice(0, 10));
+  console.log('[PrinterService] Has prepare:', typeof SunmiPrinterLibrary?.prepare === 'function');
+} catch (e: any) {
+  console.log('[PrinterService] Sunmi printer library not available:', e?.message);
 }
 
 export interface InvoiceItem {
@@ -252,13 +257,20 @@ class PrinterService {
       await SunmiPrinterLibrary.setFontWeight(false);
       await SunmiPrinterLibrary.lineWrap(2);
       
-      // Commit the buffer for smooth, continuous printing
-      console.log('[PrinterService] Committing printer buffer...');
+      // Commit and exit the buffer for smooth, continuous printing
+      console.log('[PrinterService] Committing and exiting printer buffer...');
       try {
         await SunmiPrinterLibrary.commitPrinterBuffer();
         console.log('[PrinterService] Buffer committed');
       } catch (e: any) {
         console.log('[PrinterService] commitPrinterBuffer error:', e?.message || e);
+      }
+      
+      try {
+        await SunmiPrinterLibrary.exitPrinterBuffer(true);
+        console.log('[PrinterService] Buffer exited');
+      } catch (e: any) {
+        console.log('[PrinterService] exitPrinterBuffer error:', e?.message || e);
       }
       
       console.log('[PrinterService] === SUNMI PRINT SUCCESS ===');
