@@ -209,42 +209,35 @@ export default function SalesScreen() {
       
       const sale = response.sale
       if (sale && printerReady) {
-        const price = fuelPrices.find(p => p.fuel_type === sale.fuel_type)?.price || parseFloat(sale.unit_price) || 0
-        const totalAmount = parseFloat(sale.total_amount) || 0
+        const price = parseFloat(sale.unit_price) || 0
+        const qty = parseFloat(sale.quantity) || 0
+        const total = parseFloat(sale.total_amount) || 0
         const now = new Date()
         const invoiceData: InvoiceData = {
-          invoiceNumber: sale.invoice_number || `INV-${Date.now()}`,
-          date: now.toLocaleDateString('en-KE'),
-          time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }),
+          invoiceNumber: sale.invoice_number || '',
+          date: now.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+          time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
           branchName: user?.branch_name || 'Flow360 Station',
-          customerName: sale.customer_name || 'Walk-in Customer',
-          customerPin: sale.customer_pin || '',
           cashierName: user?.username || 'Cashier',
           items: [{
-            name: `${sale.fuel_type}${sale.vehicle_number ? ` (${sale.vehicle_number})` : ''}`,
-            quantity: parseFloat(sale.quantity) || 0,
+            name: sale.fuel_type,
+            quantity: qty,
             unitPrice: price,
             taxRate: 16,
           }],
-          subtotal: totalAmount,
+          subtotal: total,
           totalDiscount: 0,
-          taxableAmount: totalAmount / 1.16,
-          totalTax: totalAmount - (totalAmount / 1.16),
-          grandTotal: totalAmount,
-          paymentMethod: sale.payment_method || 'cash',
-          cuInvoiceNo: sale.cu_invoice_number || '',
-          qrCodeData: sale.qr_code || '',
+          taxableAmount: total / 1.16,
+          totalTax: total - (total / 1.16),
+          grandTotal: total,
+          paymentMethod: sale.payment_method || 'Cash',
         }
         
         try {
           await sunmiPrinter.printInvoice(invoiceData)
-          console.log('[SalesScreen] Receipt printed successfully')
         } catch (printError) {
           console.error('[SalesScreen] Print error:', printError)
-          Alert.alert('Print Error', 'Sale saved but receipt failed to print')
         }
-      } else if (!printerReady) {
-        console.warn('[SalesScreen] Printer not ready, skipping print')
       }
       
       Alert.alert('Success', 'Sale recorded successfully')
