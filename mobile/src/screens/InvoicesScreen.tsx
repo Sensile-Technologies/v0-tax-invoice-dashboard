@@ -183,6 +183,9 @@ export default function InvoicesScreen({ navigation }: any) {
       if (branchId) {
         params.push(`branch_id=${branchId}`)
       }
+      if (user?.id) {
+        params.push(`user_id=${user.id}`)
+      }
       if (dateFrom) {
         params.push(`date_from=${dateFrom}`)
       }
@@ -195,7 +198,7 @@ export default function InvoicesScreen({ navigation }: any) {
       }
       
       console.log('[Invoices] Fetching from:', url)
-      console.log('[Invoices] User branch_id:', user?.branch_id, 'vendor_id:', user?.vendor_id)
+      console.log('[Invoices] User:', user?.id, 'branch_id:', user?.branch_id, 'vendor_id:', user?.vendor_id)
       
       const data = await api.get<{ sales: SaleInvoice[] }>(url)
       console.log('[Invoices] Received:', data?.sales?.length || 0, 'invoices')

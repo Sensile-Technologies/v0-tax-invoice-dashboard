@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const branchId = searchParams.get("branch_id")
+    const userId = searchParams.get("user_id")
     const dateFrom = searchParams.get("date_from")
     const dateTo = searchParams.get("date_to")
     const limit = parseInt(searchParams.get("limit") || "100")
@@ -52,6 +53,12 @@ export async function GET(request: NextRequest) {
       if (branchId) {
         sql += ` AND s.branch_id = $${paramIndex}`
         params.push(branchId)
+        paramIndex++
+      }
+
+      if (userId) {
+        sql += ` AND s.staff_id = $${paramIndex}`
+        params.push(userId)
         paramIndex++
       }
 
