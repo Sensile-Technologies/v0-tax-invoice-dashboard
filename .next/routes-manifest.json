@@ -648,6 +648,12 @@
       "namedRegex": "^/api/sales(?:/)?$"
     },
     {
+      "page": "/api/sales/export",
+      "regex": "^/api/sales/export(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/sales/export(?:/)?$"
+    },
+    {
       "page": "/api/setup-demo",
       "regex": "^/api/setup\\-demo(?:/)?$",
       "routeKeys": {},

@@ -96,6 +96,7 @@
   "/api/purchases/route": "/api/purchases",
   "/api/receipt/credit-note/route": "/api/receipt/credit-note",
   "/api/receipt/generate/route": "/api/receipt/generate",
+  "/api/sales/export/route": "/api/sales/export",
   "/api/sales/route": "/api/sales",
   "/api/setup-demo/route": "/api/setup-demo",
   "/api/shifts/close-excel/route": "/api/shifts/close-excel",

@@ -96,6 +96,7 @@
   "/api/purchases/route": "app/api/purchases/route.js",
   "/api/receipt/credit-note/route": "app/api/receipt/credit-note/route.js",
   "/api/receipt/generate/route": "app/api/receipt/generate/route.js",
+  "/api/sales/export/route": "app/api/sales/export/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/setup-demo/route": "app/api/setup-demo/route.js",
   "/api/shifts/close-excel/route": "app/api/shifts/close-excel/route.js",
