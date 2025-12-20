@@ -1967,6 +1967,10 @@
     height: 1.15rem;
   }
 
+  .h-\[50vh\] {
+    height: 50vh;
+  }
+
   .h-\[280px\] {
     height: 280px;
   }

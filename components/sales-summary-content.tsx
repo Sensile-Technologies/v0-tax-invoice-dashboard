@@ -818,14 +818,14 @@ export function SalesSummaryContent() {
       )}
 
       <Dialog open={showShiftDialog} onOpenChange={setShowShiftDialog}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle>{shiftAction === "start" ? "Start New Shift" : "End Current Shift"}</DialogTitle>
             <DialogDescription>
               {shiftAction === "start" ? "Enter details to start a new shift" : "Enter closing details to end the shift"}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="flex-1 overflow-hidden">
             {shiftAction === "start" && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -849,7 +849,7 @@ export function SalesSummaryContent() {
               </div>
             )}
             {shiftAction === "end" && currentShift && (
-              <ScrollArea className="max-h-[60vh]">
+              <ScrollArea className="h-[50vh]">
                 <div className="space-y-4 pr-4">
                   <div className="bg-slate-50 p-4 rounded-lg space-y-2">
                     <h4 className="font-semibold text-slate-700">Shift Summary</h4>
@@ -985,18 +985,20 @@ export function SalesSummaryContent() {
               </ScrollArea>
             )}
             {shiftAction === "start" && (
-              <div>
-                <Label htmlFor="shift-notes">Notes (Optional)</Label>
-                <Textarea
-                  id="shift-notes"
-                  placeholder="Add any notes about this shift"
-                  value={shiftForm.notes}
-                  onChange={(e) => setShiftForm({ ...shiftForm, notes: e.target.value })}
-                />
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="shift-notes">Notes (Optional)</Label>
+                  <Textarea
+                    id="shift-notes"
+                    placeholder="Add any notes about this shift"
+                    value={shiftForm.notes}
+                    onChange={(e) => setShiftForm({ ...shiftForm, notes: e.target.value })}
+                  />
+                </div>
               </div>
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setShowShiftDialog(false)}>Cancel</Button>
             <Button onClick={shiftAction === "start" ? handleStartShift : handleEndShift} disabled={shiftLoading}>
               {shiftAction === "start" ? "Start Shift" : "End Shift"}
