@@ -17,9 +17,11 @@ import {
   DollarSign,
   Clock,
   FileText,
+  Loader2,
 } from "lucide-react"
 
-import { useState, useEffect } from "react" // Added useEffect
+import { useState, useEffect } from "react"
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -50,31 +52,16 @@ import { GlobalShiftUploadDialog } from "@/components/global-shift-upload-dialog
 import { useCurrency } from "@/lib/currency-utils" // Added useCurrency hook
 import { getCurrentUser } from "@/lib/auth/client"
 
-const branchesData = [
-  {
-    id: "nairobi",
-    name: "Nairobi Branch",
-    location: "Nairobi, Kenya",
-    status: "Active",
-    revenue: 4250000,
-    employees: 25,
-    performance: "+12.5%",
-    gradient: "from-blue-600 via-blue-500 to-cyan-400",
-    transactions: 1245,
-    inventory: 342,
-  },
-]
-
-const orgRevenue = [
-  { month: "Jan", revenue: 9200000 },
-  { month: "Feb", revenue: 9850000 },
-  { month: "Mar", revenue: 10300000 },
-  { month: "Apr", revenue: 10950000 },
-  { month: "May", revenue: 11200000 },
-  { month: "Jun", revenue: 11710000 },
-]
-
-const branchPerformance = [{ branch: "Nairobi", sales: 4250, purchases: 2890 }]
+interface HQStats {
+  totalRevenue: number
+  revenueGrowth: number
+  totalTransactions: number
+  totalEmployees: number
+  totalInventory: number
+  inventoryGrowth: number
+  branchPerformance: { branch: string; sales: number; purchases: number }[]
+  monthlyRevenue: { month: string; revenue: number }[]
+}
 
 export default function HeadquartersPage() {
   const router = useRouter()
@@ -90,13 +77,32 @@ export default function HeadquartersPage() {
   const [branches, setBranches] = useState<any[]>([])
   const [isLoadingBranches, setIsLoadingBranches] = useState(true)
 
-  const [globalShiftUploadOpen, setGlobalShiftUploadOpen] = useState(false) // Added globalShiftUploadOpen state
+  const [globalShiftUploadOpen, setGlobalShiftUploadOpen] = useState(false)
+
+  const [hqStats, setHqStats] = useState<HQStats | null>(null)
+  const [isLoadingStats, setIsLoadingStats] = useState(true)
 
   const { formatCurrency } = useCurrency()
 
   useEffect(() => {
     fetchBranches()
+    fetchHQStats()
   }, [])
+
+  const fetchHQStats = async () => {
+    try {
+      setIsLoadingStats(true)
+      const response = await fetch('/api/headquarters/stats')
+      if (response.ok) {
+        const data = await response.json()
+        setHqStats(data)
+      }
+    } catch (error) {
+      console.error('Error fetching HQ stats:', error)
+    } finally {
+      setIsLoadingStats(false)
+    }
+  }
 
   const fetchBranches = async () => {
     try {
@@ -184,9 +190,12 @@ export default function HeadquartersPage() {
     >,
   })
 
-  const totalRevenue = branches.reduce((sum, branch) => sum + branch.revenue, 0)
-  const totalTransactions = branches.reduce((sum, branch) => sum + branch.transactions, 0)
-  const totalInventory = branches.reduce((sum, branch) => sum + branch.inventory, 0)
+  const totalRevenue = hqStats?.totalRevenue || 0
+  const totalTransactions = hqStats?.totalTransactions || 0
+  const totalInventory = hqStats?.totalInventory || 0
+  const totalEmployees = hqStats?.totalEmployees || 0
+  const revenueGrowth = hqStats?.revenueGrowth || 0
+  const inventoryGrowth = hqStats?.inventoryGrowth || 0
 
   const handleBranchClick = (branchId: string) => {
     if (branchId === "hq") {
@@ -680,64 +689,74 @@ export default function HeadquartersPage() {
         {/* Organization Summary */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold mb-4 text-white">Organization Summary</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="rounded-2xl">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Revenue</CardTitle>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100">
-                    <Package className="h-5 w-5 text-blue-600" />
+          {isLoadingStats ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <Card className="rounded-2xl">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-gray-600">MTD Revenue</CardTitle>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100">
+                      <DollarSign className="h-5 w-5 text-blue-600" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
-                <p className="text-xs text-green-600 mt-1">+10.8% from last month</p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-600">Transactions</CardTitle>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-100">
-                    <ShoppingCart className="h-5 w-5 text-purple-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
+                  <p className={`text-xs mt-1 ${revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {revenueGrowth >= 0 ? '+' : ''}{revenueGrowth}% from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-2xl">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-gray-600">MTD Transactions</CardTitle>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-100">
+                      <ShoppingCart className="h-5 w-5 text-purple-600" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalTransactions.toLocaleString()}</div>
-                <p className="text-xs text-gray-600 mt-1">Across all branches</p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Employees</CardTitle>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100">
-                    <Users className="h-5 w-5 text-orange-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalTransactions.toLocaleString()}</div>
+                  <p className="text-xs text-gray-600 mt-1">Across all branches</p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-2xl">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-gray-600">Total Staff</CardTitle>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100">
+                      <Users className="h-5 w-5 text-orange-600" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{branches.length}</div>
-                <p className="text-xs text-gray-600 mt-1">In {branches.length} branches</p>
-              </CardContent>
-            </Card>
-            <Card className="rounded-2xl">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium text-gray-600">Inventory Items</CardTitle>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-100">
-                    <Package className="h-5 w-5 text-green-600" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalEmployees}</div>
+                  <p className="text-xs text-gray-600 mt-1">In {branches.length} branch{branches.length !== 1 ? 'es' : ''}</p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-2xl">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-gray-600">Tank Stock (L)</CardTitle>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-100">
+                      <Package className="h-5 w-5 text-green-600" />
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalInventory}</div>
-                <p className="text-xs text-green-600 mt-1">+7.3% stock increase</p>
-              </CardContent>
-            </Card>
-          </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalInventory.toLocaleString()}</div>
+                  <p className={`text-xs mt-1 ${inventoryGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {inventoryGrowth >= 0 ? '+' : ''}{inventoryGrowth}% change
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
 
         {/* Performance Analytics */}
@@ -746,29 +765,62 @@ export default function HeadquartersPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle>Organization Revenue Trend</CardTitle>
+                <CardTitle>Revenue Trend (6 Months)</CardTitle>
                 <CardDescription>Monthly revenue across all branches</CardDescription>
               </CardHeader>
               <CardContent className="px-2">
-                {/* ChartContainer component is assumed to be defined elsewhere */}
                 <div className="h-[300px] w-full">
-                  {/* LineChart component is assumed to be defined elsewhere */}
-                  <div className="h-full w-full">{/* Chart rendering logic */}</div>
+                  {isLoadingStats ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    </div>
+                  ) : hqStats?.monthlyRevenue && hqStats.monthlyRevenue.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={hqStats.monthlyRevenue}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+                        <Tooltip formatter={(value: number) => [formatCurrency(value), 'Revenue']} />
+                        <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} dot={{ fill: '#3b82f6' }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      No revenue data available
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Branch Performance Comparison */}
             <Card className="rounded-2xl">
               <CardHeader>
-                <CardTitle>Branch Performance Comparison</CardTitle>
-                <CardDescription>Sales vs Purchases by branch</CardDescription>
+                <CardTitle>Branch Performance (MTD)</CardTitle>
+                <CardDescription>Sales vs Purchases by branch (in thousands)</CardDescription>
               </CardHeader>
               <CardContent className="px-2">
-                {/* ChartContainer component is assumed to be defined elsewhere */}
                 <div className="h-[300px] w-full">
-                  {/* BarChart component is assumed to be defined elsewhere */}
-                  <div className="h-full w-full">{/* Chart rendering logic */}</div>
+                  {isLoadingStats ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    </div>
+                  ) : hqStats?.branchPerformance && hqStats.branchPerformance.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={hqStats.branchPerformance}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="branch" />
+                        <YAxis tickFormatter={(value) => `${value}K`} />
+                        <Tooltip formatter={(value: number) => [`${value.toFixed(1)}K`, '']} />
+                        <Legend />
+                        <Bar dataKey="sales" fill="#22c55e" name="Sales" />
+                        <Bar dataKey="purchases" fill="#f97316" name="Purchases" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      No branch performance data available
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
