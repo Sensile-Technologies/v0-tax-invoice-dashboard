@@ -66,18 +66,24 @@ class PrinterService {
   private isSunmiDevice: boolean = false;
 
   async initialize(): Promise<boolean> {
+    console.log('[PrinterService] Initializing... Platform:', Platform.OS, 'SunmiLib available:', !!SunmiPrinterLibrary);
+    
     if (Platform.OS === 'android' && SunmiPrinterLibrary) {
       try {
+        console.log('[PrinterService] Calling prepare()...');
         await SunmiPrinterLibrary.prepare();
         this.isSunmiDevice = true;
-        console.log('[PrinterService] Sunmi printer ready');
-      } catch (e) {
-        console.log('[PrinterService] Not a Sunmi device, using PDF fallback');
+        this.initialized = true;
+        console.log('[PrinterService] Sunmi printer ready - isSunmiDevice:', this.isSunmiDevice);
+        return true;
+      } catch (e: any) {
+        console.log('[PrinterService] Prepare failed:', e?.message || e);
         this.isSunmiDevice = false;
       }
     }
     this.initialized = true;
-    return true;
+    console.log('[PrinterService] Init complete - isSunmiDevice:', this.isSunmiDevice);
+    return this.isSunmiDevice;
   }
 
   isAvailable(): boolean {
@@ -115,15 +121,20 @@ class PrinterService {
 
   private async printWithSunmi(invoice: InvoiceData): Promise<{ success: boolean; message: string }> {
     try {
-      console.log('[PrinterService] Printing with Sunmi native printer...');
+      console.log('[PrinterService] === SUNMI PRINT START ===');
+      console.log('[PrinterService] Invoice:', invoice.invoiceNumber);
       
+      console.log('[PrinterService] Calling prepare()...');
       await SunmiPrinterLibrary.prepare();
+      console.log('[PrinterService] Prepare complete');
       
       // Use transaction printing for smooth, continuous output (no pulsing)
+      console.log('[PrinterService] Entering printer buffer...');
       try {
         await SunmiPrinterLibrary.enterPrinterBuffer(true);
-      } catch (e) {
-        console.log('[PrinterService] enterPrinterBuffer not available');
+        console.log('[PrinterService] Buffer entered');
+      } catch (e: any) {
+        console.log('[PrinterService] enterPrinterBuffer error:', e?.message || e);
       }
       
       // Set tight line spacing for compact receipt (value in pixels, lower = tighter)
@@ -242,15 +253,19 @@ class PrinterService {
       await SunmiPrinterLibrary.lineWrap(2);
       
       // Commit the buffer for smooth, continuous printing
+      console.log('[PrinterService] Committing printer buffer...');
       try {
         await SunmiPrinterLibrary.commitPrinterBuffer();
-      } catch (e) {
-        console.log('[PrinterService] commitPrinterBuffer not available');
+        console.log('[PrinterService] Buffer committed');
+      } catch (e: any) {
+        console.log('[PrinterService] commitPrinterBuffer error:', e?.message || e);
       }
       
+      console.log('[PrinterService] === SUNMI PRINT SUCCESS ===');
       return { success: true, message: 'Receipt printed successfully' };
     } catch (error: any) {
-      console.error('[PrinterService] Sunmi print error:', error);
+      console.error('[PrinterService] === SUNMI PRINT ERROR ===');
+      console.error('[PrinterService] Error:', error?.message || error);
       console.log('[PrinterService] Falling back to PDF...');
       return this.printWithPdf(invoice);
     }

@@ -300,7 +300,9 @@ export default function CreateInvoiceScreen({ navigation }: any) {
 
   async function handleCreateSale() {
     setSubmitting(true)
+    console.log('[CreateInvoice] === SALE CREATION START ===')
     try {
+      console.log('[CreateInvoice] Calling create-sale API...')
       const saleResponse = await api.post<{
         sale_id: string;
         print_data?: {
@@ -340,6 +342,8 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         loyalty_phone: verifiedCustomer?.phone || null,
       })
       
+      console.log('[CreateInvoice] Sale created, sale_id:', saleResponse.sale_id)
+      
       // Post loyalty transaction if verified
       if (isLoyaltyCustomer && loyaltyVerified && verifiedCustomer && saleResponse.sale_id) {
         try {
@@ -359,23 +363,36 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       }
       
       // Print invoice
-      console.log('[CreateInvoice] Sale created successfully, sale_id:', saleResponse.sale_id, 'printerReady:', printerReady)
+      console.log('[CreateInvoice] printerReady:', printerReady, 'printerType:', printerType)
       let printMessage = ''
       if (printerReady && saleResponse.sale_id) {
-        console.log('[CreateInvoice] Calling printInvoice with KRA data...')
-        const printResult = await printInvoice(saleResponse.sale_id, saleResponse.print_data)
-        if (printResult.success) {
-          printMessage = ' - Receipt printed'
+        console.log('[CreateInvoice] Calling printInvoice...')
+        try {
+          const printResult = await printInvoice(saleResponse.sale_id, saleResponse.print_data)
+          console.log('[CreateInvoice] Print result:', printResult)
+          if (printResult.success) {
+            printMessage = ' - Receipt printed'
+          }
+        } catch (printError: any) {
+          console.log('[CreateInvoice] Print error caught:', printError?.message || printError)
         }
+      } else {
+        console.log('[CreateInvoice] Skipping print - printerReady:', printerReady)
       }
       
+      console.log('[CreateInvoice] === SHOWING SUCCESS ALERT ===')
+      setSubmitting(false)
       Alert.alert('Success', 'Sale created successfully' + printMessage, [
-        { text: 'OK', onPress: () => navigation.goBack() },
+        { text: 'OK', onPress: () => {
+          console.log('[CreateInvoice] Navigating back...')
+          navigation.goBack()
+        }},
       ])
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create sale')
-    } finally {
+      console.log('[CreateInvoice] === SALE CREATION ERROR ===')
+      console.log('[CreateInvoice] Error:', error?.message || error)
       setSubmitting(false)
+      Alert.alert('Error', error.message || 'Failed to create sale')
     }
   }
 
