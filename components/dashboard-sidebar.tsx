@@ -137,8 +137,6 @@ export function DashboardSidebar({
                   className={cn(
                     "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                     "hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md",
-                    (pathname === item.href || (pathname.startsWith(item.href + "/") && !pathname.includes("/reports/"))) &&
-                      "bg-white/30 backdrop-blur-sm shadow-md",
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -154,31 +152,22 @@ export function DashboardSidebar({
                     <>
                       <Link
                         href="/sales/summary"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/sales/summary" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Sales Summary
                       </Link>
                       <Link
                         href="/sales/reports"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/sales/reports" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Sales Reports
                       </Link>
                       <Link
                         href="/sales/automated"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/sales/automated" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Automated Sales
                       </Link>
@@ -188,21 +177,15 @@ export function DashboardSidebar({
                     <>
                       <Link
                         href="/register-customer"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/register-customer" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Register Customer
                       </Link>
                       <Link
                         href="/customers"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/customers" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Customer List
                       </Link>
@@ -212,31 +195,22 @@ export function DashboardSidebar({
                     <>
                       <Link
                         href="/add-item"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/add-item" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Add Item
                       </Link>
                       <Link
                         href="/items"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/items" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Items List
                       </Link>
                       <Link
                         href="/item-composition"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/item-composition" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Item Composition
                       </Link>
@@ -246,21 +220,15 @@ export function DashboardSidebar({
                     <>
                       <Link
                         href="/add-import"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/add-import" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Add Import
                       </Link>
                       <Link
                         href="/imports"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/imports" && "bg-white/20",
-                        )}
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
                       >
                         Import List
                       </Link>
@@ -268,228 +236,74 @@ export function DashboardSidebar({
                   )}
                   {item.label === "Reports" && (
                     <div className="max-h-96 overflow-y-auto pr-2 space-y-1 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                      <Link
-                        href="/reports/daily-sales"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/daily-sales" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/daily-sales" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Daily Sales Report
                       </Link>
-                      <Link
-                        href="/reports/shifts"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/shifts" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/shifts" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Shift Reports
                       </Link>
-                      <Link
-                        href="/reports/x-report"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/x-report" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/x-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         X Report
                       </Link>
-                      <Link
-                        href="/reports/z-report"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/z-report" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/z-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Z Report
                       </Link>
-                      <Link
-                        href="/reports/sales-summary"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/sales-summary" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/sales-summary" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Sales Summary
                       </Link>
-                      <Link
-                        href="/reports/purchase-report"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/purchase-report" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/purchase-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Purchase Report
                       </Link>
-                      <Link
-                        href="/reports/inventory-valuation"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/inventory-valuation" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/inventory-valuation" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Inventory Valuation
                       </Link>
-                      <Link
-                        href="/reports/profit-loss"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/profit-loss" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/profit-loss" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Profit & Loss
                       </Link>
-                      <Link
-                        href="/reports/balance-sheet"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/balance-sheet" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/balance-sheet" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Balance Sheet
                       </Link>
-                      <Link
-                        href="/reports/cash-flow"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/cash-flow" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/cash-flow" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Cash Flow
                       </Link>
-                      <Link
-                        href="/reports/trial-balance"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/trial-balance" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/trial-balance" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Trial Balance
                       </Link>
-                      <Link
-                        href="/reports/general-ledger"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/general-ledger" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/general-ledger" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         General Ledger
                       </Link>
-                      <Link
-                        href="/reports/aged-receivables"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/aged-receivables" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/aged-receivables" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Aged Receivables
                       </Link>
-                      <Link
-                        href="/reports/aged-payables"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/aged-payables" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/aged-payables" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Aged Payables
                       </Link>
-                      <Link
-                        href="/reports/customer-statement"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/customer-statement" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/customer-statement" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Customer Statement
                       </Link>
-                      <Link
-                        href="/reports/supplier-statement"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/supplier-statement" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/supplier-statement" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Supplier Statement
                       </Link>
-                      <Link
-                        href="/reports/vat-report"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/vat-report" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/vat-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         VAT Report
                       </Link>
-                      <Link
-                        href="/reports/excise-duty"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/excise-duty" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/excise-duty" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Excise Duty Report
                       </Link>
-                      <Link
-                        href="/reports/withholding-tax"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/withholding-tax" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/withholding-tax" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Withholding Tax
                       </Link>
-                      <Link
-                        href="/reports/expense-report"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/reports/expense-report" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/reports/expense-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Expense Report
                       </Link>
                     </div>
                   )}
                   {item.label === "Configuration" && (
                     <>
-                      <Link
-                        href="/configuration"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/configuration" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/configuration" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Station Config
                       </Link>
-                      <Link
-                        href="/configuration/tax-service"
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all",
-                          "hover:bg-white/20",
-                          pathname === "/configuration/tax-service" && "bg-white/20",
-                        )}
-                      >
+                      <Link href="/configuration/tax-service" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Tax Service Configuration
                       </Link>
                     </>
@@ -518,7 +332,6 @@ export function DashboardSidebar({
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                 "hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md",
-                pathname === item.href && "bg-white/30 backdrop-blur-sm shadow-md",
               )}
               title={collapsed ? item.label : undefined}
             >
