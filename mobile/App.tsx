@@ -12,7 +12,6 @@ import CreateInvoiceScreen from './src/screens/CreateInvoiceScreen'
 import InvoicesScreen from './src/screens/InvoicesScreen'
 import SalesScreen from './src/screens/SalesScreen'
 import ProductsScreen from './src/screens/ProductsScreen'
-import EndShiftScreen from './src/screens/EndShiftScreen'
 import { colors } from './src/utils/theme'
 import { View, ActivityIndicator, StyleSheet, Text, Image } from 'react-native'
 
@@ -120,16 +119,6 @@ function AppNavigator() {
             options={{
               headerShown: true,
               title: 'New Invoice',
-              headerStyle: { backgroundColor: colors.navBackground },
-              headerTintColor: '#fff',
-            }}
-          />
-          <Stack.Screen
-            name="EndShift"
-            component={EndShiftScreen}
-            options={{
-              headerShown: true,
-              title: 'End Shift',
               headerStyle: { backgroundColor: colors.navBackground },
               headerTintColor: '#fff',
             }}

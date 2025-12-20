@@ -145,8 +145,30 @@ export default function SalesScreen() {
     }
   }
 
-  function handleEndShift() {
-    navigation.navigate('EndShift')
+  async function handleEndShift() {
+    Alert.alert(
+      'End Shift',
+      'Are you sure you want to end your current shift?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'End Shift',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.post('/api/mobile/sales/shift', {
+                action: 'end',
+                shift_id: currentShift?.id,
+              })
+              Alert.alert('Success', 'Shift ended successfully')
+              fetchData()
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to end shift')
+            }
+          },
+        },
+      ]
+    )
   }
 
   async function handleRecordSale() {
