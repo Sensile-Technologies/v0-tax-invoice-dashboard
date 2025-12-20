@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, end_time, closing_cash, total_sales, notes, status } = body
+    const { id, end_time, closing_cash, total_sales, notes, status, nozzle_readings, tank_stocks } = body
 
     if (!id) {
       return NextResponse.json(
@@ -114,9 +114,36 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
+    const shift = result.rows[0]
+
+    if (nozzle_readings && nozzle_readings.length > 0) {
+      for (const reading of nozzle_readings) {
+        await pool.query(
+          `INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, closing_reading)
+           VALUES ($1, $2, 'nozzle', $3, $4)`,
+          [id, shift.branch_id, reading.nozzle_id, reading.closing_reading]
+        )
+      }
+    }
+
+    if (tank_stocks && tank_stocks.length > 0) {
+      for (const stock of tank_stocks) {
+        await pool.query(
+          `INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, closing_reading)
+           VALUES ($1, $2, 'tank', $3, $4)`,
+          [id, shift.branch_id, stock.tank_id, stock.closing_reading]
+        )
+
+        await pool.query(
+          `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
+          [stock.closing_reading, stock.tank_id]
+        )
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      data: result.rows[0]
+      data: shift
     })
 
   } catch (error: any) {

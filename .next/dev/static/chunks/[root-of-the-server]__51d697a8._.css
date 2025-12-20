@@ -2031,6 +2031,10 @@
     max-height: calc(var(--spacing) * 96);
   }
 
+  .max-h-\[60vh\] {
+    max-height: 60vh;
+  }
+
   .max-h-\[85vh\] {
     max-height: 85vh;
   }

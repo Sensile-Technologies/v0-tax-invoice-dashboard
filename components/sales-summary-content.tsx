@@ -15,6 +15,7 @@ import { AlertCircle, ChevronDown, Plus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useCurrency } from "@/lib/currency-utils"
 import { Textarea } from "@/components/ui/textarea"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ChevronsUpDown, Check } from "lucide-react"
@@ -38,8 +39,11 @@ export function SalesSummaryContent() {
   const { formatCurrency } = useCurrency()
   const [sales, setSales] = useState<any[]>([])
   const [nozzles, setNozzles] = useState<any[]>([])
+  const [tanks, setTanks] = useState<any[]>([])
   const [dispensers, setDispensers] = useState<any[]>([])
   const [fuelPrices, setFuelPrices] = useState<any[]>([])
+  const [nozzleReadings, setNozzleReadings] = useState<Record<string, string>>({})
+  const [tankStocks, setTankStocks] = useState<Record<string, string>>({})
   const [currentShift, setCurrentShift] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
   const [showSaleDialog, setShowSaleDialog] = useState(false)
@@ -95,18 +99,20 @@ export function SalesSummaryContent() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const [nozzlesRes, dispensersRes, pricesRes, shiftRes] = await Promise.all([
+      const [nozzlesRes, dispensersRes, pricesRes, shiftRes, tanksRes] = await Promise.all([
         fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
         fetch(`/api/dispensers?branch_id=${branchId}`),
         fetch(`/api/fuel-prices?branch_id=${branchId}`),
-        fetch(`/api/shifts?branch_id=${branchId}&status=active`)
+        fetch(`/api/shifts?branch_id=${branchId}&status=active`),
+        fetch(`/api/tanks?branch_id=${branchId}`)
       ])
 
-      const [nozzlesResult, dispensersResult, pricesResult, shiftResult] = await Promise.all([
+      const [nozzlesResult, dispensersResult, pricesResult, shiftResult, tanksResult] = await Promise.all([
         nozzlesRes.json(),
         dispensersRes.json(),
         pricesRes.json(),
-        shiftRes.json()
+        shiftRes.json(),
+        tanksRes.json()
       ])
 
       if (nozzlesResult.success) {
@@ -119,6 +125,10 @@ export function SalesSummaryContent() {
 
       if (pricesResult.success) {
         setFuelPrices(pricesResult.data || [])
+      }
+
+      if (tanksResult.success) {
+        setTanks(tanksResult.data || [])
       }
 
       if (shiftResult.success && shiftResult.data) {
@@ -398,6 +408,20 @@ export function SalesSummaryContent() {
     try {
       const totalSales = sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0)
       
+      const nozzleReadingsData = Object.entries(nozzleReadings)
+        .filter(([_, value]) => value !== "")
+        .map(([nozzleId, reading]) => ({
+          nozzle_id: nozzleId,
+          closing_reading: parseFloat(reading)
+        }))
+      
+      const tankStocksData = Object.entries(tankStocks)
+        .filter(([_, value]) => value !== "")
+        .map(([tankId, stock]) => ({
+          tank_id: tankId,
+          closing_reading: parseFloat(stock)
+        }))
+      
       const response = await fetch('/api/shifts', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -408,6 +432,8 @@ export function SalesSummaryContent() {
           closing_cash: shiftForm.closing_cash ? Number.parseFloat(shiftForm.closing_cash) : 0,
           total_sales: totalSales,
           notes: shiftForm.notes || null,
+          nozzle_readings: nozzleReadingsData,
+          tank_stocks: tankStocksData,
         })
       })
       
@@ -426,6 +452,8 @@ export function SalesSummaryContent() {
           closing_cash: "",
           notes: "",
         })
+        setNozzleReadings({})
+        setTankStocks({})
       }
     } catch (error) {
       console.error("Error ending shift:", error)
@@ -800,44 +828,102 @@ export function SalesSummaryContent() {
               </div>
             )}
             {shiftAction === "end" && currentShift && (
-              <div className="space-y-4">
-                <div className="bg-slate-50 p-4 rounded-lg space-y-2">
-                  <h4 className="font-semibold text-slate-700">Shift Summary</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-slate-500">Started:</span>
-                      <span className="ml-2 font-medium">{shiftStartTime}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Duration:</span>
-                      <span className="ml-2 font-medium">
-                        {Math.round((Date.now() - new Date(currentShift.start_time).getTime()) / 3600000)}h
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Opening Cash:</span>
-                      <span className="ml-2 font-medium">KES {(currentShift.opening_cash || 0).toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500">Total Sales:</span>
-                      <span className="ml-2 font-medium text-green-600">
-                        KES {sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0).toLocaleString()}
-                      </span>
+              <ScrollArea className="max-h-[60vh]">
+                <div className="space-y-4 pr-4">
+                  <div className="bg-slate-50 p-4 rounded-lg space-y-2">
+                    <h4 className="font-semibold text-slate-700">Shift Summary</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-slate-500">Started:</span>
+                        <span className="ml-2 font-medium">{shiftStartTime}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Duration:</span>
+                        <span className="ml-2 font-medium">
+                          {Math.round((Date.now() - new Date(currentShift.start_time).getTime()) / 3600000)}h
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Opening Cash:</span>
+                        <span className="ml-2 font-medium">KES {(currentShift.opening_cash || 0).toLocaleString()}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500">Total Sales:</span>
+                        <span className="ml-2 font-medium text-green-600">
+                          KES {sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
+
+                  {nozzles.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-slate-700">Nozzle Meter Readings</h4>
+                      <div className="grid gap-3">
+                        {nozzles.map((nozzle) => {
+                          const dispenser = dispensers.find((d: any) => d.id === nozzle.dispenser_id)
+                          return (
+                            <div key={nozzle.id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium">
+                                  {dispenser?.name || 'Dispenser'} - Nozzle {nozzle.nozzle_number}
+                                </p>
+                                <p className="text-xs text-slate-500 capitalize">{nozzle.fuel_type}</p>
+                              </div>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                placeholder="Closing reading"
+                                className="w-36"
+                                value={nozzleReadings[nozzle.id] || ""}
+                                onChange={(e) => setNozzleReadings({ ...nozzleReadings, [nozzle.id]: e.target.value })}
+                              />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {tanks.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-slate-700">Tank Closing Stock</h4>
+                      <div className="grid gap-3">
+                        {tanks.map((tank) => (
+                          <div key={tank.id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{tank.tank_name}</p>
+                              <p className="text-xs text-slate-500 capitalize">
+                                {tank.fuel_type} - Current: {parseFloat(tank.current_stock || 0).toLocaleString()} L
+                              </p>
+                            </div>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="Closing stock (L)"
+                              className="w-36"
+                              value={tankStocks[tank.id] || ""}
+                              onChange={(e) => setTankStocks({ ...tankStocks, [tank.id]: e.target.value })}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <Label htmlFor="closing-cash">Closing Cash Amount</Label>
+                    <Input
+                      id="closing-cash"
+                      type="number"
+                      placeholder="Enter actual cash in drawer"
+                      value={shiftForm.closing_cash}
+                      onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Enter the actual cash amount in the drawer to calculate variance</p>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="closing-cash">Closing Cash Amount</Label>
-                  <Input
-                    id="closing-cash"
-                    type="number"
-                    placeholder="Enter actual cash in drawer"
-                    value={shiftForm.closing_cash}
-                    onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
-                  />
-                  <p className="text-xs text-slate-500 mt-1">Enter the actual cash amount in the drawer to calculate variance</p>
-                </div>
-              </div>
+              </ScrollArea>
             )}
             <div>
               <Label htmlFor="shift-notes">Notes</Label>
