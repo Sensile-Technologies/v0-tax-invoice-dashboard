@@ -61,10 +61,14 @@ export default function InvoicesScreen({ navigation }: any) {
     setPrintingId(invoice.id)
     try {
       const saleDate = new Date(invoice.sale_date)
+      const co2PerLitre = invoice.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
+      const totalCo2 = invoice.quantity * co2PerLitre
+      
       const invoiceData: InvoiceData = {
         invoiceNumber: invoice.invoice_number || `SALE-${invoice.id.slice(0, 8)}`,
-        date: saleDate.toLocaleDateString('en-KE'),
-        time: saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }),
+        receiptNo: invoice.invoice_number?.split('/').pop(),
+        date: saleDate.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        time: saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         branchName: invoice.branch_name || user?.branch_name || 'Flow360 Station',
         branchAddress: invoice.branch_address,
         customerName: invoice.customer_name || 'Walk-in Customer',
@@ -82,15 +86,20 @@ export default function InvoicesScreen({ navigation }: any) {
         totalDiscount: invoice.discount_amount || 0,
         taxableAmount: invoice.taxable_amount || (invoice.total_amount / 1.16),
         totalTax: invoice.tax_amount || (invoice.total_amount - invoice.total_amount / 1.16),
+        taxExempt: 0,
+        taxZeroRated: 0,
         grandTotal: invoice.total_amount,
         paymentMethod: invoice.payment_method === 'mobile_money' ? 'M-Pesa' : 
                        invoice.payment_method.charAt(0).toUpperCase() + invoice.payment_method.slice(1),
         kraPin: invoice.kra_pin,
         cuSerialNumber: invoice.cu_serial_number,
+        cuInvoiceNo: invoice.invoice_number,
         receiptSignature: invoice.receipt_signature,
         controlCode: invoice.control_code,
         mrcNo: invoice.mrc_no,
         intrlData: invoice.intrl_data,
+        co2PerLitre: co2PerLitre,
+        totalCo2: totalCo2,
         qrCodeData: invoice.invoice_number 
           ? `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoice_number}`
           : undefined,

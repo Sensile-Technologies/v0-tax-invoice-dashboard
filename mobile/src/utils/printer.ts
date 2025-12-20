@@ -11,6 +11,8 @@ try {
 
 export interface InvoiceItem {
   name: string;
+  itemCode?: string;
+  dispenser?: string;
   quantity: number;
   unitPrice: number;
   discount?: number;
@@ -20,10 +22,13 @@ export interface InvoiceItem {
 
 export interface InvoiceData {
   invoiceNumber: string;
+  receiptNo?: string;
   date: string;
   time: string;
   branchName: string;
   branchAddress?: string;
+  branchPhone?: string;
+  branchPin?: string;
   customerName?: string;
   customerPin?: string;
   cashierName: string;
@@ -32,12 +37,15 @@ export interface InvoiceData {
   totalDiscount: number;
   taxableAmount: number;
   totalTax: number;
+  taxExempt?: number;
+  taxZeroRated?: number;
   grandTotal: number;
   paymentMethod: string;
   amountPaid?: number;
   change?: number;
   kraPin?: string;
   cuSerialNumber?: string;
+  cuInvoiceNo?: string;
   receiptSignature?: string;
   qrCodeData?: string;
   controlCode?: string;
@@ -46,6 +54,8 @@ export interface InvoiceData {
   mrcNo?: string;
   rcptSign?: string;
   intrlData?: string;
+  co2PerLitre?: number;
+  totalCo2?: number;
 }
 
 export type PrinterType = 'sunmi' | 'pdf';
@@ -109,84 +119,136 @@ class PrinterService {
       await SunmiPrinterLibrary.prepare();
       
       await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.printText('FLOW360\n');
+      await SunmiPrinterLibrary.setFontSize(24);
+      await SunmiPrinterLibrary.printText('TAX INVOICE\n');
+      await SunmiPrinterLibrary.setFontSize(22);
       await SunmiPrinterLibrary.printText(`${invoice.branchName}\n`);
       if (invoice.branchAddress) {
+        await SunmiPrinterLibrary.setFontSize(20);
         await SunmiPrinterLibrary.printText(`${invoice.branchAddress}\n`);
       }
+      if (invoice.branchPhone) {
+        await SunmiPrinterLibrary.printText(`Tel: ${invoice.branchPhone}\n`);
+      }
+      if (invoice.branchPin || invoice.kraPin) {
+        await SunmiPrinterLibrary.printText(`PIN: ${invoice.branchPin || invoice.kraPin}\n`);
+      }
+      await SunmiPrinterLibrary.printText('\n');
+      await SunmiPrinterLibrary.printText('Welcome to our shop\n');
       await SunmiPrinterLibrary.printText('--------------------------------\n');
       
+      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.printText('BUYER INFORMATION\n');
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.printText(`Invoice: ${invoice.invoiceNumber}\n`);
-      await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}\n`);
-      await SunmiPrinterLibrary.printText(`Cashier: ${invoice.cashierName}\n`);
-      if (invoice.customerName) {
-        await SunmiPrinterLibrary.printText(`Customer: ${invoice.customerName}\n`);
-      }
-      if (invoice.customerPin) {
-        await SunmiPrinterLibrary.printText(`PIN: ${invoice.customerPin}\n`);
+      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.printText(`Buyer PIN:     ${invoice.customerPin || 'NOT PROVIDED'}\n`);
+      await SunmiPrinterLibrary.printText(`Buyer Name:    ${invoice.customerName || 'Walk-in Customer'}\n`);
+      
+      await SunmiPrinterLibrary.setAlignment('center');
+      await SunmiPrinterLibrary.printText('--------------------------------\n');
+      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.printText('PRODUCT DETAILS\n');
+      await SunmiPrinterLibrary.setAlignment('left');
+      await SunmiPrinterLibrary.setFontSize(20);
+      
+      for (const item of invoice.items) {
+        const lineTotal = (item.quantity * item.unitPrice) - (item.discount || 0);
+        if (item.itemCode) {
+          await SunmiPrinterLibrary.printText(`Item Code:     ${item.itemCode}\n`);
+        }
+        await SunmiPrinterLibrary.printText(`Description:   ${item.name}\n`);
+        if (item.dispenser) {
+          await SunmiPrinterLibrary.printText(`Dispenser:     ${item.dispenser}\n`);
+        }
+        await SunmiPrinterLibrary.printText(`Unit Price:    ${this.formatCurrency(item.unitPrice)}\n`);
+        await SunmiPrinterLibrary.printText(`Quantity:      ${item.quantity.toFixed(3)} L\n`);
+        await SunmiPrinterLibrary.printText(`Discount:      (${(item.discount || 0).toFixed(2)})\n`);
+        await SunmiPrinterLibrary.printText(`Total:         ${this.formatCurrency(lineTotal)}\n`);
       }
       
       await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.printText('*** TAX INVOICE ***\n');
       await SunmiPrinterLibrary.printText('--------------------------------\n');
+      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.printText('TAX BREAKDOWN\n');
+      await SunmiPrinterLibrary.setFontSize(18);
+      await SunmiPrinterLibrary.printText('Rate        Taxable          VAT\n');
+      await SunmiPrinterLibrary.printText('\n');
       
+      const taxExempt = invoice.taxExempt || 0;
+      const taxZeroRated = invoice.taxZeroRated || 0;
+      const taxable16 = invoice.taxableAmount || 0;
+      const vat16 = invoice.totalTax || 0;
+      
+      await SunmiPrinterLibrary.printText(`EX    ${this.formatCurrency(taxExempt).padStart(12)}    ${this.formatCurrency(0).padStart(10)}\n`);
+      await SunmiPrinterLibrary.printText(`16%   ${this.formatCurrency(taxable16).padStart(12)}    ${this.formatCurrency(vat16).padStart(10)}\n`);
+      await SunmiPrinterLibrary.printText(`0%    ${this.formatCurrency(taxZeroRated).padStart(12)}    ${this.formatCurrency(0).padStart(10)}\n`);
+      
+      await SunmiPrinterLibrary.printText('--------------------------------\n');
       await SunmiPrinterLibrary.setAlignment('left');
-      for (const item of invoice.items) {
-        const lineTotal = item.quantity * item.unitPrice;
-        await SunmiPrinterLibrary.printText(`${item.name}\n`);
-        await SunmiPrinterLibrary.printText(`  ${item.quantity.toFixed(2)} x ${item.unitPrice.toFixed(2)} = ${lineTotal.toFixed(2)}\n`);
-      }
+      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.printText(`Date:          ${invoice.date}\n`);
+      await SunmiPrinterLibrary.printText(`Time:          ${invoice.time}\n`);
       
       await SunmiPrinterLibrary.printText('--------------------------------\n');
-      await SunmiPrinterLibrary.printText(`Subtotal:    ${this.formatCurrency(invoice.subtotal)}\n`);
-      if (invoice.totalDiscount > 0) {
-        await SunmiPrinterLibrary.printText(`Discount:   -${this.formatCurrency(invoice.totalDiscount)}\n`);
-      }
-      await SunmiPrinterLibrary.printText(`Taxable:     ${this.formatCurrency(invoice.taxableAmount)}\n`);
-      await SunmiPrinterLibrary.printText(`VAT 16%:     ${this.formatCurrency(invoice.totalTax)}\n`);
-      await SunmiPrinterLibrary.printText('--------------------------------\n');
-      await SunmiPrinterLibrary.setFontSize(28);
-      await SunmiPrinterLibrary.printText(`TOTAL: ${this.formatCurrency(invoice.grandTotal)}\n`);
-      await SunmiPrinterLibrary.setFontSize(24);
-      await SunmiPrinterLibrary.printText('--------------------------------\n');
+      await SunmiPrinterLibrary.setAlignment('center');
+      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.printText('KRA eTIMS DETAILS\n');
+      await SunmiPrinterLibrary.setAlignment('left');
+      await SunmiPrinterLibrary.setFontSize(18);
       
-      await SunmiPrinterLibrary.printText(`Payment: ${invoice.paymentMethod}\n`);
-      if (invoice.amountPaid !== undefined) {
-        await SunmiPrinterLibrary.printText(`Paid: ${this.formatCurrency(invoice.amountPaid)}\n`);
-      }
-      if (invoice.change !== undefined && invoice.change > 0) {
-        await SunmiPrinterLibrary.printText(`Change: ${this.formatCurrency(invoice.change)}\n`);
-      }
-      
-      await SunmiPrinterLibrary.printText('--------------------------------\n');
-      await SunmiPrinterLibrary.printText('KRA TIMS DETAILS\n');
-      if (invoice.kraPin) {
-        await SunmiPrinterLibrary.printText(`KRA PIN: ${invoice.kraPin}\n`);
-      }
       if (invoice.cuSerialNumber) {
-        await SunmiPrinterLibrary.printText(`CU S/N: ${invoice.cuSerialNumber}\n`);
+        await SunmiPrinterLibrary.printText(`SCU ID:        ${invoice.cuSerialNumber}\n`);
       }
-      if (invoice.mrcNo) {
-        await SunmiPrinterLibrary.printText(`MRC: ${invoice.mrcNo}\n`);
+      if (invoice.cuInvoiceNo) {
+        await SunmiPrinterLibrary.printText(`CU INV NO:     ${invoice.cuInvoiceNo}\n`);
+      } else if (invoice.cuSerialNumber && invoice.receiptNo) {
+        await SunmiPrinterLibrary.printText(`CU INV NO:     ${invoice.cuSerialNumber}/${invoice.receiptNo}\n`);
       }
-      if (invoice.controlCode) {
-        await SunmiPrinterLibrary.printText(`Control: ${invoice.controlCode}\n`);
+      if (invoice.intrlData) {
+        await SunmiPrinterLibrary.printText(`Internal Data: ${invoice.intrlData}\n`);
       }
-      if (invoice.rcptSign || invoice.receiptSignature) {
-        const sign = invoice.rcptSign || invoice.receiptSignature || '';
-        await SunmiPrinterLibrary.printText(`Sign: ${sign.substring(0, 20)}...\n`);
-      }
+      
+      await SunmiPrinterLibrary.printText('\n');
+      await SunmiPrinterLibrary.setAlignment('center');
+      await SunmiPrinterLibrary.printText('KRA eTIMS Verification\n');
+      await SunmiPrinterLibrary.printText('\n');
       
       const qrData = invoice.qrCodeData || 
         `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
-      await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.printQRCode(qrData, 8, 'middle');
-      await SunmiPrinterLibrary.printText('Scan to verify on KRA\n');
-      
       await SunmiPrinterLibrary.printText('\n');
-      await SunmiPrinterLibrary.printText('Thank you for your business!\n');
+      await SunmiPrinterLibrary.setFontSize(18);
+      await SunmiPrinterLibrary.printText('Scan to verify with KRA eTIMS\n');
+      
+      await SunmiPrinterLibrary.printText('--------------------------------\n');
+      await SunmiPrinterLibrary.setAlignment('left');
+      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.printText(`Receipt No:    ${invoice.receiptNo || invoice.invoiceNumber}\n`);
+      await SunmiPrinterLibrary.printText(`Served by:     ${invoice.cashierName}\n`);
+      await SunmiPrinterLibrary.printText(`Payment:       ${invoice.paymentMethod.toLowerCase()}\n`);
+      
+      if (invoice.co2PerLitre || invoice.totalCo2) {
+        await SunmiPrinterLibrary.printText('--------------------------------\n');
+        await SunmiPrinterLibrary.setAlignment('center');
+        await SunmiPrinterLibrary.printText('Carbon Emission Details\n');
+        await SunmiPrinterLibrary.setAlignment('left');
+        if (invoice.co2PerLitre) {
+          await SunmiPrinterLibrary.printText(`CO2 Per Litre: ${invoice.co2PerLitre.toFixed(2)} kg\n`);
+        }
+        if (invoice.totalCo2) {
+          await SunmiPrinterLibrary.printText(`Total CO2:     ${invoice.totalCo2.toFixed(2)} kg\n`);
+        }
+      }
+      
+      await SunmiPrinterLibrary.printText('--------------------------------\n');
+      await SunmiPrinterLibrary.setAlignment('center');
+      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.printText('THANK YOU FOR SHOPPING WITH US\n');
+      await SunmiPrinterLibrary.setFontSize(18);
       await SunmiPrinterLibrary.printText('Powered by Flow360\n');
+      await SunmiPrinterLibrary.printText('\n');
+      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.printText('END OF LEGAL RECEIPT\n');
       await SunmiPrinterLibrary.lineWrap(4);
       
       return { success: true, message: 'Receipt printed successfully' };
@@ -201,13 +263,9 @@ class PrinterService {
     console.log('[PrinterService] Generating PDF receipt...');
     
     try {
-      let qrCodeBase64 = '';
-      if (invoice.qrCodeData) {
-        qrCodeBase64 = await this.generateQRCodeBase64(invoice.qrCodeData);
-      } else if (invoice.receiptSignature) {
-        const qrData = `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
-        qrCodeBase64 = await this.generateQRCodeBase64(qrData);
-      }
+      const qrData = invoice.qrCodeData || 
+        `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
+      const qrCodeBase64 = await this.generateQRCodeBase64(qrData);
 
       const html = this.generateReceiptHtml(invoice, qrCodeBase64);
       
@@ -240,22 +298,31 @@ class PrinterService {
   }
 
   private generateReceiptHtml(invoice: InvoiceData, qrCodeBase64: string): string {
+    const taxExempt = invoice.taxExempt || 0;
+    const taxZeroRated = invoice.taxZeroRated || 0;
+    const taxable16 = invoice.taxableAmount || 0;
+    const vat16 = invoice.totalTax || 0;
+
     const itemsHtml = invoice.items.map(item => {
-      const lineTotal = item.quantity * item.unitPrice;
+      const lineTotal = (item.quantity * item.unitPrice) - (item.discount || 0);
       return `
-        <tr>
-          <td style="font-size: 7px; padding: 1px 0;">${item.name}</td>
-          <td style="text-align: right; font-size: 7px;">${item.quantity.toFixed(2)}</td>
-          <td style="text-align: right; font-size: 7px;">${item.unitPrice.toFixed(2)}</td>
-          <td style="text-align: right; font-size: 7px;">${lineTotal.toFixed(2)}</td>
-        </tr>
+        <div class="product-detail">
+          ${item.itemCode ? `<div class="row"><span>Item Code:</span><span>${item.itemCode}</span></div>` : ''}
+          <div class="row"><span>Description:</span><span>${item.name}</span></div>
+          ${item.dispenser ? `<div class="row"><span>Dispenser:</span><span>${item.dispenser}</span></div>` : ''}
+          <div class="row"><span>Unit Price:</span><span>${this.formatCurrency(item.unitPrice)}</span></div>
+          <div class="row"><span>Quantity:</span><span>${item.quantity.toFixed(3)} L</span></div>
+          <div class="row"><span>Discount:</span><span>(${(item.discount || 0).toFixed(2)})</span></div>
+          <div class="row"><span>Total:</span><span><b>${this.formatCurrency(lineTotal)}</b></span></div>
+        </div>
       `;
     }).join('');
 
-    const qrHtml = qrCodeBase64 ? `
-      <div style="text-align: center; margin: 4px 0;">
-        <img src="${qrCodeBase64}" style="width: 80px; height: 80px;" />
-        <div style="font-size: 5px; margin-top: 2px;">Scan to verify on KRA</div>
+    const carbonHtml = (invoice.co2PerLitre || invoice.totalCo2) ? `
+      <div class="section">
+        <div class="section-title">Carbon Emission Details</div>
+        ${invoice.co2PerLitre ? `<div class="row"><span>CO2 Per Litre:</span><span>${invoice.co2PerLitre.toFixed(2)} kg</span></div>` : ''}
+        ${invoice.totalCo2 ? `<div class="row"><span>Total CO2:</span><span>${invoice.totalCo2.toFixed(2)} kg</span></div>` : ''}
       </div>
     ` : '';
 
@@ -278,7 +345,7 @@ class PrinterService {
           body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 7px;
-            line-height: 1.2;
+            line-height: 1.3;
             width: 54mm;
             margin: 1.5mm auto;
             padding: 0;
@@ -286,23 +353,34 @@ class PrinterService {
           }
           .header {
             text-align: center;
-            margin-bottom: 3px;
-            border-bottom: 1px dashed #000;
-            padding-bottom: 3px;
+            margin-bottom: 4px;
           }
           .header h1 {
             font-size: 10px;
-            margin: 0;
+            margin: 0 0 2px 0;
             font-weight: bold;
           }
-          .header h2 {
+          .header .branch-name {
+            font-size: 9px;
+            font-weight: bold;
+          }
+          .header .address {
             font-size: 7px;
-            margin: 1px 0;
-            font-weight: normal;
+          }
+          .welcome {
+            text-align: center;
+            margin: 4px 0;
+            font-size: 7px;
           }
           .divider {
             border-top: 1px dashed #000;
-            margin: 3px 0;
+            margin: 4px 0;
+          }
+          .section-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 8px;
+            margin: 4px 0 2px 0;
           }
           .row {
             display: flex;
@@ -310,123 +388,144 @@ class PrinterService {
             font-size: 6px;
             margin: 1px 0;
           }
-          .tax-invoice {
+          .row span:first-child {
+            min-width: 60px;
+          }
+          .product-detail {
+            margin: 4px 0;
+          }
+          .tax-table {
+            width: 100%;
+            font-size: 6px;
+            margin: 4px 0;
+          }
+          .tax-table th {
             text-align: center;
             font-weight: bold;
-            font-size: 8px;
-            margin: 3px 0;
             padding: 2px;
-            border: 1px solid #000;
           }
-          table {
-            width: 100%;
-            border-collapse: collapse;
+          .tax-table td {
+            text-align: right;
+            padding: 2px;
           }
-          th {
+          .tax-table td:first-child {
             text-align: left;
-            font-size: 6px;
-            border-bottom: 1px solid #000;
-            padding: 1px 0;
-          }
-          .totals .row {
-            font-size: 6px;
-          }
-          .totals .grand-total {
-            font-size: 9px;
-            font-weight: bold;
-            margin: 2px 0;
-            padding: 2px 0;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
           }
           .kra-section {
-            margin-top: 3px;
-            padding: 3px;
-            background: #f5f5f5;
-            font-size: 5px;
-          }
-          .kra-title {
-            font-weight: bold;
+            margin: 4px 0;
             text-align: center;
-            margin-bottom: 2px;
-            font-size: 6px;
           }
-          .kra-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 5px;
-            margin: 1px 0;
-            word-break: break-all;
+          .qr-section {
+            text-align: center;
+            margin: 6px 0;
+          }
+          .qr-section img {
+            width: 90px;
+            height: 90px;
+          }
+          .qr-label {
+            font-size: 6px;
+            margin-top: 2px;
           }
           .footer {
             text-align: center;
-            margin-top: 4px;
-            font-size: 6px;
-            padding-top: 3px;
+            margin-top: 6px;
+            font-size: 7px;
+          }
+          .end-receipt {
+            text-align: center;
+            font-weight: bold;
+            font-size: 7px;
+            margin-top: 6px;
+            padding-top: 4px;
             border-top: 1px dashed #000;
+          }
+          .section {
+            margin: 4px 0;
           }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>FLOW360</h1>
-          <h2>${invoice.branchName}</h2>
-          ${invoice.branchAddress ? `<div style="font-size: 6px;">${invoice.branchAddress}</div>` : ''}
+          <h1>TAX INVOICE</h1>
+          <div class="branch-name">${invoice.branchName}</div>
+          ${invoice.branchAddress ? `<div class="address">${invoice.branchAddress}</div>` : ''}
+          ${invoice.branchPhone ? `<div class="address">Tel: ${invoice.branchPhone}</div>` : ''}
+          ${(invoice.branchPin || invoice.kraPin) ? `<div class="address">PIN: ${invoice.branchPin || invoice.kraPin}</div>` : ''}
         </div>
         
-        <div class="row"><span>Invoice:</span><span><b>${invoice.invoiceNumber}</b></span></div>
-        <div class="row"><span>Date:</span><span>${invoice.date} ${invoice.time}</span></div>
-        <div class="row"><span>Cashier:</span><span>${invoice.cashierName}</span></div>
-        ${invoice.customerName ? `<div class="row"><span>Customer:</span><span>${invoice.customerName}</span></div>` : ''}
-        ${invoice.customerPin ? `<div class="row"><span>PIN:</span><span>${invoice.customerPin}</span></div>` : ''}
+        <div class="welcome">Welcome to our shop</div>
         
-        <div class="tax-invoice">TAX INVOICE</div>
+        <div class="divider"></div>
         
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th style="text-align: right;">Qty</th>
-              <th style="text-align: right;">Price</th>
-              <th style="text-align: right;">Amt</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHtml}
-          </tbody>
+        <div class="section-title">BUYER INFORMATION</div>
+        <div class="row"><span>Buyer PIN:</span><span>${invoice.customerPin || 'NOT PROVIDED'}</span></div>
+        <div class="row"><span>Buyer Name:</span><span>${invoice.customerName || 'Walk-in Customer'}</span></div>
+        
+        <div class="divider"></div>
+        
+        <div class="section-title">PRODUCT DETAILS</div>
+        ${itemsHtml}
+        
+        <div class="divider"></div>
+        
+        <div class="section-title">TAX BREAKDOWN</div>
+        <table class="tax-table">
+          <tr>
+            <th>Rate</th>
+            <th>Taxable</th>
+            <th>VAT</th>
+          </tr>
+          <tr>
+            <td>EX</td>
+            <td>${this.formatCurrency(taxExempt)}</td>
+            <td>${this.formatCurrency(0)}</td>
+          </tr>
+          <tr>
+            <td>16%</td>
+            <td>${this.formatCurrency(taxable16)}</td>
+            <td>${this.formatCurrency(vat16)}</td>
+          </tr>
+          <tr>
+            <td>0%</td>
+            <td>${this.formatCurrency(taxZeroRated)}</td>
+            <td>${this.formatCurrency(0)}</td>
+          </tr>
         </table>
         
         <div class="divider"></div>
         
-        <div class="totals">
-          <div class="row"><span>Subtotal:</span><span>${this.formatCurrency(invoice.subtotal)}</span></div>
-          ${invoice.totalDiscount > 0 ? `<div class="row"><span>Discount:</span><span>-${this.formatCurrency(invoice.totalDiscount)}</span></div>` : ''}
-          <div class="row"><span>Taxable:</span><span>${this.formatCurrency(invoice.taxableAmount)}</span></div>
-          <div class="row"><span>VAT 16%:</span><span>${this.formatCurrency(invoice.totalTax)}</span></div>
-          <div class="row grand-total"><span>TOTAL:</span><span>${this.formatCurrency(invoice.grandTotal)}</span></div>
-        </div>
+        <div class="row"><span>Date:</span><span>${invoice.date}</span></div>
+        <div class="row"><span>Time:</span><span>${invoice.time}</span></div>
         
-        <div class="row"><span>Payment:</span><span><b>${invoice.paymentMethod}</b></span></div>
-        ${invoice.amountPaid !== undefined ? `<div class="row"><span>Paid:</span><span>${this.formatCurrency(invoice.amountPaid)}</span></div>` : ''}
-        ${invoice.change !== undefined && invoice.change > 0 ? `<div class="row"><span>Change:</span><span>${this.formatCurrency(invoice.change)}</span></div>` : ''}
+        <div class="divider"></div>
         
         <div class="kra-section">
-          <div class="kra-title">KRA TIMS DETAILS</div>
-          ${invoice.kraPin ? `<div class="kra-row"><span>KRA PIN:</span><span>${invoice.kraPin}</span></div>` : ''}
-          ${invoice.cuSerialNumber ? `<div class="kra-row"><span>CU S/N:</span><span>${invoice.cuSerialNumber}</span></div>` : ''}
-          ${invoice.mrcNo ? `<div class="kra-row"><span>MRC No:</span><span>${invoice.mrcNo}</span></div>` : ''}
-          ${invoice.controlCode ? `<div class="kra-row"><span>Control:</span><span>${invoice.controlCode}</span></div>` : ''}
-          ${invoice.rcptSign ? `<div class="kra-row"><span>Sign:</span><span style="font-size: 4px;">${invoice.rcptSign.substring(0, 32)}...</span></div>` : 
-            (invoice.receiptSignature ? `<div class="kra-row"><span>Sign:</span><span style="font-size: 4px;">${invoice.receiptSignature.substring(0, 32)}...</span></div>` : '')}
-          ${invoice.intrlData ? `<div class="kra-row"><span>Data:</span><span style="font-size: 4px;">${invoice.intrlData.substring(0, 20)}...</span></div>` : ''}
+          ${invoice.cuSerialNumber ? `<div class="row"><span>SCU ID:</span><span>${invoice.cuSerialNumber}</span></div>` : ''}
+          ${invoice.cuInvoiceNo ? `<div class="row"><span>CU INV NO:</span><span>${invoice.cuInvoiceNo}</span></div>` : 
+            (invoice.cuSerialNumber && invoice.receiptNo ? `<div class="row"><span>CU INV NO:</span><span>${invoice.cuSerialNumber}/${invoice.receiptNo}</span></div>` : '')}
+          ${invoice.intrlData ? `<div class="row"><span>Internal Data:</span><span style="font-size:5px;">${invoice.intrlData}</span></div>` : ''}
         </div>
         
-        ${qrHtml}
+        <div class="section-title">KRA eTIMS Verification</div>
+        
+        <div class="qr-section">
+          <img src="${qrCodeBase64}" />
+          <div class="qr-label">Scan to verify with KRA eTIMS</div>
+        </div>
+        
+        <div class="row"><span>Receipt No:</span><span>${invoice.receiptNo || invoice.invoiceNumber}</span></div>
+        <div class="row"><span>Served by:</span><span>${invoice.cashierName}</span></div>
+        <div class="row"><span>Payment:</span><span>${invoice.paymentMethod.toLowerCase()}</span></div>
+        
+        ${carbonHtml}
         
         <div class="footer">
-          <div>Thank you for your business!</div>
-          <div style="margin-top: 2px; font-weight: bold;">Powered by Flow360</div>
+          <div><b>THANK YOU FOR SHOPPING WITH US</b></div>
+          <div style="margin-top: 2px;">Powered by Flow360</div>
         </div>
+        
+        <div class="end-receipt">END OF LEGAL RECEIPT</div>
       </body>
       </html>
     `;
@@ -434,35 +533,42 @@ class PrinterService {
 
   async printTestReceipt(): Promise<{ success: boolean; message: string }> {
     const testInvoice: InvoiceData = {
-      invoiceNumber: 'TEST-001',
-      date: new Date().toLocaleDateString(),
-      time: new Date().toLocaleTimeString(),
-      branchName: 'Test Branch',
-      branchAddress: '123 Test Street',
-      cashierName: 'Test Cashier',
+      invoiceNumber: 'INV-TEST001',
+      receiptNo: '40',
+      date: new Date().toLocaleDateString('en-KE'),
+      time: new Date().toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      branchName: 'Thika Greens',
+      branchAddress: 'Thika, Kenya',
+      branchPhone: '+254712345678',
+      branchPin: 'P052344628B',
+      customerName: 'Walk-in Customer',
+      customerPin: undefined,
+      cashierName: 'System',
       items: [
         {
-          name: 'Diesel',
-          quantity: 50,
-          unitPrice: 180.00,
+          name: 'DIESEL',
+          itemCode: 'KE2NTL0000002',
+          dispenser: 'D1N2',
+          quantity: 4.750,
+          unitPrice: 168.50,
+          discount: 0,
           taxRate: 16
         }
       ],
-      subtotal: 9000.00,
+      subtotal: 800.00,
       totalDiscount: 0,
-      taxableAmount: 7758.62,
-      totalTax: 1241.38,
-      grandTotal: 9000.00,
-      paymentMethod: 'Cash',
-      amountPaid: 9000.00,
-      change: 0,
-      kraPin: 'P000000000A',
-      cuSerialNumber: 'CU123456789',
-      mrcNo: 'MRC-001',
-      controlCode: 'CTL-12345',
-      rcptSign: 'ABC123DEF456GHI789JKL012MNO345PQR678STU',
-      intrlData: 'ABCD1234EFGH5678IJKL',
-      qrCodeData: 'https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=TEST-001'
+      taxableAmount: 689.66,
+      totalTax: 110.34,
+      taxExempt: 0,
+      taxZeroRated: 0,
+      grandTotal: 800.00,
+      paymentMethod: 'cash',
+      cuSerialNumber: 'KRACU0300003796',
+      cuInvoiceNo: 'KRACU0300003796/40',
+      intrlData: 'FT5OUZPTMHT36C6B5PZBWGTQ34',
+      co2PerLitre: 2.68,
+      totalCo2: 12.73,
+      qrCodeData: 'https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=KRACU0300003796/40'
     };
 
     return this.printInvoice(testInvoice);

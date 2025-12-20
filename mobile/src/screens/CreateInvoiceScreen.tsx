@@ -218,7 +218,16 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   }
   const totalAmount = Math.max(grossAmount - discountAmount, 0)
 
-  async function printInvoice(saleId: string): Promise<{ success: boolean; message: string }> {
+  async function printInvoice(saleId: string, kraDetails?: {
+    invoice_number?: string;
+    receipt_no?: string;
+    cu_serial_number?: string;
+    cu_invoice_no?: string;
+    intrl_data?: string;
+    branch_phone?: string;
+    branch_pin?: string;
+    item_code?: string;
+  }): Promise<{ success: boolean; message: string }> {
     console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady, 'printerType:', printerType)
     
     if (!printerReady) {
@@ -232,17 +241,24 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       const now = new Date()
       const taxableAmount = Math.round((totalAmount / 1.16) * 100) / 100
       const vatAmount = Math.round((totalAmount - taxableAmount) * 100) / 100
+      const co2PerLitre = selectedNozzleData?.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
+      const totalCo2 = grossQuantity * co2PerLitre
       
       const invoiceData: InvoiceData = {
-        invoiceNumber: saleId.substring(0, 8).toUpperCase(),
-        date: now.toLocaleDateString('en-KE'),
-        time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }),
+        invoiceNumber: kraDetails?.invoice_number || saleId.substring(0, 8).toUpperCase(),
+        receiptNo: kraDetails?.receipt_no,
+        date: now.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         branchName: user?.branch_name || 'Flow360 Station',
-        cashierName: user?.username || 'Cashier',
+        branchPhone: kraDetails?.branch_phone,
+        branchPin: kraDetails?.branch_pin,
+        cashierName: user?.username || user?.name || 'Cashier',
         customerName: customerName.trim() || 'Walk-in Customer',
         customerPin: kraPin || undefined,
         items: [{
           name: selectedNozzleData?.fuel_type || 'Fuel',
+          itemCode: kraDetails?.item_code,
+          dispenser: `D${selectedNozzle?.slice(-2) || '1'}`,
           quantity: grossQuantity,
           unitPrice: unitPrice,
           discount: discountAmount,
@@ -253,10 +269,19 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         totalDiscount: discountAmount,
         taxableAmount: taxableAmount,
         totalTax: vatAmount,
+        taxExempt: 0,
+        taxZeroRated: 0,
         grandTotal: totalAmount,
         paymentMethod: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).replace('_', ' '),
         kraPin: kraPin || undefined,
-        cuSerialNumber: user?.bhf_id || undefined,
+        cuSerialNumber: kraDetails?.cu_serial_number || user?.bhf_id,
+        cuInvoiceNo: kraDetails?.cu_invoice_no,
+        intrlData: kraDetails?.intrl_data,
+        co2PerLitre: co2PerLitre,
+        totalCo2: totalCo2,
+        qrCodeData: kraDetails?.invoice_number 
+          ? `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${kraDetails.invoice_number}`
+          : undefined,
       }
       
       const result = await sunmiPrinter.printInvoice(invoiceData)
