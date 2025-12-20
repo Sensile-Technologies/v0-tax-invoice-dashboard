@@ -146,10 +146,10 @@ export async function POST(request: Request) {
       const branchData = branchResult.rows[0] || {}
 
       const itemResult = await client.query(
-        `SELECT item_cd FROM items WHERE branch_id = $1 AND item_name ILIKE $2 LIMIT 1`,
+        `SELECT item_code FROM items WHERE branch_id = $1 AND item_name ILIKE $2 LIMIT 1`,
         [branch_id, `%${fuel_type}%`]
       )
-      const itemCode = itemResult.rows[0]?.item_cd || null
+      const itemCode = itemResult.rows[0]?.item_code || null
 
       console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
       

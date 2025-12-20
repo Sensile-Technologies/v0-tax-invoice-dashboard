@@ -1594,7 +1594,7 @@ async function POST(request) {
                 }
             }
             await client.query('COMMIT');
-            const branchResult = await client.query(`SELECT name, address, phone, tin FROM branches WHERE id = $1`, [
+            const branchResult = await client.query(`SELECT name, address, phone, kra_pin FROM branches WHERE id = $1`, [
                 branch_id
             ]);
             const branchData = branchResult.rows[0] || {};
@@ -1656,7 +1656,7 @@ async function POST(request) {
                     branch_name: branchData.name || null,
                     branch_address: branchData.address || null,
                     branch_phone: branchData.phone || null,
-                    branch_pin: branchData.tin || null,
+                    branch_pin: branchData.kra_pin || null,
                     item_code: itemCode
                 }
             });
