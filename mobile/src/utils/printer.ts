@@ -185,8 +185,7 @@ class PrinterService {
       
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(18);
-      await SunmiPrinterLibrary.printText(`Date: ${invoice.date}\n`);
-      await SunmiPrinterLibrary.printText(`Time: ${invoice.time}\n`);
+      await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}\n`);
       
       await SunmiPrinterLibrary.setFontSize(16);
       if (invoice.cuSerialNumber) {
