@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
           END as status
         FROM sales s
         LEFT JOIN branches b ON s.branch_id = b.id
-        LEFT JOIN users u ON s.created_by = u.id
+        LEFT JOIN users u ON s.staff_id = u.id
         WHERE 1=1
       `
       const params: any[] = []

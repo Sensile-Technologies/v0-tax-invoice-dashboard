@@ -1598,11 +1598,11 @@ async function POST(request) {
                 branch_id
             ]);
             const branchData = branchResult.rows[0] || {};
-            const itemResult = await client.query(`SELECT item_cd FROM items WHERE branch_id = $1 AND item_name ILIKE $2 LIMIT 1`, [
+            const itemResult = await client.query(`SELECT item_code FROM items WHERE branch_id = $1 AND item_name ILIKE $2 LIMIT 1`, [
                 branch_id,
                 `%${fuel_type}%`
             ]);
-            const itemCode = itemResult.rows[0]?.item_cd || null;
+            const itemCode = itemResult.rows[0]?.item_code || null;
             console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...");
             const kraResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$sales$2d$api$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["callKraSaveSales"])({
                 branch_id,
