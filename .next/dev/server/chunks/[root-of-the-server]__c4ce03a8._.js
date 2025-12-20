@@ -1551,14 +1551,15 @@ async function POST(request) {
                 }
             }
             const saleResult = await client.query(`INSERT INTO sales (
-          branch_id, nozzle_id, fuel_type, quantity, 
+          branch_id, staff_id, nozzle_id, fuel_type, quantity, 
           unit_price, total_amount, payment_method, customer_name, 
           vehicle_number, invoice_number, receipt_number, sale_date,
           customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin,
           meter_reading_after
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15, $16)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), $13, $14, $15, $16, $17)
         RETURNING *`, [
                 branch_id,
+                user_id || null,
                 nozzle_id || null,
                 fuel_type,
                 correctQuantity,

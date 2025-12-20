@@ -89,6 +89,18 @@ export async function POST(request: Request) {
         }
       }
 
+      // Validate user_id exists in users table before using it
+      let validStaffId = null
+      if (user_id) {
+        const userCheck = await client.query(
+          `SELECT id FROM users WHERE id = $1`,
+          [user_id]
+        )
+        if (userCheck.rows.length > 0) {
+          validStaffId = user_id
+        }
+      }
+
       const saleResult = await client.query(
         `INSERT INTO sales (
           branch_id, staff_id, nozzle_id, fuel_type, quantity, 
@@ -100,7 +112,7 @@ export async function POST(request: Request) {
         RETURNING *`,
         [
           branch_id,
-          user_id || null,
+          validStaffId,
           nozzle_id || null,
           fuel_type,
           correctQuantity,
