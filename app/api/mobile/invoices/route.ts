@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
           b.name as branch_name,
           b.address as branch_address,
           b.phone as branch_phone,
-          b.tin as branch_pin,
+          b.kra_pin as branch_pin,
           u.username as cashier_name,
           CASE 
             WHEN s.payment_method = 'credit' THEN 'pending'
