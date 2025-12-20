@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { sunmiPrinter, InvoiceData } from '../utils/printer'
 
 interface Sale {
   id: string
@@ -74,8 +75,16 @@ export default function SalesScreen() {
   const [shiftForm, setShiftForm] = useState({
     opening_cash: '',
   })
+  const [printerReady, setPrinterReady] = useState(false)
 
   const branchId = user?.branch_id || user?.vendor_id
+
+  useEffect(() => {
+    sunmiPrinter.initialize().then(ready => {
+      setPrinterReady(ready)
+      console.log('[SalesScreen] Printer initialized:', ready)
+    })
+  }, [])
 
   const fetchData = useCallback(async () => {
     try {
@@ -177,7 +186,7 @@ export default function SalesScreen() {
 
     setSubmitting(true)
     try {
-      await api.post('/api/mobile/sales', {
+      const response = await api.post<{ success: boolean; sale: any }>('/api/mobile/sales', {
         branch_id: branchId,
         shift_id: currentShift.id,
         nozzle_id: saleForm.nozzle_id || null,
@@ -188,7 +197,6 @@ export default function SalesScreen() {
         vehicle_number: saleForm.vehicle_number || null,
       })
       
-      Alert.alert('Success', 'Sale recorded successfully')
       setShowSaleModal(false)
       setSaleForm({
         nozzle_id: '',
@@ -198,6 +206,48 @@ export default function SalesScreen() {
         customer_name: '',
         vehicle_number: '',
       })
+      
+      const sale = response.sale
+      if (sale && printerReady) {
+        const price = fuelPrices.find(p => p.fuel_type === sale.fuel_type)?.price || parseFloat(sale.unit_price) || 0
+        const totalAmount = parseFloat(sale.total_amount) || 0
+        const now = new Date()
+        const invoiceData: InvoiceData = {
+          invoiceNumber: sale.invoice_number || `INV-${Date.now()}`,
+          date: now.toLocaleDateString('en-KE'),
+          time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' }),
+          branchName: user?.branch_name || 'Flow360 Station',
+          customerName: sale.customer_name || 'Walk-in Customer',
+          customerPin: sale.customer_pin || '',
+          cashierName: user?.username || 'Cashier',
+          items: [{
+            name: `${sale.fuel_type}${sale.vehicle_number ? ` (${sale.vehicle_number})` : ''}`,
+            quantity: parseFloat(sale.quantity) || 0,
+            unitPrice: price,
+            taxRate: 16,
+          }],
+          subtotal: totalAmount,
+          totalDiscount: 0,
+          taxableAmount: totalAmount / 1.16,
+          totalTax: totalAmount - (totalAmount / 1.16),
+          grandTotal: totalAmount,
+          paymentMethod: sale.payment_method || 'cash',
+          cuInvoiceNo: sale.cu_invoice_number || '',
+          qrCodeData: sale.qr_code || '',
+        }
+        
+        try {
+          await sunmiPrinter.printInvoice(invoiceData)
+          console.log('[SalesScreen] Receipt printed successfully')
+        } catch (printError) {
+          console.error('[SalesScreen] Print error:', printError)
+          Alert.alert('Print Error', 'Sale saved but receipt failed to print')
+        }
+      } else if (!printerReady) {
+        console.warn('[SalesScreen] Printer not ready, skipping print')
+      }
+      
+      Alert.alert('Success', 'Sale recorded successfully')
       fetchData()
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to record sale')
