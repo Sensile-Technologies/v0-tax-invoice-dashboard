@@ -136,11 +136,11 @@ export function SalesSummaryContent() {
 
       if (shiftResult.success && shiftResult.data) {
         setCurrentShift(shiftResult.data)
+        await fetchSales(shiftResult.data.id)
       } else {
         setCurrentShift(null)
+        setSales([])
       }
-
-      await fetchSales()
     } catch (error) {
       console.error("Error fetching data:", error)
       toast.error("Failed to load sales data")
@@ -174,7 +174,7 @@ export function SalesSummaryContent() {
     }
   }, [currentBranchData?.id])
 
-  async function fetchSales() {
+  async function fetchSales(shiftId?: string) {
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
       if (!currentBranch) return
@@ -182,7 +182,12 @@ export function SalesSummaryContent() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const response = await fetch(`/api/sales?branch_id=${branchId}&limit=50`)
+      let url = `/api/sales?branch_id=${branchId}&limit=50`
+      if (shiftId) {
+        url += `&shift_id=${shiftId}`
+      }
+
+      const response = await fetch(url)
       const result = await response.json()
 
       if (result.success) {
@@ -332,7 +337,7 @@ export function SalesSummaryContent() {
           discount_value: "",
         })
         setShowSaleDialog(false)
-        await fetchSales()
+        await fetchSales(currentShift?.id)
       }
     } catch (error) {
       console.error("Sale creation error:", error)

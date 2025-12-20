@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const branchId = searchParams.get('branch_id')
+    const shiftId = searchParams.get('shift_id')
     const nozzleId = searchParams.get('nozzle_id')
     const date = searchParams.get('date')
     const dateFrom = searchParams.get('date_from')
@@ -22,6 +23,12 @@ export async function GET(request: NextRequest) {
     if (branchId) {
       whereClause += ` AND branch_id = $${paramIndex}`
       params.push(branchId)
+      paramIndex++
+    }
+
+    if (shiftId) {
+      whereClause += ` AND shift_id = $${paramIndex}`
+      params.push(shiftId)
       paramIndex++
     }
 
