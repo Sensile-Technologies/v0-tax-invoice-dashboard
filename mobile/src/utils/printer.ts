@@ -184,12 +184,12 @@ class PrinterService {
       const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
       
       await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(28);
       await SunmiPrinterLibrary.printText(`${invoiceType}\n`);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`${invoice.branchName}\n`);
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.setFontSize(26);
       if (invoice.branchAddress) {
         await SunmiPrinterLibrary.printText(`${invoice.branchAddress}\n`);
@@ -198,27 +198,27 @@ class PrinterService {
         await SunmiPrinterLibrary.printText(`Tel: ${invoice.branchPhone}\n`);
       }
       if (invoice.branchPin || invoice.kraPin) {
-        await SunmiPrinterLibrary.setFontWeight(true);
+        await SunmiPrinterLibrary.setTextStyle('bold', true);
         await SunmiPrinterLibrary.printText(`PIN: ${invoice.branchPin || invoice.kraPin}\n`);
-        await SunmiPrinterLibrary.setFontWeight(false);
+        await SunmiPrinterLibrary.setTextStyle('bold', false);
       }
       
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('BUYER INFORMATION\n');
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.printText(`Buyer PIN: ${invoice.customerPin || 'NOT PROVIDED'}\n`);
       await SunmiPrinterLibrary.printText(`Buyer Name: ${invoice.customerName || 'Walk-in Customer'}\n`);
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       
       await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('PRODUCT DETAILS\n');
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
       
@@ -232,19 +232,19 @@ class PrinterService {
         if (item.discount && item.discount > 0) {
           await SunmiPrinterLibrary.printText(`Discount: -${item.discount.toFixed(2)}\n`);
         }
-        await SunmiPrinterLibrary.setFontWeight(true);
+        await SunmiPrinterLibrary.setTextStyle('bold', true);
         await SunmiPrinterLibrary.setFontSize(26);
         await SunmiPrinterLibrary.printText(`TOTAL: ${this.formatCurrency(lineTotal)}\n`);
-        await SunmiPrinterLibrary.setFontWeight(false);
+        await SunmiPrinterLibrary.setTextStyle('bold', false);
       }
       
       await SunmiPrinterLibrary.setAlignment('center');
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('TAX BREAKDOWN\n');
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('Rate    Taxable     VAT\n');
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       
       const taxExempt = invoice.taxExempt || 0;
       const taxZeroRated = invoice.taxZeroRated || 0;
@@ -253,9 +253,9 @@ class PrinterService {
       
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`EX  ${this.formatCurrency(taxExempt).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.printText(`16% ${this.formatCurrency(taxable16).padStart(10)} ${this.formatCurrency(vat16).padStart(9)}\n`);
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.printText(`0%  ${this.formatCurrency(taxZeroRated).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       
       await SunmiPrinterLibrary.setAlignment('left');
@@ -263,7 +263,7 @@ class PrinterService {
       await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}\n`);
       
       await SunmiPrinterLibrary.setFontSize(26);
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       if (invoice.cuSerialNumber) {
         await SunmiPrinterLibrary.printText(`SCU ID: ${invoice.cuSerialNumber}\n`);
       }
@@ -272,7 +272,7 @@ class PrinterService {
       } else if (invoice.cuSerialNumber && invoice.receiptNo) {
         await SunmiPrinterLibrary.printText(`CU INV NO: ${invoice.cuSerialNumber}/${invoice.receiptNo}\n`);
       }
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       if (invoice.intrlData) {
         await SunmiPrinterLibrary.printText(`Int Data: ${invoice.intrlData}\n`);
       }
@@ -289,10 +289,10 @@ class PrinterService {
       await SunmiPrinterLibrary.printQRCode(qrData, 6, 'middle');
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('Scan to verify with KRA eTIMS\n');
-      await SunmiPrinterLibrary.setFontWeight(true);
+      await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('END OF LEGAL RECEIPT\n');
-      await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.lineWrap(3);
       
       console.log('[PrinterService] === SUNMI PRINT SUCCESS (SIMPLE MODE) ===');
