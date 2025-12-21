@@ -249,12 +249,15 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       const vatAmount = Math.round((totalAmount - taxableAmount) * 100) / 100
       
       // Build receipt data for image capture
+      const co2PerLitre = selectedNozzleData?.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
+      const totalCo2 = grossQuantity * co2PerLitre
+      
       const newReceiptData: ReceiptData = {
         invoiceNumber: kraDetails?.invoice_number || saleId.substring(0, 8).toUpperCase(),
         date: now.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         branchName: user?.branch_name || 'Flow360 Station',
-        branchAddress: undefined,
+        branchAddress: 'Thika, Kenya',
         branchPhone: kraDetails?.branch_phone,
         branchPin: kraDetails?.branch_pin,
         customerName: customerName.trim() || 'Walk-in Customer',
@@ -267,11 +270,16 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         totalAmount: totalAmount,
         paymentMethod: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).replace('_', ' '),
         taxAmount: vatAmount,
+        taxableAmount: taxableAmount,
         cuSerialNumber: kraDetails?.cu_serial_number || user?.bhf_id,
         cuInvoiceNo: kraDetails?.cu_invoice_no,
         receiptNo: kraDetails?.receipt_no,
         intrlData: kraDetails?.intrl_data,
         isReprint: false,
+        itemCode: kraDetails?.item_code,
+        dispenser: `D${selectedNozzle?.slice(-2) || '1'}`,
+        co2PerLitre: co2PerLitre,
+        totalCo2: totalCo2,
       }
       
       // Set receipt data to render the view
@@ -310,9 +318,6 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       }
       
       // Fallback: use original text-based printing
-      const co2PerLitre = selectedNozzleData?.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
-      const totalCo2 = grossQuantity * co2PerLitre
-      
       const invoiceData: InvoiceData = {
         invoiceNumber: kraDetails?.invoice_number || saleId.substring(0, 8).toUpperCase(),
         receiptNo: kraDetails?.receipt_no,
