@@ -144,26 +144,6 @@ class PrinterService {
       console.log('[PrinterService] === SUNMI PRINT START ===');
       console.log('[PrinterService] Invoice:', invoice.invoiceNumber);
       
-      console.log('[PrinterService] Calling prepare()...');
-      await SunmiPrinterLibrary.prepare();
-      console.log('[PrinterService] Prepare complete');
-      
-      // Use transaction printing for smooth, continuous output (no pulsing)
-      console.log('[PrinterService] Entering printer buffer...');
-      try {
-        await SunmiPrinterLibrary.enterPrinterBuffer(true);
-        console.log('[PrinterService] Buffer entered');
-      } catch (e: any) {
-        console.log('[PrinterService] enterPrinterBuffer error:', e?.message || e);
-      }
-      
-      // Set tight line spacing for compact receipt
-      try {
-        await SunmiPrinterLibrary.setParagraphStyle('lineSpacing', 0);
-      } catch (e) {
-        console.log('[PrinterService] setParagraphStyle not available, using default spacing');
-      }
-      
       const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
       
       await SunmiPrinterLibrary.setAlignment('center');
@@ -276,23 +256,7 @@ class PrinterService {
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('END OF LEGAL RECEIPT\n');
       await SunmiPrinterLibrary.setFontWeight(false);
-      await SunmiPrinterLibrary.lineWrap(2);
-      
-      // Commit and exit the buffer for smooth, continuous printing
-      console.log('[PrinterService] Committing and exiting printer buffer...');
-      try {
-        await SunmiPrinterLibrary.commitPrinterBuffer();
-        console.log('[PrinterService] Buffer committed');
-      } catch (e: any) {
-        console.log('[PrinterService] commitPrinterBuffer error:', e?.message || e);
-      }
-      
-      try {
-        await SunmiPrinterLibrary.exitPrinterBuffer(true);
-        console.log('[PrinterService] Buffer exited');
-      } catch (e: any) {
-        console.log('[PrinterService] exitPrinterBuffer error:', e?.message || e);
-      }
+      await SunmiPrinterLibrary.lineWrap(3);
       
       console.log('[PrinterService] === SUNMI PRINT SUCCESS ===');
       return { success: true, message: 'Receipt printed successfully' };
