@@ -221,11 +221,6 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   async function printInvoice(saleId: string): Promise<{ success: boolean; message: string }> {
     console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady)
     
-    if (!printerReady) {
-      console.log('[CreateInvoice] Printer not ready, skipping print')
-      return { success: false, message: 'Printer not available' }
-    }
-    
     setPrinting(true)
     console.log('[CreateInvoice] Fetching receipt image from server...')
     try {
@@ -234,21 +229,29 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         receipt_image: string;
         content_type: string;
         width: number;
+        error?: string;
       }>('/api/receipt/image', {
         sale_id: saleId,
         branch_id: user?.branch_id
       })
       
+      console.log('[CreateInvoice] API response received, success:', response.success)
+      
       if (response.success && response.receipt_image) {
         console.log('[CreateInvoice] Receipt image received, length:', response.receipt_image.length)
-        console.log('[CreateInvoice] Printing bitmap image...')
         
+        if (!printerReady) {
+          console.log('[CreateInvoice] Printer not ready, cannot print bitmap')
+          return { success: false, message: 'Receipt generated but printer not available' }
+        }
+        
+        console.log('[CreateInvoice] Printing bitmap image...')
         const result = await sunmiPrinter.printReceiptImage(response.receipt_image)
         console.log('[CreateInvoice] Print result:', result)
         return result
       } else {
-        console.log('[CreateInvoice] Failed to get receipt image from server')
-        return { success: false, message: 'Failed to get receipt from server' }
+        console.log('[CreateInvoice] Failed to get receipt image from server:', response.error)
+        return { success: false, message: response.error || 'Failed to get receipt from server' }
       }
     } catch (error: any) {
       console.log('[CreateInvoice] Print error:', error?.message || error)
@@ -325,23 +328,24 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       // Print invoice with timeout to prevent hanging
       console.log('[CreateInvoice] printerReady:', printerReady, 'printerType:', printerType)
       let printMessage = ''
-      if (printerReady && saleResponse.sale_id) {
+      if (saleResponse.sale_id) {
         console.log('[CreateInvoice] Calling printInvoice...')
         try {
           const printPromise = printInvoice(saleResponse.sale_id)
           const timeoutPromise = new Promise<{ success: boolean; message: string }>((_, reject) => 
-            setTimeout(() => reject(new Error('Print timeout')), 15000)
+            setTimeout(() => reject(new Error('Print timeout')), 20000)
           )
           const printResult = await Promise.race([printPromise, timeoutPromise])
           console.log('[CreateInvoice] Print result:', printResult)
           if (printResult.success) {
             printMessage = ' - Receipt printed'
+          } else {
+            printMessage = ` - ${printResult.message}`
           }
         } catch (printError: any) {
           console.log('[CreateInvoice] Print error caught:', printError?.message || printError)
+          printMessage = ' - Print failed'
         }
-      } else {
-        console.log('[CreateInvoice] Skipping print - printerReady:', printerReady)
       }
       
       console.log('[CreateInvoice] === SHOWING SUCCESS ALERT ===')
