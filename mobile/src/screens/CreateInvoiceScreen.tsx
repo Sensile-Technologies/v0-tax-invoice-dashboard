@@ -362,13 +362,17 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         }
       }
       
-      // Print invoice
+      // Print invoice with timeout to prevent hanging
       console.log('[CreateInvoice] printerReady:', printerReady, 'printerType:', printerType)
       let printMessage = ''
       if (printerReady && saleResponse.sale_id) {
         console.log('[CreateInvoice] Calling printInvoice...')
         try {
-          const printResult = await printInvoice(saleResponse.sale_id, saleResponse.print_data)
+          const printPromise = printInvoice(saleResponse.sale_id, saleResponse.print_data)
+          const timeoutPromise = new Promise<{ success: boolean; message: string }>((_, reject) => 
+            setTimeout(() => reject(new Error('Print timeout')), 15000)
+          )
+          const printResult = await Promise.race([printPromise, timeoutPromise])
           console.log('[CreateInvoice] Print result:', printResult)
           if (printResult.success) {
             printMessage = ' - Receipt printed'
