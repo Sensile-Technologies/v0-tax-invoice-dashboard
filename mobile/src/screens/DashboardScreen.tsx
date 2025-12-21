@@ -38,9 +38,10 @@ export default function DashboardScreen({ navigation }: any) {
   const fetchShift = useCallback(async () => {
     try {
       if (!user?.branch_id) return
-      const data = await api.get<{ shift: ShiftData | null }>(`/api/shifts?branch_id=${user.branch_id}`)
-      setActiveShift(data?.shift || null)
-      return data?.shift
+      const response = await api.get<{ success: boolean, data: ShiftData | null }>(`/api/shifts?branch_id=${user.branch_id}&status=active`)
+      const shift = response?.data || null
+      setActiveShift(shift)
+      return shift
     } catch (error) {
       console.log('Failed to fetch shift')
       setActiveShift(null)
