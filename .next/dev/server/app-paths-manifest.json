@@ -4,6 +4,8 @@
   "/api/dispensers/route": "app/api/dispensers/route.js",
   "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
+  "/api/mobile/create-sale/route": "app/api/mobile/create-sale/route.js",
+  "/api/mobile/nozzles/route": "app/api/mobile/nozzles/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/end-all/route": "app/api/shifts/end-all/route.js",
