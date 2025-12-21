@@ -1,11 +1,134 @@
 import { NextResponse } from "next/server"
 import { Pool } from "pg"
-import jsPDF from "jspdf"
+import puppeteer from "puppeteer"
 import QRCode from "qrcode"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
+
+function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
+  const unitPrice = parseFloat(sale.unit_price) || 0
+  const quantity = parseFloat(sale.quantity) || 0
+  const totalAmount = parseFloat(sale.total_amount) || 0
+  const discountAmount = parseFloat(sale.discount_amount) || 0
+  const taxableAmount = totalAmount / 1.16
+  const vatAmount = totalAmount - taxableAmount
+  
+  const saleDate = new Date(sale.sale_date)
+  const dateStr = saleDate.toLocaleDateString('en-KE', { year: 'numeric', month: '2-digit', day: '2-digit' })
+  const timeStr = saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  
+  const co2PerLitre = sale.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
+  const totalCo2 = quantity * co2PerLitre
+  
+  const kraPin = sale.kra_pin || 'P052344628B'
+  
+  const receiptNo = sale.kra_cu_inv?.split('/')[1] || sale.invoice_number?.replace('INV-', '') || String(sale.id).substring(0, 8)
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.3;
+      width: 384px;
+      background: white;
+      color: black;
+      padding: 8px;
+    }
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    .header { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+    .shop-name { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+    .divider { border-top: 1px dashed #000; margin: 6px 0; }
+    .row { display: flex; justify-content: space-between; margin: 2px 0; }
+    .label { width: 40%; }
+    .value { width: 58%; text-align: left; }
+    .section-title { font-weight: bold; text-align: center; margin: 4px 0; font-size: 10px; }
+    .tax-table { width: 100%; font-size: 9px; margin: 4px 0; }
+    .tax-table th, .tax-table td { text-align: left; padding: 1px 4px; }
+    .qr-section { text-align: center; margin: 8px 0; }
+    .qr-section img { width: 100px; height: 100px; }
+    .qr-label { font-size: 8px; margin-top: 2px; }
+    .footer { font-size: 9px; text-align: center; margin-top: 6px; }
+    .total-row { font-weight: bold; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="center header">TAX INVOICE</div>
+  <div class="center shop-name">${sale.branch_name || 'Flow360 Station'}</div>
+  ${sale.branch_address ? `<div class="center">${sale.branch_address}</div>` : ''}
+  ${sale.branch_phone ? `<div class="center">Tel: ${sale.branch_phone}</div>` : ''}
+  <div class="center bold">PIN: ${kraPin}</div>
+  
+  <div class="divider"></div>
+  <div class="center" style="font-size: 9px;">Welcome to our shop</div>
+  <div class="divider"></div>
+  
+  <div class="section-title">BUYER INFORMATION</div>
+  <div class="row"><span class="label">Buyer PIN:</span><span class="value">${sale.customer_pin || 'NOT PROVIDED'}</span></div>
+  <div class="row"><span class="label">Buyer Name:</span><span class="value">${sale.customer_name || 'Walk-in Customer'}</span></div>
+  
+  <div class="divider"></div>
+  <div class="section-title">PRODUCT DETAILS</div>
+  <div class="row"><span class="label">Item Code:</span><span class="value">${sale.item_code || sale.fuel_type || 'N/A'}</span></div>
+  <div class="row"><span class="label">Description:</span><span class="value">${sale.item_name || sale.fuel_type || 'Fuel'}</span></div>
+  <div class="row"><span class="label">Dispenser:</span><span class="value">D${sale.dispenser_number || '0'}N${sale.nozzle_number || '1'}</span></div>
+  <div class="row"><span class="label">Unit Price:</span><span class="value">KES ${unitPrice.toFixed(2)}</span></div>
+  <div class="row"><span class="label">Quantity:</span><span class="value">${quantity.toFixed(3)} L</span></div>
+  <div class="row"><span class="label">Discount:</span><span class="value">(${discountAmount.toFixed(2)})</span></div>
+  <div class="row total-row"><span class="label">Total:</span><span class="value">KES ${totalAmount.toFixed(2)}</span></div>
+  
+  <div class="divider"></div>
+  <div class="section-title">TAX BREAKDOWN</div>
+  <table class="tax-table">
+    <tr><th>Rate</th><th>Taxable</th><th>VAT</th></tr>
+    <tr><td>EX</td><td>KES 0.00</td><td>KES 0.00</td></tr>
+    <tr><td>16%</td><td>KES ${taxableAmount.toFixed(2)}</td><td>KES ${vatAmount.toFixed(2)}</td></tr>
+    <tr><td>0%</td><td>KES 0.00</td><td>KES 0.00</td></tr>
+  </table>
+  
+  <div class="divider"></div>
+  <div class="row"><span class="label">Date:</span><span class="value">${dateStr}</span></div>
+  <div class="row"><span class="label">Time:</span><span class="value">${timeStr}</span></div>
+  
+  <div class="divider"></div>
+  <div class="row" style="font-size: 9px;"><span class="label">SCU ID:</span><span class="value">${sale.kra_scu_id || 'N/A'}</span></div>
+  <div class="row" style="font-size: 9px;"><span class="label">CU INV NO:</span><span class="value">${sale.kra_cu_inv || 'N/A'}</span></div>
+  <div class="row" style="font-size: 9px;"><span class="label">Internal Data:</span><span class="value">${sale.kra_internal_data || sale.invoice_number || 'N/A'}</span></div>
+  
+  <div class="divider"></div>
+  <div class="section-title">KRA eTIMS Verification</div>
+  <div class="qr-section">
+    <img src="${qrCodeDataUrl}" alt="QR Code" />
+    <div class="qr-label">Scan to verify with KRA eTIMS</div>
+  </div>
+  
+  <div class="divider"></div>
+  <div class="row"><span class="label">Receipt No:</span><span class="value">${receiptNo}</span></div>
+  <div class="row"><span class="label">Served by:</span><span class="value">${sale.cashier_name || 'System'}</span></div>
+  <div class="row"><span class="label">Payment:</span><span class="value">${sale.payment_method || 'Cash'}</span></div>
+  
+  <div class="divider"></div>
+  <div class="section-title">Carbon Emission Details</div>
+  <div class="row"><span class="label">CO2 Per Litre:</span><span class="value">${co2PerLitre.toFixed(2)} kg</span></div>
+  <div class="row"><span class="label">Total CO2:</span><span class="value">${totalCo2.toFixed(2)} kg</span></div>
+  
+  <div class="divider"></div>
+  <div class="footer bold">THANK YOU FOR SHOPPING WITH US</div>
+  <div class="footer">Powered by Flow360</div>
+  <div class="divider"></div>
+  <div class="footer bold">END OF LEGAL RECEIPT</div>
+</body>
+</html>
+`
+}
 
 export async function POST(request: Request) {
   try {
@@ -38,268 +161,52 @@ export async function POST(request: Request) {
 
       const sale = saleResult.rows[0]
       
-      const pageWidth = 80
-      const doc = new jsPDF({ unit: 'mm', format: [pageWidth, 280] })
-      
-      let y = 8
-      const leftMargin = 5
-      const rightMargin = pageWidth - 5
-
-      const drawLine = () => {
-        doc.setDrawColor(0)
-        doc.setLineWidth(0.1)
-        doc.line(leftMargin, y, rightMargin, y)
-        y += 3
-      }
-
-      const drawDottedLine = () => {
-        doc.setDrawColor(150)
-        doc.setLineWidth(0.1)
-        for (let x = leftMargin; x < rightMargin; x += 2) {
-          doc.line(x, y, x + 1, y)
-        }
-        y += 3
-      }
-
-      doc.setFontSize(12)
-      doc.setFont("helvetica", "bold")
-      doc.text("TAX INVOICE", pageWidth / 2, y, { align: "center" })
-      y += 6
-
-      doc.setFontSize(10)
-      doc.text(sale.branch_name || "Flow360 Station", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      doc.setFontSize(8)
-      doc.setFont("helvetica", "normal")
-      if (sale.branch_address) {
-        doc.text(sale.branch_address, pageWidth / 2, y, { align: "center" })
-        y += 3
-      }
-      if (sale.branch_phone) {
-        doc.text(`Tel: ${sale.branch_phone}`, pageWidth / 2, y, { align: "center" })
-        y += 3
-      }
-      
-      doc.setFont("helvetica", "bold")
-      doc.text(`PIN: ${sale.kra_pin || 'P052344628B'}`, pageWidth / 2, y, { align: "center" })
-      y += 5
-
-      drawLine()
-
-      doc.setFontSize(7)
-      doc.setFont("helvetica", "normal")
-      doc.text("Welcome to our shop", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(8)
-      doc.setFont("helvetica", "bold")
-      doc.text("BUYER INFORMATION", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      doc.setFontSize(7)
-      doc.setFont("helvetica", "normal")
-      doc.text(`Buyer PIN:`, leftMargin, y)
-      doc.text(sale.customer_pin || "NOT PROVIDED", leftMargin + 22, y)
-      y += 3
-      doc.text(`Buyer Name:`, leftMargin, y)
-      doc.text(sale.customer_name || "Walk-in Customer", leftMargin + 22, y)
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(8)
-      doc.setFont("helvetica", "bold")
-      doc.text("PRODUCT DETAILS", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      doc.setFontSize(7)
-      doc.setFont("helvetica", "normal")
-      
-      const unitPrice = parseFloat(sale.unit_price) || 0
-      const quantity = parseFloat(sale.quantity) || 0
-      const totalAmount = parseFloat(sale.total_amount) || 0
-      const discountAmount = parseFloat(sale.discount_amount) || 0
-      const taxableAmount = totalAmount / 1.16
-      const vatAmount = totalAmount - taxableAmount
-
-      doc.text(`Item Code:`, leftMargin, y)
-      doc.text(sale.item_code || sale.fuel_type || "N/A", leftMargin + 22, y)
-      y += 3
-      doc.text(`Description:`, leftMargin, y)
-      doc.text(sale.item_name || sale.fuel_type || "Fuel", leftMargin + 22, y)
-      y += 3
-      doc.text(`Dispenser:`, leftMargin, y)
-      doc.text(`D${sale.dispenser_number || '0'}N${sale.nozzle_number || '1'}`, leftMargin + 22, y)
-      y += 3
-      doc.text(`Unit Price:`, leftMargin, y)
-      doc.text(`KES ${unitPrice.toFixed(2)}`, leftMargin + 22, y)
-      y += 3
-      doc.text(`Quantity:`, leftMargin, y)
-      doc.text(`${quantity.toFixed(3)} L`, leftMargin + 22, y)
-      y += 3
-      doc.text(`Discount:`, leftMargin, y)
-      doc.text(`(${discountAmount.toFixed(2)})`, leftMargin + 22, y)
-      y += 4
-      
-      doc.setFont("helvetica", "bold")
-      doc.text(`Total:`, leftMargin, y)
-      doc.text(`KES ${totalAmount.toFixed(2)}`, leftMargin + 22, y)
-      y += 5
-
-      drawLine()
-
-      doc.setFontSize(8)
-      doc.text("TAX BREAKDOWN", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      doc.setFontSize(6)
-      doc.setFont("helvetica", "bold")
-      doc.text("Rate", leftMargin, y)
-      doc.text("Taxable", leftMargin + 20, y)
-      doc.text("VAT", leftMargin + 45, y)
-      y += 3
-
-      drawDottedLine()
-
-      doc.setFont("helvetica", "normal")
-      doc.text("EX", leftMargin, y)
-      doc.text("KES 0.00", leftMargin + 20, y)
-      doc.text("KES 0.00", leftMargin + 45, y)
-      y += 3
-
-      doc.text("16%", leftMargin, y)
-      doc.text(`KES ${taxableAmount.toFixed(2)}`, leftMargin + 20, y)
-      doc.text(`KES ${vatAmount.toFixed(2)}`, leftMargin + 45, y)
-      y += 3
-
-      doc.text("0%", leftMargin, y)
-      doc.text("KES 0.00", leftMargin + 20, y)
-      doc.text("KES 0.00", leftMargin + 45, y)
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(7)
-      const saleDate = new Date(sale.sale_date)
-      const dateStr = saleDate.toLocaleDateString('en-KE', { year: 'numeric', month: '2-digit', day: '2-digit' })
-      const timeStr = saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
-      
-      doc.text(`Date:`, leftMargin, y)
-      doc.text(dateStr, leftMargin + 22, y)
-      y += 3
-      doc.text(`Time:`, leftMargin, y)
-      doc.text(timeStr, leftMargin + 22, y)
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(6)
-      doc.text(`SCU ID:`, leftMargin, y)
-      doc.text(sale.kra_scu_id || "N/A", leftMargin + 18, y)
-      y += 3
-      doc.text(`CU INV NO:`, leftMargin, y)
-      doc.text(sale.kra_cu_inv || "N/A", leftMargin + 18, y)
-      y += 3
-      doc.text(`Internal Data:`, leftMargin, y)
-      doc.text(sale.kra_internal_data || sale.invoice_number || "N/A", leftMargin + 18, y)
-      y += 4
-
-      drawLine()
-
       const kraPin = sale.kra_pin || 'P052344628B'
       const bhfId = sale.bhf_id || '03'
       const rcptSign = sale.kra_rcpt_sign || ''
-      
       const qrData = `${kraPin}${bhfId}${rcptSign}`
       const qrUrl = `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
-
-      doc.setFontSize(8)
-      doc.setFont("helvetica", "bold")
-      doc.text("KRA eTIMS Verification", pageWidth / 2, y, { align: "center" })
-      y += 5
-
-      try {
-        const qrDataUrl = await QRCode.toDataURL(qrUrl, {
-          width: 150,
-          margin: 1,
-          errorCorrectionLevel: 'M'
-        })
-        
-        const qrSize = 30
-        const qrX = (pageWidth - qrSize) / 2
-        doc.addImage(qrDataUrl, 'PNG', qrX, y, qrSize, qrSize)
-        y += qrSize + 3
-      } catch (qrError) {
-        console.error("QR Code generation error:", qrError)
-        doc.setFontSize(6)
-        doc.setFont("helvetica", "normal")
-        doc.text("QR Code unavailable", pageWidth / 2, y + 10, { align: "center" })
-        y += 20
-      }
-
-      doc.setFontSize(5)
-      doc.setFont("helvetica", "normal")
-      doc.text("Scan to verify with KRA eTIMS", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(7)
-      const receiptNo = sale.kra_cu_inv?.split('/')[1] || sale.invoice_number?.replace('INV-', '') || String(sale.id).substring(0, 8)
-      doc.text(`Receipt No:`, leftMargin, y)
-      doc.text(receiptNo, leftMargin + 22, y)
-      y += 3
-      doc.text(`Served by:`, leftMargin, y)
-      doc.text(sale.cashier_name || "System", leftMargin + 22, y)
-      y += 3
-      doc.text(`Payment:`, leftMargin, y)
-      doc.text(sale.payment_method || "Cash", leftMargin + 22, y)
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(8)
-      doc.setFont("helvetica", "bold")
-      doc.text("Carbon Emission Details", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      doc.setFontSize(7)
-      doc.setFont("helvetica", "normal")
-      const co2PerLitre = sale.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
-      const totalCo2 = quantity * co2PerLitre
-      doc.text(`CO2 Per Litre:`, leftMargin, y)
-      doc.text(`${co2PerLitre.toFixed(2)} kg`, leftMargin + 22, y)
-      y += 3
-      doc.text(`Total CO2:`, leftMargin, y)
-      doc.text(`${totalCo2.toFixed(2)} kg`, leftMargin + 22, y)
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(9)
-      doc.setFont("helvetica", "bold")
-      doc.text("THANK YOU FOR SHOPPING WITH US", pageWidth / 2, y, { align: "center" })
-      y += 5
-
-      doc.setFontSize(7)
-      doc.setFont("helvetica", "normal")
-      doc.text("Powered by Flow360", pageWidth / 2, y, { align: "center" })
-      y += 4
-
-      drawLine()
-
-      doc.setFontSize(7)
-      doc.setFont("helvetica", "bold")
-      doc.text("END OF LEGAL RECEIPT", pageWidth / 2, y, { align: "center" })
-
-      const base64Pdf = doc.output('datauristring')
+      
+      const qrCodeDataUrl = await QRCode.toDataURL(qrUrl, {
+        width: 120,
+        margin: 1,
+        errorCorrectionLevel: 'M'
+      })
+      
+      const html = generateReceiptHTML(sale, qrCodeDataUrl)
+      
+      const browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+      })
+      
+      const page = await browser.newPage()
+      await page.setViewport({ width: 384, height: 800 })
+      await page.setContent(html, { waitUntil: 'networkidle0' })
+      
+      const bodyHandle = await page.$('body')
+      const boundingBox = await bodyHandle?.boundingBox()
+      await bodyHandle?.dispose()
+      
+      const height = boundingBox ? Math.ceil(boundingBox.height) + 20 : 800
+      
+      await page.setViewport({ width: 384, height })
+      
+      const screenshotBuffer = await page.screenshot({
+        type: 'png',
+        fullPage: true,
+        omitBackground: false
+      })
+      
+      await browser.close()
+      
+      const base64Image = Buffer.from(screenshotBuffer).toString('base64')
 
       return NextResponse.json({
         success: true,
-        receipt_base64: base64Pdf,
+        receipt_image: base64Image,
+        content_type: 'image/png',
+        width: 384,
         sale_id: sale_id,
         invoice_number: sale.invoice_number
       })
