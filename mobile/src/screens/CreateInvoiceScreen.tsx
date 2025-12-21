@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -12,12 +12,11 @@ import {
 } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { Ionicons } from '@expo/vector-icons'
-import { captureRef } from 'react-native-view-shot'
+import * as Print from 'expo-print'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import sunmiPrinter, { InvoiceData } from '../utils/printer'
-import { ReceiptView, ReceiptData } from '../components/ReceiptView'
+import sunmiPrinter from '../utils/printer'
 
 interface Nozzle {
   id: string
@@ -61,8 +60,6 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [printing, setPrinting] = useState(false)
   const [printerReady, setPrinterReady] = useState(false)
   const [printerType, setPrinterType] = useState<string>('none')
-  const receiptRef = useRef<View>(null)
-  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null)
   
   useEffect(() => {
     console.log('[CreateInvoice] Initializing printer, Platform:', Platform.OS)
@@ -222,149 +219,34 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   }
   const totalAmount = Math.max(grossAmount - discountAmount, 0)
 
-  async function printInvoice(saleId: string, kraDetails?: {
-    invoice_number?: string;
-    receipt_no?: string;
-    cu_serial_number?: string;
-    cu_invoice_no?: string;
-    intrl_data?: string;
-    branch_phone?: string;
-    branch_pin?: string;
-    item_code?: string;
-    receipt_signature?: string;
-    bhf_id?: string;
-  }): Promise<{ success: boolean; message: string }> {
-    console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady, 'printerType:', printerType)
-    
-    if (!printerReady) {
-      console.log('[CreateInvoice] Printer not ready, skipping print')
-      return { success: false, message: 'Printer not available' }
-    }
+  async function printInvoice(saleId: string): Promise<{ success: boolean; message: string }> {
+    console.log('[CreateInvoice] printInvoice called, saleId:', saleId)
     
     setPrinting(true)
-    console.log('[CreateInvoice] Starting IMAGE-BASED print...')
+    console.log('[CreateInvoice] Fetching receipt PDF from server...')
     try {
-      const now = new Date()
-      const taxableAmount = Math.round((totalAmount / 1.16) * 100) / 100
-      const vatAmount = Math.round((totalAmount - taxableAmount) * 100) / 100
+      // Fetch the receipt PDF from the API (same one used by web app)
+      const response = await api.post<{ success: boolean; receipt_base64: string }>('/api/receipt/image', {
+        sale_id: saleId,
+        branch_id: user?.branch_id
+      })
       
-      // Build receipt data for image capture
-      const co2PerLitre = selectedNozzleData?.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
-      const totalCo2 = grossQuantity * co2PerLitre
-      
-      const newReceiptData: ReceiptData = {
-        invoiceNumber: kraDetails?.invoice_number || saleId.substring(0, 8).toUpperCase(),
-        date: now.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-        time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        branchName: user?.branch_name || 'Flow360 Station',
-        branchAddress: 'Thika, Kenya',
-        branchPhone: kraDetails?.branch_phone,
-        branchPin: kraDetails?.branch_pin,
-        customerName: customerName.trim() || 'Walk-in Customer',
-        customerPin: kraPin || undefined,
-        cashierName: user?.username || user?.name || 'Cashier',
-        fuelType: selectedNozzleData?.fuel_type || 'Fuel',
-        quantity: grossQuantity,
-        unitPrice: unitPrice,
-        discount: discountAmount,
-        totalAmount: totalAmount,
-        paymentMethod: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).replace('_', ' '),
-        taxAmount: vatAmount,
-        taxableAmount: taxableAmount,
-        cuSerialNumber: kraDetails?.cu_serial_number || user?.bhf_id,
-        cuInvoiceNo: kraDetails?.cu_invoice_no,
-        receiptNo: kraDetails?.receipt_no,
-        intrlData: kraDetails?.intrl_data,
-        isReprint: false,
-        itemCode: kraDetails?.item_code,
-        dispenser: `D${selectedNozzle?.slice(-2) || '1'}`,
-        co2PerLitre: co2PerLitre,
-        totalCo2: totalCo2,
-      }
-      
-      // Set receipt data to render the view
-      setReceiptData(newReceiptData)
-      console.log('[CreateInvoice] Receipt data set, waiting for render...')
-      
-      // Wait for the view to render
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      // Capture the receipt as an image
-      if (receiptRef.current) {
-        console.log('[CreateInvoice] Capturing receipt image...')
-        try {
-          const imageUri = await captureRef(receiptRef, {
-            format: 'png',
-            quality: 1,
-            result: 'base64',
-          })
-          console.log('[CreateInvoice] Image captured, length:', imageUri.length)
-          
-          // Print the image
-          const result = await sunmiPrinter.printReceiptImage(imageUri)
-          console.log('[CreateInvoice] Image print result:', result)
-          
-          // Clear the receipt data
-          setReceiptData(null)
-          return result
-        } catch (captureError: any) {
-          console.log('[CreateInvoice] Capture error:', captureError?.message)
-          setReceiptData(null)
-          // Fall back to text-based printing
-          console.log('[CreateInvoice] Falling back to text-based printing...')
-        }
+      if (response.success && response.receipt_base64) {
+        console.log('[CreateInvoice] Receipt PDF received, printing...')
+        
+        // Print using expo-print (prints the PDF directly)
+        await Print.printAsync({
+          uri: response.receipt_base64,
+        })
+        
+        console.log('[CreateInvoice] Print sent successfully')
+        return { success: true, message: 'Receipt printed successfully' }
       } else {
-        console.log('[CreateInvoice] Receipt ref not available')
+        console.log('[CreateInvoice] Failed to get receipt from server')
+        return { success: false, message: 'Failed to get receipt from server' }
       }
-      
-      // Fallback: use original text-based printing
-      const invoiceData: InvoiceData = {
-        invoiceNumber: kraDetails?.invoice_number || saleId.substring(0, 8).toUpperCase(),
-        receiptNo: kraDetails?.receipt_no,
-        date: now.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-        time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-        branchName: user?.branch_name || 'Flow360 Station',
-        branchPhone: kraDetails?.branch_phone,
-        branchPin: kraDetails?.branch_pin,
-        cashierName: user?.username || user?.name || 'Cashier',
-        customerName: customerName.trim() || 'Walk-in Customer',
-        customerPin: kraPin || undefined,
-        items: [{
-          name: selectedNozzleData?.fuel_type || 'Fuel',
-          itemCode: kraDetails?.item_code,
-          dispenser: `D${selectedNozzle?.slice(-2) || '1'}`,
-          quantity: grossQuantity,
-          unitPrice: unitPrice,
-          discount: discountAmount,
-          discountType: 'amount',
-          taxRate: 16,
-        }],
-        subtotal: grossAmount,
-        totalDiscount: discountAmount,
-        taxableAmount: taxableAmount,
-        totalTax: vatAmount,
-        taxExempt: 0,
-        taxZeroRated: 0,
-        grandTotal: totalAmount,
-        paymentMethod: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).replace('_', ' '),
-        kraPin: kraPin || undefined,
-        cuSerialNumber: kraDetails?.cu_serial_number || user?.bhf_id,
-        cuInvoiceNo: kraDetails?.cu_invoice_no,
-        intrlData: kraDetails?.intrl_data,
-        co2PerLitre: co2PerLitre,
-        totalCo2: totalCo2,
-        isReprint: false,
-        qrCodeData: (kraDetails?.receipt_signature && kraDetails?.branch_pin && kraDetails?.bhf_id)
-          ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${kraDetails.branch_pin}${kraDetails.bhf_id}${kraDetails.receipt_signature}`
-          : undefined,
-      }
-      
-      const result = await sunmiPrinter.printInvoice(invoiceData)
-      console.log('[CreateInvoice] Fallback print result:', result)
-      return result
     } catch (error: any) {
-      console.log('Print error:', error)
-      setReceiptData(null)
+      console.log('[CreateInvoice] Print error:', error?.message || error)
       return { success: false, message: error?.message || 'Print failed' }
     } finally {
       setPrinting(false)
@@ -441,7 +323,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       if (printerReady && saleResponse.sale_id) {
         console.log('[CreateInvoice] Calling printInvoice...')
         try {
-          const printPromise = printInvoice(saleResponse.sale_id, saleResponse.print_data)
+          const printPromise = printInvoice(saleResponse.sale_id)
           const timeoutPromise = new Promise<{ success: boolean; message: string }>((_, reject) => 
             setTimeout(() => reject(new Error('Print timeout')), 15000)
           )
@@ -496,13 +378,6 @@ export default function CreateInvoiceScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      {/* Hidden receipt view for image capture */}
-      {receiptData && (
-        <View style={{ position: 'absolute', left: -1000, top: 0 }}>
-          <ReceiptView ref={receiptRef} data={receiptData} />
-        </View>
-      )}
-      
       {step === 1 ? (
         <ScrollView style={styles.scrollView}>
           <View style={styles.section}>
