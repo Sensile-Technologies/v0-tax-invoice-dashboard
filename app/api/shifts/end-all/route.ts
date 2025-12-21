@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
         }
 
         const salesResult = await client.query(
-          `SELECT COALESCE(SUM(total), 0) as total_sales FROM sales WHERE branch_id = $1 AND shift_id = $2`,
+          `SELECT COALESCE(SUM(total_amount), 0) as total_sales FROM sales WHERE branch_id = $1 AND shift_id = $2`,
           [branchId, id]
         )
         const totalSales = parseFloat(salesResult.rows[0].total_sales) || 0

@@ -267,7 +267,7 @@ async function POST(request) {
                 if (hasValidationError) {
                     continue;
                 }
-                const salesResult = await client.query(`SELECT COALESCE(SUM(total), 0) as total_sales FROM sales WHERE branch_id = $1 AND shift_id = $2`, [
+                const salesResult = await client.query(`SELECT COALESCE(SUM(total_amount), 0) as total_sales FROM sales WHERE branch_id = $1 AND shift_id = $2`, [
                     branchId,
                     id
                 ]);
