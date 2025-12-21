@@ -74,7 +74,7 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
     .tax-table { width: 100%; font-size: 9px; margin: 4px 0; }
     .tax-table th, .tax-table td { text-align: left; padding: 1px 4px; }
     .qr-section { text-align: center; margin: 8px 0; }
-    .qr-section img { width: 100px; height: 100px; }
+    .qr-section img { width: 180px; height: 180px; }
     .qr-label { font-size: 8px; margin-top: 2px; }
     .footer { font-size: 9px; text-align: center; margin-top: 6px; }
     .total-row { font-weight: bold; font-size: 12px; }
@@ -188,7 +188,7 @@ export async function POST(request: Request) {
       const qrUrl = `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
       
       const qrCodeDataUrl = await QRCode.toDataURL(qrUrl, {
-        width: 120,
+        width: 200,
         margin: 1,
         errorCorrectionLevel: 'M'
       })
