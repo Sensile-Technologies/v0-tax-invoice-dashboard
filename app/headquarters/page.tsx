@@ -1778,7 +1778,7 @@ export default function HeadquartersPage() {
                   </div>
                 </div>
 
-                <Accordion type="multiple" className="w-full">
+                <Accordion type="multiple" className="w-full" defaultValue={activeShifts.map(s => s.id)}>
                   {activeShifts.map((shift) => {
                     const formData = shiftFormData[shift.id] || { closing_cash: '', nozzle_readings: {}, tank_stocks: {} }
                     return (
