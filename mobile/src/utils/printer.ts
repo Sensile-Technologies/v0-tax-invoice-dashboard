@@ -81,14 +81,16 @@ class PrinterService {
       console.log('[PrinterService] === IMAGE PRINT START ===');
       console.log('[PrinterService] Image base64 length:', imageBase64.length);
       
-      // Remove data URI prefix if present
-      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+      // Ensure data URI prefix is present (printImage requires it)
+      let imageData = imageBase64;
+      if (!imageBase64.startsWith('data:image/')) {
+        imageData = `data:image/png;base64,${imageBase64}`;
+      }
       
       await SunmiPrinterLibrary.setAlignment('center');
       
-      // Print the image as bitmap - single command, no pulsing
-      // Use printBitmapBase64 (not printBitmap) as per the library API
-      await SunmiPrinterLibrary.printBitmapBase64(base64Data, 384);
+      // Use printImage method with binary mode for faster printing
+      await SunmiPrinterLibrary.printImage(imageData, 384, 'binary');
       
       // Add some line feeds at the end
       await SunmiPrinterLibrary.lineWrap(3);
