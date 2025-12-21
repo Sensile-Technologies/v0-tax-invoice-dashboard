@@ -78,14 +78,34 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const vendorId = searchParams.get('vendor_id');
         const userId = searchParams.get('user_id');
+        let resolvedVendorId = vendorId;
+        // Resolve vendor_id from user_id if not provided
+        if (!resolvedVendorId && userId) {
+            // First try: match user email to vendor email
+            const userVendorResult = await pool.query(`SELECT v.id as vendor_id FROM users u 
+         JOIN vendors v ON v.email = u.email 
+         WHERE u.id = $1`, [
+                userId
+            ]);
+            if (userVendorResult.rows.length > 0) {
+                resolvedVendorId = userVendorResult.rows[0].vendor_id;
+            } else {
+                // Second try: get vendor_id from user's staff record → branch → vendor
+                const staffResult = await pool.query(`SELECT DISTINCT b.vendor_id FROM staff s
+           JOIN branches b ON s.branch_id = b.id
+           WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
+                    userId
+                ]);
+                if (staffResult.rows.length > 0) {
+                    resolvedVendorId = staffResult.rows[0].vendor_id;
+                }
+            }
+        }
         let branchFilter = '';
         const params = [];
-        if (vendorId) {
-            params.push(vendorId);
+        if (resolvedVendorId) {
+            params.push(resolvedVendorId);
             branchFilter = `AND b.vendor_id = $${params.length}`;
-        } else if (userId) {
-            params.push(userId);
-            branchFilter = `AND (b.vendor_id IN (SELECT vendor_id FROM staff WHERE id = $${params.length}) OR EXISTS (SELECT 1 FROM staff WHERE id = $${params.length} AND role IN ('admin', 'superadmin')))`;
         }
         const result = await pool.query(`
       SELECT 
@@ -96,11 +116,11 @@ async function GET(request) {
         s.status,
         b.name as branch_name,
         b.location as branch_location,
-        COALESCE(st.name, 'Unknown') as cashier_name,
-        (SELECT COALESCE(SUM(total), 0) FROM sales WHERE branch_id = s.branch_id AND shift_id = s.id) as total_sales
+        COALESCE(st.full_name, st.username, 'Unknown') as cashier_name,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE branch_id = s.branch_id AND shift_id = s.id) as total_sales
       FROM shifts s
       JOIN branches b ON s.branch_id = b.id
-      LEFT JOIN staff st ON s.cashier_id = st.id
+      LEFT JOIN staff st ON s.staff_id = st.id
       WHERE s.status = 'active'
       ${branchFilter}
       ORDER BY b.name

@@ -55,11 +55,11 @@ export async function GET(request: NextRequest) {
         s.status,
         b.name as branch_name,
         b.location as branch_location,
-        COALESCE(st.name, 'Unknown') as cashier_name,
-        (SELECT COALESCE(SUM(total), 0) FROM sales WHERE branch_id = s.branch_id AND shift_id = s.id) as total_sales
+        COALESCE(st.full_name, st.username, 'Unknown') as cashier_name,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE branch_id = s.branch_id AND shift_id = s.id) as total_sales
       FROM shifts s
       JOIN branches b ON s.branch_id = b.id
-      LEFT JOIN staff st ON s.cashier_id = st.id
+      LEFT JOIN staff st ON s.staff_id = st.id
       WHERE s.status = 'active'
       ${branchFilter}
       ORDER BY b.name
