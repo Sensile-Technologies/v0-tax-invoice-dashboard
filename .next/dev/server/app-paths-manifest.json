@@ -8,6 +8,7 @@
   "/api/nozzles/route": "app/api/nozzles/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/end-all/route": "app/api/shifts/end-all/route.js",
+  "/api/shifts/list/route": "app/api/shifts/list/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
   "/api/tanks/route": "app/api/tanks/route.js",
   "/headquarters/page": "app/headquarters/page.js",
