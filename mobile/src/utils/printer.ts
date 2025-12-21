@@ -87,7 +87,8 @@ class PrinterService {
       await SunmiPrinterLibrary.setAlignment('center');
       
       // Print the image as bitmap - single command, no pulsing
-      await SunmiPrinterLibrary.printBitmap(base64Data, 384);
+      // Use printBitmapBase64 (not printBitmap) as per the library API
+      await SunmiPrinterLibrary.printBitmapBase64(base64Data, 384);
       
       // Add some line feeds at the end
       await SunmiPrinterLibrary.lineWrap(3);
