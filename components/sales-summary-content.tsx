@@ -232,6 +232,7 @@ export function SalesSummaryContent() {
       const currentBranch = localStorage.getItem("selectedBranch")
       if (!currentBranch) {
         toast.error("No branch selected")
+        setLoading(false)
         return
       }
 
@@ -241,6 +242,7 @@ export function SalesSummaryContent() {
       const fuelPrice = fuelPrices.find((p) => p.fuel_type === saleForm.fuel_type)
       if (!fuelPrice) {
         toast.error(`No price configured for ${saleForm.fuel_type}`)
+        setLoading(false)
         return
       }
 
