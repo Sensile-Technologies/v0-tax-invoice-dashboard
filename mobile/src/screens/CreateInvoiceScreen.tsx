@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   View,
   Text,
@@ -12,10 +12,12 @@ import {
 } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { Ionicons } from '@expo/vector-icons'
+import { captureRef } from 'react-native-view-shot'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import sunmiPrinter, { InvoiceData } from '../utils/printer'
+import { ReceiptView, ReceiptData } from '../components/ReceiptView'
 
 interface Nozzle {
   id: string
@@ -59,6 +61,8 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [printing, setPrinting] = useState(false)
   const [printerReady, setPrinterReady] = useState(false)
   const [printerType, setPrinterType] = useState<string>('none')
+  const receiptRef = useRef<View>(null)
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null)
   
   useEffect(() => {
     console.log('[CreateInvoice] Initializing printer, Platform:', Platform.OS)
@@ -238,11 +242,74 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     }
     
     setPrinting(true)
-    console.log('[CreateInvoice] Starting print...')
+    console.log('[CreateInvoice] Starting IMAGE-BASED print...')
     try {
       const now = new Date()
       const taxableAmount = Math.round((totalAmount / 1.16) * 100) / 100
       const vatAmount = Math.round((totalAmount - taxableAmount) * 100) / 100
+      
+      // Build receipt data for image capture
+      const newReceiptData: ReceiptData = {
+        invoiceNumber: kraDetails?.invoice_number || saleId.substring(0, 8).toUpperCase(),
+        date: now.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        time: now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        branchName: user?.branch_name || 'Flow360 Station',
+        branchAddress: undefined,
+        branchPhone: kraDetails?.branch_phone,
+        branchPin: kraDetails?.branch_pin,
+        customerName: customerName.trim() || 'Walk-in Customer',
+        customerPin: kraPin || undefined,
+        cashierName: user?.username || user?.name || 'Cashier',
+        fuelType: selectedNozzleData?.fuel_type || 'Fuel',
+        quantity: grossQuantity,
+        unitPrice: unitPrice,
+        discount: discountAmount,
+        totalAmount: totalAmount,
+        paymentMethod: paymentMethod.charAt(0).toUpperCase() + paymentMethod.slice(1).replace('_', ' '),
+        taxAmount: vatAmount,
+        cuSerialNumber: kraDetails?.cu_serial_number || user?.bhf_id,
+        cuInvoiceNo: kraDetails?.cu_invoice_no,
+        receiptNo: kraDetails?.receipt_no,
+        intrlData: kraDetails?.intrl_data,
+        isReprint: false,
+      }
+      
+      // Set receipt data to render the view
+      setReceiptData(newReceiptData)
+      console.log('[CreateInvoice] Receipt data set, waiting for render...')
+      
+      // Wait for the view to render
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Capture the receipt as an image
+      if (receiptRef.current) {
+        console.log('[CreateInvoice] Capturing receipt image...')
+        try {
+          const imageUri = await captureRef(receiptRef, {
+            format: 'png',
+            quality: 1,
+            result: 'base64',
+          })
+          console.log('[CreateInvoice] Image captured, length:', imageUri.length)
+          
+          // Print the image
+          const result = await sunmiPrinter.printReceiptImage(imageUri)
+          console.log('[CreateInvoice] Image print result:', result)
+          
+          // Clear the receipt data
+          setReceiptData(null)
+          return result
+        } catch (captureError: any) {
+          console.log('[CreateInvoice] Capture error:', captureError?.message)
+          setReceiptData(null)
+          // Fall back to text-based printing
+          console.log('[CreateInvoice] Falling back to text-based printing...')
+        }
+      } else {
+        console.log('[CreateInvoice] Receipt ref not available')
+      }
+      
+      // Fallback: use original text-based printing
       const co2PerLitre = selectedNozzleData?.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
       const totalCo2 = grossQuantity * co2PerLitre
       
@@ -288,10 +355,11 @@ export default function CreateInvoiceScreen({ navigation }: any) {
       }
       
       const result = await sunmiPrinter.printInvoice(invoiceData)
-      console.log('[CreateInvoice] Print result:', result)
+      console.log('[CreateInvoice] Fallback print result:', result)
       return result
     } catch (error: any) {
       console.log('Print error:', error)
+      setReceiptData(null)
       return { success: false, message: error?.message || 'Print failed' }
     } finally {
       setPrinting(false)
@@ -423,6 +491,13 @@ export default function CreateInvoiceScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      {/* Hidden receipt view for image capture */}
+      {receiptData && (
+        <View style={{ position: 'absolute', left: -1000, top: 0 }}>
+          <ReceiptView ref={receiptRef} data={receiptData} />
+        </View>
+      )}
+      
       {step === 1 ? (
         <ScrollView style={styles.scrollView}>
           <View style={styles.section}>

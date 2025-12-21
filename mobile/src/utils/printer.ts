@@ -70,6 +70,37 @@ class PrinterService {
   private initialized: boolean = false;
   private isSunmiDevice: boolean = false;
 
+  // Print receipt as image - best for smooth printing without pulsing
+  async printReceiptImage(imageBase64: string): Promise<{ success: boolean; message: string }> {
+    if (!this.isSunmiDevice || !SunmiPrinterLibrary) {
+      console.log('[PrinterService] Sunmi not available for image printing');
+      return { success: false, message: 'Sunmi printer not available' };
+    }
+
+    try {
+      console.log('[PrinterService] === IMAGE PRINT START ===');
+      console.log('[PrinterService] Image base64 length:', imageBase64.length);
+      
+      // Remove data URI prefix if present
+      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+      
+      await SunmiPrinterLibrary.setAlignment('center');
+      
+      // Print the image as bitmap - single command, no pulsing
+      await SunmiPrinterLibrary.printBitmap(base64Data, 384);
+      
+      // Add some line feeds at the end
+      await SunmiPrinterLibrary.lineWrap(3);
+      
+      console.log('[PrinterService] === IMAGE PRINT SUCCESS ===');
+      return { success: true, message: 'Receipt printed successfully' };
+    } catch (error: any) {
+      console.error('[PrinterService] === IMAGE PRINT ERROR ===');
+      console.error('[PrinterService] Error:', error?.message || error);
+      return { success: false, message: error?.message || 'Image print failed' };
+    }
+  }
+
   async initialize(): Promise<boolean> {
     console.log('[PrinterService] Initializing... Platform:', Platform.OS, 'SunmiLib available:', !!SunmiPrinterLibrary);
     
