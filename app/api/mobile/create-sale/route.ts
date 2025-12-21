@@ -199,6 +199,15 @@ export async function POST(request: Request) {
         }
       }
 
+      if (tankCheck.rows.length > 0 && correctQuantity > 0) {
+        const tankId = tankCheck.rows[0].id
+        await client.query(
+          `UPDATE tanks SET current_stock = GREATEST(0, current_stock - $1), updated_at = NOW() WHERE id = $2`,
+          [correctQuantity, tankId]
+        )
+        console.log(`[Mobile Create Sale] Reduced tank ${tankId} stock by ${correctQuantity} liters`)
+      }
+
       await client.query('COMMIT')
 
       const branchResult = await client.query(
