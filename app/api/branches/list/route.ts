@@ -80,6 +80,12 @@ export async function GET(request: Request) {
       paramIndex++;
     }
     
+    // SECURITY: If no user_id or vendor_id provided, return empty array
+    // to prevent leaking all branches
+    if (!userId && !vendorId) {
+      return NextResponse.json([]);
+    }
+    
     sql += " ORDER BY name";
     
     const branches = await query(sql, params);

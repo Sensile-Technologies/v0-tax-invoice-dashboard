@@ -104,6 +104,8 @@ export default function ShiftsReportPage() {
       try {
         const user = JSON.parse(userStr)
         setUserId(user.id)
+        fetchBranches(user.id)
+        fetchShifts(user.id)
       } catch (e) {
         console.error('Error parsing user data:', e)
       }
@@ -112,19 +114,14 @@ export default function ShiftsReportPage() {
 
   useEffect(() => {
     if (userId) {
-      fetchBranches()
-      fetchShifts()
+      fetchShifts(userId)
     }
-  }, [userId])
-
-  useEffect(() => {
-    fetchShifts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFrom, dateTo, selectedBranch, searchQuery])
 
-  async function fetchBranches() {
+  async function fetchBranches(uid: string) {
     try {
-      const url = userId ? `/api/branches/list?user_id=${userId}` : '/api/branches/list'
-      const response = await fetch(url)
+      const response = await fetch(`/api/branches/list?user_id=${uid}`)
       const data = await response.json()
       if (Array.isArray(data)) {
         setBranches(data)
@@ -138,11 +135,11 @@ export default function ShiftsReportPage() {
     }
   }
 
-  async function fetchShifts() {
+  async function fetchShifts(uid: string) {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (userId) params.append('user_id', userId)
+      params.append('user_id', uid)
       if (selectedBranch && selectedBranch !== 'all') {
         params.append('branch_id', selectedBranch)
       }
@@ -294,7 +291,7 @@ export default function ShiftsReportPage() {
       if (data.success) {
         toast.success('Shift ended successfully')
         setEndShiftDialogOpen(false)
-        fetchShifts()
+        if (userId) fetchShifts(userId)
       } else {
         toast.error(data.error || 'Failed to end shift')
       }
@@ -321,7 +318,7 @@ export default function ShiftsReportPage() {
                 <p className="text-slate-600 mt-1">Cashier shift performance and reconciliation</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={fetchShifts}>
+                <Button variant="outline" size="sm" onClick={() => userId && fetchShifts(userId)}>
                   <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
