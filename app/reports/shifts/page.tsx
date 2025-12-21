@@ -78,7 +78,7 @@ export default function ShiftsReportPage() {
   const [dateTo, setDateTo] = useState("")
   const [shifts, setShifts] = useState<Shift[]>([])
   const [branches, setBranches] = useState<Branch[]>([])
-  const [selectedBranch, setSelectedBranch] = useState<string>("all")
+  const [selectedBranch, setSelectedBranch] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [summary, setSummary] = useState({
     totalShifts: 0,
@@ -140,7 +140,7 @@ export default function ShiftsReportPage() {
     try {
       const params = new URLSearchParams()
       params.append('user_id', uid)
-      if (selectedBranch && selectedBranch !== 'all') {
+      if (selectedBranch) {
         params.append('branch_id', selectedBranch)
       }
       if (dateFrom) params.append('date_from', dateFrom)
@@ -375,10 +375,9 @@ export default function ShiftsReportPage() {
                   </div>
                   <Select value={selectedBranch} onValueChange={setSelectedBranch}>
                     <SelectTrigger className="w-48 rounded-xl">
-                      <SelectValue placeholder="All Branches" />
+                      <SelectValue placeholder="Select Branch" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Branches</SelectItem>
                       {branches.map(branch => (
                         <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
                       ))}
