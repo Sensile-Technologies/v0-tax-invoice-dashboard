@@ -158,8 +158,8 @@ class PrinterService {
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`${invoice.branchName}\n`);
       await SunmiPrinterLibrary.setFontWeight(false);
+      await SunmiPrinterLibrary.setFontSize(26);
       if (invoice.branchAddress) {
-        await SunmiPrinterLibrary.setFontSize(22);
         await SunmiPrinterLibrary.printText(`${invoice.branchAddress}\n`);
       }
       if (invoice.branchPhone) {
@@ -255,10 +255,10 @@ class PrinterService {
       const qrData = invoice.qrCodeData || 
         `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
       await SunmiPrinterLibrary.printQRCode(qrData, 6, 'middle');
-      await SunmiPrinterLibrary.setFontSize(20);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('Scan to verify with KRA eTIMS\n');
       await SunmiPrinterLibrary.setFontWeight(true);
-      await SunmiPrinterLibrary.setFontSize(22);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('END OF LEGAL RECEIPT\n');
       await SunmiPrinterLibrary.setFontWeight(false);
       await SunmiPrinterLibrary.lineWrap(2);
