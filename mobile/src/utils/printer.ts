@@ -142,9 +142,9 @@ class PrinterService {
         console.log('[PrinterService] enterPrinterBuffer error:', e?.message || e);
       }
       
-      // Set comfortable line spacing for readable receipt
+      // Set tight line spacing for compact receipt
       try {
-        await SunmiPrinterLibrary.setParagraphStyle('lineSpacing', 8);
+        await SunmiPrinterLibrary.setParagraphStyle('lineSpacing', 0);
       } catch (e) {
         console.log('[PrinterService] setParagraphStyle not available, using default spacing');
       }
