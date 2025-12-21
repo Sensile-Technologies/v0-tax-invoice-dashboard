@@ -6,10 +6,9 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Download, Printer, RefreshCw, Clock, AlertCircle, StopCircle, Loader2 } from "lucide-react"
+import { Download, Printer, RefreshCw, Clock, AlertCircle, StopCircle, Loader2 } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -39,10 +38,6 @@ interface Shift {
   variance: number
 }
 
-interface Branch {
-  id: string
-  name: string
-}
 
 interface Nozzle {
   id: string
@@ -72,13 +67,10 @@ interface TankStock {
 
 export default function ShiftsReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
   const { formatCurrency } = useCurrency()
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [shifts, setShifts] = useState<Shift[]>([])
-  const [branches, setBranches] = useState<Branch[]>([])
-  const [selectedBranch, setSelectedBranch] = useState<string>("")
   const [loading, setLoading] = useState(true)
   const [summary, setSummary] = useState({
     totalShifts: 0,
@@ -98,87 +90,61 @@ export default function ShiftsReportPage() {
   const [submitting, setSubmitting] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
 
+  // Initial load - fetch all shifts
   useEffect(() => {
-    const userStr = localStorage.getItem("flow360_user")
-    if (userStr) {
+    async function initLoad() {
+      const userStr = localStorage.getItem("flow360_user")
+      if (!userStr) {
+        setLoading(false)
+        return
+      }
+      
       try {
         const user = JSON.parse(userStr)
-        console.log('[ShiftsReport] User loaded:', user.id)
         setUserId(user.id)
-        fetchBranches(user.id)
-        // Fetch shifts directly on mount
-        const loadShifts = async () => {
-          setLoading(true)
-          try {
-            const params = new URLSearchParams()
-            params.append('user_id', user.id)
-            console.log('[ShiftsReport] Fetching shifts with params:', params.toString())
-            const response = await fetch(`/api/shifts/list?${params.toString()}`)
-            const data = await response.json()
-            console.log('[ShiftsReport] Shifts response:', data)
-            if (data.success) {
-              setShifts(data.data || [])
-              const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
-              const totalVariance = data.data.reduce((sum: number, s: Shift) => sum + (s.variance || 0), 0)
-              setSummary({
-                totalShifts: data.data.length,
-                totalSales,
-                averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
-                totalVariance
-              })
-            } else {
-              toast.error(data.error || 'Failed to fetch shifts')
-            }
-          } catch (error) {
-            console.error('[ShiftsReport] Error fetching shifts:', error)
-            toast.error('Failed to fetch shifts')
-          } finally {
-            setLoading(false)
-          }
+        
+        // Fetch shifts immediately
+        const params = new URLSearchParams()
+        params.append('user_id', user.id)
+        
+        const response = await fetch(`/api/shifts/list?${params.toString()}`)
+        const data = await response.json()
+        
+        if (data.success) {
+          setShifts(data.data || [])
+          const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
+          const totalVariance = data.data.reduce((sum: number, s: Shift) => sum + (s.variance || 0), 0)
+          setSummary({
+            totalShifts: data.data.length,
+            totalSales,
+            averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
+            totalVariance
+          })
         }
-        loadShifts()
       } catch (e) {
-        console.error('Error parsing user data:', e)
+        console.error('Error loading shifts:', e)
+      } finally {
         setLoading(false)
       }
-    } else {
-      setLoading(false)
     }
+    
+    initLoad()
   }, [])
 
+  // Re-fetch when date filters change
   useEffect(() => {
-    if (userId && (dateFrom || dateTo || selectedBranch || searchQuery)) {
-      fetchShifts(userId, selectedBranch, dateFrom, dateTo, searchQuery)
+    if (userId && (dateFrom || dateTo)) {
+      fetchShifts(userId, dateFrom, dateTo)
     }
-  }, [userId, dateFrom, dateTo, selectedBranch, searchQuery])
+  }, [userId, dateFrom, dateTo])
 
-  async function fetchBranches(uid: string) {
-    try {
-      const response = await fetch(`/api/branches/list?user_id=${uid}`)
-      const data = await response.json()
-      if (Array.isArray(data)) {
-        setBranches(data)
-      } else if (data.success) {
-        setBranches(data.data || [])
-      } else {
-        setBranches(data || [])
-      }
-    } catch (error) {
-      console.error('Error fetching branches:', error)
-    }
-  }
-
-  async function fetchShifts(uid: string, branchFilter?: string, fromDate?: string, toDate?: string, search?: string) {
+  async function fetchShifts(uid: string, fromDate?: string, toDate?: string) {
     setLoading(true)
     try {
       const params = new URLSearchParams()
       params.append('user_id', uid)
-      if (branchFilter) {
-        params.append('branch_id', branchFilter)
-      }
       if (fromDate) params.append('date_from', fromDate)
       if (toDate) params.append('date_to', toDate)
-      if (search) params.append('search', search)
 
       const response = await fetch(`/api/shifts/list?${params.toString()}`)
       const data = await response.json()
@@ -397,25 +363,7 @@ export default function ShiftsReportPage() {
             <Card className="rounded-2xl">
               <CardHeader>
                 <div className="flex items-center gap-4 flex-wrap">
-                  <div className="relative flex-1 min-w-[200px]">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                    <Input
-                      placeholder="Search by cashier or branch..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 rounded-xl"
-                    />
-                  </div>
-                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                    <SelectTrigger className="w-48 rounded-xl">
-                      <SelectValue placeholder="Select Branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {branches.map(branch => (
-                        <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <span className="text-slate-600 font-medium">Filter by date:</span>
                   <Input
                     type="date"
                     value={dateFrom}
@@ -431,6 +379,14 @@ export default function ShiftsReportPage() {
                     className="w-40 rounded-xl"
                     placeholder="To"
                   />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => { setDateFrom(''); setDateTo(''); if (userId) fetchShifts(userId, '', ''); }}
+                    className="rounded-xl"
+                  >
+                    Clear
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
