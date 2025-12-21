@@ -12,8 +12,33 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('date_from')
     const dateTo = searchParams.get('date_to')
     const search = searchParams.get('search')
+    const userId = searchParams.get('user_id')
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
+
+    let vendorId: string | null = null
+    
+    if (userId) {
+      const userVendorResult = await pool.query(
+        `SELECT v.id as vendor_id FROM users u 
+         JOIN vendors v ON v.email = u.email 
+         WHERE u.id = $1`,
+        [userId]
+      )
+      if (userVendorResult.rows.length > 0) {
+        vendorId = userVendorResult.rows[0].vendor_id
+      } else {
+        const staffResult = await pool.query(
+          `SELECT DISTINCT b.vendor_id FROM staff s
+           JOIN branches b ON s.branch_id = b.id
+           WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
+          [userId]
+        )
+        if (staffResult.rows.length > 0) {
+          vendorId = staffResult.rows[0].vendor_id
+        }
+      }
+    }
 
     let query = `
       SELECT 
@@ -37,6 +62,11 @@ export async function GET(request: NextRequest) {
       WHERE 1=1
     `
     const params: any[] = []
+
+    if (vendorId) {
+      params.push(vendorId)
+      query += ` AND b.vendor_id = $${params.length}`
+    }
 
     if (branchId) {
       params.push(branchId)

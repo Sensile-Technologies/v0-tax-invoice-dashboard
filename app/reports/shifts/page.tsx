@@ -96,11 +96,26 @@ export default function ShiftsReportPage() {
   const [nozzleReadings, setNozzleReadings] = useState<NozzleReading[]>([])
   const [tankStocks, setTankStocks] = useState<TankStock[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchBranches()
-    fetchShifts()
+    const userStr = localStorage.getItem("flow360_user")
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr)
+        setUserId(user.id)
+      } catch (e) {
+        console.error('Error parsing user data:', e)
+      }
+    }
   }, [])
+
+  useEffect(() => {
+    if (userId) {
+      fetchBranches()
+      fetchShifts()
+    }
+  }, [userId])
 
   useEffect(() => {
     fetchShifts()
@@ -108,10 +123,15 @@ export default function ShiftsReportPage() {
 
   async function fetchBranches() {
     try {
-      const response = await fetch('/api/branches/list')
+      const url = userId ? `/api/branches/list?user_id=${userId}` : '/api/branches/list'
+      const response = await fetch(url)
       const data = await response.json()
-      if (data.success) {
+      if (Array.isArray(data)) {
+        setBranches(data)
+      } else if (data.success) {
         setBranches(data.data || [])
+      } else {
+        setBranches(data || [])
       }
     } catch (error) {
       console.error('Error fetching branches:', error)
@@ -122,6 +142,7 @@ export default function ShiftsReportPage() {
     setLoading(true)
     try {
       const params = new URLSearchParams()
+      if (userId) params.append('user_id', userId)
       if (selectedBranch && selectedBranch !== 'all') {
         params.append('branch_id', selectedBranch)
       }
