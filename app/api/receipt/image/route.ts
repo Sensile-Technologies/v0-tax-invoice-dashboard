@@ -55,8 +55,8 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Courier New', monospace;
-      font-size: 11px;
-      line-height: 1.3;
+      font-size: 14px;
+      line-height: 1.4;
       width: 384px;
       background: white;
       color: black;
@@ -64,20 +64,20 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
     }
     .center { text-align: center; }
     .bold { font-weight: bold; }
-    .header { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
-    .shop-name { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
-    .divider { border-top: 1px dashed #000; margin: 6px 0; }
-    .row { display: flex; justify-content: space-between; margin: 2px 0; }
+    .header { font-size: 18px; font-weight: bold; margin-bottom: 6px; }
+    .shop-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+    .divider { border-top: 1px dashed #000; margin: 8px 0; }
+    .row { display: flex; justify-content: space-between; margin: 3px 0; }
     .label { width: 40%; }
     .value { width: 58%; text-align: left; }
-    .section-title { font-weight: bold; text-align: center; margin: 4px 0; font-size: 10px; }
-    .tax-table { width: 100%; font-size: 9px; margin: 4px 0; }
-    .tax-table th, .tax-table td { text-align: left; padding: 1px 4px; }
-    .qr-section { text-align: center; margin: 8px 0; }
+    .section-title { font-weight: bold; text-align: center; margin: 6px 0; font-size: 13px; }
+    .tax-table { width: 100%; font-size: 12px; margin: 6px 0; }
+    .tax-table th, .tax-table td { text-align: left; padding: 2px 4px; }
+    .qr-section { text-align: center; margin: 10px 0; }
     .qr-section img { width: 180px; height: 180px; }
-    .qr-label { font-size: 8px; margin-top: 2px; }
-    .footer { font-size: 9px; text-align: center; margin-top: 6px; }
-    .total-row { font-weight: bold; font-size: 12px; }
+    .qr-label { font-size: 11px; margin-top: 4px; }
+    .footer { font-size: 12px; text-align: center; margin-top: 8px; }
+    .total-row { font-weight: bold; font-size: 16px; }
   </style>
 </head>
 <body>
@@ -88,7 +88,7 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
   <div class="center bold">PIN: ${kraPin}</div>
   
   <div class="divider"></div>
-  <div class="center" style="font-size: 9px;">Welcome to our shop</div>
+  <div class="center" style="font-size: 12px;">Welcome to our shop</div>
   <div class="divider"></div>
   
   <div class="section-title">BUYER INFORMATION</div>
@@ -119,9 +119,9 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
   <div class="row"><span class="label">Time:</span><span class="value">${timeStr}</span></div>
   
   <div class="divider"></div>
-  <div class="row" style="font-size: 9px;"><span class="label">SCU ID:</span><span class="value">${sale.kra_scu_id || 'N/A'}</span></div>
-  <div class="row" style="font-size: 9px;"><span class="label">CU INV NO:</span><span class="value">${sale.kra_cu_inv || 'N/A'}</span></div>
-  <div class="row" style="font-size: 9px;"><span class="label">Internal Data:</span><span class="value">${sale.kra_internal_data || sale.invoice_number || 'N/A'}</span></div>
+  <div class="row" style="font-size: 12px;"><span class="label">SCU ID:</span><span class="value">${sale.kra_scu_id || 'N/A'}</span></div>
+  <div class="row" style="font-size: 12px;"><span class="label">CU INV NO:</span><span class="value">${sale.kra_cu_inv || 'N/A'}</span></div>
+  <div class="row" style="font-size: 12px;"><span class="label">Internal Data:</span><span class="value">${sale.kra_internal_data || sale.invoice_number || 'N/A'}</span></div>
   
   <div class="divider"></div>
   <div class="section-title">KRA eTIMS Verification</div>
