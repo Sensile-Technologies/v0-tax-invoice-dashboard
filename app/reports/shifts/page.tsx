@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import DashboardSidebar from "@/components/dashboard-sidebar"
-import DashboardHeader from "@/components/dashboard-header"
+import dynamic from "next/dynamic"
+
+const DashboardSidebar = dynamic(() => import("@/components/dashboard-sidebar"), { ssr: false })
+const DashboardHeader = dynamic(() => import("@/components/dashboard-header"), { ssr: false })
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -92,24 +94,23 @@ export default function ShiftsReportPage() {
 
   // Initial load - fetch all shifts
   useEffect(() => {
-    async function initLoad() {
-      const userStr = localStorage.getItem("flow360_user")
-      if (!userStr) {
-        setLoading(false)
-        return
-      }
-      
-      try {
-        const user = JSON.parse(userStr)
-        setUserId(user.id)
-        
-        // Fetch shifts immediately
-        const params = new URLSearchParams()
-        params.append('user_id', user.id)
-        
-        const response = await fetch(`/api/shifts/list?${params.toString()}`)
-        const data = await response.json()
-        
+    const userStr = localStorage.getItem("user")
+    
+    if (!userStr) {
+      setLoading(false)
+      return
+    }
+    
+    const user = JSON.parse(userStr)
+    setUserId(user.id)
+    
+    // Immediately fetch shifts
+    const params = new URLSearchParams()
+    params.append('user_id', user.id)
+    
+    fetch(`/api/shifts/list?${params.toString()}`)
+      .then(response => response.json())
+      .then(data => {
         if (data.success) {
           setShifts(data.data || [])
           const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
@@ -121,14 +122,12 @@ export default function ShiftsReportPage() {
             totalVariance
           })
         }
-      } catch (e) {
-        console.error('Error loading shifts:', e)
-      } finally {
         setLoading(false)
-      }
-    }
-    
-    initLoad()
+      })
+      .catch(e => {
+        console.error('[ShiftsReport] Error loading shifts:', e)
+        setLoading(false)
+      })
   }, [])
 
   // Re-fetch when date filters change
@@ -318,7 +317,7 @@ export default function ShiftsReportPage() {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => {
-                    const userStr = localStorage.getItem("flow360_user")
+                    const userStr = localStorage.getItem("user")
                     if (userStr) {
                       const user = JSON.parse(userStr)
                       setUserId(user.id)
