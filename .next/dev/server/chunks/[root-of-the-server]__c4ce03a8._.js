@@ -1578,6 +1578,14 @@ async function POST(request) {
                 branch_id
             ]);
             const shiftId = shiftResult.rows[0]?.id || null;
+            let staffId = null;
+            if (user_id) {
+                const staffResult = await client.query(`SELECT id FROM staff WHERE user_id = $1 AND branch_id = $2 LIMIT 1`, [
+                    user_id,
+                    branch_id
+                ]);
+                staffId = staffResult.rows[0]?.id || null;
+            }
             await client.query('BEGIN');
             const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
             const receiptNumber = `RCP-${Date.now().toString(36).toUpperCase()}`;
@@ -1620,7 +1628,7 @@ async function POST(request) {
                 is_loyalty_customer ? kra_pin : null,
                 meterReadingAfter,
                 shiftId,
-                user_id || null
+                staffId
             ]);
             const sale = saleResult.rows[0];
             if (is_loyalty_customer && customer_name && customer_name !== 'Walk-in Customer') {
