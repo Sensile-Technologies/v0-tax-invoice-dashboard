@@ -666,23 +666,17 @@ function ShiftsReportPage() {
     const [userId, setUserId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     // Initial load - fetch all shifts
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        console.log('[ShiftsReport] useEffect mounting...');
-        const userStr = localStorage.getItem("flow360_user");
-        console.log('[ShiftsReport] userStr:', userStr ? 'found' : 'not found');
+        const userStr = localStorage.getItem("user");
         if (!userStr) {
-            console.log('[ShiftsReport] No user found, setting loading false');
             setLoading(false);
             return;
         }
         const user = JSON.parse(userStr);
-        console.log('[ShiftsReport] User ID:', user.id);
         setUserId(user.id);
         // Immediately fetch shifts
         const params = new URLSearchParams();
         params.append('user_id', user.id);
-        console.log('[ShiftsReport] Fetching shifts from API...');
         fetch(`/api/shifts/list?${params.toString()}`).then((response)=>response.json()).then((data)=>{
-            console.log('[ShiftsReport] API response:', data);
             if (data.success) {
                 setShifts(data.data || []);
                 const totalSales = data.data.reduce((sum, s)=>sum + (s.total_sales || 0), 0);
@@ -765,7 +759,7 @@ function ShiftsReportPage() {
                     children: "Active"
                 }, void 0, false, {
                     fileName: "[project]/app/reports/shifts/page.tsx",
-                    lineNumber: 202,
+                    lineNumber: 196,
                     columnNumber: 16
                 }, this);
             case 'completed':
@@ -774,7 +768,7 @@ function ShiftsReportPage() {
                     children: "Completed"
                 }, void 0, false, {
                     fileName: "[project]/app/reports/shifts/page.tsx",
-                    lineNumber: 204,
+                    lineNumber: 198,
                     columnNumber: 16
                 }, this);
             default:
@@ -783,7 +777,7 @@ function ShiftsReportPage() {
                     children: status
                 }, void 0, false, {
                     fileName: "[project]/app/reports/shifts/page.tsx",
-                    lineNumber: 206,
+                    lineNumber: 200,
                     columnNumber: 16
                 }, this);
         }
@@ -884,7 +878,7 @@ function ShiftsReportPage() {
                 onToggle: ()=>setSidebarCollapsed(!sidebarCollapsed)
             }, void 0, false, {
                 fileName: "[project]/app/reports/shifts/page.tsx",
-                lineNumber: 312,
+                lineNumber: 306,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -892,7 +886,7 @@ function ShiftsReportPage() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(DashboardHeader, {}, void 0, false, {
                         fileName: "[project]/app/reports/shifts/page.tsx",
-                        lineNumber: 315,
+                        lineNumber: 309,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -910,7 +904,7 @@ function ShiftsReportPage() {
                                                     children: "Shifts Report"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                    lineNumber: 321,
+                                                    lineNumber: 315,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -918,13 +912,13 @@ function ShiftsReportPage() {
                                                     children: "Cashier shift performance and reconciliation"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                    lineNumber: 322,
+                                                    lineNumber: 316,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 320,
+                                            lineNumber: 314,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -934,7 +928,7 @@ function ShiftsReportPage() {
                                                     variant: "outline",
                                                     size: "sm",
                                                     onClick: ()=>{
-                                                        const userStr = localStorage.getItem("flow360_user");
+                                                        const userStr = localStorage.getItem("user");
                                                         if (userStr) {
                                                             const user = JSON.parse(userStr);
                                                             setUserId(user.id);
@@ -946,14 +940,14 @@ function ShiftsReportPage() {
                                                             className: `h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                            lineNumber: 333,
+                                                            lineNumber: 327,
                                                             columnNumber: 21
                                                         }, this),
                                                         "Refresh"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                    lineNumber: 325,
+                                                    lineNumber: 319,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -964,14 +958,14 @@ function ShiftsReportPage() {
                                                             className: "h-4 w-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                            lineNumber: 337,
+                                                            lineNumber: 331,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Print"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                    lineNumber: 336,
+                                                    lineNumber: 330,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -982,26 +976,26 @@ function ShiftsReportPage() {
                                                             className: "h-4 w-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                            lineNumber: 341,
+                                                            lineNumber: 335,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Export"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                    lineNumber: 340,
+                                                    lineNumber: 334,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 324,
+                                            lineNumber: 318,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 319,
+                                    lineNumber: 313,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1012,12 +1006,12 @@ function ShiftsReportPage() {
                                                 children: "Shift Summary"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 349,
+                                                lineNumber: 343,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 348,
+                                            lineNumber: 342,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1031,7 +1025,7 @@ function ShiftsReportPage() {
                                                                 children: "Total Shifts"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 354,
+                                                                lineNumber: 348,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1039,13 +1033,13 @@ function ShiftsReportPage() {
                                                                 children: summary.totalShifts
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 355,
+                                                                lineNumber: 349,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 353,
+                                                        lineNumber: 347,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1055,7 +1049,7 @@ function ShiftsReportPage() {
                                                                 children: "Total Sales"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 358,
+                                                                lineNumber: 352,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1063,13 +1057,13 @@ function ShiftsReportPage() {
                                                                 children: formatCurrency(summary.totalSales)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 359,
+                                                                lineNumber: 353,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 357,
+                                                        lineNumber: 351,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1079,7 +1073,7 @@ function ShiftsReportPage() {
                                                                 children: "Average Per Shift"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 362,
+                                                                lineNumber: 356,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1087,13 +1081,13 @@ function ShiftsReportPage() {
                                                                 children: formatCurrency(summary.averagePerShift)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 363,
+                                                                lineNumber: 357,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 361,
+                                                        lineNumber: 355,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1103,7 +1097,7 @@ function ShiftsReportPage() {
                                                                 children: "Total Variance"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 366,
+                                                                lineNumber: 360,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1111,30 +1105,30 @@ function ShiftsReportPage() {
                                                                 children: formatCurrency(summary.totalVariance)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 367,
+                                                                lineNumber: 361,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 365,
+                                                        lineNumber: 359,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 352,
+                                                lineNumber: 346,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 351,
+                                            lineNumber: 345,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 347,
+                                    lineNumber: 341,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -1149,7 +1143,7 @@ function ShiftsReportPage() {
                                                         children: "Filter by date:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 378,
+                                                        lineNumber: 372,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1160,7 +1154,7 @@ function ShiftsReportPage() {
                                                         placeholder: "From"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 379,
+                                                        lineNumber: 373,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1168,7 +1162,7 @@ function ShiftsReportPage() {
                                                         children: "to"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 386,
+                                                        lineNumber: 380,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1179,7 +1173,7 @@ function ShiftsReportPage() {
                                                         placeholder: "To"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 387,
+                                                        lineNumber: 381,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1194,18 +1188,18 @@ function ShiftsReportPage() {
                                                         children: "Clear"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 394,
+                                                        lineNumber: 388,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 377,
+                                                lineNumber: 371,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 376,
+                                            lineNumber: 370,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1216,7 +1210,7 @@ function ShiftsReportPage() {
                                                         className: "h-8 w-8 animate-spin text-slate-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 407,
+                                                        lineNumber: 401,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1224,13 +1218,13 @@ function ShiftsReportPage() {
                                                         children: "Loading shifts..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 408,
+                                                        lineNumber: 402,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 406,
+                                                lineNumber: 400,
                                                 columnNumber: 19
                                             }, this) : shifts.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col items-center justify-center py-12 text-slate-500",
@@ -1239,7 +1233,7 @@ function ShiftsReportPage() {
                                                         className: "h-12 w-12 mb-4 text-slate-300"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 412,
+                                                        lineNumber: 406,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1247,7 +1241,7 @@ function ShiftsReportPage() {
                                                         children: "No shifts found"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 413,
+                                                        lineNumber: 407,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1255,13 +1249,13 @@ function ShiftsReportPage() {
                                                         children: "Try adjusting your filters or date range"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 414,
+                                                        lineNumber: 408,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 411,
+                                                lineNumber: 405,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "overflow-x-auto",
@@ -1277,7 +1271,7 @@ function ShiftsReportPage() {
                                                                         children: "Branch"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 421,
+                                                                        lineNumber: 415,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1285,7 +1279,7 @@ function ShiftsReportPage() {
                                                                         children: "Cashier"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 422,
+                                                                        lineNumber: 416,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1293,7 +1287,7 @@ function ShiftsReportPage() {
                                                                         children: "Start Time"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 423,
+                                                                        lineNumber: 417,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1301,7 +1295,7 @@ function ShiftsReportPage() {
                                                                         children: "End Time"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 424,
+                                                                        lineNumber: 418,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1309,7 +1303,7 @@ function ShiftsReportPage() {
                                                                         children: "Opening Cash"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 425,
+                                                                        lineNumber: 419,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1317,7 +1311,7 @@ function ShiftsReportPage() {
                                                                         children: "Sales"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 426,
+                                                                        lineNumber: 420,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1325,7 +1319,7 @@ function ShiftsReportPage() {
                                                                         children: "Closing Cash"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 427,
+                                                                        lineNumber: 421,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1333,7 +1327,7 @@ function ShiftsReportPage() {
                                                                         children: "Variance"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 428,
+                                                                        lineNumber: 422,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1341,7 +1335,7 @@ function ShiftsReportPage() {
                                                                         children: "Status"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 429,
+                                                                        lineNumber: 423,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1349,18 +1343,18 @@ function ShiftsReportPage() {
                                                                         children: "Actions"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 430,
+                                                                        lineNumber: 424,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 420,
+                                                                lineNumber: 414,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                            lineNumber: 419,
+                                                            lineNumber: 413,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -1372,7 +1366,7 @@ function ShiftsReportPage() {
                                                                             children: shift.branch_name || 'Unknown'
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 436,
+                                                                            lineNumber: 430,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1380,7 +1374,7 @@ function ShiftsReportPage() {
                                                                             children: shift.cashier
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 437,
+                                                                            lineNumber: 431,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1388,7 +1382,7 @@ function ShiftsReportPage() {
                                                                             children: formatDateTime(shift.start_time)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 438,
+                                                                            lineNumber: 432,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1396,7 +1390,7 @@ function ShiftsReportPage() {
                                                                             children: formatDateTime(shift.end_time)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 439,
+                                                                            lineNumber: 433,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1404,7 +1398,7 @@ function ShiftsReportPage() {
                                                                             children: formatCurrency(shift.opening_cash)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 440,
+                                                                            lineNumber: 434,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1412,7 +1406,7 @@ function ShiftsReportPage() {
                                                                             children: formatCurrency(shift.total_sales)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 441,
+                                                                            lineNumber: 435,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1420,7 +1414,7 @@ function ShiftsReportPage() {
                                                                             children: formatCurrency(shift.closing_cash)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 442,
+                                                                            lineNumber: 436,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1432,19 +1426,19 @@ function ShiftsReportPage() {
                                                                                         className: "h-4 w-4 inline mr-1"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                        lineNumber: 446,
+                                                                                        lineNumber: 440,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     formatCurrency(shift.variance)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                lineNumber: 444,
+                                                                                lineNumber: 438,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 443,
+                                                                            lineNumber: 437,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1452,7 +1446,7 @@ function ShiftsReportPage() {
                                                                             children: getStatusBadge(shift.status)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 451,
+                                                                            lineNumber: 445,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1466,52 +1460,52 @@ function ShiftsReportPage() {
                                                                                         className: "h-4 w-4 mr-1"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                        lineNumber: 461,
+                                                                                        lineNumber: 455,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     "End Shift"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                lineNumber: 456,
+                                                                                lineNumber: 450,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 454,
+                                                                            lineNumber: 448,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     ]
                                                                 }, shift.id, true, {
                                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                    lineNumber: 435,
+                                                                    lineNumber: 429,
                                                                     columnNumber: 27
                                                                 }, this))
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                            lineNumber: 433,
+                                                            lineNumber: 427,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                    lineNumber: 418,
+                                                    lineNumber: 412,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 417,
+                                                lineNumber: 411,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 404,
+                                            lineNumber: 398,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 375,
+                                    lineNumber: 369,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -1523,30 +1517,30 @@ function ShiftsReportPage() {
                                             children: "Sensile Technologies East Africa Ltd"
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 476,
+                                            lineNumber: 470,
                                             columnNumber: 26
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 475,
+                                    lineNumber: 469,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/reports/shifts/page.tsx",
-                            lineNumber: 318,
+                            lineNumber: 312,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/reports/shifts/page.tsx",
-                        lineNumber: 317,
+                        lineNumber: 311,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/reports/shifts/page.tsx",
-                lineNumber: 314,
+                lineNumber: 308,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -1564,14 +1558,14 @@ function ShiftsReportPage() {
                                             className: "h-5 w-5 text-red-500"
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                            lineNumber: 486,
+                                            lineNumber: 480,
                                             columnNumber: 15
                                         }, this),
                                         "End Shift"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 485,
+                                    lineNumber: 479,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -1582,7 +1576,7 @@ function ShiftsReportPage() {
                                                 children: selectedShift.branch_name
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 491,
+                                                lineNumber: 485,
                                                 columnNumber: 33
                                             }, this),
                                             " started at ",
@@ -1591,13 +1585,13 @@ function ShiftsReportPage() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 489,
+                                    lineNumber: 483,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/reports/shifts/page.tsx",
-                            lineNumber: 484,
+                            lineNumber: 478,
                             columnNumber: 11
                         }, this),
                         endShiftLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1607,7 +1601,7 @@ function ShiftsReportPage() {
                                     className: "h-8 w-8 animate-spin text-slate-400"
                                 }, void 0, false, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 498,
+                                    lineNumber: 492,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1615,13 +1609,13 @@ function ShiftsReportPage() {
                                     children: "Loading shift data..."
                                 }, void 0, false, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 499,
+                                    lineNumber: 493,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/reports/shifts/page.tsx",
-                            lineNumber: 497,
+                            lineNumber: 491,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ScrollArea"], {
                             className: "max-h-[60vh] pr-4",
@@ -1636,7 +1630,7 @@ function ShiftsReportPage() {
                                                 children: "Closing Cash (KES)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 505,
+                                                lineNumber: 499,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1648,13 +1642,13 @@ function ShiftsReportPage() {
                                                 className: "rounded-xl"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 506,
+                                                lineNumber: 500,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                        lineNumber: 504,
+                                        lineNumber: 498,
                                         columnNumber: 17
                                     }, this),
                                     nozzles.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1662,7 +1656,7 @@ function ShiftsReportPage() {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Separator"], {}, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 518,
+                                                lineNumber: 512,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Label"], {
@@ -1670,7 +1664,7 @@ function ShiftsReportPage() {
                                                 children: "Nozzle Readings"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 519,
+                                                lineNumber: 513,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1678,7 +1672,7 @@ function ShiftsReportPage() {
                                                 children: "Enter closing meter readings for each nozzle"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 520,
+                                                lineNumber: 514,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1696,7 +1690,7 @@ function ShiftsReportPage() {
                                                                         children: nozzle.name
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 527,
+                                                                        lineNumber: 521,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1708,13 +1702,13 @@ function ShiftsReportPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 528,
+                                                                        lineNumber: 522,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 526,
+                                                                lineNumber: 520,
                                                                 columnNumber: 29
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1725,25 +1719,25 @@ function ShiftsReportPage() {
                                                                 className: "w-40 rounded-xl"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 530,
+                                                                lineNumber: 524,
                                                                 columnNumber: 29
                                                             }, this)
                                                         ]
                                                     }, nozzle.id, true, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 525,
+                                                        lineNumber: 519,
                                                         columnNumber: 27
                                                     }, this);
                                                 })
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 521,
+                                                lineNumber: 515,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                        lineNumber: 517,
+                                        lineNumber: 511,
                                         columnNumber: 19
                                     }, this),
                                     tanks.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1751,7 +1745,7 @@ function ShiftsReportPage() {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Separator"], {}, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 546,
+                                                lineNumber: 540,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Label"], {
@@ -1759,7 +1753,7 @@ function ShiftsReportPage() {
                                                 children: "Tank Volumes"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 547,
+                                                lineNumber: 541,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1767,7 +1761,7 @@ function ShiftsReportPage() {
                                                 children: "Enter closing stock levels and any stock received"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 548,
+                                                lineNumber: 542,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1786,7 +1780,7 @@ function ShiftsReportPage() {
                                                                             children: tank.tank_name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 556,
+                                                                            lineNumber: 550,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1801,18 +1795,18 @@ function ShiftsReportPage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                            lineNumber: 557,
+                                                                            lineNumber: 551,
                                                                             columnNumber: 33
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                    lineNumber: 555,
+                                                                    lineNumber: 549,
                                                                     columnNumber: 31
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 554,
+                                                                lineNumber: 548,
                                                                 columnNumber: 29
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1825,7 +1819,7 @@ function ShiftsReportPage() {
                                                                                 children: "Closing Stock (L)"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                lineNumber: 562,
+                                                                                lineNumber: 556,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1836,13 +1830,13 @@ function ShiftsReportPage() {
                                                                                 className: "rounded-xl"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                lineNumber: 563,
+                                                                                lineNumber: 557,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 561,
+                                                                        lineNumber: 555,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1852,7 +1846,7 @@ function ShiftsReportPage() {
                                                                                 children: "Stock Received (L)"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                lineNumber: 572,
+                                                                                lineNumber: 566,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -1863,48 +1857,48 @@ function ShiftsReportPage() {
                                                                                 className: "rounded-xl"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                                lineNumber: 573,
+                                                                                lineNumber: 567,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                        lineNumber: 571,
+                                                                        lineNumber: 565,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                                lineNumber: 560,
+                                                                lineNumber: 554,
                                                                 columnNumber: 29
                                                             }, this)
                                                         ]
                                                     }, tank.id, true, {
                                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                                        lineNumber: 553,
+                                                        lineNumber: 547,
                                                         columnNumber: 27
                                                     }, this);
                                                 })
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 549,
+                                                lineNumber: 543,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/shifts/page.tsx",
-                                        lineNumber: 545,
+                                        lineNumber: 539,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                lineNumber: 503,
+                                lineNumber: 497,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/reports/shifts/page.tsx",
-                            lineNumber: 502,
+                            lineNumber: 496,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1915,7 +1909,7 @@ function ShiftsReportPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 593,
+                                    lineNumber: 587,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1928,7 +1922,7 @@ function ShiftsReportPage() {
                                                 className: "h-4 w-4 mr-2 animate-spin"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 603,
+                                                lineNumber: 597,
                                                 columnNumber: 19
                                             }, this),
                                             "Ending Shift..."
@@ -1939,7 +1933,7 @@ function ShiftsReportPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/shifts/page.tsx",
-                                                lineNumber: 608,
+                                                lineNumber: 602,
                                                 columnNumber: 19
                                             }, this),
                                             "End Shift"
@@ -1947,30 +1941,30 @@ function ShiftsReportPage() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/app/reports/shifts/page.tsx",
-                                    lineNumber: 596,
+                                    lineNumber: 590,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/reports/shifts/page.tsx",
-                            lineNumber: 592,
+                            lineNumber: 586,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/reports/shifts/page.tsx",
-                    lineNumber: 483,
+                    lineNumber: 477,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/reports/shifts/page.tsx",
-                lineNumber: 482,
+                lineNumber: 476,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/reports/shifts/page.tsx",
-        lineNumber: 311,
+        lineNumber: 305,
         columnNumber: 5
     }, this);
 }
