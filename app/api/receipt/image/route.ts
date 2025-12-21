@@ -2,6 +2,26 @@ import { NextResponse } from "next/server"
 import { Pool } from "pg"
 import puppeteer from "puppeteer"
 import QRCode from "qrcode"
+import { execSync } from "child_process"
+
+function getChromiumPath(): string {
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH
+  }
+  try {
+    const path = execSync('which chromium').toString().trim()
+    if (path) return path
+  } catch {}
+  try {
+    const path = execSync('which chromium-browser').toString().trim()
+    if (path) return path
+  } catch {}
+  try {
+    const path = execSync('which google-chrome').toString().trim()
+    if (path) return path
+  } catch {}
+  return '/usr/bin/chromium'
+}
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -175,9 +195,12 @@ export async function POST(request: Request) {
       
       const html = generateReceiptHTML(sale, qrCodeDataUrl)
       
+      const chromiumPath = getChromiumPath()
+      console.log('[Receipt Image API] Using Chromium at:', chromiumPath)
+      
       const browser = await puppeteer.launch({
         headless: true,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
+        executablePath: chromiumPath,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
       })
       
