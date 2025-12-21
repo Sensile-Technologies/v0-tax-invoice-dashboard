@@ -1509,6 +1509,47 @@ async function POST(request) {
         }
         const client = await pool.connect();
         try {
+            const duplicateCheck = await client.query(`SELECT id, invoice_number, kra_status, kra_cu_inv, kra_rcpt_sign 
+         FROM sales 
+         WHERE branch_id = $1 
+           AND fuel_type = $2 
+           AND total_amount = $3 
+           AND created_at > NOW() - INTERVAL '60 seconds'
+           AND kra_status = 'success'
+         ORDER BY created_at DESC 
+         LIMIT 1`, [
+                branch_id,
+                fuel_type,
+                total_amount
+            ]);
+            if (duplicateCheck.rows.length > 0) {
+                const existingSale = duplicateCheck.rows[0];
+                console.log("[Mobile Create Sale] Duplicate sale detected, returning existing:", existingSale.id);
+                const branchResult = await client.query(`SELECT name, address, phone, kra_pin, bhf_id FROM branches WHERE id = $1`, [
+                    branch_id
+                ]);
+                const branchData = branchResult.rows[0] || {};
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: true,
+                    sale_id: existingSale.id,
+                    duplicate: true,
+                    message: "Sale already submitted to KRA within the last 60 seconds",
+                    invoice_number: existingSale.invoice_number,
+                    kra_success: true,
+                    print_data: {
+                        invoice_number: existingSale.kra_cu_inv || existingSale.invoice_number,
+                        receipt_no: existingSale.kra_cu_inv?.split('/')[1] || null,
+                        cu_serial_number: existingSale.kra_cu_inv?.split('/')[0] || null,
+                        cu_invoice_no: existingSale.kra_cu_inv || null,
+                        branch_name: branchData.name || null,
+                        branch_address: branchData.address || null,
+                        branch_phone: branchData.phone || null,
+                        branch_pin: branchData.kra_pin || null,
+                        receipt_signature: existingSale.kra_rcpt_sign || null,
+                        bhf_id: branchData.bhf_id || '03'
+                    }
+                });
+            }
             const tankCheck = await client.query(`SELECT id, tank_name, kra_item_cd FROM tanks 
          WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' 
          ORDER BY current_stock DESC LIMIT 1`, [
