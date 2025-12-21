@@ -103,21 +103,54 @@ export default function ShiftsReportPage() {
     if (userStr) {
       try {
         const user = JSON.parse(userStr)
+        console.log('[ShiftsReport] User loaded:', user.id)
         setUserId(user.id)
         fetchBranches(user.id)
-        fetchShifts(user.id)
+        // Fetch shifts directly on mount
+        const loadShifts = async () => {
+          setLoading(true)
+          try {
+            const params = new URLSearchParams()
+            params.append('user_id', user.id)
+            console.log('[ShiftsReport] Fetching shifts with params:', params.toString())
+            const response = await fetch(`/api/shifts/list?${params.toString()}`)
+            const data = await response.json()
+            console.log('[ShiftsReport] Shifts response:', data)
+            if (data.success) {
+              setShifts(data.data || [])
+              const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
+              const totalVariance = data.data.reduce((sum: number, s: Shift) => sum + (s.variance || 0), 0)
+              setSummary({
+                totalShifts: data.data.length,
+                totalSales,
+                averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
+                totalVariance
+              })
+            } else {
+              toast.error(data.error || 'Failed to fetch shifts')
+            }
+          } catch (error) {
+            console.error('[ShiftsReport] Error fetching shifts:', error)
+            toast.error('Failed to fetch shifts')
+          } finally {
+            setLoading(false)
+          }
+        }
+        loadShifts()
       } catch (e) {
         console.error('Error parsing user data:', e)
+        setLoading(false)
       }
+    } else {
+      setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    if (userId) {
-      fetchShifts(userId)
+    if (userId && (dateFrom || dateTo || selectedBranch || searchQuery)) {
+      fetchShifts(userId, selectedBranch, dateFrom, dateTo, searchQuery)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateFrom, dateTo, selectedBranch, searchQuery])
+  }, [userId, dateFrom, dateTo, selectedBranch, searchQuery])
 
   async function fetchBranches(uid: string) {
     try {
@@ -135,17 +168,17 @@ export default function ShiftsReportPage() {
     }
   }
 
-  async function fetchShifts(uid: string) {
+  async function fetchShifts(uid: string, branchFilter?: string, fromDate?: string, toDate?: string, search?: string) {
     setLoading(true)
     try {
       const params = new URLSearchParams()
       params.append('user_id', uid)
-      if (selectedBranch) {
-        params.append('branch_id', selectedBranch)
+      if (branchFilter) {
+        params.append('branch_id', branchFilter)
       }
-      if (dateFrom) params.append('date_from', dateFrom)
-      if (dateTo) params.append('date_to', dateTo)
-      if (searchQuery) params.append('search', searchQuery)
+      if (fromDate) params.append('date_from', fromDate)
+      if (toDate) params.append('date_to', toDate)
+      if (search) params.append('search', search)
 
       const response = await fetch(`/api/shifts/list?${params.toString()}`)
       const data = await response.json()
