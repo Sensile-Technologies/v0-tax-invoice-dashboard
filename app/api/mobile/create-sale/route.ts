@@ -146,8 +146,8 @@ export async function POST(request: Request) {
           unit_price, total_amount, payment_method, customer_name, 
           vehicle_number, invoice_number, receipt_number, sale_date,
           customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin,
-          meter_reading_after, shift_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15, $16, $17)
+          meter_reading_after, shift_id, staff_id
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15, $16, $17, $18)
         RETURNING *`,
         [
           branch_id,
@@ -167,6 +167,7 @@ export async function POST(request: Request) {
           is_loyalty_customer ? kra_pin : null,
           meterReadingAfter,
           shiftId,
+          user_id || null,
         ]
       )
 

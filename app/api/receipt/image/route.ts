@@ -165,12 +165,14 @@ export async function POST(request: Request) {
         `SELECT s.*, b.name as branch_name, b.kra_pin, b.bhf_id, b.address as branch_address,
                 b.phone as branch_phone,
                 n.nozzle_number, d.dispenser_number,
-                i.item_name, i.item_code
+                i.item_name, i.item_code,
+                u.username as cashier_name
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
          LEFT JOIN items i ON UPPER(s.fuel_type) = UPPER(i.item_name) AND i.branch_id = s.branch_id
+         LEFT JOIN users u ON s.staff_id = u.id
          WHERE s.id = $1`,
         [sale_id]
       )
