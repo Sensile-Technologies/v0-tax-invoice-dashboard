@@ -55,6 +55,7 @@ export function SalesSummaryContent() {
   const [currentBranchData, setCurrentBranchData] = useState<any>(null)
   const [loyaltyCustomers, setLoyaltyCustomers] = useState<Array<{ id: string; name: string; pin: string }>>([])
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   const [saleForm, setSaleForm] = useState({
     nozzle_id: "",
@@ -84,6 +85,15 @@ export function SalesSummaryContent() {
     const storedBranch = localStorage.getItem("selectedBranch")
     if (storedBranch) {
       setCurrentBranchData(JSON.parse(storedBranch))
+    }
+    const userStr = localStorage.getItem("flow360_user")
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr)
+        setUserId(user.id)
+      } catch (e) {
+        console.error('Error parsing user data:', e)
+      }
     }
     fetchData()
   }, [])
