@@ -317,10 +317,17 @@ export default function ShiftsReportPage() {
                 <p className="text-slate-600 mt-1">Cashier shift performance and reconciliation</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => userId && fetchShifts(userId)}>
-                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
+                <Button variant="outline" size="sm" onClick={() => {
+                    const userStr = localStorage.getItem("flow360_user")
+                    if (userStr) {
+                      const user = JSON.parse(userStr)
+                      setUserId(user.id)
+                      fetchShifts(user.id)
+                    }
+                  }}>
+                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
                 <Button variant="outline" size="sm">
                   <Printer className="h-4 w-4 mr-2" />
                   Print
