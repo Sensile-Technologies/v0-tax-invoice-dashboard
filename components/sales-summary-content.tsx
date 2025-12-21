@@ -349,7 +349,9 @@ export function SalesSummaryContent() {
           discount_value: "",
         })
         setShowSaleDialog(false)
-        await fetchSales(currentShift?.id)
+        setLoading(false)
+        fetchSales(currentShift?.id).catch(console.error)
+        return
       }
     } catch (error) {
       console.error("Sale creation error:", error)
