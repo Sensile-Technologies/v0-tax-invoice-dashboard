@@ -144,6 +144,15 @@ class PrinterService {
       console.log('[PrinterService] === SUNMI PRINT START ===');
       console.log('[PrinterService] Invoice:', invoice.invoiceNumber);
       
+      // Enter transaction buffer for smooth, continuous printing (no pulsing)
+      // Note: Do NOT call prepare() here - it's already called during initialization
+      try {
+        await SunmiPrinterLibrary.enterPrinterBuffer(true);
+        console.log('[PrinterService] Buffer entered');
+      } catch (e: any) {
+        console.log('[PrinterService] enterPrinterBuffer error:', e?.message || e);
+      }
+      
       const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
       
       await SunmiPrinterLibrary.setAlignment('center');
@@ -258,11 +267,25 @@ class PrinterService {
       await SunmiPrinterLibrary.setFontWeight(false);
       await SunmiPrinterLibrary.lineWrap(3);
       
+      // Commit and exit the buffer for smooth printing
+      try {
+        await SunmiPrinterLibrary.commitPrinterBuffer();
+        console.log('[PrinterService] Buffer committed');
+        await SunmiPrinterLibrary.exitPrinterBuffer(true);
+        console.log('[PrinterService] Buffer exited');
+      } catch (e: any) {
+        console.log('[PrinterService] Buffer commit/exit error:', e?.message || e);
+      }
+      
       console.log('[PrinterService] === SUNMI PRINT SUCCESS ===');
       return { success: true, message: 'Receipt printed successfully' };
     } catch (error: any) {
       console.error('[PrinterService] === SUNMI PRINT ERROR ===');
       console.error('[PrinterService] Error:', error?.message || error);
+      // Try to exit buffer on error
+      try {
+        await SunmiPrinterLibrary.exitPrinterBuffer(true);
+      } catch (e) {}
       console.log('[PrinterService] Falling back to PDF...');
       return this.printWithPdf(invoice);
     }
