@@ -76,7 +76,12 @@ class PrinterService {
     if (Platform.OS === 'android' && SunmiPrinterLibrary) {
       try {
         console.log('[PrinterService] Calling prepare()...');
-        await SunmiPrinterLibrary.prepare();
+        // Add timeout to prevent hanging
+        const preparePromise = SunmiPrinterLibrary.prepare();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Printer init timeout')), 5000)
+        );
+        await Promise.race([preparePromise, timeoutPromise]);
         this.isSunmiDevice = true;
         this.initialized = true;
         console.log('[PrinterService] Sunmi printer ready - isSunmiDevice:', this.isSunmiDevice);
@@ -119,7 +124,17 @@ class PrinterService {
 
   async printInvoice(invoice: InvoiceData): Promise<{ success: boolean; message: string }> {
     if (this.isSunmiDevice && SunmiPrinterLibrary) {
-      return this.printWithSunmi(invoice);
+      // Add timeout to prevent hanging during print
+      try {
+        const printPromise = this.printWithSunmi(invoice);
+        const timeoutPromise = new Promise<{ success: boolean; message: string }>((_, reject) => 
+          setTimeout(() => reject(new Error('Print timeout after 20s')), 20000)
+        );
+        return await Promise.race([printPromise, timeoutPromise]);
+      } catch (e: any) {
+        console.log('[PrinterService] Print timed out or failed:', e?.message);
+        return { success: false, message: e?.message || 'Print failed' };
+      }
     }
     return this.printWithPdf(invoice);
   }
