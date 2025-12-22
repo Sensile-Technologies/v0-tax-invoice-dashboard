@@ -86,14 +86,14 @@ export async function POST(request: NextRequest) {
     )
 
     const existingItem = await client.query(
-      'SELECT id FROM items WHERE item_code = $1',
-      [itemCode]
+      'SELECT id FROM items WHERE item_code = $1 AND branch_id = $2',
+      [itemCode, branchId]
     )
 
     if (existingItem.rows.length > 0) {
       await client.query('ROLLBACK')
       return NextResponse.json(
-        { error: "Item code already exists. Please try again." },
+        { error: "Item code already exists for this branch. Please try again." },
         { status: 409 }
       )
     }
