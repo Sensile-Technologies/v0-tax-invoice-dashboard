@@ -399,8 +399,21 @@ export function SalesSummaryContent() {
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        console.error("Error starting shift:", result.error)
-        toast.error(`Failed to start shift: ${result.error || 'Unknown error'}`)
+        if (result.error?.includes("active shift already exists")) {
+          const shiftRes = await fetch(`/api/shifts?branch_id=${branchId}&status=active`)
+          const shiftResult = await shiftRes.json()
+          if (shiftResult.success && shiftResult.data) {
+            setCurrentShift(shiftResult.data)
+            await fetchSales(shiftResult.data.id)
+            toast.info("Using existing active shift")
+            setShowShiftDialog(false)
+          } else {
+            toast.error("An active shift exists but couldn't be loaded. Please refresh the page.")
+          }
+        } else {
+          console.error("Error starting shift:", result.error)
+          toast.error(`Failed to start shift: ${result.error || 'Unknown error'}`)
+        }
       } else {
         toast.success("Shift started successfully")
         setCurrentShift(result.data)
