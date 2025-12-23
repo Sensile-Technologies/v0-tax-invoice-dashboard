@@ -1,3 +1,0 @@
-module.exports=[51086,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"flex h-screen items-center justify-center",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"}),(0,b.jsx)("p",{className:"mt-4 text-slate-600",children:"Loading cash flow statement..."})]})})}a.s(["default",()=>c])}];
-
-//# sourceMappingURL=app_reports_cash-flow_loading_tsx_cde5b7dc._.js.map

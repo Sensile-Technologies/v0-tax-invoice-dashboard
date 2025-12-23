@@ -25,7 +25,7 @@ export async function GET() {
         b.created_at
       FROM branches b
       WHERE (b.device_token IS NULL OR b.device_token = '')
-        AND b.status = 'active'
+        AND b.status IN ('pending_onboarding', 'active')
       ORDER BY b.created_at DESC
     `)
     

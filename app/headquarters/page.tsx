@@ -423,7 +423,6 @@ export default function HeadquartersPage() {
           manager: branchForm.manager,
           email: branchForm.email,
           phone: branchForm.phone,
-          status: "active",
           storage_indices: branchForm.storageIndices,
           county: branchForm.county,
           address: branchForm.address,

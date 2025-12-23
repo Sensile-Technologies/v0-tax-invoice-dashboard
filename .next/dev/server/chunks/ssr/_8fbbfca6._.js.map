@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/page.tsx"],"sourcesContent":["\"use client\"\n\nimport { useEffect } from \"react\"\nimport { useRouter } from \"next/navigation\"\n\nexport default function Home() {\n  const router = useRouter()\n\n  useEffect(() => {\n    router.replace(\"/auth/login\")\n  }, [router])\n\n  return (\n    <div className=\"min-h-screen flex items-center justify-center\">\n      <p className=\"text-muted-foreground\">Redirecting to login...</p>\n    </div>\n  )\n}\n"],"names":[],"mappings":";;;;;AAEA;AACA;AAHA;;;;AAKe,SAAS;IACtB,MAAM,SAAS,IAAA,+IAAS;IAExB,IAAA,kNAAS,EAAC;QACR,OAAO,OAAO,CAAC;IACjB,GAAG;QAAC;KAAO;IAEX,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAE,WAAU;sBAAwB;;;;;;;;;;;AAG3C"}},
-    {"offset": {"line": 42, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/node_modules/next/src/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.ts"],"sourcesContent":["module.exports = (\n  require('../../module.compiled') as typeof import('../../module.compiled')\n).vendored['react-ssr']!.ReactJsxDevRuntime\n"],"names":["module","exports","require","vendored","ReactJsxDevRuntime"],"mappings":"AAAAA,OAAOC,OAAO,GACZC,QAAQ,4HACRC,QAAQ,CAAC,YAAY,CAAEC,kBAAkB","ignoreList":[0]}}]
-}

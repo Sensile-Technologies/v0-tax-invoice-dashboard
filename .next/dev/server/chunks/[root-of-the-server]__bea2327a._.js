@@ -167,7 +167,7 @@ async function PUT(request, { params }) {
     try {
         const { id } = await params;
         const body = await request.json();
-        const { name, location, manager, email, phone, address, county, localTaxOffice, storageIndices, tankConfig, kraPin } = body;
+        const { name, location, manager, email, phone, address, county, localTaxOffice, storageIndices, kraPin } = body;
         const rows = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE branches SET
         name = COALESCE($1, name),
         location = COALESCE($2, location),
@@ -178,10 +178,9 @@ async function PUT(request, { params }) {
         county = COALESCE($7, county),
         local_tax_office = COALESCE($8, local_tax_office),
         storage_indices = COALESCE($9, storage_indices),
-        tank_config = COALESCE($10, tank_config),
-        kra_pin = COALESCE($11, kra_pin),
+        kra_pin = COALESCE($10, kra_pin),
         updated_at = NOW()
-      WHERE id = $12
+      WHERE id = $11
       RETURNING *`, [
             name,
             location,
@@ -192,7 +191,6 @@ async function PUT(request, { params }) {
             county,
             localTaxOffice,
             storageIndices ? JSON.stringify(storageIndices) : null,
-            tankConfig ? JSON.stringify(tankConfig) : null,
             kraPin || null,
             id
         ]);

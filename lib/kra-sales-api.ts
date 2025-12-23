@@ -304,6 +304,7 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
+          ...(branchConfig.device_token ? { "DeviceSerialNo": branchConfig.device_token } : {})
         },
         body: JSON.stringify(kraPayload),
         signal: controller.signal
@@ -598,6 +599,7 @@ export async function callKraCreditNote(creditNoteData: CreditNoteData): Promise
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
+          ...(branchConfig.device_token ? { "DeviceSerialNo": branchConfig.device_token } : {})
         },
         body: JSON.stringify(kraPayload),
         signal: controller.signal

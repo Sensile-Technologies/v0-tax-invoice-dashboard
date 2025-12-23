@@ -1156,7 +1156,10 @@ async function callKraSaveSales(saleData) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+                    ...branchConfig.device_token ? {
+                        "DeviceSerialNo": branchConfig.device_token
+                    } : {}
                 },
                 body: JSON.stringify(kraPayload),
                 signal: controller.signal
@@ -1396,7 +1399,10 @@ async function callKraCreditNote(creditNoteData) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json"
+                    "Accept": "application/json",
+                    ...branchConfig.device_token ? {
+                        "DeviceSerialNo": branchConfig.device_token
+                    } : {}
                 },
                 body: JSON.stringify(kraPayload),
                 signal: controller.signal

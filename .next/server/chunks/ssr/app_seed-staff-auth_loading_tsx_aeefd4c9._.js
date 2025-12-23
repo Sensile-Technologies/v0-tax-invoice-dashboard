@@ -1,3 +1,0 @@
-module.exports=[36871,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800",children:(0,b.jsx)("div",{className:"animate-spin rounded-full h-12 w-12 border-b-2 border-white"})})}a.s(["default",()=>c])}];
-
-//# sourceMappingURL=app_seed-staff-auth_loading_tsx_aeefd4c9._.js.map

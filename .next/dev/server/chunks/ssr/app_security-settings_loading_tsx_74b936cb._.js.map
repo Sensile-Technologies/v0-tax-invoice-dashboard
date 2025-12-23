@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/security-settings/loading.tsx"],"sourcesContent":["export default function SecuritySettingsLoading() {\n  return (\n    <div className=\"flex h-screen items-center justify-center\">\n      <div className=\"h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent\" />\n    </div>\n  )\n}\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAI,WAAU;;;;;;;;;;;AAGrB"}}]
-}

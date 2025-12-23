@@ -1,3 +1,0 @@
-module.exports=[13801,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"flex h-screen items-center justify-center bg-slate-50",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("div",{className:"inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"}),(0,b.jsx)("p",{className:"mt-4 text-slate-600",children:"Loading running balance report..."})]})})}a.s(["default",()=>c])}];
-
-//# sourceMappingURL=app_payments_running-balance_loading_tsx_0533d01e._.js.map
