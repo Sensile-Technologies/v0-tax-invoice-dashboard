@@ -1,4 +1,5 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/admin/controller-logs/page": "app/admin/controller-logs/page.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
   "/api/controller-logs/route": "app/api/controller-logs/route.js",
