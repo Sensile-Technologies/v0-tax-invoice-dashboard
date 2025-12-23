@@ -672,14 +672,14 @@ export default function ControllerLogsPage() {
             <div className="space-y-2">
               <Label>Link to Item</Label>
               <Select
-                value={newMapping.item_id}
-                onValueChange={(value) => setNewMapping({ ...newMapping, item_id: value })}
+                value={newMapping.item_id || "none"}
+                onValueChange={(value) => setNewMapping({ ...newMapping, item_id: value === "none" ? "" : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select an item to link" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No item linked</SelectItem>
+                  <SelectItem value="none">No item linked</SelectItem>
                   {items.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.item_name} ({item.item_code}) - KES {Number(item.sale_price || 0).toFixed(2)}
