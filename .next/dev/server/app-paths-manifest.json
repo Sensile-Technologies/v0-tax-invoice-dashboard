@@ -1,8 +1,3 @@
 {
-  "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/branches/route": "app/api/branches/route.js",
-  "/api/mobile/create-sale/route": "app/api/mobile/create-sale/route.js",
-  "/api/receipt/image/route": "app/api/receipt/image/route.js",
-  "/page": "app/page.js",
-  "/sales/summary/page": "app/sales/summary/page.js"
+  "/page": "app/page.js"
 }

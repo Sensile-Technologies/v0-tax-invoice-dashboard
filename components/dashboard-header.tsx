@@ -170,7 +170,7 @@ export function DashboardHeader({
               <span className="hidden sm:inline">{currentBranchName}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 rounded-xl">
+          <DropdownMenuContent align="end" className="w-80 rounded-xl">
             <DropdownMenuLabel>Switch Branch</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {branches.map((branch) => (
