@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
             ) VALUES (
               $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW()
             )
-            ON CONFLICT (pts_id, transaction_id) DO UPDATE SET
+            ON CONFLICT (pts_id, packet_id) DO UPDATE SET
               callback_event_id = EXCLUDED.callback_event_id,
               raw_packet = EXCLUDED.raw_packet
           `, [
