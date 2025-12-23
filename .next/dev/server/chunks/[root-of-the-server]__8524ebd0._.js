@@ -1546,6 +1546,33 @@ async function GET(request) {
             params.push(dateTo);
             paramIndex++;
         }
+        // Filter by automated sales
+        const isAutomated = searchParams.get('is_automated');
+        if (isAutomated === 'true') {
+            whereClause += ` AND is_automated = true`;
+        } else if (isAutomated === 'false') {
+            whereClause += ` AND (is_automated = false OR is_automated IS NULL)`;
+        }
+        // Filter by transmission status
+        const transmissionStatus = searchParams.get('transmission_status');
+        if (transmissionStatus && transmissionStatus !== 'all') {
+            whereClause += ` AND transmission_status = $${paramIndex}`;
+            params.push(transmissionStatus);
+            paramIndex++;
+        }
+        // Date range for automated sales (start_date and end_date)
+        const startDate = searchParams.get('start_date');
+        const endDate = searchParams.get('end_date');
+        if (startDate) {
+            whereClause += ` AND DATE(sale_date) >= $${paramIndex}`;
+            params.push(startDate);
+            paramIndex++;
+        }
+        if (endDate) {
+            whereClause += ` AND DATE(sale_date) <= $${paramIndex}`;
+            params.push(endDate);
+            paramIndex++;
+        }
         const countResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT COUNT(*) as count FROM sales ${whereClause}`, params);
         const totalCount = parseInt(countResult[0]?.count || '0');
         let sql = `SELECT * FROM sales ${whereClause} ORDER BY sale_date DESC`;

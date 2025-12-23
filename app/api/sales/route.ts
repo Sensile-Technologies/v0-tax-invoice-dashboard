@@ -56,6 +56,36 @@ export async function GET(request: NextRequest) {
       paramIndex++
     }
 
+    // Filter by automated sales
+    const isAutomated = searchParams.get('is_automated')
+    if (isAutomated === 'true') {
+      whereClause += ` AND is_automated = true`
+    } else if (isAutomated === 'false') {
+      whereClause += ` AND (is_automated = false OR is_automated IS NULL)`
+    }
+
+    // Filter by transmission status
+    const transmissionStatus = searchParams.get('transmission_status')
+    if (transmissionStatus && transmissionStatus !== 'all') {
+      whereClause += ` AND transmission_status = $${paramIndex}`
+      params.push(transmissionStatus)
+      paramIndex++
+    }
+
+    // Date range for automated sales (start_date and end_date)
+    const startDate = searchParams.get('start_date')
+    const endDate = searchParams.get('end_date')
+    if (startDate) {
+      whereClause += ` AND DATE(sale_date) >= $${paramIndex}`
+      params.push(startDate)
+      paramIndex++
+    }
+    if (endDate) {
+      whereClause += ` AND DATE(sale_date) <= $${paramIndex}`
+      params.push(endDate)
+      paramIndex++
+    }
+
     const countResult = await query(`SELECT COUNT(*) as count FROM sales ${whereClause}`, params)
     const totalCount = parseInt(countResult[0]?.count || '0')
 

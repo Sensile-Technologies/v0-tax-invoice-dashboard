@@ -147,13 +147,13 @@ async function processAutoKraSale(ptsId: string, data: PumpTransactionPacket['Da
       tank_id: tank?.id || null
     })
     
-    // Create the sale record in database
+    // Create the sale record in database (marked as automated)
     const saleResult: any = await query(`
       INSERT INTO sales (
         branch_id, fuel_type, quantity, unit_price, total_amount,
         payment_method, customer_name, invoice_number, receipt_number,
-        transmission_status, kra_status, sale_date, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())
+        transmission_status, kra_status, is_automated, source_system, sale_date, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
       RETURNING id
     `, [
       mapping.branch_id,
@@ -166,7 +166,9 @@ async function processAutoKraSale(ptsId: string, data: PumpTransactionPacket['Da
       invoiceNumber,
       receiptNumber,
       kraResult.success ? 'transmitted' : 'pending',
-      kraResult.success ? 'success' : 'pending'
+      kraResult.success ? 'success' : 'pending',
+      true, // is_automated
+      'PTS' // source_system
     ])
     
     const saleId = (saleResult.rows || saleResult)[0]?.id
