@@ -8,9 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Settings, Server, CreditCard, Bell, Shield, Store, Building2, Activity } from "lucide-react"
+import { Settings, Server, CreditCard, Bell, Shield, Store, Building2 } from "lucide-react"
 import { toast } from "sonner"
-import Link from "next/link"
 
 interface ConnectedBranch {
   id: string
@@ -148,26 +147,6 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card className="mt-4">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-blue-600" />
-                Controller Logs
-              </CardTitle>
-              <CardDescription>View pump transaction logs from PTS controllers</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-slate-600 mb-4">
-                Monitor real-time pump transaction callbacks received from automated fuel dispensing systems.
-              </p>
-              <Link href="/admin/controller-logs">
-                <Button variant="outline" className="gap-2">
-                  <Activity className="h-4 w-4" />
-                  View Controller Logs
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="branches">

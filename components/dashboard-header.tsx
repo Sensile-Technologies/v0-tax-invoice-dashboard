@@ -15,6 +15,7 @@ import {
   Shield,
   FileText,
   Menu,
+  Activity,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -286,6 +287,10 @@ export function DashboardHeader({
             <DropdownMenuItem onClick={() => router.push("/security-settings")} className="cursor-pointer rounded-lg">
               <Shield className="mr-2 h-4 w-4" />
               Security Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/admin/controller-logs")} className="cursor-pointer rounded-lg">
+              <Activity className="mr-2 h-4 w-4" />
+              Controller Logs
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push("/logs")} className="cursor-pointer rounded-lg">
               <FileText className="mr-2 h-4 w-4" />
