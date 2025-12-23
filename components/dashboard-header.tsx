@@ -103,6 +103,8 @@ export function DashboardHeader({
         setBranches(branchList)
       }
     } catch (error) {
+      // Silently ignore network errors during HMR/development
+      if (process.env.NODE_ENV === 'development') return
       console.error("Error fetching branches:", error)
     }
   }
