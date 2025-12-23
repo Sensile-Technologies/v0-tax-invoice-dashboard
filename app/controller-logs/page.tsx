@@ -75,6 +75,11 @@ interface Item {
   sale_price: number
 }
 
+interface Branch {
+  id: string
+  branch_name: string
+}
+
 export default function ControllerLogsPage() {
   const [logs, setLogs] = useState<PumpTransaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -91,9 +96,11 @@ export default function ControllerLogsPage() {
   const [activeTab, setActiveTab] = useState("logs")
   const [mappings, setMappings] = useState<FuelGradeMapping[]>([])
   const [items, setItems] = useState<Item[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [loadingMappings, setLoadingMappings] = useState(false)
   const [showMappingDialog, setShowMappingDialog] = useState(false)
   const [editingMapping, setEditingMapping] = useState<FuelGradeMapping | null>(null)
+  const [selectedBranchId, setSelectedBranchId] = useState("")
   const [newMapping, setNewMapping] = useState({
     fuel_grade_id: "",
     fuel_grade_name: "",
@@ -127,8 +134,16 @@ export default function ControllerLogsPage() {
   useEffect(() => {
     fetchLogs()
     fetchMappings()
-    fetchItems()
+    fetchBranches()
   }, [])
+
+  useEffect(() => {
+    if (selectedBranchId) {
+      fetchItems(selectedBranchId)
+    } else {
+      setItems([])
+    }
+  }, [selectedBranchId])
 
   const fetchMappings = async () => {
     setLoadingMappings(true)
@@ -145,9 +160,21 @@ export default function ControllerLogsPage() {
     }
   }
 
-  const fetchItems = async () => {
+  const fetchBranches = async () => {
     try {
-      const response = await fetch("/api/items?item_type=fuel")
+      const response = await fetch("/api/branches")
+      const data = await response.json()
+      if (data.success) {
+        setBranches(data.data || [])
+      }
+    } catch (error) {
+      console.error("Error fetching branches:", error)
+    }
+  }
+
+  const fetchItems = async (branchId: string) => {
+    try {
+      const response = await fetch(`/api/items/list?branch_id=${branchId}&item_type=fuel`)
       const data = await response.json()
       if (data.success) {
         setItems(data.data || [])
@@ -222,6 +249,7 @@ export default function ControllerLogsPage() {
 
   const openNewMapping = () => {
     setNewMapping({ fuel_grade_id: "", fuel_grade_name: "", item_id: "", pts_id: "", notes: "" })
+    setSelectedBranchId("")
     setEditingMapping(null)
     setShowMappingDialog(true)
   }
@@ -670,13 +698,36 @@ export default function ControllerLogsPage() {
               </div>
             </div>
             <div className="space-y-2">
+              <Label>Branch *</Label>
+              <Select
+                value={selectedBranchId || "none"}
+                onValueChange={(value) => {
+                  setSelectedBranchId(value === "none" ? "" : value)
+                  setNewMapping({ ...newMapping, item_id: "" })
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a branch first" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Select a branch</SelectItem>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>
+                      {branch.branch_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>Link to Item</Label>
               <Select
                 value={newMapping.item_id || "none"}
                 onValueChange={(value) => setNewMapping({ ...newMapping, item_id: value === "none" ? "" : value })}
+                disabled={!selectedBranchId}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select an item to link" />
+                  <SelectValue placeholder={selectedBranchId ? "Select an item to link" : "Select a branch first"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No item linked</SelectItem>
