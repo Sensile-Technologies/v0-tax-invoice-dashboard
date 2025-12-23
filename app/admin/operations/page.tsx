@@ -366,7 +366,13 @@ export default function OperationsPage() {
   const availableHardware = hardware.filter(h => h.status === 'available')
 
   const handleConfigureOnboarding = async () => {
-    if (!selectedRequest) return
+    if (!selectedRequest) {
+      console.error("[Onboarding] No selected request")
+      toast.error("No request selected")
+      return
+    }
+
+    console.log("[Onboarding] Saving configuration for:", selectedRequest.id, configData)
 
     try {
       const response = await fetch("/api/admin/operations/onboarding", {
@@ -379,15 +385,25 @@ export default function OperationsPage() {
         })
       })
 
-      if (!response.ok) throw new Error("Failed to configure")
+      console.log("[Onboarding] Response status:", response.status)
 
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("[Onboarding] Error:", errorData)
+        throw new Error(errorData.error || "Failed to configure")
+      }
+
+      const result = await response.json()
+      console.log("[Onboarding] Success:", result)
+      
       toast.success("Configuration saved successfully")
       setConfigDialogOpen(false)
       setSelectedRequest(null)
       setConfigData({ device_token: "", bhf_id: "", server_address: "", server_port: "", hardware_type: "", hardware_serial: "" })
       fetchData()
-    } catch (error) {
-      toast.error("Failed to save configuration")
+    } catch (error: any) {
+      console.error("[Onboarding] Error:", error)
+      toast.error(error.message || "Failed to save configuration")
     }
   }
 
