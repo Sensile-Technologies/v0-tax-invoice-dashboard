@@ -351,6 +351,7 @@ export default function HeadquartersPage() {
     serialNumber: "",
     storageIndices: [] as string[],
     newStorageIndex: "",
+    vendorId: "",
     tankConfig: {} as Record<
       string,
       { dispensers: string[]; initialStock: string; fuelType?: string; tankCapacity?: string }
@@ -387,6 +388,7 @@ export default function HeadquartersPage() {
       serialNumber: "",
       storageIndices: [],
       newStorageIndex: "",
+      vendorId: "",
       tankConfig: {},
     })
     setCreateBranchOpen(true)
@@ -411,6 +413,7 @@ export default function HeadquartersPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: currentUser?.id,
+          vendor_id: branchForm.vendorId || undefined,
           name: branchForm.name,
           location: branchForm.location,
           manager: branchForm.manager,
@@ -596,6 +599,7 @@ export default function HeadquartersPage() {
         serialNumber: "",
         storageIndices: [],
         newStorageIndex: "",
+        vendorId: "",
         tankConfig: {},
       })
       await fetchBranches()
@@ -624,6 +628,7 @@ export default function HeadquartersPage() {
       serialNumber: "",
       storageIndices: branch.storage_indices || [],
       newStorageIndex: "",
+      vendorId: branch.vendor_id || "",
       tankConfig: branch.tank_config || {},
     })
     setEditBranchOpen(true)
@@ -1162,6 +1167,16 @@ export default function HeadquartersPage() {
                     className="rounded-xl"
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="vendor-id">Vendor ID (optional - only if auto-detection fails)</Label>
+                <Input
+                  id="vendor-id"
+                  placeholder="e.g., a30077a7-1f46-4292-aa21-a79eb38227f0"
+                  value={branchForm.vendorId}
+                  onChange={(e) => setBranchForm({ ...branchForm, vendorId: e.target.value })}
+                  className="rounded-xl font-mono text-sm"
+                />
               </div>
             </div>
 
