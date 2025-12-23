@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/table"
 import { 
   Settings2, HardDrive, UserPlus, ClipboardList, Search, 
-  Plus, Building2, Server, Check, AlertCircle, ExternalLink, MoreHorizontal, Pencil
+  Plus, Building2, Server, Check, AlertCircle, ExternalLink, MoreHorizontal, Pencil, Download, Smartphone
 } from "lucide-react"
 import {
   DropdownMenu as ActionsMenu,
@@ -503,6 +503,26 @@ export default function OperationsPage() {
         </TabsList>
 
         <TabsContent value="hardware" className="space-y-4 mt-4">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <CardContent className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Smartphone className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">Flow360 Mobile App (APK)</h3>
+                  <p className="text-sm text-slate-600">Download and install on Sunmi V2S POS devices</p>
+                </div>
+              </div>
+              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                <a href="https://expo.dev/artifacts/eas/dcUYY5o4dxff5X3VZU23f8.apk" target="_blank" rel="noopener noreferrer">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download APK
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
           <div className="flex items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
