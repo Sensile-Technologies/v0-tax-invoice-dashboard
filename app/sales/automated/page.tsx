@@ -32,6 +32,9 @@ export default function AutomatedSalesPage() {
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
     endDate: new Date().toISOString().split("T")[0],
     status: "all",
+    documentType: "all",
+    fuelType: "all",
+    invoiceNumber: "",
   })
   
   const [issuingCreditNote, setIssuingCreditNote] = useState<string | null>(null)
@@ -86,10 +89,26 @@ export default function AutomatedSalesPage() {
   }
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
-  const totalRevenue = sales.reduce((sum, s) => sum + s.total_amount, 0)
-  const pendingCount = sales.filter((s) => s.transmission_status === "pending").length
-  const transmittedCount = sales.filter((s) => s.transmission_status === "transmitted").length
-  const flaggedCount = sales.filter((s) => s.transmission_status === "flagged").length
+  
+  // Apply client-side filters
+  const filteredSales = sales.filter((sale) => {
+    if (filters.documentType === "invoices" && sale.is_credit_note) return false
+    if (filters.documentType === "credit_notes" && !sale.is_credit_note) return false
+    if (filters.fuelType && filters.fuelType !== "all" && sale.fuel_type !== filters.fuelType) return false
+    if (filters.invoiceNumber) {
+      const invoiceMatch = (sale.invoice_number || sale.receipt_number || "")
+        .toLowerCase()
+        .includes(filters.invoiceNumber.toLowerCase())
+      if (!invoiceMatch) return false
+    }
+    return true
+  })
+  
+  const uniqueFuelTypes = Array.from(new Set(sales.map((s) => s.fuel_type).filter(Boolean)))
+  const totalRevenue = filteredSales.reduce((sum, s) => sum + s.total_amount, 0)
+  const pendingCount = filteredSales.filter((s) => s.transmission_status === "pending").length
+  const transmittedCount = filteredSales.filter((s) => s.transmission_status === "transmitted").length
+  const flaggedCount = filteredSales.filter((s) => s.transmission_status === "flagged").length
 
   function getStatusBadgeVariant(status: string) {
     switch (status) {
@@ -349,12 +368,58 @@ export default function AutomatedSalesPage() {
                           </SelectContent>
                         </Select>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="doctype-filter" className="text-sm whitespace-nowrap">Type:</Label>
+                        <Select value={filters.documentType} onValueChange={(value) => setFilters({ ...filters, documentType: value })}>
+                          <SelectTrigger id="doctype-filter" className="w-32 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="invoices">Invoices</SelectItem>
+                            <SelectItem value="credit_notes">Credit Notes</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="fuel-filter" className="text-sm whitespace-nowrap">Fuel:</Label>
+                        <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
+                          <SelectTrigger id="fuel-filter" className="w-28 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            {uniqueFuelTypes.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="invoice-filter" className="text-sm whitespace-nowrap">Invoice:</Label>
+                        <Input
+                          id="invoice-filter"
+                          type="text"
+                          placeholder="Search..."
+                          value={filters.invoiceNumber}
+                          onChange={(e) => setFilters({ ...filters, invoiceNumber: e.target.value })}
+                          className="w-28 h-9"
+                        />
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => setFilters({
+                        startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+                        endDate: new Date().toISOString().split("T")[0],
+                        status: "all",
+                        documentType: "all",
+                        fuelType: "all",
+                        invoiceNumber: "",
+                      })} className="h-9">Clear</Button>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {sales.length === 0 ? (
+                    {filteredSales.length === 0 ? (
                       <div className="text-center py-12">
                         <Zap className="h-12 w-12 mx-auto text-slate-300 mb-4" />
                         <p className="text-slate-500 text-lg">No automated sales found</p>
@@ -379,7 +444,7 @@ export default function AutomatedSalesPage() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {sales.map((sale) => {
+                            {filteredSales.map((sale) => {
                               return (
                                 <TableRow key={sale.id} className="hover:bg-slate-50">
                                   <TableCell className="p-2">
@@ -442,10 +507,10 @@ export default function AutomatedSalesPage() {
                       </div>
                     )}
 
-                    {totalPages > 1 && (
+                    {filteredSales.length > 0 && (
                       <div className="flex items-center justify-between pt-4 border-t">
                         <p className="text-sm text-slate-600">
-                          Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount} transactions
+                          Showing {filteredSales.length} of {totalCount} transactions
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
