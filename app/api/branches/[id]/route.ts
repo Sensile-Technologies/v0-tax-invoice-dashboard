@@ -45,7 +45,6 @@ export async function PUT(
       county,
       localTaxOffice,
       storageIndices,
-      tankConfig,
       kraPin,
     } = body
 
@@ -60,10 +59,9 @@ export async function PUT(
         county = COALESCE($7, county),
         local_tax_office = COALESCE($8, local_tax_office),
         storage_indices = COALESCE($9, storage_indices),
-        tank_config = COALESCE($10, tank_config),
-        kra_pin = COALESCE($11, kra_pin),
+        kra_pin = COALESCE($10, kra_pin),
         updated_at = NOW()
-      WHERE id = $12
+      WHERE id = $11
       RETURNING *`,
       [
         name,
@@ -75,7 +73,6 @@ export async function PUT(
         county,
         localTaxOffice,
         storageIndices ? JSON.stringify(storageIndices) : null,
-        tankConfig ? JSON.stringify(tankConfig) : null,
         kraPin || null,
         id,
       ]
