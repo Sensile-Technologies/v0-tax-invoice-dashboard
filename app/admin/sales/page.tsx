@@ -334,20 +334,29 @@ export default function SalesPage() {
       let contractUrl = null
 
       if (editContractFile) {
+        console.log("[Edit Lead] Uploading contract:", editContractFile.name, "for lead:", editingLead.id)
+        
         const formData = new FormData()
         formData.append("contract", editContractFile)
         formData.append("leadId", editingLead.id)
+        
+        console.log("[Edit Lead] FormData entries:", Array.from(formData.entries()).map(([k, v]) => `${k}: ${v instanceof File ? v.name : v}`))
 
         const uploadRes = await fetch("/api/admin/leads/upload-contract", {
           method: "POST",
           body: formData
         })
 
+        console.log("[Edit Lead] Upload response status:", uploadRes.status)
+        
         if (!uploadRes.ok) {
-          throw new Error("Failed to upload contract")
+          const errorData = await uploadRes.json()
+          console.error("[Edit Lead] Upload error:", errorData)
+          throw new Error(errorData.error || "Failed to upload contract")
         }
 
         const uploadData = await uploadRes.json()
+        console.log("[Edit Lead] Upload success:", uploadData)
         contractUrl = uploadData.contract_url
       }
 
