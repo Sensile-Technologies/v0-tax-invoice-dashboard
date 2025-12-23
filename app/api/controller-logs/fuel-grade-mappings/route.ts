@@ -43,16 +43,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "fuel_grade_id is required" }, { status: 400 })
     }
 
-    const result: any = await query(`
-      INSERT INTO pump_fuel_grade_mappings (pts_id, fuel_grade_id, fuel_grade_name, item_id, notes)
-      VALUES ($1, $2, $3, $4, $5)
-      ON CONFLICT (COALESCE(pts_id, 'GLOBAL'), fuel_grade_id) DO UPDATE SET
-        fuel_grade_name = EXCLUDED.fuel_grade_name,
-        item_id = EXCLUDED.item_id,
-        notes = EXCLUDED.notes,
-        updated_at = NOW()
-      RETURNING *
-    `, [pts_id || null, fuel_grade_id, fuel_grade_name, item_id || null, notes || null])
+    const ptsValue = pts_id || null
+    const coalescedPts = ptsValue === null ? 'GLOBAL' : ptsValue
+    
+    const existing: any = await query(`
+      SELECT id FROM pump_fuel_grade_mappings 
+      WHERE COALESCE(pts_id, 'GLOBAL') = $1 AND fuel_grade_id = $2
+    `, [coalescedPts, fuel_grade_id])
+    
+    let result: any
+    if (existing.rows?.length > 0 || (Array.isArray(existing) && existing.length > 0)) {
+      const existingId = (existing.rows || existing)[0].id
+      result = await query(`
+        UPDATE pump_fuel_grade_mappings SET
+          fuel_grade_name = $1,
+          item_id = $2,
+          notes = $3,
+          updated_at = NOW()
+        WHERE id = $4
+        RETURNING *
+      `, [fuel_grade_name, item_id || null, notes || null, existingId])
+    } else {
+      result = await query(`
+        INSERT INTO pump_fuel_grade_mappings (pts_id, fuel_grade_id, fuel_grade_name, item_id, notes)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
+      `, [ptsValue, fuel_grade_id, fuel_grade_name, item_id || null, notes || null])
+    }
 
     const mapping = (result.rows || result)[0]
     return NextResponse.json({ success: true, data: mapping })
