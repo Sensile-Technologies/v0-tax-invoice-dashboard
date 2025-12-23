@@ -335,9 +335,8 @@ export default function SalesPage() {
 
       if (editContractFile) {
         const formData = new FormData()
-        formData.append("file", editContractFile)
-        formData.append("lead_id", editingLead.id)
-        formData.append("company_name", newLead.company_name)
+        formData.append("contract", editContractFile)
+        formData.append("leadId", editingLead.id)
 
         const uploadRes = await fetch("/api/admin/leads/upload-contract", {
           method: "POST",
