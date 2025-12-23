@@ -929,6 +929,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/api/controller-logs/fuel-grade-mappings/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/controller-logs/fuel-grade-mappings">> = Specific
+  const handler = {} as typeof import("../../../app/api/controller-logs/fuel-grade-mappings/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/api/controller-logs/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/controller-logs">> = Specific

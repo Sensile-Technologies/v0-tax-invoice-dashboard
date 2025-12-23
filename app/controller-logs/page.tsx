@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { 
   ArrowLeft, RefreshCw, Fuel, Activity, 
-  Clock, Server, Download, Filter, ChevronDown, ChevronUp, Copy, Check
+  Clock, Server, Download, Filter, ChevronDown, ChevronUp, Copy, Check, Plus, Trash2, Link2, Settings
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -53,6 +54,27 @@ interface Summary {
   pending_count: number
 }
 
+interface FuelGradeMapping {
+  id: string
+  pts_id: string | null
+  fuel_grade_id: number
+  fuel_grade_name: string
+  item_id: string | null
+  item_name: string | null
+  item_code: string | null
+  sale_price: number | null
+  is_active: boolean
+  notes: string | null
+  created_at: string
+}
+
+interface Item {
+  id: string
+  item_name: string
+  item_code: string
+  sale_price: number
+}
+
 export default function ControllerLogsPage() {
   const [logs, setLogs] = useState<PumpTransaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,6 +88,19 @@ export default function ControllerLogsPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [selectedLog, setSelectedLog] = useState<PumpTransaction | null>(null)
   const [copiedField, setCopiedField] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState("logs")
+  const [mappings, setMappings] = useState<FuelGradeMapping[]>([])
+  const [items, setItems] = useState<Item[]>([])
+  const [loadingMappings, setLoadingMappings] = useState(false)
+  const [showMappingDialog, setShowMappingDialog] = useState(false)
+  const [editingMapping, setEditingMapping] = useState<FuelGradeMapping | null>(null)
+  const [newMapping, setNewMapping] = useState({
+    fuel_grade_id: "",
+    fuel_grade_name: "",
+    item_id: "",
+    pts_id: "",
+    notes: ""
+  })
 
   const fetchLogs = async () => {
     setLoading(true)
@@ -91,7 +126,105 @@ export default function ControllerLogsPage() {
 
   useEffect(() => {
     fetchLogs()
+    fetchMappings()
+    fetchItems()
   }, [])
+
+  const fetchMappings = async () => {
+    setLoadingMappings(true)
+    try {
+      const response = await fetch("/api/controller-logs/fuel-grade-mappings")
+      const data = await response.json()
+      if (data.success) {
+        setMappings(data.data || [])
+      }
+    } catch (error) {
+      console.error("Error fetching fuel grade mappings:", error)
+    } finally {
+      setLoadingMappings(false)
+    }
+  }
+
+  const fetchItems = async () => {
+    try {
+      const response = await fetch("/api/items?item_type=fuel")
+      const data = await response.json()
+      if (data.success) {
+        setItems(data.data || [])
+      }
+    } catch (error) {
+      console.error("Error fetching items:", error)
+    }
+  }
+
+  const saveMapping = async () => {
+    if (!newMapping.fuel_grade_id) {
+      toast.error("Fuel Grade ID is required")
+      return
+    }
+
+    try {
+      const response = await fetch("/api/controller-logs/fuel-grade-mappings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fuel_grade_id: parseInt(newMapping.fuel_grade_id),
+          fuel_grade_name: newMapping.fuel_grade_name,
+          item_id: newMapping.item_id || null,
+          pts_id: newMapping.pts_id || null,
+          notes: newMapping.notes || null
+        })
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success("Fuel grade mapping saved")
+        setShowMappingDialog(false)
+        setNewMapping({ fuel_grade_id: "", fuel_grade_name: "", item_id: "", pts_id: "", notes: "" })
+        fetchMappings()
+      } else {
+        toast.error(data.error || "Failed to save mapping")
+      }
+    } catch (error) {
+      toast.error("Failed to save mapping")
+    }
+  }
+
+  const deleteMapping = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this mapping?")) return
+    
+    try {
+      const response = await fetch(`/api/controller-logs/fuel-grade-mappings?id=${id}`, {
+        method: "DELETE"
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success("Mapping deleted")
+        fetchMappings()
+      } else {
+        toast.error(data.error || "Failed to delete mapping")
+      }
+    } catch (error) {
+      toast.error("Failed to delete mapping")
+    }
+  }
+
+  const openEditMapping = (mapping: FuelGradeMapping) => {
+    setNewMapping({
+      fuel_grade_id: mapping.fuel_grade_id.toString(),
+      fuel_grade_name: mapping.fuel_grade_name || "",
+      item_id: mapping.item_id || "",
+      pts_id: mapping.pts_id || "",
+      notes: mapping.notes || ""
+    })
+    setEditingMapping(mapping)
+    setShowMappingDialog(true)
+  }
+
+  const openNewMapping = () => {
+    setNewMapping({ fuel_grade_id: "", fuel_grade_name: "", item_id: "", pts_id: "", notes: "" })
+    setEditingMapping(null)
+    setShowMappingDialog(true)
+  }
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "-"
@@ -239,8 +372,21 @@ export default function ControllerLogsPage() {
           </Card>
         )}
 
-        {summary && (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="logs" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Transaction Logs
+            </TabsTrigger>
+            <TabsTrigger value="mappings" className="flex items-center gap-2">
+              <Link2 className="h-4 w-4" />
+              Fuel Grade Mapping
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="logs" className="space-y-6 mt-6">
+            {summary && (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
             <Card>
               <CardContent className="pt-4">
                 <div className="text-2xl font-bold text-blue-600">{summary.total_transactions || 0}</div>
@@ -386,7 +532,186 @@ export default function ControllerLogsPage() {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="mappings" className="space-y-6 mt-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Settings className="h-5 w-5" />
+                      Fuel Grade Mapping
+                      <Badge variant="outline">{mappings.length} configured</Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      Map pump controller fuel grade IDs to items in your inventory for automatic sales processing
+                    </CardDescription>
+                  </div>
+                  <Button onClick={openNewMapping}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Mapping
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {loadingMappings ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : mappings.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500">
+                    <Link2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No fuel grade mappings configured</p>
+                    <p className="text-sm mb-4">Map fuel grades from your pump controller to inventory items</p>
+                    <Button onClick={openNewMapping}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Mapping
+                    </Button>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Fuel Grade ID</TableHead>
+                        <TableHead>Fuel Grade Name</TableHead>
+                        <TableHead>Linked Item</TableHead>
+                        <TableHead>Item Code</TableHead>
+                        <TableHead className="text-right">Sale Price</TableHead>
+                        <TableHead>Controller</TableHead>
+                        <TableHead>Notes</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {mappings.map((mapping) => (
+                        <TableRow key={mapping.id}>
+                          <TableCell>
+                            <Badge variant="outline">{mapping.fuel_grade_id}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Fuel className="h-3 w-3 text-orange-500" />
+                              {mapping.fuel_grade_name || "-"}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {mapping.item_name ? (
+                              <span className="font-medium text-green-700">{mapping.item_name}</span>
+                            ) : (
+                              <span className="text-amber-600 text-sm">Not mapped</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {mapping.item_code && (
+                              <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">{mapping.item_code}</code>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right font-mono">
+                            {mapping.sale_price ? `KES ${Number(mapping.sale_price).toFixed(2)}` : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {mapping.pts_id ? (
+                              <code className="text-xs bg-slate-100 px-1 py-0.5 rounded">{mapping.pts_id.substring(0, 10)}...</code>
+                            ) : (
+                              <span className="text-slate-400 text-sm">All controllers</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-500 max-w-32 truncate">
+                            {mapping.notes || "-"}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="sm" onClick={() => openEditMapping(mapping)}>
+                                Edit
+                              </Button>
+                              <Button variant="ghost" size="sm" className="text-red-600" onClick={() => deleteMapping(mapping.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
+
+      <Dialog open={showMappingDialog} onOpenChange={setShowMappingDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingMapping ? "Edit Fuel Grade Mapping" : "Add Fuel Grade Mapping"}</DialogTitle>
+            <DialogDescription>
+              Map a fuel grade ID from your pump controller to an inventory item
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Fuel Grade ID *</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 1, 2, 3"
+                  value={newMapping.fuel_grade_id}
+                  onChange={(e) => setNewMapping({ ...newMapping, fuel_grade_id: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Fuel Grade Name</Label>
+                <Input
+                  placeholder="e.g., Petrol, Diesel"
+                  value={newMapping.fuel_grade_name}
+                  onChange={(e) => setNewMapping({ ...newMapping, fuel_grade_name: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Link to Item</Label>
+              <Select
+                value={newMapping.item_id}
+                onValueChange={(value) => setNewMapping({ ...newMapping, item_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an item to link" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No item linked</SelectItem>
+                  {items.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.item_name} ({item.item_code}) - KES {Number(item.sale_price || 0).toFixed(2)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Controller ID (optional)</Label>
+              <Input
+                placeholder="Leave empty to apply to all controllers"
+                value={newMapping.pts_id}
+                onChange={(e) => setNewMapping({ ...newMapping, pts_id: e.target.value })}
+              />
+              <p className="text-xs text-slate-500">If specified, this mapping only applies to this specific controller</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Input
+                placeholder="Optional notes about this mapping"
+                value={newMapping.notes}
+                onChange={(e) => setNewMapping({ ...newMapping, notes: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowMappingDialog(false)}>Cancel</Button>
+              <Button onClick={saveMapping}>Save Mapping</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">

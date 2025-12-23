@@ -2287,6 +2287,10 @@
     max-width: var(--container-7xl);
   }
 
+  .max-w-32 {
+    max-width: calc(var(--spacing) * 32);
+  }
+
   .max-w-\[120px\] {
     max-width: 120px;
   }
