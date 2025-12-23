@@ -76,9 +76,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (!resolvedVendorId && user_id) {
+      const userResult = await pool.query('SELECT email FROM users WHERE id = $1', [user_id])
+      if (userResult.rows.length > 0) {
+        const userEmail = userResult.rows[0].email
+        const vendorResult = await pool.query('SELECT id FROM vendors WHERE email = $1', [userEmail])
+        if (vendorResult.rows.length > 0) {
+          resolvedVendorId = vendorResult.rows[0].id
+        }
+      }
+    }
+
     if (!resolvedVendorId) {
       return NextResponse.json(
-        { success: false, error: "Could not find vendor for this user. Please ensure your account is properly set up." },
+        { success: false, error: "Could not find vendor for this user. Please ensure your account is properly set up with a vendor." },
         { status: 400 }
       )
     }
