@@ -153,6 +153,7 @@ export default function HeadquartersPage() {
           tankConfig: branch.tank_config || {},
           storageIndices: branch.storage_indices || [],
           device_token: branch.device_token,
+          vendor_id: branch.vendor_id,
         }))
         setBranches(formattedBranches)
       } else {
@@ -375,6 +376,7 @@ export default function HeadquartersPage() {
   }
 
   const handleOpenCreateDialog = () => {
+    const existingVendorId = branches.find(b => b.vendor_id)?.vendor_id || ""
     setBranchForm({
       name: "",
       location: "",
@@ -388,7 +390,7 @@ export default function HeadquartersPage() {
       serialNumber: "",
       storageIndices: [],
       newStorageIndex: "",
-      vendorId: "",
+      vendorId: existingVendorId,
       tankConfig: {},
     })
     setCreateBranchOpen(true)
