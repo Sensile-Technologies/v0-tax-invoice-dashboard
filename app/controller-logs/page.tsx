@@ -13,7 +13,6 @@ import {
   ArrowLeft, RefreshCw, Fuel, Activity, 
   Clock, Server, Download, Filter, ChevronDown, ChevronUp, Copy, Check
 } from "lucide-react"
-import Link from "next/link"
 import { toast } from "sonner"
 
 interface PumpTransaction {
@@ -150,11 +149,9 @@ export default function ControllerLogsPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/sales/summary">
-              <Button variant="outline" size="icon">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
+            <Button variant="outline" size="icon" onClick={() => window.history.back()}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <Server className="h-6 w-6 text-blue-600" />

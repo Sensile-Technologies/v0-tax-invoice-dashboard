@@ -288,7 +288,7 @@ export function DashboardHeader({
               <Shield className="mr-2 h-4 w-4" />
               Security Settings
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push("/admin/controller-logs")} className="cursor-pointer rounded-lg">
+            <DropdownMenuItem onClick={() => router.push("/controller-logs")} className="cursor-pointer rounded-lg">
               <Activity className="mr-2 h-4 w-4" />
               Controller Logs
             </DropdownMenuItem>
