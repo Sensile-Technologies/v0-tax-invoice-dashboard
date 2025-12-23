@@ -60,10 +60,10 @@ export async function POST(request: Request) {
 
         // Create vendor for this user
         const vendorResult = await client.query(
-          `INSERT INTO vendors (id, name, email, kra_pin, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, NOW(), NOW())
+          `INSERT INTO vendors (id, name, email, phone, address, kra_pin, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
            RETURNING *`,
-          [vendorId, branch.trading_name || branch.name, email, branch.kra_pin || null]
+          [vendorId, branch.trading_name || branch.name, email, branch.phone || null, branch.address || null, branch.kra_pin || null]
         )
         createdVendor = vendorResult.rows[0]
 
