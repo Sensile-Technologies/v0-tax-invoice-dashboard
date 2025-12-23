@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       kra_pin,
       bhf_id,
       storage_indices,
-      status = "active"
+      status = "pending_onboarding"
     } = body
 
     if (!name) {

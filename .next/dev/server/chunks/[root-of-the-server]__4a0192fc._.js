@@ -122,7 +122,7 @@ async function POST(request) {
         });
     }
     try {
-        const { vendor_id, user_id, name, location, address, county, local_tax_office, manager, phone, email, kra_pin, bhf_id, storage_indices, status = "active" } = body;
+        const { vendor_id, user_id, name, location, address, county, local_tax_office, manager, phone, email, kra_pin, bhf_id, storage_indices, status = "pending_onboarding" } = body;
         if (!name) {
             console.log("[branches/POST] Missing branch name");
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

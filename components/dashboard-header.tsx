@@ -47,7 +47,7 @@ export function DashboardHeader({
   onMobileMenuToggle,
 }: DashboardHeaderProps) {
   const [selectedBranch, setSelectedBranch] = useState(currentBranch)
-  const [branches, setBranches] = useState([{ id: "hq", name: "Headquarters", type: "headquarters" }])
+  const [branches, setBranches] = useState<Array<{ id: string; name: string; type: string; status?: string }>>([{ id: "hq", name: "Headquarters", type: "headquarters", status: "active" }])
   const [notifications, setNotifications] = useState([
     { id: 1, title: "Notification 1", message: "This is the first notification", time: "10:00 AM", unread: true },
     { id: 2, title: "Notification 2", message: "This is the second notification", time: "11:00 AM", unread: false },
@@ -91,11 +91,12 @@ export function DashboardHeader({
       if (response.ok) {
         const data = await response.json()
         const branchList = [
-          { id: "hq", name: "Headquarters", type: "headquarters" },
+          { id: "hq", name: "Headquarters", type: "headquarters", status: "active" },
           ...data.map((b: any) => ({
             id: b.id,
             name: b.name,
             type: "branch",
+            status: b.status || "active",
           })),
         ]
         setBranches(branchList)
@@ -175,12 +176,21 @@ export function DashboardHeader({
             {branches.map((branch) => (
               <DropdownMenuItem
                 key={branch.id}
-                onClick={() => handleBranchChange(branch.id)}
-                className="cursor-pointer rounded-lg"
+                onClick={() => {
+                  if (branch.status === "pending_onboarding") {
+                    return
+                  }
+                  handleBranchChange(branch.id)
+                }}
+                className={`cursor-pointer rounded-lg ${branch.status === "pending_onboarding" ? "opacity-60" : ""}`}
               >
                 <Building2 className="mr-2 h-4 w-4" />
                 <span>{branch.name}</span>
-                {branch.id === selectedBranch && <Badge className="ml-auto rounded-full">Active</Badge>}
+                {branch.status === "pending_onboarding" ? (
+                  <Badge variant="outline" className="ml-auto rounded-full text-orange-600 border-orange-300">Pending Admin Approval</Badge>
+                ) : branch.id === selectedBranch ? (
+                  <Badge className="ml-auto rounded-full">Active</Badge>
+                ) : null}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

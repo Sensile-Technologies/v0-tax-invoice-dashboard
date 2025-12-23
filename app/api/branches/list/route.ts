@@ -45,7 +45,7 @@ export async function GET(request: Request) {
         if (staffBranchIds && staffBranchIds.length > 0) {
           const branchIds = staffBranchIds.map((s: any) => s.branch_id);
           const branches = await query(
-            `SELECT * FROM branches WHERE id = ANY($1::uuid[]) AND status = 'active' ORDER BY name`,
+            `SELECT * FROM branches WHERE id = ANY($1::uuid[]) AND status IN ('active', 'pending_onboarding') ORDER BY name`,
             [branchIds]
           );
           return NextResponse.json(branches);
@@ -57,8 +57,8 @@ export async function GET(request: Request) {
       }
     }
     
-    // Build query with filters
-    let sql = "SELECT * FROM branches WHERE status = 'active'";
+    // Build query with filters - include both active and pending_onboarding branches
+    let sql = "SELECT * FROM branches WHERE status IN ('active', 'pending_onboarding')";
     const params: any[] = [];
     let paramIndex = 1;
     

@@ -3493,6 +3493,10 @@
     border-color: var(--color-orange-200);
   }
 
+  .border-orange-300 {
+    border-color: var(--color-orange-300);
+  }
+
   .border-primary {
     border-color: var(--primary);
   }

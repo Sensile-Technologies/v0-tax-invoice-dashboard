@@ -154,7 +154,7 @@ async function GET(request) {
                 ]);
                 if (staffBranchIds && staffBranchIds.length > 0) {
                     const branchIds = staffBranchIds.map((s)=>s.branch_id);
-                    const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM branches WHERE id = ANY($1::uuid[]) AND status = 'active' ORDER BY name`, [
+                    const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM branches WHERE id = ANY($1::uuid[]) AND status IN ('active', 'pending_onboarding') ORDER BY name`, [
                         branchIds
                     ]);
                     return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches);
@@ -164,8 +164,8 @@ async function GET(request) {
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
             }
         }
-        // Build query with filters
-        let sql = "SELECT * FROM branches WHERE status = 'active'";
+        // Build query with filters - include both active and pending_onboarding branches
+        let sql = "SELECT * FROM branches WHERE status IN ('active', 'pending_onboarding')";
         const params = [];
         let paramIndex = 1;
         // SECURITY: When user_id was provided but vendor lookup succeeded, 
