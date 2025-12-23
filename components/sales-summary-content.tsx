@@ -95,8 +95,23 @@ export function SalesSummaryContent() {
         console.error('Error parsing user data:', e)
       }
     }
-    fetchData()
+
+    // Listen for branch changes from header dropdown
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "selectedBranch" && e.newValue) {
+        setCurrentBranchData(JSON.parse(e.newValue))
+      }
+    }
+    window.addEventListener("storage", handleStorageChange)
+    return () => window.removeEventListener("storage", handleStorageChange)
   }, [])
+
+  // Refetch data when branch changes
+  useEffect(() => {
+    if (currentBranchData?.id) {
+      fetchData()
+    }
+  }, [currentBranchData?.id])
 
   async function fetchData() {
     try {
