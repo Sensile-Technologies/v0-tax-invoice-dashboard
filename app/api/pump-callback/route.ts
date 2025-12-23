@@ -45,6 +45,27 @@ export async function POST(request: NextRequest) {
     const responsePackets = []
 
     for (const packet of payload.Packets || []) {
+      responsePackets.push({
+        Id: packet.Id,
+        Message: "OK",
+        Type: packet.Type
+      })
+    }
+
+    const response = {
+      Protocol: payload.Protocol || "jsonPTS",
+      Packets: responsePackets
+    }
+
+    const eventResult: any = await query(`
+      INSERT INTO pump_callback_events (pts_id, raw_request, raw_response)
+      VALUES ($1, $2, $3)
+      RETURNING id
+    `, [payload.PtsId, JSON.stringify(payload), JSON.stringify(response)])
+    
+    const eventId = (eventResult.rows || eventResult)[0]?.id
+
+    for (const packet of payload.Packets || []) {
       console.log(`[PUMP CALLBACK] Processing packet Id: ${packet.Id}, Type: ${packet.Type}`)
       
       if (packet.Type === "UploadPumpTransaction" && packet.Data) {
@@ -66,11 +87,13 @@ export async function POST(request: NextRequest) {
               volume, tc_volume, price, amount,
               total_volume, total_amount, tag, user_id,
               configuration_id, transaction_start, transaction_end,
-              created_at
+              callback_event_id, raw_packet, created_at
             ) VALUES (
-              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW()
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW()
             )
-            ON CONFLICT (pts_id, transaction_id) DO NOTHING
+            ON CONFLICT (pts_id, transaction_id) DO UPDATE SET
+              callback_event_id = EXCLUDED.callback_event_id,
+              raw_packet = EXCLUDED.raw_packet
           `, [
             packet.Id,
             payload.PtsId,
@@ -89,7 +112,9 @@ export async function POST(request: NextRequest) {
             data.UserId,
             data.ConfigurationId,
             data.DateTimeStart,
-            data.DateTime
+            data.DateTime,
+            eventId,
+            JSON.stringify(packet)
           ])
           
           console.log(`[PUMP CALLBACK] Transaction ${data.Transaction} saved to database`)
@@ -97,17 +122,6 @@ export async function POST(request: NextRequest) {
           console.error(`[PUMP CALLBACK] Database error:`, dbError.message)
         }
       }
-
-      responsePackets.push({
-        Id: packet.Id,
-        Message: "OK",
-        Type: packet.Type
-      })
-    }
-
-    const response = {
-      Protocol: payload.Protocol || "jsonPTS",
-      Packets: responsePackets
     }
 
     console.log("[PUMP CALLBACK] Sending response:", JSON.stringify(response, null, 2))

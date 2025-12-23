@@ -148,6 +148,27 @@ async function POST(request) {
         console.log("=".repeat(60));
         const responsePackets = [];
         for (const packet of payload.Packets || []){
+            responsePackets.push({
+                Id: packet.Id,
+                Message: "OK",
+                Type: packet.Type
+            });
+        }
+        const response = {
+            Protocol: payload.Protocol || "jsonPTS",
+            Packets: responsePackets
+        };
+        const eventResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      INSERT INTO pump_callback_events (pts_id, raw_request, raw_response)
+      VALUES ($1, $2, $3)
+      RETURNING id
+    `, [
+            payload.PtsId,
+            JSON.stringify(payload),
+            JSON.stringify(response)
+        ]);
+        const eventId = (eventResult.rows || eventResult)[0]?.id;
+        for (const packet of payload.Packets || []){
             console.log(`[PUMP CALLBACK] Processing packet Id: ${packet.Id}, Type: ${packet.Type}`);
             if (packet.Type === "UploadPumpTransaction" && packet.Data) {
                 const data = packet.Data;
@@ -166,11 +187,13 @@ async function POST(request) {
               volume, tc_volume, price, amount,
               total_volume, total_amount, tag, user_id,
               configuration_id, transaction_start, transaction_end,
-              created_at
+              callback_event_id, raw_packet, created_at
             ) VALUES (
-              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW()
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW()
             )
-            ON CONFLICT (pts_id, transaction_id) DO NOTHING
+            ON CONFLICT (pts_id, transaction_id) DO UPDATE SET
+              callback_event_id = EXCLUDED.callback_event_id,
+              raw_packet = EXCLUDED.raw_packet
           `, [
                         packet.Id,
                         payload.PtsId,
@@ -189,23 +212,16 @@ async function POST(request) {
                         data.UserId,
                         data.ConfigurationId,
                         data.DateTimeStart,
-                        data.DateTime
+                        data.DateTime,
+                        eventId,
+                        JSON.stringify(packet)
                     ]);
                     console.log(`[PUMP CALLBACK] Transaction ${data.Transaction} saved to database`);
                 } catch (dbError) {
                     console.error(`[PUMP CALLBACK] Database error:`, dbError.message);
                 }
             }
-            responsePackets.push({
-                Id: packet.Id,
-                Message: "OK",
-                Type: packet.Type
-            });
         }
-        const response = {
-            Protocol: payload.Protocol || "jsonPTS",
-            Packets: responsePackets
-        };
         console.log("[PUMP CALLBACK] Sending response:", JSON.stringify(response, null, 2));
         console.log("=".repeat(60));
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(response);

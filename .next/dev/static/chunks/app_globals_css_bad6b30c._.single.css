@@ -1955,6 +1955,10 @@
     max-height: 60vh;
   }
 
+  .max-h-\[80vh\] {
+    max-height: 80vh;
+  }
+
   .max-h-\[85vh\] {
     max-height: 85vh;
   }
@@ -3843,6 +3847,10 @@
     background-color: var(--color-slate-500);
   }
 
+  .bg-slate-900 {
+    background-color: var(--color-slate-900);
+  }
+
   .bg-teal-50 {
     background-color: var(--color-teal-50);
   }
@@ -5163,6 +5171,10 @@
 
   .text-secondary-foreground {
     color: var(--secondary-foreground);
+  }
+
+  .text-slate-100 {
+    color: var(--color-slate-100);
   }
 
   .text-slate-300 {

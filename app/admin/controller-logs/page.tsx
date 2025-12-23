@@ -7,11 +7,14 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   ArrowLeft, RefreshCw, Fuel, Activity, 
-  Clock, Server, Download, Filter 
+  Clock, Server, Download, Filter, ChevronDown, ChevronUp, Copy, Check
 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface PumpTransaction {
   id: string
@@ -36,6 +39,9 @@ interface PumpTransaction {
   processed: boolean
   sale_id: string | null
   created_at: string
+  raw_packet: any
+  raw_request: any
+  raw_response: any
 }
 
 interface Summary {
@@ -59,6 +65,8 @@ export default function ControllerLogsPage() {
     ptsId: ""
   })
   const [showFilters, setShowFilters] = useState(false)
+  const [selectedLog, setSelectedLog] = useState<PumpTransaction | null>(null)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   const fetchLogs = async () => {
     setLoading(true)
@@ -91,6 +99,29 @@ export default function ControllerLogsPage() {
     return new Date(dateStr).toLocaleString()
   }
 
+  const formatJSON = (data: any) => {
+    if (!data) return "No data available"
+    try {
+      if (typeof data === "string") {
+        return JSON.stringify(JSON.parse(data), null, 2)
+      }
+      return JSON.stringify(data, null, 2)
+    } catch {
+      return String(data)
+    }
+  }
+
+  const copyToClipboard = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedField(field)
+      toast.success("Copied to clipboard")
+      setTimeout(() => setCopiedField(null), 2000)
+    } catch {
+      toast.error("Failed to copy")
+    }
+  }
+
   const exportCSV = () => {
     const headers = ["Timestamp", "PTS ID", "Pump", "Nozzle", "Fuel", "Volume (L)", "Amount (KES)", "Transaction ID", "Processed"]
     const rows = logs.map(log => [
@@ -119,7 +150,7 @@ export default function ControllerLogsPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="/admin/settings">
+            <Link href="/sales/summary">
               <Button variant="outline" size="icon">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -241,7 +272,7 @@ export default function ControllerLogsPage() {
               <Badge variant="outline">{total} total</Badge>
             </CardTitle>
             <CardDescription>
-              Real-time pump transaction data received from PTS controllers
+              Real-time pump transaction data received from PTS controllers. Click a row to view payload/response details.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -270,11 +301,12 @@ export default function ControllerLogsPage() {
                       <TableHead className="text-right">Amount</TableHead>
                       <TableHead>Transaction ID</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Details</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {logs.map((log) => (
-                      <TableRow key={log.id}>
+                      <TableRow key={log.id} className="cursor-pointer hover:bg-slate-50">
                         <TableCell className="whitespace-nowrap">
                           <div className="flex items-center gap-1 text-sm">
                             <Clock className="h-3 w-3 text-slate-400" />
@@ -315,6 +347,15 @@ export default function ControllerLogsPage() {
                             <Badge variant="secondary">Pending</Badge>
                           )}
                         </TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => setSelectedLog(log)}
+                          >
+                            View
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -324,6 +365,82 @@ export default function ControllerLogsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!selectedLog} onOpenChange={() => setSelectedLog(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Server className="h-5 w-5 text-blue-600" />
+              Callback Details - Transaction #{selectedLog?.transaction_id}
+            </DialogTitle>
+            <DialogDescription>
+              Pump {selectedLog?.pump_number} | {selectedLog?.fuel_grade_name} | {formatDate(selectedLog?.created_at || "")}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Tabs defaultValue="payload" className="flex-1 overflow-hidden flex flex-col">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="payload">Request Payload</TabsTrigger>
+              <TabsTrigger value="response">Response</TabsTrigger>
+              <TabsTrigger value="packet">Packet Data</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="payload" className="flex-1 overflow-hidden mt-4">
+              <div className="relative h-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-2 right-2 z-10"
+                  onClick={() => copyToClipboard(formatJSON(selectedLog?.raw_request), "payload")}
+                >
+                  {copiedField === "payload" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+                <div className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-auto h-[400px]">
+                  <pre className="text-sm font-mono whitespace-pre-wrap">
+                    {formatJSON(selectedLog?.raw_request)}
+                  </pre>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="response" className="flex-1 overflow-hidden mt-4">
+              <div className="relative h-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-2 right-2 z-10"
+                  onClick={() => copyToClipboard(formatJSON(selectedLog?.raw_response), "response")}
+                >
+                  {copiedField === "response" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+                <div className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-auto h-[400px]">
+                  <pre className="text-sm font-mono whitespace-pre-wrap">
+                    {formatJSON(selectedLog?.raw_response)}
+                  </pre>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="packet" className="flex-1 overflow-hidden mt-4">
+              <div className="relative h-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-2 right-2 z-10"
+                  onClick={() => copyToClipboard(formatJSON(selectedLog?.raw_packet), "packet")}
+                >
+                  {copiedField === "packet" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+                <div className="bg-slate-900 text-slate-100 p-4 rounded-lg overflow-auto h-[400px]">
+                  <pre className="text-sm font-mono whitespace-pre-wrap">
+                    {formatJSON(selectedLog?.raw_packet)}
+                  </pre>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

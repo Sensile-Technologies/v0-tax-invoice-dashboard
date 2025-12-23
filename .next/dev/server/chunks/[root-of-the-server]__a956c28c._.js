@@ -146,28 +146,32 @@ async function GET(request) {
         const params = [];
         let paramIndex = 1;
         if (ptsId) {
-            whereClause += ` AND pts_id = $${paramIndex++}`;
+            whereClause += ` AND pt.pts_id = $${paramIndex++}`;
             params.push(ptsId);
         }
         if (startDate) {
-            whereClause += ` AND created_at >= $${paramIndex++}`;
+            whereClause += ` AND pt.created_at >= $${paramIndex++}`;
             params.push(startDate);
         }
         if (endDate) {
-            whereClause += ` AND created_at <= $${paramIndex++}`;
+            whereClause += ` AND pt.created_at <= $${paramIndex++}`;
             params.push(endDate + " 23:59:59");
         }
         const logsResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       SELECT 
-        id, packet_id, pts_id, pump_number, nozzle_number,
-        fuel_grade_id, fuel_grade_name, transaction_id,
-        volume, tc_volume, price, amount,
-        total_volume, total_amount, tag, user_id,
-        configuration_id, transaction_start, transaction_end,
-        processed, sale_id, created_at
-      FROM pump_transactions
+        pt.id, pt.packet_id, pt.pts_id, pt.pump_number, pt.nozzle_number,
+        pt.fuel_grade_id, pt.fuel_grade_name, pt.transaction_id,
+        pt.volume, pt.tc_volume, pt.price, pt.amount,
+        pt.total_volume, pt.total_amount, pt.tag, pt.user_id,
+        pt.configuration_id, pt.transaction_start, pt.transaction_end,
+        pt.processed, pt.sale_id, pt.created_at,
+        pt.raw_packet,
+        pce.raw_request,
+        pce.raw_response
+      FROM pump_transactions pt
+      LEFT JOIN pump_callback_events pce ON pt.callback_event_id = pce.id
       WHERE 1=1 ${whereClause}
-      ORDER BY created_at DESC
+      ORDER BY pt.created_at DESC
       LIMIT $${paramIndex++} OFFSET $${paramIndex}
     `, [
             ...params,
@@ -175,7 +179,7 @@ async function GET(request) {
             offset
         ]);
         const countResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT COUNT(*) as total FROM pump_transactions WHERE 1=1 ${whereClause}
+      SELECT COUNT(*) as total FROM pump_transactions pt WHERE 1=1 ${whereClause}
     `, params);
         const summaryResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       SELECT 
@@ -186,13 +190,16 @@ async function GET(request) {
         COUNT(DISTINCT pump_number) as unique_pumps,
         COUNT(CASE WHEN processed = true THEN 1 END) as processed_count,
         COUNT(CASE WHEN processed = false THEN 1 END) as pending_count
-      FROM pump_transactions
+      FROM pump_transactions pt
       WHERE 1=1 ${whereClause}
     `, params);
+        const logs = logsResult.rows || logsResult;
+        const count = countResult.rows || countResult;
+        const summary = summaryResult.rows || summaryResult;
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            logs: logsResult.rows || logsResult,
-            total: parseInt((logsResult.rows || logsResult)[0]?.total || countResult.rows?.[0]?.total || countResult[0]?.total || "0"),
-            summary: (summaryResult.rows || summaryResult)[0] || {},
+            logs: logs,
+            total: parseInt(count[0]?.total || "0"),
+            summary: summary[0] || {},
             limit,
             offset
         });
