@@ -1602,6 +1602,28 @@ export default function HeadquartersPage() {
                 className="rounded-xl"
               />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-county">County *</Label>
+                <Input
+                  id="edit-county"
+                  placeholder="e.g., Nairobi"
+                  value={branchForm.county}
+                  onChange={(e) => setBranchForm({ ...branchForm, county: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-local-tax-office">Local Tax Office *</Label>
+                <Input
+                  id="edit-local-tax-office"
+                  placeholder="e.g., Nairobi CBD"
+                  value={branchForm.localTaxOffice}
+                  onChange={(e) => setBranchForm({ ...branchForm, localTaxOffice: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-manager">Branch Manager</Label>
