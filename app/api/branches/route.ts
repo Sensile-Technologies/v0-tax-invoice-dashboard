@@ -42,35 +42,66 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const {
       vendor_id,
+      user_id,
       name,
+      location,
       address,
+      county,
+      local_tax_office,
+      manager,
       phone,
       email,
       kra_pin,
       bhf_id,
+      storage_indices,
       status = "active"
     } = body
 
-    if (!vendor_id || !name) {
+    if (!name) {
       return NextResponse.json(
-        { success: false, error: "Vendor ID and branch name are required" },
+        { success: false, error: "Branch name is required" },
         { status: 400 }
       )
     }
 
+    let resolvedVendorId = vendor_id
+
+    if (!resolvedVendorId && user_id) {
+      const userBranch = await pool.query(
+        'SELECT vendor_id FROM branches WHERE user_id = $1 AND vendor_id IS NOT NULL LIMIT 1',
+        [user_id]
+      )
+      if (userBranch.rows.length > 0) {
+        resolvedVendorId = userBranch.rows[0].vendor_id
+      }
+    }
+
+    if (!resolvedVendorId) {
+      const anyVendor = await pool.query('SELECT id FROM vendors LIMIT 1')
+      if (anyVendor.rows.length > 0) {
+        resolvedVendorId = anyVendor.rows[0].id
+      }
+    }
+
     const result = await pool.query(
       `INSERT INTO branches (
-        vendor_id, name, address, phone, email, kra_pin, bhf_id, status, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+        vendor_id, name, location, address, county, local_tax_office, manager,
+        phone, email, kra_pin, bhf_id, storage_indices, status, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
       RETURNING *`,
       [
-        vendor_id,
+        resolvedVendorId || null,
         name,
+        location || null,
         address || null,
+        county || null,
+        local_tax_office || null,
+        manager || null,
         phone || null,
         email || null,
         kra_pin || null,
         bhf_id || '00',
+        storage_indices ? JSON.stringify(storage_indices) : null,
         status
       ]
     )
