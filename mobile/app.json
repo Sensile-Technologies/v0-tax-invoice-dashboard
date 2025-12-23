@@ -34,9 +34,7 @@
       "fallbackToCacheTimeout": 0,
       "checkAutomatically": "ON_LOAD"
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "extra": {
       "eas": {
         "projectId": "df90a38c-0626-449f-8e0a-220efa7d847d"
@@ -49,7 +47,7 @@
         {
           "android": {
             "minSdkVersion": 24,
-            "kotlinVersion": "2.0.21",
+            "kotlinVersion": "1.9.24",
             "useLegacyPackaging": true,
             "newArchEnabled": false
           }
