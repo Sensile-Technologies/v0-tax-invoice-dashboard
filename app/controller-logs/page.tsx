@@ -176,6 +176,31 @@ export default function ControllerLogsPage() {
           </div>
         </div>
 
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-4 pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="text-sm font-medium text-blue-800">Server URL</p>
+                <code className="text-sm bg-white px-2 py-1 rounded border block mt-1 break-all">
+                  {typeof window !== 'undefined' ? window.location.origin : 'https://flow360-rji.replit.app'}
+                </code>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-800">Port</p>
+                <code className="text-sm bg-white px-2 py-1 rounded border block mt-1">
+                  {typeof window !== 'undefined' ? (window.location.port || '443') : '443'}
+                </code>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-blue-800">Callback Endpoint</p>
+                <code className="text-sm bg-white px-2 py-1 rounded border block mt-1 break-all">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/api/pump-callback` : 'https://flow360-rji.replit.app/api/pump-callback'}
+                </code>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {showFilters && (
           <Card>
             <CardContent className="pt-6">
