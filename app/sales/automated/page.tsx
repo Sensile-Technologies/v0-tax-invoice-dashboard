@@ -12,8 +12,11 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
-import { ChevronLeft, ChevronRight, RefreshCw, Zap, Check, X, Printer, MoreVertical } from "lucide-react"
+import { ChevronLeft, ChevronRight, RefreshCw, Zap, Check, X, Printer, MoreVertical, FileText } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Textarea } from "@/components/ui/textarea"
 
 const PAGE_SIZE = 50
 
@@ -29,6 +32,16 @@ export default function AutomatedSalesPage() {
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
     endDate: new Date().toISOString().split("T")[0],
     status: "all",
+  })
+  
+  const [issuingCreditNote, setIssuingCreditNote] = useState<string | null>(null)
+  const [creditNoteDialogOpen, setCreditNoteDialogOpen] = useState(false)
+  const [selectedSaleForCreditNote, setSelectedSaleForCreditNote] = useState<any>(null)
+  const [creditNoteForm, setCreditNoteForm] = useState({
+    refundType: "full" as "full" | "partial",
+    reasonCode: "01",
+    partialAmount: "",
+    notes: ""
   })
 
   useEffect(() => {
@@ -89,6 +102,82 @@ export default function AutomatedSalesPage() {
 
   async function retryTransmission(saleId: string) {
     toast.info(`Retrying transmission for sale ${saleId}...`)
+  }
+
+  function openCreditNoteDialog(sale: any) {
+    if (sale.is_credit_note) {
+      toast.error("Cannot issue credit note for a credit note")
+      return
+    }
+    if (sale.has_credit_note) {
+      toast.error("Credit note already issued for this sale")
+      return
+    }
+    setSelectedSaleForCreditNote(sale)
+    setCreditNoteForm({
+      refundType: "full",
+      reasonCode: "01",
+      partialAmount: "",
+      notes: ""
+    })
+    setCreditNoteDialogOpen(true)
+  }
+
+  async function handleSubmitCreditNote() {
+    if (!selectedSaleForCreditNote) return
+    
+    const sale = selectedSaleForCreditNote
+    
+    if (creditNoteForm.refundType === "partial") {
+      const partialAmt = parseFloat(creditNoteForm.partialAmount)
+      if (isNaN(partialAmt) || partialAmt <= 0) {
+        toast.error("Please enter a valid partial amount")
+        return
+      }
+      if (partialAmt > Math.abs(parseFloat(sale.total_amount))) {
+        toast.error("Partial amount cannot exceed original sale amount")
+        return
+      }
+    }
+    
+    try {
+      setIssuingCreditNote(sale.id)
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (!currentBranch) {
+        toast.error("No branch selected")
+        return
+      }
+      const branchData = JSON.parse(currentBranch)
+      
+      const response = await fetch('/api/credit-notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sale_id: sale.id,
+          branch_id: branchData.id,
+          reason_code: creditNoteForm.reasonCode,
+          refund_type: creditNoteForm.refundType,
+          partial_amount: creditNoteForm.refundType === "partial" ? parseFloat(creditNoteForm.partialAmount) : null,
+          notes: creditNoteForm.notes
+        })
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to issue credit note')
+      }
+      
+      toast.success(`Credit note ${result.creditNoteNumber} issued successfully`)
+      setCreditNoteDialogOpen(false)
+      setSelectedSaleForCreditNote(null)
+      fetchData()
+    } catch (error: any) {
+      console.error('Error issuing credit note:', error)
+      toast.error(error.message || 'Failed to issue credit note')
+    } finally {
+      setIssuingCreditNote(null)
+    }
   }
 
   async function handlePrintReceipt(sale: any) {
@@ -330,6 +419,12 @@ export default function AutomatedSalesPage() {
                                           <Printer className="h-4 w-4 mr-2" />
                                           Print KRA Receipt
                                         </DropdownMenuItem>
+                                        {!sale.is_credit_note && !sale.has_credit_note && (
+                                          <DropdownMenuItem onClick={() => openCreditNoteDialog(sale)}>
+                                            <FileText className="h-4 w-4 mr-2" />
+                                            Generate Credit Note
+                                          </DropdownMenuItem>
+                                        )}
                                         {(sale.transmission_status === "pending" || sale.transmission_status === "flagged") && (
                                           <DropdownMenuItem onClick={() => retryTransmission(sale.id)}>
                                             <RefreshCw className="h-4 w-4 mr-2" />
@@ -388,6 +483,92 @@ export default function AutomatedSalesPage() {
           </main>
         </div>
       </div>
+
+      <Dialog open={creditNoteDialogOpen} onOpenChange={setCreditNoteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Issue Credit Note</DialogTitle>
+            <DialogDescription>
+              Create a credit note for invoice {selectedSaleForCreditNote?.invoice_number || selectedSaleForCreditNote?.receipt_number}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Original Amount</Label>
+              <p className="text-lg font-semibold">{formatCurrency(selectedSaleForCreditNote?.total_amount || 0)}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Refund Type</Label>
+              <RadioGroup 
+                value={creditNoteForm.refundType} 
+                onValueChange={(value: "full" | "partial") => setCreditNoteForm({...creditNoteForm, refundType: value})}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="full" id="full" />
+                  <Label htmlFor="full">Full Refund</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="partial" id="partial" />
+                  <Label htmlFor="partial">Partial Refund</Label>
+                </div>
+              </RadioGroup>
+            </div>
+            
+            {creditNoteForm.refundType === "partial" && (
+              <div className="space-y-2">
+                <Label htmlFor="partialAmount">Refund Amount</Label>
+                <Input
+                  id="partialAmount"
+                  type="number"
+                  step="0.01"
+                  placeholder="Enter amount"
+                  value={creditNoteForm.partialAmount}
+                  onChange={(e) => setCreditNoteForm({...creditNoteForm, partialAmount: e.target.value})}
+                />
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="reasonCode">Reason Code</Label>
+              <Select value={creditNoteForm.reasonCode} onValueChange={(value) => setCreditNoteForm({...creditNoteForm, reasonCode: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reason" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="01">Wrong Quantity Dispensed</SelectItem>
+                  <SelectItem value="02">Wrong Fuel Type</SelectItem>
+                  <SelectItem value="03">Customer Request</SelectItem>
+                  <SelectItem value="04">Pricing Error</SelectItem>
+                  <SelectItem value="05">System Error</SelectItem>
+                  <SelectItem value="06">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Additional notes..."
+                value={creditNoteForm.notes}
+                onChange={(e) => setCreditNoteForm({...creditNoteForm, notes: e.target.value})}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreditNoteDialogOpen(false)}>Cancel</Button>
+            <Button 
+              onClick={handleSubmitCreditNote} 
+              disabled={issuingCreditNote === selectedSaleForCreditNote?.id}
+            >
+              {issuingCreditNote === selectedSaleForCreditNote?.id ? "Processing..." : "Issue Credit Note"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
