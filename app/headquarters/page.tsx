@@ -405,10 +405,12 @@ export default function HeadquartersPage() {
 
     setIsSubmitting(true)
     try {
+      const currentUser = getCurrentUser()
       const branchRes = await fetch('/api/branches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          user_id: currentUser?.id,
           name: branchForm.name,
           location: branchForm.location,
           manager: branchForm.manager,

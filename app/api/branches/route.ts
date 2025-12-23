@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     if (!resolvedVendorId && user_id) {
       const userBranch = await pool.query(
-        'SELECT vendor_id FROM branches WHERE user_id = $1 AND vendor_id IS NOT NULL LIMIT 1',
+        'SELECT b.vendor_id FROM branches b WHERE b.user_id = $1 AND b.vendor_id IS NOT NULL LIMIT 1',
         [user_id]
       )
       if (userBranch.rows.length > 0) {
@@ -77,10 +77,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (!resolvedVendorId) {
-      const anyVendor = await pool.query('SELECT id FROM vendors LIMIT 1')
-      if (anyVendor.rows.length > 0) {
-        resolvedVendorId = anyVendor.rows[0].id
-      }
+      return NextResponse.json(
+        { success: false, error: "Could not find vendor for this user. Please ensure your account is properly set up." },
+        { status: 400 }
+      )
     }
 
     const result = await pool.query(
