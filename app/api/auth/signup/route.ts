@@ -58,12 +58,23 @@ export async function POST(request: Request) {
         )
         const bhfId = isHeadquarters ? "00" : "01"
 
-        // Create vendor for this user
+        // Create vendor for this user with all relevant fields
         const vendorResult = await client.query(
-          `INSERT INTO vendors (id, name, email, phone, address, kra_pin, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+          `INSERT INTO vendors (id, name, email, phone, address, kra_pin, status, billing_email, billing_address, subscription_status, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
            RETURNING *`,
-          [vendorId, branch.trading_name || branch.name, email, branch.phone || null, branch.address || null, branch.kra_pin || null]
+          [
+            vendorId, 
+            branch.trading_name || branch.name, 
+            email, 
+            branch.phone || null, 
+            branch.address || null, 
+            branch.kra_pin || null,
+            'active',
+            email,
+            branch.address || null,
+            'active'
+          ]
         )
         createdVendor = vendorResult.rows[0]
 
