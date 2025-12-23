@@ -9,5 +9,6 @@
   "/api/tanks/route": "app/api/tanks/route.js",
   "/page": "app/page.js",
   "/sales/automated/page": "app/sales/automated/page.js",
+  "/sales/reports/page": "app/sales/reports/page.js",
   "/sales/summary/page": "app/sales/summary/page.js"
 }

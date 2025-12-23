@@ -12,7 +12,8 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
-import { ChevronLeft, ChevronRight, RefreshCw, Zap, Check, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, RefreshCw, Zap, Check, X, Printer, MoreVertical } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const PAGE_SIZE = 50
 
@@ -20,8 +21,6 @@ export default function AutomatedSalesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const { formatCurrency } = useCurrency()
   const [sales, setSales] = useState<any[]>([])
-  const [nozzles, setNozzles] = useState<any[]>([])
-  const [dispensers, setDispensers] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
@@ -48,20 +47,8 @@ export default function AutomatedSalesPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
-        fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
-        fetch(`/api/dispensers?branch_id=${branchId}`),
-        fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}`)
-      ])
-
-      const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
-        nozzlesRes.json(),
-        dispensersRes.json(),
-        salesRes.json()
-      ])
-
-      setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
-      setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
+      const salesRes = await fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}`)
+      const salesResult = await salesRes.json()
 
       const allSales = salesResult.success ? salesResult.data || [] : []
       setTotalCount(allSales.length)
@@ -102,6 +89,59 @@ export default function AutomatedSalesPage() {
 
   async function retryTransmission(saleId: string) {
     toast.info(`Retrying transmission for sale ${saleId}...`)
+  }
+
+  async function handlePrintReceipt(sale: any) {
+    try {
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (!currentBranch) {
+        toast.error("No branch selected")
+        return
+      }
+      const branchData = JSON.parse(currentBranch)
+      
+      const response = await fetch('/api/receipt/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sale_id: sale.id,
+          branch_id: branchData.id
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate receipt')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `receipt-${sale.invoice_number || sale.id}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+      toast.success('Receipt downloaded')
+    } catch (error) {
+      console.error('Error generating receipt:', error)
+      toast.error('Failed to generate receipt')
+    }
+  }
+
+  function getKraStatusBadge(sale: any) {
+    const status = sale.kra_status || 'pending'
+    switch (status) {
+      case 'success':
+        return <Badge variant="default" className="bg-green-600">Synced</Badge>
+      case 'pending':
+        return <Badge variant="secondary">Pending</Badge>
+      case 'failed':
+        return <Badge variant="destructive">Failed</Badge>
+      default:
+        return <Badge variant="secondary">{status}</Badge>
+    }
   }
 
   return (
@@ -241,19 +281,16 @@ export default function AutomatedSalesPage() {
                               <TableCell className="text-left p-2">Date</TableCell>
                               <TableCell className="text-left p-2">Invoice No.</TableCell>
                               <TableCell className="text-left p-2">Source</TableCell>
-                              <TableCell className="text-left p-2">Nozzle</TableCell>
                               <TableCell className="text-left p-2">Fuel Type</TableCell>
                               <TableCell className="text-right p-2">Quantity (L)</TableCell>
                               <TableCell className="text-right p-2">Total</TableCell>
-                              <TableCell className="text-center p-2">Status</TableCell>
+                              <TableCell className="text-center p-2">Transmission</TableCell>
+                              <TableCell className="text-center p-2">KRA Status</TableCell>
                               <TableCell className="text-center p-2">Actions</TableCell>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {sales.map((sale) => {
-                              const nozzle = nozzles.find((n) => n.id === sale.nozzle_id)
-                              const dispenser = nozzle ? dispensers.find((d) => d.id === nozzle.dispenser_id) : null
-
                               return (
                                 <TableRow key={sale.id} className="hover:bg-slate-50">
                                   <TableCell className="p-2">
@@ -270,9 +307,6 @@ export default function AutomatedSalesPage() {
                                   <TableCell className="p-2 text-sm">
                                     <Badge variant="outline">{sale.source_system || "External"}</Badge>
                                   </TableCell>
-                                  <TableCell className="p-2 text-sm">
-                                    {dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "-"}
-                                  </TableCell>
                                   <TableCell className="p-2">{sale.fuel_type}</TableCell>
                                   <TableCell className="p-2 text-right">{Number(sale.quantity).toFixed(2)}</TableCell>
                                   <TableCell className="p-2 text-right font-medium">{formatCurrency(sale.total_amount)}</TableCell>
@@ -282,11 +316,28 @@ export default function AutomatedSalesPage() {
                                     </Badge>
                                   </TableCell>
                                   <TableCell className="p-2 text-center">
-                                    {(sale.transmission_status === "pending" || sale.transmission_status === "flagged") && (
-                                      <Button variant="ghost" size="sm" onClick={() => retryTransmission(sale.id)}>
-                                        <RefreshCw className="h-4 w-4" />
-                                      </Button>
-                                    )}
+                                    {getKraStatusBadge(sale)}
+                                  </TableCell>
+                                  <TableCell className="p-2 text-center">
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="sm">
+                                          <MoreVertical className="h-4 w-4" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => handlePrintReceipt(sale)}>
+                                          <Printer className="h-4 w-4 mr-2" />
+                                          Print KRA Receipt
+                                        </DropdownMenuItem>
+                                        {(sale.transmission_status === "pending" || sale.transmission_status === "flagged") && (
+                                          <DropdownMenuItem onClick={() => retryTransmission(sale.id)}>
+                                            <RefreshCw className="h-4 w-4 mr-2" />
+                                            Retry Transmission
+                                          </DropdownMenuItem>
+                                        )}
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
                                   </TableCell>
                                 </TableRow>
                               )
