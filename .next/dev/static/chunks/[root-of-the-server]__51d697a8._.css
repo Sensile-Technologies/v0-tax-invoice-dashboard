@@ -5119,12 +5119,20 @@
     color: currentColor;
   }
 
+  .text-cyan-600 {
+    color: var(--color-cyan-600);
+  }
+
   .text-destructive {
     color: var(--destructive);
   }
 
   .text-destructive-foreground {
     color: var(--destructive-foreground);
+  }
+
+  .text-emerald-600 {
+    color: var(--color-emerald-600);
   }
 
   .text-foreground {
@@ -5179,6 +5187,10 @@
 
   .text-muted-foreground {
     color: var(--muted-foreground);
+  }
+
+  .text-orange-500 {
+    color: var(--color-orange-500);
   }
 
   .text-orange-600 {
@@ -7939,6 +7951,12 @@
   @media (min-width: 64rem) {
     .lg\:grid-cols-4 {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .lg\:grid-cols-7 {
+      grid-template-columns: repeat(7, minmax(0, 1fr));
     }
   }
 
