@@ -161,7 +161,8 @@ export default function ControllerLogsPage() {
 
   const fetchItems = async (branchId: string) => {
     try {
-      const response = await fetch(`/api/items/list?branch_id=${branchId}&item_type=fuel`)
+      // Fetch all items for the branch (item_type=2 is typically fuel)
+      const response = await fetch(`/api/items/list?branch_id=${branchId}`)
       const data = await response.json()
       if (data.success) {
         setItems(data.data || [])
