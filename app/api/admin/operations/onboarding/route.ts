@@ -56,10 +56,10 @@ export async function PUT(request: NextRequest) {
     if (hardware_type && hardware_serial) {
       const hardwareId = crypto.randomUUID()
       await query(`
-        INSERT INTO hardware (id, serial_number, device_type, branch_id, status, assigned_at, created_at)
+        INSERT INTO hardware (id, serial_number, hardware_type, branch_id, status, assigned_date, created_at)
         VALUES ($1, $2, $3, $4, 'assigned', NOW(), NOW())
         ON CONFLICT (serial_number) 
-        DO UPDATE SET branch_id = $4, status = 'assigned', assigned_at = NOW()
+        DO UPDATE SET branch_id = $4, status = 'assigned', assigned_date = NOW()
       `, [hardwareId, hardware_serial, hardware_type, id])
     }
 
