@@ -429,7 +429,31 @@ export default function HeadquartersPage() {
         })
       })
       
-      const branchResult = await branchRes.json()
+      if (!branchRes.ok) {
+        const errorText = await branchRes.text()
+        console.error("[v0] Branch API error:", branchRes.status, errorText)
+        alert(`Branch creation failed: Server returned ${branchRes.status}. ${errorText || 'Please try again.'}`)
+        setIsSubmitting(false)
+        return
+      }
+
+      const responseText = await branchRes.text()
+      if (!responseText) {
+        console.error("[v0] Empty response from branch API")
+        alert("Branch creation failed: Empty response from server. Please try again.")
+        setIsSubmitting(false)
+        return
+      }
+
+      let branchResult
+      try {
+        branchResult = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error("[v0] Failed to parse branch response:", responseText)
+        alert(`Branch creation failed: Invalid response from server. Please try again.`)
+        setIsSubmitting(false)
+        return
+      }
 
       if (!branchResult.success) {
         console.error("[v0] Branch creation error:", branchResult.error)
