@@ -193,8 +193,8 @@ export default function ControllerLogsPage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-blue-800">Callback Endpoint</p>
-                <code className="text-sm bg-white px-2 py-1 rounded border block mt-1 break-all">
-                  {typeof window !== 'undefined' ? `${window.location.origin}/api/pump-callback` : 'https://flow360-rji.replit.app/api/pump-callback'}
+                <code className="text-sm bg-white px-2 py-1 rounded border block mt-1">
+                  /api/pump-callback
                 </code>
               </div>
             </div>
