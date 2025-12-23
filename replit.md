@@ -22,6 +22,8 @@ Key features include:
 - **Sales Pipeline Management**: A 5-stage lead pipeline for sales teams, including lead assignment and performance tracking.
 - **Notifications System**: In-app notifications for key events like due invoices.
 - **Hardware Management**: Functionality to register and assign hardware devices to branches.
+- **Controller Logs & PTS Integration**: Real-time logging of pump transaction callbacks from PTS controllers, with summary statistics and detailed payload viewing.
+- **Fuel Grade Mapping**: Map pump controller fuel grade IDs to inventory items for automated sales processing. Supports global or controller-specific mappings.
 - **Modular API Design**: API routes are organized within the `/app` directory, with specific endpoints for mobile and administrative functions.
 
 ## External Dependencies

@@ -52,8 +52,9 @@ export async function POST(request: NextRequest) {
     `, [coalescedPts, fuel_grade_id])
     
     let result: any
-    if (existing.rows?.length > 0 || (Array.isArray(existing) && existing.length > 0)) {
-      const existingId = (existing.rows || existing)[0].id
+    const existingRows = existing.rows || existing
+    if (existingRows && existingRows.length > 0) {
+      const existingId = existingRows[0].id
       result = await query(`
         UPDATE pump_fuel_grade_mappings SET
           fuel_grade_name = $1,

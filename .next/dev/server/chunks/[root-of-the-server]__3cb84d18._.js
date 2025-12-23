@@ -185,22 +185,46 @@ async function POST(request) {
                 status: 400
             });
         }
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      INSERT INTO pump_fuel_grade_mappings (pts_id, fuel_grade_id, fuel_grade_name, item_id, notes)
-      VALUES ($1, $2, $3, $4, $5)
-      ON CONFLICT (COALESCE(pts_id, 'GLOBAL'), fuel_grade_id) DO UPDATE SET
-        fuel_grade_name = EXCLUDED.fuel_grade_name,
-        item_id = EXCLUDED.item_id,
-        notes = EXCLUDED.notes,
-        updated_at = NOW()
-      RETURNING *
+        const ptsValue = pts_id || null;
+        const coalescedPts = ptsValue === null ? 'GLOBAL' : ptsValue;
+        const existing = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      SELECT id FROM pump_fuel_grade_mappings 
+      WHERE COALESCE(pts_id, 'GLOBAL') = $1 AND fuel_grade_id = $2
     `, [
-            pts_id || null,
-            fuel_grade_id,
-            fuel_grade_name,
-            item_id || null,
-            notes || null
+            coalescedPts,
+            fuel_grade_id
         ]);
+        let result;
+        const existingRows = existing.rows || existing;
+        if (existingRows && existingRows.length > 0) {
+            const existingId = existingRows[0].id;
+            result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        UPDATE pump_fuel_grade_mappings SET
+          fuel_grade_name = $1,
+          item_id = $2,
+          notes = $3,
+          updated_at = NOW()
+        WHERE id = $4
+        RETURNING *
+      `, [
+                fuel_grade_name,
+                item_id || null,
+                notes || null,
+                existingId
+            ]);
+        } else {
+            result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        INSERT INTO pump_fuel_grade_mappings (pts_id, fuel_grade_id, fuel_grade_name, item_id, notes)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
+      `, [
+                ptsValue,
+                fuel_grade_id,
+                fuel_grade_name,
+                item_id || null,
+                notes || null
+            ]);
+        }
         const mapping = (result.rows || result)[0];
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
