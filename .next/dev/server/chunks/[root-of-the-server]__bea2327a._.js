@@ -143,17 +143,17 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 async function GET(request, { params }) {
     try {
         const { id } = await params;
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("SELECT * FROM branches WHERE id = $1", [
+        const rows = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("SELECT * FROM branches WHERE id = $1", [
             id
         ]);
-        if (result.rows.length === 0) {
+        if (rows.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Branch not found"
             }, {
                 status: 404
             });
         }
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result.rows[0]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(rows[0]);
     } catch (error) {
         console.error("[Branch GET Error]:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -167,8 +167,8 @@ async function PUT(request, { params }) {
     try {
         const { id } = await params;
         const body = await request.json();
-        const { name, location, manager, email, phone, address, county, localTaxOffice, storageIndices, tankConfig } = body;
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE branches SET
+        const { name, location, manager, email, phone, address, county, localTaxOffice, storageIndices, tankConfig, kraPin } = body;
+        const rows = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE branches SET
         name = COALESCE($1, name),
         location = COALESCE($2, location),
         manager = COALESCE($3, manager),
@@ -179,8 +179,9 @@ async function PUT(request, { params }) {
         local_tax_office = COALESCE($8, local_tax_office),
         storage_indices = COALESCE($9, storage_indices),
         tank_config = COALESCE($10, tank_config),
+        kra_pin = COALESCE($11, kra_pin),
         updated_at = NOW()
-      WHERE id = $11
+      WHERE id = $12
       RETURNING *`, [
             name,
             location,
@@ -192,16 +193,17 @@ async function PUT(request, { params }) {
             localTaxOffice,
             storageIndices ? JSON.stringify(storageIndices) : null,
             tankConfig ? JSON.stringify(tankConfig) : null,
+            kraPin || null,
             id
         ]);
-        if (result.rows.length === 0) {
+        if (rows.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Branch not found"
             }, {
                 status: 404
             });
         }
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result.rows[0]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(rows[0]);
     } catch (error) {
         console.error("[Branch PUT Error]:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -223,18 +225,18 @@ async function PATCH(request, { params }) {
                 status: 400
             });
         }
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE branches SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *`, [
+        const rows = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE branches SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *`, [
             status,
             id
         ]);
-        if (result.rows.length === 0) {
+        if (rows.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Branch not found"
             }, {
                 status: 404
             });
         }
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result.rows[0]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(rows[0]);
     } catch (error) {
         console.error("[Branch PATCH Error]:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -247,10 +249,10 @@ async function PATCH(request, { params }) {
 async function DELETE(request, { params }) {
     try {
         const { id } = await params;
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("DELETE FROM branches WHERE id = $1 RETURNING *", [
+        const rows = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("DELETE FROM branches WHERE id = $1 RETURNING *", [
             id
         ]);
-        if (result.rows.length === 0) {
+        if (rows.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Branch not found"
             }, {
@@ -259,7 +261,7 @@ async function DELETE(request, { params }) {
         }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
-            deleted: result.rows[0]
+            deleted: rows[0]
         });
     } catch (error) {
         console.error("[Branch DELETE Error]:", error);

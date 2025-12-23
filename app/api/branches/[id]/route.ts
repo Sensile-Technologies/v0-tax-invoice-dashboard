@@ -8,16 +8,16 @@ export async function GET(
   try {
     const { id } = await params
 
-    const result = await query(
+    const rows = await query(
       "SELECT * FROM branches WHERE id = $1",
       [id]
     )
 
-    if (result.rows.length === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 })
     }
 
-    return NextResponse.json(result.rows[0])
+    return NextResponse.json(rows[0])
   } catch (error) {
     console.error("[Branch GET Error]:", error)
     return NextResponse.json(
@@ -46,9 +46,10 @@ export async function PUT(
       localTaxOffice,
       storageIndices,
       tankConfig,
+      kraPin,
     } = body
 
-    const result = await query(
+    const rows = await query(
       `UPDATE branches SET
         name = COALESCE($1, name),
         location = COALESCE($2, location),
@@ -60,8 +61,9 @@ export async function PUT(
         local_tax_office = COALESCE($8, local_tax_office),
         storage_indices = COALESCE($9, storage_indices),
         tank_config = COALESCE($10, tank_config),
+        kra_pin = COALESCE($11, kra_pin),
         updated_at = NOW()
-      WHERE id = $11
+      WHERE id = $12
       RETURNING *`,
       [
         name,
@@ -74,15 +76,16 @@ export async function PUT(
         localTaxOffice,
         storageIndices ? JSON.stringify(storageIndices) : null,
         tankConfig ? JSON.stringify(tankConfig) : null,
+        kraPin || null,
         id,
       ]
     )
 
-    if (result.rows.length === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 })
     }
 
-    return NextResponse.json(result.rows[0])
+    return NextResponse.json(rows[0])
   } catch (error) {
     console.error("[Branch PUT Error]:", error)
     return NextResponse.json(
@@ -106,16 +109,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Status is required" }, { status: 400 })
     }
 
-    const result = await query(
+    const rows = await query(
       `UPDATE branches SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *`,
       [status, id]
     )
 
-    if (result.rows.length === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 })
     }
 
-    return NextResponse.json(result.rows[0])
+    return NextResponse.json(rows[0])
   } catch (error) {
     console.error("[Branch PATCH Error]:", error)
     return NextResponse.json(
@@ -132,16 +135,16 @@ export async function DELETE(
   try {
     const { id } = await params
 
-    const result = await query(
+    const rows = await query(
       "DELETE FROM branches WHERE id = $1 RETURNING *",
       [id]
     )
 
-    if (result.rows.length === 0) {
+    if (rows.length === 0) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, deleted: result.rows[0] })
+    return NextResponse.json({ success: true, deleted: rows[0] })
   } catch (error) {
     console.error("[Branch DELETE Error]:", error)
     return NextResponse.json(

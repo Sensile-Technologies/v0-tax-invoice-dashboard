@@ -353,6 +353,7 @@ export default function HeadquartersPage() {
     storageIndices: [] as string[],
     newStorageIndex: "",
     vendorId: "",
+    kraPin: "",
     tankConfig: {} as Record<
       string,
       { dispensers: string[]; initialStock: string; fuelType?: string; tankCapacity?: string }
@@ -391,6 +392,7 @@ export default function HeadquartersPage() {
       storageIndices: [],
       newStorageIndex: "",
       vendorId: existingVendorId,
+      kraPin: "",
       tankConfig: {},
     })
     setCreateBranchOpen(true)
@@ -626,6 +628,7 @@ export default function HeadquartersPage() {
         storageIndices: [],
         newStorageIndex: "",
         vendorId: "",
+        kraPin: "",
         tankConfig: {},
       })
       await fetchBranches()
@@ -655,6 +658,7 @@ export default function HeadquartersPage() {
       storageIndices: branch.storage_indices || [],
       newStorageIndex: "",
       vendorId: branch.vendor_id || "",
+      kraPin: branch.kra_pin || "",
       tankConfig: branch.tank_config || {},
     })
     setEditBranchOpen(true)
@@ -690,6 +694,7 @@ export default function HeadquartersPage() {
           localTaxOffice: branchForm.localTaxOffice,
           storageIndices: branchForm.storageIndices,
           tankConfig: branchForm.tankConfig,
+          kraPin: branchForm.kraPin,
         }),
       })
 
@@ -1630,6 +1635,19 @@ export default function HeadquartersPage() {
                   className="rounded-xl"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-kra-pin">KRA PIN</Label>
+              <Input
+                id="edit-kra-pin"
+                placeholder="e.g., P000000000X"
+                value={branchForm.kraPin}
+                onChange={(e) => setBranchForm({ ...branchForm, kraPin: e.target.value })}
+                className="rounded-xl"
+              />
+              <p className="text-xs text-muted-foreground">
+                Required for KRA TIMS integration. Sales will fail without this.
+              </p>
             </div>
           </div>
           <div className="space-y-4 border-t pt-4">
