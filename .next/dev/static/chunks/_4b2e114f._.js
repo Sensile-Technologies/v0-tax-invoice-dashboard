@@ -1068,11 +1068,10 @@ function ControllerLogsPage() {
     const [activeTab, setActiveTab] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("logs");
     const [mappings, setMappings] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [items, setItems] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
-    const [branches, setBranches] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [loadingMappings, setLoadingMappings] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [showMappingDialog, setShowMappingDialog] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [editingMapping, setEditingMapping] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [selectedBranchId, setSelectedBranchId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [currentBranchId, setCurrentBranchId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [newMapping, setNewMapping] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         fuel_grade_id: "",
         fuel_grade_name: "",
@@ -1103,20 +1102,21 @@ function ControllerLogsPage() {
         "ControllerLogsPage.useEffect": ()=>{
             fetchLogs();
             fetchMappings();
-            fetchBranches();
-        }
-    }["ControllerLogsPage.useEffect"], []);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
-        "ControllerLogsPage.useEffect": ()=>{
-            if (selectedBranchId) {
-                fetchItems(selectedBranchId);
-            } else {
-                setItems([]);
+            // Get current branch from localStorage
+            const storedBranch = localStorage.getItem("selectedBranch");
+            if (storedBranch) {
+                try {
+                    const branch = JSON.parse(storedBranch);
+                    if (branch?.id) {
+                        setCurrentBranchId(branch.id);
+                        fetchItems(branch.id);
+                    }
+                } catch (e) {
+                    console.error("Error parsing stored branch:", e);
+                }
             }
         }
-    }["ControllerLogsPage.useEffect"], [
-        selectedBranchId
-    ]);
+    }["ControllerLogsPage.useEffect"], []);
     const fetchMappings = async ()=>{
         setLoadingMappings(true);
         try {
@@ -1129,17 +1129,6 @@ function ControllerLogsPage() {
             console.error("Error fetching fuel grade mappings:", error);
         } finally{
             setLoadingMappings(false);
-        }
-    };
-    const fetchBranches = async ()=>{
-        try {
-            const response = await fetch("/api/branches");
-            const data = await response.json();
-            if (data.success) {
-                setBranches(data.data || []);
-            }
-        } catch (error) {
-            console.error("Error fetching branches:", error);
         }
     };
     const fetchItems = async (branchId)=>{
@@ -1227,7 +1216,6 @@ function ControllerLogsPage() {
             pts_id: "",
             notes: ""
         });
-        setSelectedBranchId("");
         setEditingMapping(null);
         setShowMappingDialog(true);
     };
@@ -1314,12 +1302,12 @@ function ControllerLogsPage() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 314,
+                                            lineNumber: 300,
                                             columnNumber: 15
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 313,
+                                        lineNumber: 299,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1331,14 +1319,14 @@ function ControllerLogsPage() {
                                                         className: "h-6 w-6 text-blue-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 318,
+                                                        lineNumber: 304,
                                                         columnNumber: 17
                                                     }, this),
                                                     "Controller Logs"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 317,
+                                                lineNumber: 303,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1346,19 +1334,19 @@ function ControllerLogsPage() {
                                                 children: "Pump transaction callbacks from PTS controllers"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 321,
+                                                lineNumber: 307,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 316,
+                                        lineNumber: 302,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                lineNumber: 312,
+                                lineNumber: 298,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1372,14 +1360,14 @@ function ControllerLogsPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 326,
+                                                lineNumber: 312,
                                                 columnNumber: 15
                                             }, this),
                                             "Filters"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 325,
+                                        lineNumber: 311,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1391,14 +1379,14 @@ function ControllerLogsPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 330,
+                                                lineNumber: 316,
                                                 columnNumber: 15
                                             }, this),
                                             "Export CSV"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 329,
+                                        lineNumber: 315,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1409,26 +1397,26 @@ function ControllerLogsPage() {
                                                 className: `h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 334,
+                                                lineNumber: 320,
                                                 columnNumber: 15
                                             }, this),
                                             "Refresh"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 333,
+                                        lineNumber: 319,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                lineNumber: 324,
+                                lineNumber: 310,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/controller-logs/page.tsx",
-                        lineNumber: 311,
+                        lineNumber: 297,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1445,7 +1433,7 @@ function ControllerLogsPage() {
                                                 children: "Server URL"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 344,
+                                                lineNumber: 330,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
@@ -1453,13 +1441,13 @@ function ControllerLogsPage() {
                                                 children: ("TURBOPACK compile-time truthy", 1) ? window.location.origin : "TURBOPACK unreachable"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 345,
+                                                lineNumber: 331,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 343,
+                                        lineNumber: 329,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1469,7 +1457,7 @@ function ControllerLogsPage() {
                                                 children: "Port"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 350,
+                                                lineNumber: 336,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
@@ -1477,13 +1465,13 @@ function ControllerLogsPage() {
                                                 children: ("TURBOPACK compile-time truthy", 1) ? window.location.port || '443' : "TURBOPACK unreachable"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 351,
+                                                lineNumber: 337,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 349,
+                                        lineNumber: 335,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1493,7 +1481,7 @@ function ControllerLogsPage() {
                                                 children: "Callback Endpoint"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 356,
+                                                lineNumber: 342,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
@@ -1501,29 +1489,29 @@ function ControllerLogsPage() {
                                                 children: "/api/pump-callback"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 357,
+                                                lineNumber: 343,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 355,
+                                        lineNumber: 341,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                lineNumber: 342,
+                                lineNumber: 328,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/controller-logs/page.tsx",
-                            lineNumber: 341,
+                            lineNumber: 327,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/controller-logs/page.tsx",
-                        lineNumber: 340,
+                        lineNumber: 326,
                         columnNumber: 9
                     }, this),
                     showFilters && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1539,7 +1527,7 @@ function ControllerLogsPage() {
                                                 children: "Start Date"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 370,
+                                                lineNumber: 356,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1551,13 +1539,13 @@ function ControllerLogsPage() {
                                                     })
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 371,
+                                                lineNumber: 357,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 369,
+                                        lineNumber: 355,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1567,7 +1555,7 @@ function ControllerLogsPage() {
                                                 children: "End Date"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 378,
+                                                lineNumber: 364,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1579,13 +1567,13 @@ function ControllerLogsPage() {
                                                     })
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 379,
+                                                lineNumber: 365,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 377,
+                                        lineNumber: 363,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1595,7 +1583,7 @@ function ControllerLogsPage() {
                                                 children: "Controller ID (PTS ID)"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 386,
+                                                lineNumber: 372,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1607,13 +1595,13 @@ function ControllerLogsPage() {
                                                     })
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 387,
+                                                lineNumber: 373,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 385,
+                                        lineNumber: 371,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1621,7 +1609,7 @@ function ControllerLogsPage() {
                                         children: "Apply Filters"
                                     }, void 0, false, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 393,
+                                        lineNumber: 379,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1637,23 +1625,23 @@ function ControllerLogsPage() {
                                         children: "Clear"
                                     }, void 0, false, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 394,
+                                        lineNumber: 380,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                lineNumber: 368,
+                                lineNumber: 354,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/controller-logs/page.tsx",
-                            lineNumber: 367,
+                            lineNumber: 353,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/controller-logs/page.tsx",
-                        lineNumber: 366,
+                        lineNumber: 352,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -1671,14 +1659,14 @@ function ControllerLogsPage() {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 406,
+                                                lineNumber: 392,
                                                 columnNumber: 15
                                             }, this),
                                             "Transaction Logs"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 405,
+                                        lineNumber: 391,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1689,20 +1677,20 @@ function ControllerLogsPage() {
                                                 className: "h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 410,
+                                                lineNumber: 396,
                                                 columnNumber: 15
                                             }, this),
                                             "Fuel Grade Mapping"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 409,
+                                        lineNumber: 395,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                lineNumber: 404,
+                                lineNumber: 390,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1721,7 +1709,7 @@ function ControllerLogsPage() {
                                                             children: summary.total_transactions || 0
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 420,
+                                                            lineNumber: 406,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1729,18 +1717,18 @@ function ControllerLogsPage() {
                                                             children: "Total Transactions"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 421,
+                                                            lineNumber: 407,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 419,
+                                                    lineNumber: 405,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 418,
+                                                lineNumber: 404,
                                                 columnNumber: 13
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1755,7 +1743,7 @@ function ControllerLogsPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 426,
+                                                            lineNumber: 412,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1763,18 +1751,18 @@ function ControllerLogsPage() {
                                                             children: "Total Volume"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 427,
+                                                            lineNumber: 413,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 425,
+                                                    lineNumber: 411,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 424,
+                                                lineNumber: 410,
                                                 columnNumber: 13
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1789,7 +1777,7 @@ function ControllerLogsPage() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 432,
+                                                            lineNumber: 418,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1797,18 +1785,18 @@ function ControllerLogsPage() {
                                                             children: "Total Amount"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 433,
+                                                            lineNumber: 419,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 431,
+                                                    lineNumber: 417,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 430,
+                                                lineNumber: 416,
                                                 columnNumber: 13
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1820,7 +1808,7 @@ function ControllerLogsPage() {
                                                             children: summary.unique_controllers || 0
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 438,
+                                                            lineNumber: 424,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1828,18 +1816,18 @@ function ControllerLogsPage() {
                                                             children: "Controllers"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 439,
+                                                            lineNumber: 425,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 437,
+                                                    lineNumber: 423,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 436,
+                                                lineNumber: 422,
                                                 columnNumber: 13
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1851,7 +1839,7 @@ function ControllerLogsPage() {
                                                             children: summary.unique_pumps || 0
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 444,
+                                                            lineNumber: 430,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1859,18 +1847,18 @@ function ControllerLogsPage() {
                                                             children: "Pumps"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 445,
+                                                            lineNumber: 431,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 443,
+                                                    lineNumber: 429,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 442,
+                                                lineNumber: 428,
                                                 columnNumber: 13
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1882,7 +1870,7 @@ function ControllerLogsPage() {
                                                             children: summary.processed_count || 0
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 450,
+                                                            lineNumber: 436,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1890,18 +1878,18 @@ function ControllerLogsPage() {
                                                             children: "Processed"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 451,
+                                                            lineNumber: 437,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 449,
+                                                    lineNumber: 435,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 448,
+                                                lineNumber: 434,
                                                 columnNumber: 13
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1913,7 +1901,7 @@ function ControllerLogsPage() {
                                                             children: summary.pending_count || 0
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 456,
+                                                            lineNumber: 442,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1921,24 +1909,24 @@ function ControllerLogsPage() {
                                                             children: "Pending"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 457,
+                                                            lineNumber: 443,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 455,
+                                                    lineNumber: 441,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 454,
+                                                lineNumber: 440,
                                                 columnNumber: 13
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 417,
+                                        lineNumber: 403,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -1952,7 +1940,7 @@ function ControllerLogsPage() {
                                                                 className: "h-5 w-5"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 466,
+                                                                lineNumber: 452,
                                                                 columnNumber: 15
                                                             }, this),
                                                             "Transaction Logs",
@@ -1964,26 +1952,26 @@ function ControllerLogsPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 468,
+                                                                lineNumber: 454,
                                                                 columnNumber: 15
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 465,
+                                                        lineNumber: 451,
                                                         columnNumber: 13
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                         children: "Real-time pump transaction data received from PTS controllers. Click a row to view payload/response details."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 470,
+                                                        lineNumber: 456,
                                                         columnNumber: 13
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 464,
+                                                lineNumber: 450,
                                                 columnNumber: 11
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1993,12 +1981,12 @@ function ControllerLogsPage() {
                                                         className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 477,
+                                                        lineNumber: 463,
                                                         columnNumber: 17
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 476,
+                                                    lineNumber: 462,
                                                     columnNumber: 15
                                                 }, this) : logs.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "text-center py-12 text-slate-500",
@@ -2007,14 +1995,14 @@ function ControllerLogsPage() {
                                                             className: "h-12 w-12 mx-auto mb-4 opacity-50"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 481,
+                                                            lineNumber: 467,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                             children: "No controller logs yet"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 482,
+                                                            lineNumber: 468,
                                                             columnNumber: 17
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2022,13 +2010,13 @@ function ControllerLogsPage() {
                                                             children: "Pump transactions will appear here when received"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 483,
+                                                            lineNumber: 469,
                                                             columnNumber: 17
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 480,
+                                                    lineNumber: 466,
                                                     columnNumber: 15
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "overflow-x-auto",
@@ -2041,35 +2029,35 @@ function ControllerLogsPage() {
                                                                             children: "Timestamp"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 490,
+                                                                            lineNumber: 476,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                             children: "Controller"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 491,
+                                                                            lineNumber: 477,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                             children: "Pump"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 492,
+                                                                            lineNumber: 478,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                             children: "Nozzle"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 493,
+                                                                            lineNumber: 479,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                             children: "Fuel"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 494,
+                                                                            lineNumber: 480,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2077,7 +2065,7 @@ function ControllerLogsPage() {
                                                                             children: "Volume (L)"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 495,
+                                                                            lineNumber: 481,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2085,7 +2073,7 @@ function ControllerLogsPage() {
                                                                             children: "Price"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 496,
+                                                                            lineNumber: 482,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2093,39 +2081,39 @@ function ControllerLogsPage() {
                                                                             children: "Amount"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 497,
+                                                                            lineNumber: 483,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                             children: "Transaction ID"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 498,
+                                                                            lineNumber: 484,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                             children: "Status"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 499,
+                                                                            lineNumber: 485,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                             children: "Details"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 500,
+                                                                            lineNumber: 486,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 489,
+                                                                    lineNumber: 475,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 488,
+                                                                lineNumber: 474,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -2141,19 +2129,19 @@ function ControllerLogsPage() {
                                                                                             className: "h-3 w-3 text-slate-400"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                            lineNumber: 508,
+                                                                                            lineNumber: 494,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         formatDate(log.created_at)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 507,
+                                                                                    lineNumber: 493,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 506,
+                                                                                lineNumber: 492,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2165,12 +2153,12 @@ function ControllerLogsPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 513,
+                                                                                    lineNumber: 499,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 512,
+                                                                                lineNumber: 498,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2179,19 +2167,19 @@ function ControllerLogsPage() {
                                                                                     children: log.pump_number
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 518,
+                                                                                    lineNumber: 504,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 517,
+                                                                                lineNumber: 503,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                                 children: log.nozzle_number
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 520,
+                                                                                lineNumber: 506,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2202,19 +2190,19 @@ function ControllerLogsPage() {
                                                                                             className: "h-3 w-3 text-orange-500"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                            lineNumber: 523,
+                                                                                            lineNumber: 509,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         log.fuel_grade_name
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 522,
+                                                                                    lineNumber: 508,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 521,
+                                                                                lineNumber: 507,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2222,7 +2210,7 @@ function ControllerLogsPage() {
                                                                                 children: Number(log.volume).toFixed(2)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 527,
+                                                                                lineNumber: 513,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2230,7 +2218,7 @@ function ControllerLogsPage() {
                                                                                 children: Number(log.price).toFixed(2)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 530,
+                                                                                lineNumber: 516,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2238,7 +2226,7 @@ function ControllerLogsPage() {
                                                                                 children: Number(log.amount).toFixed(2)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 533,
+                                                                                lineNumber: 519,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2247,12 +2235,12 @@ function ControllerLogsPage() {
                                                                                     children: log.transaction_id
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 537,
+                                                                                    lineNumber: 523,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 536,
+                                                                                lineNumber: 522,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2261,19 +2249,19 @@ function ControllerLogsPage() {
                                                                                     children: "Processed"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 541,
+                                                                                    lineNumber: 527,
                                                                                     columnNumber: 29
                                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                                                                                     variant: "secondary",
                                                                                     children: "Pending"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 543,
+                                                                                    lineNumber: 529,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 539,
+                                                                                lineNumber: 525,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2284,51 +2272,51 @@ function ControllerLogsPage() {
                                                                                     children: "View"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 547,
+                                                                                    lineNumber: 533,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                lineNumber: 546,
+                                                                                lineNumber: 532,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, log.id, true, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 505,
+                                                                        lineNumber: 491,
                                                                         columnNumber: 23
                                                                     }, this))
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 503,
+                                                                lineNumber: 489,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 487,
+                                                        lineNumber: 473,
                                                         columnNumber: 17
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 486,
+                                                    lineNumber: 472,
                                                     columnNumber: 15
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 474,
+                                                lineNumber: 460,
                                                 columnNumber: 11
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 463,
+                                        lineNumber: 449,
                                         columnNumber: 9
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                lineNumber: 415,
+                                lineNumber: 401,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2349,7 +2337,7 @@ function ControllerLogsPage() {
                                                                         className: "h-5 w-5"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 571,
+                                                                        lineNumber: 557,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Fuel Grade Mapping",
@@ -2361,26 +2349,26 @@ function ControllerLogsPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 573,
+                                                                        lineNumber: 559,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 570,
+                                                                lineNumber: 556,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                 children: "Map pump controller fuel grade IDs to items in your inventory for automatic sales processing"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 575,
+                                                                lineNumber: 561,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 569,
+                                                        lineNumber: 555,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2390,25 +2378,25 @@ function ControllerLogsPage() {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 580,
+                                                                lineNumber: 566,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Add Mapping"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 579,
+                                                        lineNumber: 565,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 568,
+                                                lineNumber: 554,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 567,
+                                            lineNumber: 553,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2418,12 +2406,12 @@ function ControllerLogsPage() {
                                                     className: "animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 588,
+                                                    lineNumber: 574,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 587,
+                                                lineNumber: 573,
                                                 columnNumber: 19
                                             }, this) : mappings.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "text-center py-12 text-slate-500",
@@ -2432,14 +2420,14 @@ function ControllerLogsPage() {
                                                         className: "h-12 w-12 mx-auto mb-4 opacity-50"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 592,
+                                                        lineNumber: 578,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         children: "No fuel grade mappings configured"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 593,
+                                                        lineNumber: 579,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2447,7 +2435,7 @@ function ControllerLogsPage() {
                                                         children: "Map fuel grades from your pump controller to inventory items"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 594,
+                                                        lineNumber: 580,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2457,20 +2445,20 @@ function ControllerLogsPage() {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 596,
+                                                                lineNumber: 582,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Create First Mapping"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 595,
+                                                        lineNumber: 581,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 591,
+                                                lineNumber: 577,
                                                 columnNumber: 19
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Table"], {
                                                 children: [
@@ -2481,28 +2469,28 @@ function ControllerLogsPage() {
                                                                     children: "Fuel Grade ID"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 604,
+                                                                    lineNumber: 590,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Fuel Grade Name"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 605,
+                                                                    lineNumber: 591,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Linked Item"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 606,
+                                                                    lineNumber: 592,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Item Code"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 607,
+                                                                    lineNumber: 593,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -2510,39 +2498,39 @@ function ControllerLogsPage() {
                                                                     children: "Sale Price"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 608,
+                                                                    lineNumber: 594,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Controller"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 609,
+                                                                    lineNumber: 595,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Notes"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 610,
+                                                                    lineNumber: 596,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                                                     children: "Actions"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                    lineNumber: 611,
+                                                                    lineNumber: 597,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 603,
+                                                            lineNumber: 589,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 602,
+                                                        lineNumber: 588,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -2554,12 +2542,12 @@ function ControllerLogsPage() {
                                                                             children: mapping.fuel_grade_id
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 618,
+                                                                            lineNumber: 604,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 617,
+                                                                        lineNumber: 603,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2570,19 +2558,19 @@ function ControllerLogsPage() {
                                                                                     className: "h-3 w-3 text-orange-500"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 622,
+                                                                                    lineNumber: 608,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 mapping.fuel_grade_name || "-"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 621,
+                                                                            lineNumber: 607,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 620,
+                                                                        lineNumber: 606,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2591,19 +2579,19 @@ function ControllerLogsPage() {
                                                                             children: mapping.item_name
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 628,
+                                                                            lineNumber: 614,
                                                                             columnNumber: 31
                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                             className: "text-amber-600 text-sm",
                                                                             children: "Not mapped"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 630,
+                                                                            lineNumber: 616,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 626,
+                                                                        lineNumber: 612,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2612,12 +2600,12 @@ function ControllerLogsPage() {
                                                                             children: mapping.item_code
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 635,
+                                                                            lineNumber: 621,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 633,
+                                                                        lineNumber: 619,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2625,7 +2613,7 @@ function ControllerLogsPage() {
                                                                         children: mapping.sale_price ? `KES ${Number(mapping.sale_price).toFixed(2)}` : "-"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 638,
+                                                                        lineNumber: 624,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2637,19 +2625,19 @@ function ControllerLogsPage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 643,
+                                                                            lineNumber: 629,
                                                                             columnNumber: 31
                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                             className: "text-slate-400 text-sm",
                                                                             children: "All controllers"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 645,
+                                                                            lineNumber: 631,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 641,
+                                                                        lineNumber: 627,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2657,7 +2645,7 @@ function ControllerLogsPage() {
                                                                         children: mapping.notes || "-"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 648,
+                                                                        lineNumber: 634,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -2671,7 +2659,7 @@ function ControllerLogsPage() {
                                                                                     children: "Edit"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 653,
+                                                                                    lineNumber: 639,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2683,68 +2671,68 @@ function ControllerLogsPage() {
                                                                                         className: "h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                        lineNumber: 657,
+                                                                                        lineNumber: 643,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                                                    lineNumber: 656,
+                                                                                    lineNumber: 642,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                                            lineNumber: 652,
+                                                                            lineNumber: 638,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                                        lineNumber: 651,
+                                                                        lineNumber: 637,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, mapping.id, true, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 616,
+                                                                lineNumber: 602,
                                                                 columnNumber: 25
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 614,
+                                                        lineNumber: 600,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 601,
+                                                lineNumber: 587,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 585,
+                                            lineNumber: 571,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 566,
+                                    lineNumber: 552,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                lineNumber: 565,
+                                lineNumber: 551,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/controller-logs/page.tsx",
-                        lineNumber: 403,
+                        lineNumber: 389,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/controller-logs/page.tsx",
-                lineNumber: 310,
+                lineNumber: 296,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -2758,20 +2746,20 @@ function ControllerLogsPage() {
                                     children: editingMapping ? "Edit Fuel Grade Mapping" : "Add Fuel Grade Mapping"
                                 }, void 0, false, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 675,
+                                    lineNumber: 661,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Map a fuel grade ID from your pump controller to an inventory item"
                                 }, void 0, false, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 676,
+                                    lineNumber: 662,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/controller-logs/page.tsx",
-                            lineNumber: 674,
+                            lineNumber: 660,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2787,7 +2775,7 @@ function ControllerLogsPage() {
                                                     children: "Fuel Grade ID *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 683,
+                                                    lineNumber: 669,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2800,13 +2788,13 @@ function ControllerLogsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 684,
+                                                    lineNumber: 670,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 682,
+                                            lineNumber: 668,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2816,7 +2804,7 @@ function ControllerLogsPage() {
                                                     children: "Fuel Grade Name"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 692,
+                                                    lineNumber: 678,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2828,88 +2816,19 @@ function ControllerLogsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 693,
+                                                    lineNumber: 679,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 691,
+                                            lineNumber: 677,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 681,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "space-y-2",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
-                                            children: "Branch *"
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 701,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
-                                            value: selectedBranchId || "none",
-                                            onValueChange: (value)=>{
-                                                setSelectedBranchId(value === "none" ? "" : value);
-                                                setNewMapping({
-                                                    ...newMapping,
-                                                    item_id: ""
-                                                });
-                                            },
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
-                                                        placeholder: "Select a branch first"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 710,
-                                                        columnNumber: 19
-                                                    }, this)
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 709,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                            value: "none",
-                                                            children: "Select a branch"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 713,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        branches.map((branch)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                                value: branch.id,
-                                                                children: branch.branch_name
-                                                            }, branch.id, false, {
-                                                                fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 715,
-                                                                columnNumber: 21
-                                                            }, this))
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 712,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 702,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 700,
+                                    lineNumber: 667,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2919,7 +2838,7 @@ function ControllerLogsPage() {
                                             children: "Link to Item"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 723,
+                                            lineNumber: 687,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -2928,19 +2847,18 @@ function ControllerLogsPage() {
                                                     ...newMapping,
                                                     item_id: value === "none" ? "" : value
                                                 }),
-                                            disabled: !selectedBranchId,
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectValue"], {
-                                                        placeholder: selectedBranchId ? "Select an item to link" : "Select a branch first"
+                                                        placeholder: "Select an item to link"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                                        lineNumber: 730,
+                                                        lineNumber: 693,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 729,
+                                                    lineNumber: 692,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -2950,7 +2868,7 @@ function ControllerLogsPage() {
                                                             children: "No item linked"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                                            lineNumber: 733,
+                                                            lineNumber: 696,
                                                             columnNumber: 19
                                                         }, this),
                                                         items.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2964,25 +2882,33 @@ function ControllerLogsPage() {
                                                                 ]
                                                             }, item.id, true, {
                                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                                lineNumber: 735,
+                                                                lineNumber: 698,
                                                                 columnNumber: 21
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 732,
+                                                    lineNumber: 695,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 724,
+                                            lineNumber: 688,
                                             columnNumber: 15
+                                        }, this),
+                                        items.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-xs text-amber-600",
+                                            children: "No fuel items found for current branch"
+                                        }, void 0, false, {
+                                            fileName: "[project]/app/controller-logs/page.tsx",
+                                            lineNumber: 705,
+                                            columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 722,
+                                    lineNumber: 686,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2992,7 +2918,7 @@ function ControllerLogsPage() {
                                             children: "Controller ID (optional)"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 743,
+                                            lineNumber: 709,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3004,7 +2930,7 @@ function ControllerLogsPage() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 744,
+                                            lineNumber: 710,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3012,13 +2938,13 @@ function ControllerLogsPage() {
                                             children: "If specified, this mapping only applies to this specific controller"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 749,
+                                            lineNumber: 715,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 742,
+                                    lineNumber: 708,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3028,7 +2954,7 @@ function ControllerLogsPage() {
                                             children: "Notes"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 752,
+                                            lineNumber: 718,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3040,13 +2966,13 @@ function ControllerLogsPage() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 753,
+                                            lineNumber: 719,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 751,
+                                    lineNumber: 717,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3058,7 +2984,7 @@ function ControllerLogsPage() {
                                             children: "Cancel"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 760,
+                                            lineNumber: 726,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3066,30 +2992,30 @@ function ControllerLogsPage() {
                                             children: "Save Mapping"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 761,
+                                            lineNumber: 727,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 759,
+                                    lineNumber: 725,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/controller-logs/page.tsx",
-                            lineNumber: 680,
+                            lineNumber: 666,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/controller-logs/page.tsx",
-                    lineNumber: 673,
+                    lineNumber: 659,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/controller-logs/page.tsx",
-                lineNumber: 672,
+                lineNumber: 658,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3107,7 +3033,7 @@ function ControllerLogsPage() {
                                             className: "h-5 w-5 text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 771,
+                                            lineNumber: 737,
                                             columnNumber: 15
                                         }, this),
                                         "Callback Details - Transaction #",
@@ -3115,7 +3041,7 @@ function ControllerLogsPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 770,
+                                    lineNumber: 736,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -3129,13 +3055,13 @@ function ControllerLogsPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 774,
+                                    lineNumber: 740,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/controller-logs/page.tsx",
-                            lineNumber: 769,
+                            lineNumber: 735,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -3150,7 +3076,7 @@ function ControllerLogsPage() {
                                             children: "Request Payload"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 781,
+                                            lineNumber: 747,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3158,7 +3084,7 @@ function ControllerLogsPage() {
                                             children: "Response"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 782,
+                                            lineNumber: 748,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3166,13 +3092,13 @@ function ControllerLogsPage() {
                                             children: "Packet Data"
                                         }, void 0, false, {
                                             fileName: "[project]/app/controller-logs/page.tsx",
-                                            lineNumber: 783,
+                                            lineNumber: 749,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 780,
+                                    lineNumber: 746,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3190,18 +3116,18 @@ function ControllerLogsPage() {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 794,
+                                                    lineNumber: 760,
                                                     columnNumber: 48
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__["Copy"], {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 794,
+                                                    lineNumber: 760,
                                                     columnNumber: 80
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 788,
+                                                lineNumber: 754,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3211,23 +3137,23 @@ function ControllerLogsPage() {
                                                     children: formatJSON(selectedLog?.raw_request)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 797,
+                                                    lineNumber: 763,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 796,
+                                                lineNumber: 762,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 787,
+                                        lineNumber: 753,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 786,
+                                    lineNumber: 752,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3245,18 +3171,18 @@ function ControllerLogsPage() {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 812,
+                                                    lineNumber: 778,
                                                     columnNumber: 49
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__["Copy"], {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 812,
+                                                    lineNumber: 778,
                                                     columnNumber: 81
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 806,
+                                                lineNumber: 772,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3266,23 +3192,23 @@ function ControllerLogsPage() {
                                                     children: formatJSON(selectedLog?.raw_response)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 815,
+                                                    lineNumber: 781,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 814,
+                                                lineNumber: 780,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 805,
+                                        lineNumber: 771,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 804,
+                                    lineNumber: 770,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3300,18 +3226,18 @@ function ControllerLogsPage() {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 830,
+                                                    lineNumber: 796,
                                                     columnNumber: 47
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$copy$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Copy$3e$__["Copy"], {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 830,
+                                                    lineNumber: 796,
                                                     columnNumber: 79
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 824,
+                                                lineNumber: 790,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3321,50 +3247,50 @@ function ControllerLogsPage() {
                                                     children: formatJSON(selectedLog?.raw_packet)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                                    lineNumber: 833,
+                                                    lineNumber: 799,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
-                                                lineNumber: 832,
+                                                lineNumber: 798,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/controller-logs/page.tsx",
-                                        lineNumber: 823,
+                                        lineNumber: 789,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/controller-logs/page.tsx",
-                                    lineNumber: 822,
+                                    lineNumber: 788,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/controller-logs/page.tsx",
-                            lineNumber: 779,
+                            lineNumber: 745,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/controller-logs/page.tsx",
-                    lineNumber: 768,
+                    lineNumber: 734,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/controller-logs/page.tsx",
-                lineNumber: 767,
+                lineNumber: 733,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/controller-logs/page.tsx",
-        lineNumber: 309,
+        lineNumber: 295,
         columnNumber: 5
     }, this);
 }
-_s(ControllerLogsPage, "+YvQQTMsVw1t0nXDEif77GStka4=");
+_s(ControllerLogsPage, "OjHZusvBl5cPtwCV3uJbYmzCt08=");
 _c = ControllerLogsPage;
 var _c;
 __turbopack_context__.k.register(_c, "ControllerLogsPage");

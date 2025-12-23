@@ -75,11 +75,6 @@ interface Item {
   sale_price: number
 }
 
-interface Branch {
-  id: string
-  branch_name: string
-}
-
 export default function ControllerLogsPage() {
   const [logs, setLogs] = useState<PumpTransaction[]>([])
   const [loading, setLoading] = useState(true)
@@ -96,11 +91,10 @@ export default function ControllerLogsPage() {
   const [activeTab, setActiveTab] = useState("logs")
   const [mappings, setMappings] = useState<FuelGradeMapping[]>([])
   const [items, setItems] = useState<Item[]>([])
-  const [branches, setBranches] = useState<Branch[]>([])
   const [loadingMappings, setLoadingMappings] = useState(false)
   const [showMappingDialog, setShowMappingDialog] = useState(false)
   const [editingMapping, setEditingMapping] = useState<FuelGradeMapping | null>(null)
-  const [selectedBranchId, setSelectedBranchId] = useState("")
+  const [currentBranchId, setCurrentBranchId] = useState<string>("")
   const [newMapping, setNewMapping] = useState({
     fuel_grade_id: "",
     fuel_grade_name: "",
@@ -134,16 +128,21 @@ export default function ControllerLogsPage() {
   useEffect(() => {
     fetchLogs()
     fetchMappings()
-    fetchBranches()
-  }, [])
-
-  useEffect(() => {
-    if (selectedBranchId) {
-      fetchItems(selectedBranchId)
-    } else {
-      setItems([])
+    
+    // Get current branch from localStorage
+    const storedBranch = localStorage.getItem("selectedBranch")
+    if (storedBranch) {
+      try {
+        const branch = JSON.parse(storedBranch)
+        if (branch?.id) {
+          setCurrentBranchId(branch.id)
+          fetchItems(branch.id)
+        }
+      } catch (e) {
+        console.error("Error parsing stored branch:", e)
+      }
     }
-  }, [selectedBranchId])
+  }, [])
 
   const fetchMappings = async () => {
     setLoadingMappings(true)
@@ -157,18 +156,6 @@ export default function ControllerLogsPage() {
       console.error("Error fetching fuel grade mappings:", error)
     } finally {
       setLoadingMappings(false)
-    }
-  }
-
-  const fetchBranches = async () => {
-    try {
-      const response = await fetch("/api/branches")
-      const data = await response.json()
-      if (data.success) {
-        setBranches(data.data || [])
-      }
-    } catch (error) {
-      console.error("Error fetching branches:", error)
     }
   }
 
@@ -249,7 +236,6 @@ export default function ControllerLogsPage() {
 
   const openNewMapping = () => {
     setNewMapping({ fuel_grade_id: "", fuel_grade_name: "", item_id: "", pts_id: "", notes: "" })
-    setSelectedBranchId("")
     setEditingMapping(null)
     setShowMappingDialog(true)
   }
@@ -698,36 +684,13 @@ export default function ControllerLogsPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Branch *</Label>
-              <Select
-                value={selectedBranchId || "none"}
-                onValueChange={(value) => {
-                  setSelectedBranchId(value === "none" ? "" : value)
-                  setNewMapping({ ...newMapping, item_id: "" })
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a branch first" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Select a branch</SelectItem>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id}>
-                      {branch.branch_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
               <Label>Link to Item</Label>
               <Select
                 value={newMapping.item_id || "none"}
                 onValueChange={(value) => setNewMapping({ ...newMapping, item_id: value === "none" ? "" : value })}
-                disabled={!selectedBranchId}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={selectedBranchId ? "Select an item to link" : "Select a branch first"} />
+                  <SelectValue placeholder="Select an item to link" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No item linked</SelectItem>
@@ -738,6 +701,9 @@ export default function ControllerLogsPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {items.length === 0 && (
+                <p className="text-xs text-amber-600">No fuel items found for current branch</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Controller ID (optional)</Label>

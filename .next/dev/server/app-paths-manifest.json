@@ -1,6 +1,5 @@
 {
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/branches/route": "app/api/branches/route.js",
   "/api/controller-logs/fuel-grade-mappings/route": "app/api/controller-logs/fuel-grade-mappings/route.js",
   "/api/controller-logs/route": "app/api/controller-logs/route.js",
   "/api/customers/route": "app/api/customers/route.js",
