@@ -167,8 +167,13 @@ export function SalesSummaryContent() {
         setSales([])
       }
     } catch (error) {
-      console.error("Error fetching data:", error)
-      toast.error("Failed to load sales data")
+      // Silently ignore network errors during HMR/development
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Network error during development - likely HMR")
+      } else {
+        console.error("Error fetching data:", error)
+        toast.error("Failed to load sales data")
+      }
     } finally {
       setLoading(false)
     }
@@ -190,7 +195,10 @@ export function SalesSummaryContent() {
           )
         }
       } catch (error) {
-        console.error("Error fetching loyalty customers:", error)
+        // Silently ignore network errors during HMR/development
+        if (process.env.NODE_ENV !== 'development') {
+          console.error("Error fetching loyalty customers:", error)
+        }
       }
     }
 
