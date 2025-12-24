@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
       status,
       kra_item_cd,
       sync_to_kra,
-      unit_price
+      unit_price,
+      item_id
     } = body
 
     if (!branch_id || !tank_name || !fuel_type) {
@@ -43,10 +44,10 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await query(
-      `INSERT INTO tanks (branch_id, tank_name, fuel_type, capacity, current_stock, status, kra_item_cd)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO tanks (branch_id, tank_name, fuel_type, capacity, current_stock, status, kra_item_cd, item_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [branch_id, tank_name, fuel_type, capacity || 0, current_stock || 0, status || "active", kra_item_cd || null]
+      [branch_id, tank_name, fuel_type, capacity || 0, current_stock || 0, status || "active", kra_item_cd || null, item_id || null]
     )
 
     const tank = result[0]
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, current_stock, status, sync_to_kra, adjustment_type, unit_price } = body
+    const { id, current_stock, status, sync_to_kra, adjustment_type, unit_price, item_id } = body
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Tank id is required" }, { status: 400 })
@@ -126,6 +127,12 @@ export async function PATCH(request: NextRequest) {
     if (status !== undefined) {
       updates.push(`status = $${paramIndex}`)
       values.push(status)
+      paramIndex++
+    }
+
+    if (item_id !== undefined) {
+      updates.push(`item_id = $${paramIndex}`)
+      values.push(item_id || null)
       paramIndex++
     }
 
