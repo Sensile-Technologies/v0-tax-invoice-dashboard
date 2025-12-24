@@ -17,7 +17,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const tankIdsArray = tank_ids || []
+    // Filter out any null/undefined/empty tank_ids
+    const tankIdsArray = (tank_ids || []).filter((id: any) => id && typeof id === 'string' && id.trim() !== '')
+
+    console.log("Assigning tanks:", { dispenser_id, tankIdsArray, rawTankIds: tank_ids })
 
     await pool.query('DELETE FROM dispenser_tanks WHERE dispenser_id = $1', [dispenser_id])
 
@@ -26,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     if (tankIdsArray.length > 0) {
       const tanksResult = await pool.query(
-        'SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1)',
+        'SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1::uuid[])',
         [tankIdsArray]
       )
       
@@ -36,10 +39,11 @@ export async function POST(request: NextRequest) {
         itemId = tankWithItem.item_id
       }
 
-      for (const tankId of tankIdsArray) {
+      // Insert only valid tank IDs that exist in the database
+      for (const tank of tanksResult.rows) {
         await pool.query(
           'INSERT INTO dispenser_tanks (dispenser_id, tank_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-          [dispenser_id, tankId]
+          [dispenser_id, tank.id]
         )
       }
     }
@@ -63,13 +67,13 @@ export async function POST(request: NextRequest) {
       )
       const existingTankIds = existingNozzlesResult.rows.map((n: any) => n.tank_id)
 
-      const tanksResult = await pool.query(
-        'SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1)',
+      const tanksResultForNozzles = await pool.query(
+        'SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1::uuid[])',
         [tankIdsArray]
       )
 
-      for (let i = 0; i < tanksResult.rows.length; i++) {
-        const tank = tanksResult.rows[i]
+      for (let i = 0; i < tanksResultForNozzles.rows.length; i++) {
+        const tank = tanksResultForNozzles.rows[i]
         
         if (!existingTankIds.includes(tank.id)) {
           const nozzleNumber = i + 1
