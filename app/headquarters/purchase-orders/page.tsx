@@ -108,7 +108,7 @@ export default function PurchaseOrdersPage() {
     fetchUserRole()
   }, [fetchOrders, fetchUserRole])
 
-  const canApprove = ['manager', 'director', 'admin', 'owner'].includes(userRole)
+  const canApprove = ['vendor', 'manager', 'director', 'admin', 'owner'].includes(userRole)
 
   const handleApprove = async (orderId: string) => {
     try {

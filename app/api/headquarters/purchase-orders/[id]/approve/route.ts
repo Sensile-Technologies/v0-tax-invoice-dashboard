@@ -71,7 +71,7 @@ export async function POST(
     }
 
     const { role: userRole, hasHQAccess } = await getUserRoleAndHQAccess(user.id, vendorId)
-    const allowedRoles = ['manager', 'director', 'admin', 'owner']
+    const allowedRoles = ['vendor', 'manager', 'director', 'admin', 'owner']
     
     if (!hasHQAccess) {
       return NextResponse.json({ 
@@ -83,7 +83,7 @@ export async function POST(
     if (!userRole || !allowedRoles.includes(userRole.toLowerCase())) {
       return NextResponse.json({ 
         success: false, 
-        error: "Only Managers or Directors can approve purchase orders" 
+        error: "You don't have permission to approve purchase orders" 
       }, { status: 403 })
     }
 
