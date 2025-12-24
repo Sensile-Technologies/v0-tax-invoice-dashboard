@@ -51,8 +51,7 @@ export async function POST(request: NextRequest) {
       nozzle_number, 
       fuel_type, 
       status,
-      item_id,
-      tank_id
+      initial_meter_reading
     } = body
 
     if (!branch_id || !dispenser_id || !nozzle_number) {
@@ -63,10 +62,10 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await pool.query(
-      `INSERT INTO nozzles (branch_id, dispenser_id, nozzle_number, fuel_type, status, item_id, tank_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO nozzles (branch_id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [branch_id, dispenser_id, nozzle_number, fuel_type || 'Petrol', status || 'active', item_id || null, tank_id || null]
+      [branch_id, dispenser_id, nozzle_number, fuel_type || 'Petrol', status || 'active', initial_meter_reading || 0]
     )
 
     return NextResponse.json({
@@ -88,11 +87,10 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const { 
       id,
+      dispenser_id,
       nozzle_number, 
       fuel_type, 
-      status,
-      item_id,
-      tank_id
+      status
     } = body
 
     if (!id) {
@@ -104,15 +102,14 @@ export async function PUT(request: NextRequest) {
 
     const result = await pool.query(
       `UPDATE nozzles 
-       SET nozzle_number = COALESCE($2, nozzle_number),
-           fuel_type = COALESCE($3, fuel_type),
-           status = COALESCE($4, status),
-           item_id = COALESCE($5, item_id),
-           tank_id = COALESCE($6, tank_id),
+       SET dispenser_id = COALESCE($2, dispenser_id),
+           nozzle_number = COALESCE($3, nozzle_number),
+           fuel_type = COALESCE($4, fuel_type),
+           status = COALESCE($5, status),
            updated_at = NOW()
        WHERE id = $1
        RETURNING *`,
-      [id, nozzle_number, fuel_type, status, item_id, tank_id]
+      [id, dispenser_id, nozzle_number, fuel_type, status]
     )
 
     if (result.rows.length === 0) {
