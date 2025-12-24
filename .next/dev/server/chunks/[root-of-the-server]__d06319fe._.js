@@ -83,14 +83,20 @@ async function POST(request) {
                 status: 400
             });
         }
-        const tankIdsArray = tank_ids || [];
+        // Filter out any null/undefined/empty tank_ids
+        const tankIdsArray = (tank_ids || []).filter((id)=>id && typeof id === 'string' && id.trim() !== '');
+        console.log("Assigning tanks:", {
+            dispenser_id,
+            tankIdsArray,
+            rawTankIds: tank_ids
+        });
         await pool.query('DELETE FROM dispenser_tanks WHERE dispenser_id = $1', [
             dispenser_id
         ]);
         let fuelTypes = [];
         let itemId = null;
         if (tankIdsArray.length > 0) {
-            const tanksResult = await pool.query('SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1)', [
+            const tanksResult = await pool.query('SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1::uuid[])', [
                 tankIdsArray
             ]);
             fuelTypes = [
@@ -100,10 +106,11 @@ async function POST(request) {
             if (tankWithItem) {
                 itemId = tankWithItem.item_id;
             }
-            for (const tankId of tankIdsArray){
+            // Insert only valid tank IDs that exist in the database
+            for (const tank of tanksResult.rows){
                 await pool.query('INSERT INTO dispenser_tanks (dispenser_id, tank_id) VALUES ($1, $2) ON CONFLICT DO NOTHING', [
                     dispenser_id,
-                    tankId
+                    tank.id
                 ]);
             }
         }
@@ -125,11 +132,11 @@ async function POST(request) {
                 dispenser_id
             ]);
             const existingTankIds = existingNozzlesResult.rows.map((n)=>n.tank_id);
-            const tanksResult = await pool.query('SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1)', [
+            const tanksResultForNozzles = await pool.query('SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1::uuid[])', [
                 tankIdsArray
             ]);
-            for(let i = 0; i < tanksResult.rows.length; i++){
-                const tank = tanksResult.rows[i];
+            for(let i = 0; i < tanksResultForNozzles.rows.length; i++){
+                const tank = tanksResultForNozzles.rows[i];
                 if (!existingTankIds.includes(tank.id)) {
                     const nozzleNumber = i + 1;
                     await pool.query(`INSERT INTO nozzles (branch_id, dispenser_id, tank_id, nozzle_number, fuel_type, item_id, status, initial_meter_reading)
