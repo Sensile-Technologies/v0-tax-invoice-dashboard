@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
 import TankManagement from "./tank-management"
+import NozzleManagement from "./nozzle-management"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 
@@ -80,7 +81,7 @@ type SortDirection = "asc" | "desc" | null
 
 export function InventoryContent() {
   const [activeView, setActiveView] = useState<
-    "cards" | "stockIn" | "stockOut" | "tankManagement" | "stockReport"
+    "cards" | "stockIn" | "stockOut" | "tankManagement" | "nozzleManagement" | "stockReport"
   >("cards")
   const [searchQuery, setSearchQuery] = useState("")
   const [startDate, setStartDate] = useState("")
@@ -272,6 +273,20 @@ export function InventoryContent() {
             <CardContent>
               <div className="text-2xl font-bold">Manage Tanks</div>
               <p className="text-xs text-muted-foreground mt-1">Stock levels & transfers</p>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="rounded-2xl cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setActiveView("nozzleManagement")}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Nozzle Management</CardTitle>
+              <Fuel className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">Manage Nozzles</div>
+              <p className="text-xs text-muted-foreground mt-1">Add & configure nozzles</p>
             </CardContent>
           </Card>
         </div>
@@ -594,6 +609,17 @@ export function InventoryContent() {
             </Button>
           </div>
           <TankManagement branchId={selectedBranchId} />
+        </div>
+      )}
+
+      {activeView === "nozzleManagement" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
+              ← Back to Overview
+            </Button>
+          </div>
+          <NozzleManagement branchId={selectedBranchId} />
         </div>
       )}
     </div>
