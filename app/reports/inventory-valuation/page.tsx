@@ -38,7 +38,7 @@ export default function InventoryValuationPage() {
       }
 
       const params = new URLSearchParams()
-      if (branchId) params.append("branch_id", branchId)
+      if (branchId) params.append("branchId", branchId)
       if (searchQuery) params.append("search", searchQuery)
 
       const response = await fetch(`/api/items?${params.toString()}`)

@@ -49,14 +49,14 @@ export default function ItemsListPage() {
     const fetchItems = async () => {
       try {
         const storedUser = localStorage.getItem("user")
-        let vendorId = ""
+        let branchId = ""
         
         if (storedUser) {
           const user = JSON.parse(storedUser)
-          vendorId = user.vendorId || user.vendor_id || ""
+          branchId = user.branchId || user.branch_id || ""
         }
 
-        const url = vendorId ? `/api/items?vendorId=${vendorId}` : "/api/items"
+        const url = branchId ? `/api/items?branchId=${branchId}` : "/api/items"
         const response = await fetch(url)
         const result = await response.json()
 
