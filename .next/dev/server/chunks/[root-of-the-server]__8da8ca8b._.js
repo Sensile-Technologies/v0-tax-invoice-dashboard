@@ -190,13 +190,15 @@ async function GET(request) {
         const orders = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT 
         po.*,
         vp.name as supplier_name,
+        tp.name as transporter_name,
         u.full_name as created_by_name,
         (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
         (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount
        FROM purchase_orders po
        LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
+       LEFT JOIN vendor_partners tp ON po.transporter_id = tp.id
        LEFT JOIN users u ON po.created_by = u.id
-       WHERE po.branch_id = $1 AND po.status = 'pending'
+       WHERE po.branch_id = $1 AND po.status = 'pending' AND po.approval_status = 'approved'
        ORDER BY po.issued_at DESC`, [
             branchId
         ]);
@@ -309,6 +311,13 @@ async function POST(request) {
                         reading.tank_id,
                         reading.volume_before,
                         reading.volume_after
+                    ]);
+                    await client.query(`UPDATE tanks 
+             SET current_stock = $1, updated_at = NOW()
+             WHERE id = $2 AND branch_id = $3`, [
+                        parseFloat(reading.volume_after) || 0,
+                        reading.tank_id,
+                        branchId
                     ]);
                 }
             }

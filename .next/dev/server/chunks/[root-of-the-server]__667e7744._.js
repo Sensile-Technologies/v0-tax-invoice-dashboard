@@ -209,7 +209,7 @@ async function POST(request, { params }) {
                 status: 403
             });
         }
-        const { role: userRole, hasHQAccess } = await getUserRoleAndHQAccess(user.id, vendorId);
+        const { role: userRole } = await getUserRoleAndHQAccess(user.id, vendorId);
         const allowedRoles = [
             'vendor',
             'manager',
@@ -217,14 +217,6 @@ async function POST(request, { params }) {
             'admin',
             'owner'
         ];
-        if (!hasHQAccess) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                success: false,
-                error: "Only headquarters staff can approve purchase orders"
-            }, {
-                status: 403
-            });
-        }
         if (!userRole || !allowedRoles.includes(userRole.toLowerCase())) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
