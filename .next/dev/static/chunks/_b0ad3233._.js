@@ -3273,6 +3273,8 @@ function PurchasesContent() {
         currentBranch,
         fetchPendingPOs
     ]);
+    const deliveries = purchases.filter((purchase)=>purchase.source === "purchase_order");
+    const kraPurchases = purchases.filter((purchase)=>purchase.source === "transaction");
     const approvedPurchases = purchases.filter((purchase)=>purchase.status === "approved");
     const rejectedPurchases = purchases.filter((purchase)=>purchase.status === "rejected");
     const variance = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
@@ -3417,14 +3419,14 @@ function PurchasesContent() {
                                     children: "Purchase Order ID"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 333,
+                                    lineNumber: 336,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                     children: "Supplier"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 334,
+                                    lineNumber: 337,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -3432,7 +3434,7 @@ function PurchasesContent() {
                                     children: "Date"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 335,
+                                    lineNumber: 338,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -3440,32 +3442,32 @@ function PurchasesContent() {
                                     children: "Items"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 336,
+                                    lineNumber: 339,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                     children: "Amount"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 337,
+                                    lineNumber: 340,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
                                     children: "Status"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 338,
+                                    lineNumber: 341,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 332,
+                            lineNumber: 335,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/purchases-content.tsx",
-                        lineNumber: 331,
+                        lineNumber: 334,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -3478,7 +3480,7 @@ function PurchasesContent() {
                                         className: "h-12 w-12 text-muted-foreground mx-auto mb-4"
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 345,
+                                        lineNumber: 348,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3486,18 +3488,18 @@ function PurchasesContent() {
                                         children: "No purchases found"
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 346,
+                                        lineNumber: 349,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/purchases-content.tsx",
-                                lineNumber: 344,
+                                lineNumber: 347,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 343,
+                            lineNumber: 346,
                             columnNumber: 13
                         }, this) : purchaseList.map((purchase)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableRow"], {
                                 className: "text-xs md:text-sm",
@@ -3507,14 +3509,14 @@ function PurchasesContent() {
                                         children: purchase.po_number
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 352,
+                                        lineNumber: 355,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
                                         children: purchase.supplier
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 353,
+                                        lineNumber: 356,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -3522,7 +3524,7 @@ function PurchasesContent() {
                                         children: purchase.date || "N/A"
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 354,
+                                        lineNumber: 357,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -3530,14 +3532,14 @@ function PurchasesContent() {
                                         children: purchase.items
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 355,
+                                        lineNumber: 358,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
                                         children: formatCurrency(purchase.amount)
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 356,
+                                        lineNumber: 359,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -3547,34 +3549,34 @@ function PurchasesContent() {
                                             children: purchase.status
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 358,
+                                            lineNumber: 361,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 357,
+                                        lineNumber: 360,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, purchase.id, true, {
                                 fileName: "[project]/components/purchases-content.tsx",
-                                lineNumber: 351,
+                                lineNumber: 354,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/components/purchases-content.tsx",
-                        lineNumber: 341,
+                        lineNumber: 344,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/purchases-content.tsx",
-                lineNumber: 330,
+                lineNumber: 333,
                 columnNumber: 7
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/purchases-content.tsx",
-            lineNumber: 329,
+            lineNumber: 332,
             columnNumber: 5
         }, this);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3590,7 +3592,7 @@ function PurchasesContent() {
                                 children: "Purchases"
                             }, void 0, false, {
                                 fileName: "[project]/components/purchases-content.tsx",
-                                lineNumber: 377,
+                                lineNumber: 380,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3598,13 +3600,13 @@ function PurchasesContent() {
                                 children: "Accept purchase orders from headquarters"
                             }, void 0, false, {
                                 fileName: "[project]/components/purchases-content.tsx",
-                                lineNumber: 378,
+                                lineNumber: 381,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/purchases-content.tsx",
-                        lineNumber: 376,
+                        lineNumber: 379,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3622,7 +3624,7 @@ function PurchasesContent() {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 387,
+                                        lineNumber: 390,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3630,7 +3632,7 @@ function PurchasesContent() {
                                         children: "Accept Purchase"
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 388,
+                                        lineNumber: 391,
                                         columnNumber: 13
                                     }, this),
                                     pendingPOs.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3638,13 +3640,13 @@ function PurchasesContent() {
                                         children: pendingPOs.length
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 390,
+                                        lineNumber: 393,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/purchases-content.tsx",
-                                lineNumber: 382,
+                                lineNumber: 385,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3657,7 +3659,7 @@ function PurchasesContent() {
                                         className: `h-4 w-4 ${loading ? 'animate-spin' : ''}`
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 401,
+                                        lineNumber: 404,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3665,25 +3667,25 @@ function PurchasesContent() {
                                         children: "Refresh"
                                     }, void 0, false, {
                                         fileName: "[project]/components/purchases-content.tsx",
-                                        lineNumber: 402,
+                                        lineNumber: 405,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/purchases-content.tsx",
-                                lineNumber: 395,
+                                lineNumber: 398,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/purchases-content.tsx",
-                        lineNumber: 381,
+                        lineNumber: 384,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/purchases-content.tsx",
-                lineNumber: 375,
+                lineNumber: 378,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3701,7 +3703,7 @@ function PurchasesContent() {
                                             className: "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 411,
+                                            lineNumber: 414,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3711,13 +3713,13 @@ function PurchasesContent() {
                                             className: "pl-10 rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 412,
+                                            lineNumber: 415,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 410,
+                                    lineNumber: 413,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3731,7 +3733,7 @@ function PurchasesContent() {
                                             className: "rounded-xl w-32 md:w-40 text-sm"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 420,
+                                            lineNumber: 423,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3739,7 +3741,7 @@ function PurchasesContent() {
                                             children: "to"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 427,
+                                            lineNumber: 430,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3750,19 +3752,19 @@ function PurchasesContent() {
                                             className: "rounded-xl w-32 md:w-40 text-sm"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 428,
+                                            lineNumber: 431,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 419,
+                                    lineNumber: 422,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 409,
+                            lineNumber: 412,
                             columnNumber: 11
                         }, this),
                         loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3772,7 +3774,7 @@ function PurchasesContent() {
                                     className: "h-8 w-8 animate-spin text-blue-600"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 440,
+                                    lineNumber: 443,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3780,13 +3782,13 @@ function PurchasesContent() {
                                     children: "Loading purchases..."
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 441,
+                                    lineNumber: 444,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 439,
+                            lineNumber: 442,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
                             value: activeTab,
@@ -3805,39 +3807,39 @@ function PurchasesContent() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 446,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
-                                            value: "approved",
-                                            className: "rounded-lg data-[state=active]:bg-muted text-xs md:text-sm",
-                                            children: [
-                                                "Approved (",
-                                                approvedPurchases.length,
-                                                ")"
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/components/purchases-content.tsx",
                                             lineNumber: 449,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
-                                            value: "rejected",
+                                            value: "deliveries",
                                             className: "rounded-lg data-[state=active]:bg-muted text-xs md:text-sm",
                                             children: [
-                                                "Rejected (",
-                                                rejectedPurchases.length,
+                                                "Deliveries (",
+                                                deliveries.length,
                                                 ")"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
                                             lineNumber: 452,
                                             columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
+                                            value: "kra",
+                                            className: "rounded-lg data-[state=active]:bg-muted text-xs md:text-sm",
+                                            children: [
+                                                "KRA Purchases (",
+                                                kraPurchases.length,
+                                                ")"
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/components/purchases-content.tsx",
+                                            lineNumber: 455,
+                                            columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 445,
+                                    lineNumber: 448,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3846,42 +3848,42 @@ function PurchasesContent() {
                                     children: renderPurchaseTable(purchases)
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 457,
+                                    lineNumber: 460,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
-                                    value: "approved",
+                                    value: "deliveries",
                                     className: "mt-4 md:mt-6",
-                                    children: renderPurchaseTable(approvedPurchases)
+                                    children: renderPurchaseTable(deliveries)
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 461,
+                                    lineNumber: 464,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
-                                    value: "rejected",
+                                    value: "kra",
                                     className: "mt-4 md:mt-6",
-                                    children: renderPurchaseTable(rejectedPurchases)
+                                    children: renderPurchaseTable(kraPurchases)
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 465,
+                                    lineNumber: 468,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 444,
+                            lineNumber: 447,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/purchases-content.tsx",
-                    lineNumber: 408,
+                    lineNumber: 411,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/purchases-content.tsx",
-                lineNumber: 407,
+                lineNumber: 410,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3899,27 +3901,27 @@ function PurchasesContent() {
                                             className: "h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 477,
+                                            lineNumber: 480,
                                             columnNumber: 15
                                         }, this),
                                         "Pending Purchase Orders"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 476,
+                                    lineNumber: 479,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Select a purchase order from headquarters to accept"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 480,
+                                    lineNumber: 483,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 475,
+                            lineNumber: 478,
                             columnNumber: 11
                         }, this),
                         loadingPending ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3928,12 +3930,12 @@ function PurchasesContent() {
                                 className: "h-8 w-8 animate-spin text-blue-600"
                             }, void 0, false, {
                                 fileName: "[project]/components/purchases-content.tsx",
-                                lineNumber: 487,
+                                lineNumber: 490,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 486,
+                            lineNumber: 489,
                             columnNumber: 13
                         }, this) : pendingPOs.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "text-center py-12",
@@ -3942,7 +3944,7 @@ function PurchasesContent() {
                                     className: "h-12 w-12 text-green-500 mx-auto mb-4"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 491,
+                                    lineNumber: 494,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3950,7 +3952,7 @@ function PurchasesContent() {
                                     children: "All caught up!"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 492,
+                                    lineNumber: 495,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3958,13 +3960,13 @@ function PurchasesContent() {
                                     children: "No pending purchase orders to accept"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 493,
+                                    lineNumber: 496,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 490,
+                            lineNumber: 493,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "space-y-2 max-h-96 overflow-y-auto",
@@ -3982,7 +3984,7 @@ function PurchasesContent() {
                                                             children: po.po_number
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 505,
+                                                            lineNumber: 508,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3990,13 +3992,13 @@ function PurchasesContent() {
                                                             children: po.supplier_name || "No supplier specified"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 506,
+                                                            lineNumber: 509,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 504,
+                                                    lineNumber: 507,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4007,7 +4009,7 @@ function PurchasesContent() {
                                                             children: formatCurrency(parseFloat(String(po.total_amount)) || 0)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 509,
+                                                            lineNumber: 512,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4018,19 +4020,19 @@ function PurchasesContent() {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 510,
+                                                            lineNumber: 513,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 508,
+                                                    lineNumber: 511,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 503,
+                                            lineNumber: 506,
                                             columnNumber: 19
                                         }, this),
                                         po.notes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4038,29 +4040,29 @@ function PurchasesContent() {
                                             children: po.notes
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 514,
+                                            lineNumber: 517,
                                             columnNumber: 21
                                         }, this)
                                     ]
                                 }, po.id, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 498,
+                                    lineNumber: 501,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 496,
+                            lineNumber: 499,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/purchases-content.tsx",
-                    lineNumber: 474,
+                    lineNumber: 477,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/purchases-content.tsx",
-                lineNumber: 473,
+                lineNumber: 476,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -4079,20 +4081,20 @@ function PurchasesContent() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 526,
+                                    lineNumber: 529,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Record delivery details, tank volumes, and dispenser readings"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 527,
+                                    lineNumber: 530,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 525,
+                            lineNumber: 528,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4108,7 +4110,7 @@ function PurchasesContent() {
                                                     children: "Bowser Volume (Litres) *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 535,
+                                                    lineNumber: 538,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4122,13 +4124,13 @@ function PurchasesContent() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 536,
+                                                    lineNumber: 539,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 534,
+                                            lineNumber: 537,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4138,7 +4140,7 @@ function PurchasesContent() {
                                                     children: "Dips (mm)"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 545,
+                                                    lineNumber: 548,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4152,13 +4154,13 @@ function PurchasesContent() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 546,
+                                                    lineNumber: 549,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 544,
+                                            lineNumber: 547,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4168,7 +4170,7 @@ function PurchasesContent() {
                                                     children: "Acceptance Timestamp *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 555,
+                                                    lineNumber: 558,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4181,24 +4183,24 @@ function PurchasesContent() {
                                                     className: "rounded-xl"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 556,
+                                                    lineNumber: 559,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 554,
+                                            lineNumber: 557,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 533,
+                                    lineNumber: 536,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"], {}, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 565,
+                                    lineNumber: 568,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4210,14 +4212,14 @@ function PurchasesContent() {
                                                     className: "h-5 w-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 569,
+                                                    lineNumber: 572,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Tank Volume Readings"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 568,
+                                            lineNumber: 571,
                                             columnNumber: 15
                                         }, this),
                                         tankReadings.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4225,7 +4227,7 @@ function PurchasesContent() {
                                             children: "No tanks configured for this branch"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 573,
+                                            lineNumber: 576,
                                             columnNumber: 17
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "space-y-3",
@@ -4241,7 +4243,7 @@ function PurchasesContent() {
                                                                     children: "Tank"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 581,
+                                                                    lineNumber: 584,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4249,7 +4251,7 @@ function PurchasesContent() {
                                                                     children: tank.tank_name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 582,
+                                                                    lineNumber: 585,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4261,13 +4263,13 @@ function PurchasesContent() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 583,
+                                                                    lineNumber: 586,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 580,
+                                                            lineNumber: 583,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4278,7 +4280,7 @@ function PurchasesContent() {
                                                                     children: "Volume Before (L)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 586,
+                                                                    lineNumber: 589,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4288,13 +4290,13 @@ function PurchasesContent() {
                                                                     className: "rounded-xl h-9"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 587,
+                                                                    lineNumber: 590,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 585,
+                                                            lineNumber: 588,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4305,7 +4307,7 @@ function PurchasesContent() {
                                                                     children: "Volume After (L)"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 595,
+                                                                    lineNumber: 598,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4315,7 +4317,7 @@ function PurchasesContent() {
                                                                     className: `rounded-xl h-9 ${exceedsCapacity ? 'border-red-500' : ''}`
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 596,
+                                                                    lineNumber: 599,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 exceedsCapacity && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4327,36 +4329,36 @@ function PurchasesContent() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 603,
+                                                                    lineNumber: 606,
                                                                     columnNumber: 29
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 594,
+                                                            lineNumber: 597,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, tank.tank_id, true, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 579,
+                                                    lineNumber: 582,
                                                     columnNumber: 23
                                                 }, this);
                                             })
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 575,
+                                            lineNumber: 578,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 567,
+                                    lineNumber: 570,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"], {}, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 613,
+                                    lineNumber: 616,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4368,14 +4370,14 @@ function PurchasesContent() {
                                                     className: "h-5 w-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 617,
+                                                    lineNumber: 620,
                                                     columnNumber: 17
                                                 }, this),
                                                 "Dispenser Meter Readings"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 616,
+                                            lineNumber: 619,
                                             columnNumber: 15
                                         }, this),
                                         dispenserReadings.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4383,7 +4385,7 @@ function PurchasesContent() {
                                             children: "No dispensers configured for this branch"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 621,
+                                            lineNumber: 624,
                                             columnNumber: 17
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "space-y-3",
@@ -4397,7 +4399,7 @@ function PurchasesContent() {
                                                                     children: "Dispenser"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 627,
+                                                                    lineNumber: 630,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4405,13 +4407,13 @@ function PurchasesContent() {
                                                                     children: dispenser.dispenser_name
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 628,
+                                                                    lineNumber: 631,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 626,
+                                                            lineNumber: 629,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4422,7 +4424,7 @@ function PurchasesContent() {
                                                                     children: "Meter Before"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 631,
+                                                                    lineNumber: 634,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4432,13 +4434,13 @@ function PurchasesContent() {
                                                                     className: "rounded-xl h-9"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 632,
+                                                                    lineNumber: 635,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 630,
+                                                            lineNumber: 633,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4449,7 +4451,7 @@ function PurchasesContent() {
                                                                     children: "Meter After"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 640,
+                                                                    lineNumber: 643,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4459,35 +4461,35 @@ function PurchasesContent() {
                                                                     className: "rounded-xl h-9"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                                    lineNumber: 641,
+                                                                    lineNumber: 644,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 639,
+                                                            lineNumber: 642,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, dispenser.dispenser_id, true, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 625,
+                                                    lineNumber: 628,
                                                     columnNumber: 21
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 623,
+                                            lineNumber: 626,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 615,
+                                    lineNumber: 618,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"], {}, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 654,
+                                    lineNumber: 657,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4503,13 +4505,13 @@ function PurchasesContent() {
                                                             className: "h-5 w-5 text-red-600"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 660,
+                                                            lineNumber: 663,
                                                             columnNumber: 21
                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"], {
                                                             className: "h-5 w-5 text-green-600"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 662,
+                                                            lineNumber: 665,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4517,13 +4519,13 @@ function PurchasesContent() {
                                                             children: "Calculated Variance"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/purchases-content.tsx",
-                                                            lineNumber: 664,
+                                                            lineNumber: 667,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 658,
+                                                    lineNumber: 661,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4535,13 +4537,13 @@ function PurchasesContent() {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/purchases-content.tsx",
-                                                    lineNumber: 666,
+                                                    lineNumber: 669,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 657,
+                                            lineNumber: 660,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4549,13 +4551,13 @@ function PurchasesContent() {
                                             children: "Formula: (Tank After - Tank Before) + (Dispenser After - Dispenser Before) - Bowser Volume"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 670,
+                                            lineNumber: 673,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 656,
+                                    lineNumber: 659,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4565,7 +4567,7 @@ function PurchasesContent() {
                                             children: "Remarks"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 676,
+                                            lineNumber: 679,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -4578,19 +4580,19 @@ function PurchasesContent() {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/purchases-content.tsx",
-                                            lineNumber: 677,
+                                            lineNumber: 680,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 675,
+                                    lineNumber: 678,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 532,
+                            lineNumber: 535,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -4602,7 +4604,7 @@ function PurchasesContent() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 687,
+                                    lineNumber: 690,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4615,7 +4617,7 @@ function PurchasesContent() {
                                                 className: "h-4 w-4 mr-2 animate-spin"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/purchases-content.tsx",
-                                                lineNumber: 697,
+                                                lineNumber: 700,
                                                 columnNumber: 19
                                             }, this),
                                             "Accepting..."
@@ -4626,7 +4628,7 @@ function PurchasesContent() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/purchases-content.tsx",
-                                                lineNumber: 702,
+                                                lineNumber: 705,
                                                 columnNumber: 19
                                             }, this),
                                             "Accept Delivery"
@@ -4634,30 +4636,30 @@ function PurchasesContent() {
                                     }, void 0, true)
                                 }, void 0, false, {
                                     fileName: "[project]/components/purchases-content.tsx",
-                                    lineNumber: 690,
+                                    lineNumber: 693,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/purchases-content.tsx",
-                            lineNumber: 686,
+                            lineNumber: 689,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/purchases-content.tsx",
-                    lineNumber: 524,
+                    lineNumber: 527,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/purchases-content.tsx",
-                lineNumber: 523,
+                lineNumber: 526,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/purchases-content.tsx",
-        lineNumber: 374,
+        lineNumber: 377,
         columnNumber: 5
     }, this);
 }

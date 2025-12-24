@@ -152,12 +152,67 @@ async function GET(request) {
                 purchase_type: row.purchase_type,
                 payment_type: row.payment_type,
                 remark: row.remark,
-                created_at: row.created_at
+                created_at: row.created_at,
+                source: 'transaction'
             }));
+        // Also fetch accepted purchase orders from purchase_orders table
+        let poQuery = `
+      SELECT 
+        po.id,
+        po.po_number,
+        po.status,
+        po.approval_status,
+        po.issued_at,
+        po.accepted_at,
+        po.notes,
+        po.created_at,
+        vp.name as supplier_name,
+        vp.tin as supplier_tin,
+        (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount
+      FROM purchase_orders po
+      LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
+      WHERE po.status = 'accepted'
+    `;
+        const poParams = [];
+        let poParamIndex = 1;
+        if (branchId) {
+            poQuery += ` AND po.branch_id = $${poParamIndex}`;
+            poParams.push(branchId);
+            poParamIndex++;
+        }
+        if (search) {
+            poQuery += ` AND (po.po_number ILIKE $${poParamIndex} OR vp.name ILIKE $${poParamIndex})`;
+            poParams.push(`%${search}%`);
+            poParamIndex++;
+        }
+        poQuery += ` ORDER BY po.accepted_at DESC`;
+        const poResult = await pool.query(poQuery, poParams);
+        const acceptedPOs = poResult.rows.map((row)=>({
+                id: row.id,
+                po_number: row.po_number,
+                supplier: row.supplier_name || 'Unknown Supplier',
+                supplier_tin: row.supplier_tin,
+                date: row.accepted_at ? new Date(row.accepted_at).toISOString().split('T')[0] : row.issued_at ? new Date(row.issued_at).toISOString().split('T')[0] : null,
+                items: parseInt(row.item_count) || 0,
+                amount: parseFloat(row.total_amount) || 0,
+                tax_amount: 0,
+                status: 'accepted',
+                purchase_type: 'LOCAL',
+                payment_type: null,
+                remark: row.notes,
+                created_at: row.created_at,
+                source: 'purchase_order'
+            }));
+        // Combine both lists, with accepted POs first
+        const allPurchases = [
+            ...acceptedPOs,
+            ...purchases
+        ];
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
-            purchases,
-            count: purchases.length
+            purchases: allPurchases,
+            count: allPurchases.length
         });
     } catch (error) {
         console.error("Error fetching purchases:", error);

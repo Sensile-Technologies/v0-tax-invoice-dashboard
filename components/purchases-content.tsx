@@ -29,6 +29,7 @@ interface Purchase {
   payment_type?: string
   remark?: string
   created_at: string
+  source?: 'purchase_order' | 'transaction'
 }
 
 interface PendingPO {
@@ -197,6 +198,8 @@ export function PurchasesContent() {
     }
   }, [currentBranch, fetchPendingPOs])
 
+  const deliveries = purchases.filter((purchase) => purchase.source === "purchase_order")
+  const kraPurchases = purchases.filter((purchase) => purchase.source === "transaction")
   const approvedPurchases = purchases.filter((purchase) => purchase.status === "approved")
   const rejectedPurchases = purchases.filter((purchase) => purchase.status === "rejected")
 
@@ -446,11 +449,11 @@ export function PurchasesContent() {
                 <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-muted text-xs md:text-sm">
                   All ({purchases.length})
                 </TabsTrigger>
-                <TabsTrigger value="approved" className="rounded-lg data-[state=active]:bg-muted text-xs md:text-sm">
-                  Approved ({approvedPurchases.length})
+                <TabsTrigger value="deliveries" className="rounded-lg data-[state=active]:bg-muted text-xs md:text-sm">
+                  Deliveries ({deliveries.length})
                 </TabsTrigger>
-                <TabsTrigger value="rejected" className="rounded-lg data-[state=active]:bg-muted text-xs md:text-sm">
-                  Rejected ({rejectedPurchases.length})
+                <TabsTrigger value="kra" className="rounded-lg data-[state=active]:bg-muted text-xs md:text-sm">
+                  KRA Purchases ({kraPurchases.length})
                 </TabsTrigger>
               </TabsList>
 
@@ -458,12 +461,12 @@ export function PurchasesContent() {
                 {renderPurchaseTable(purchases)}
               </TabsContent>
 
-              <TabsContent value="approved" className="mt-4 md:mt-6">
-                {renderPurchaseTable(approvedPurchases)}
+              <TabsContent value="deliveries" className="mt-4 md:mt-6">
+                {renderPurchaseTable(deliveries)}
               </TabsContent>
 
-              <TabsContent value="rejected" className="mt-4 md:mt-6">
-                {renderPurchaseTable(rejectedPurchases)}
+              <TabsContent value="kra" className="mt-4 md:mt-6">
+                {renderPurchaseTable(kraPurchases)}
               </TabsContent>
             </Tabs>
           )}
