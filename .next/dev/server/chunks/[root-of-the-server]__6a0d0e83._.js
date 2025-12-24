@@ -57,8 +57,14 @@ __turbopack_async_result__();
 return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
 
 __turbopack_context__.s([
+    "DELETE",
+    ()=>DELETE,
     "GET",
-    ()=>GET
+    ()=>GET,
+    "PATCH",
+    ()=>PATCH,
+    "POST",
+    ()=>POST
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__ = __turbopack_context__.i("[externals]/pg [external] (pg, esm_import)");
@@ -75,13 +81,18 @@ async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
-        let query = 'SELECT * FROM dispensers WHERE 1=1';
+        const tankId = searchParams.get('tank_id');
+        let query = 'SELECT d.*, i.item_name, t.tank_name FROM dispensers d LEFT JOIN items i ON d.item_id = i.id LEFT JOIN tanks t ON d.tank_id = t.id WHERE 1=1';
         const params = [];
         if (branchId) {
             params.push(branchId);
-            query += ` AND branch_id = $${params.length}`;
+            query += ` AND d.branch_id = $${params.length}`;
         }
-        query += ' ORDER BY created_at DESC';
+        if (tankId) {
+            params.push(tankId);
+            query += ` AND d.tank_id = $${params.length}`;
+        }
+        query += ' ORDER BY d.dispenser_number ASC';
         const result = await pool.query(query, params);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
@@ -91,6 +102,147 @@ async function GET(request) {
         console.error("Error fetching dispensers:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: "Failed to fetch dispensers",
+            details: error.message
+        }, {
+            status: 500
+        });
+    }
+}
+async function POST(request) {
+    try {
+        const body = await request.json();
+        const { branch_id, dispenser_number, fuel_type, status, tank_id, item_id } = body;
+        if (!branch_id || !dispenser_number) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "branch_id and dispenser_number are required"
+            }, {
+                status: 400
+            });
+        }
+        let finalItemId = item_id;
+        if (tank_id && !item_id) {
+            const tankResult = await pool.query('SELECT item_id FROM tanks WHERE id = $1', [
+                tank_id
+            ]);
+            if (tankResult.rows.length > 0 && tankResult.rows[0].item_id) {
+                finalItemId = tankResult.rows[0].item_id;
+            }
+        }
+        const result = await pool.query(`INSERT INTO dispensers (branch_id, dispenser_number, fuel_type, status, tank_id, item_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`, [
+            branch_id,
+            dispenser_number,
+            fuel_type || 'Petrol',
+            status || 'active',
+            tank_id || null,
+            finalItemId || null
+        ]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: true,
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Error creating dispenser:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: false,
+            error: "Failed to create dispenser",
+            details: error.message
+        }, {
+            status: 500
+        });
+    }
+}
+async function PATCH(request) {
+    try {
+        const body = await request.json();
+        const { id, dispenser_number, fuel_type, status, tank_id, item_id } = body;
+        if (!id) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Dispenser id is required"
+            }, {
+                status: 400
+            });
+        }
+        const updates = [];
+        const values = [];
+        let paramIndex = 1;
+        if (dispenser_number !== undefined) {
+            updates.push(`dispenser_number = $${paramIndex}`);
+            values.push(dispenser_number);
+            paramIndex++;
+        }
+        if (fuel_type !== undefined) {
+            updates.push(`fuel_type = $${paramIndex}`);
+            values.push(fuel_type);
+            paramIndex++;
+        }
+        if (status !== undefined) {
+            updates.push(`status = $${paramIndex}`);
+            values.push(status);
+            paramIndex++;
+        }
+        if (tank_id !== undefined) {
+            updates.push(`tank_id = $${paramIndex}`);
+            values.push(tank_id || null);
+            paramIndex++;
+        }
+        if (item_id !== undefined) {
+            updates.push(`item_id = $${paramIndex}`);
+            values.push(item_id || null);
+            paramIndex++;
+        }
+        if (updates.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "No fields to update"
+            }, {
+                status: 400
+            });
+        }
+        updates.push(`updated_at = NOW()`);
+        values.push(id);
+        const result = await pool.query(`UPDATE dispensers SET ${updates.join(", ")} WHERE id = $${paramIndex} RETURNING *`, values);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: true,
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Error updating dispenser:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: false,
+            error: "Failed to update dispenser",
+            details: error.message
+        }, {
+            status: 500
+        });
+    }
+}
+async function DELETE(request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        if (!id) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Dispenser id is required"
+            }, {
+                status: 400
+            });
+        }
+        await pool.query('DELETE FROM dispensers WHERE id = $1', [
+            id
+        ]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: true
+        });
+    } catch (error) {
+        console.error("Error deleting dispenser:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: false,
+            error: "Failed to delete dispenser",
             details: error.message
         }, {
             status: 500
