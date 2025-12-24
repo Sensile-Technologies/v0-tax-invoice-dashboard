@@ -1,13 +1,80 @@
 import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
+import { cookies } from "next/headers"
+
+async function getUserVendorId(userId: string): Promise<string | null> {
+  const userVendor = await query(
+    `SELECT v.id FROM users u 
+     JOIN vendors v ON v.email = u.email 
+     WHERE u.id = $1`,
+    [userId]
+  )
+  if (userVendor && userVendor.length > 0) {
+    return userVendor[0].id
+  }
+
+  const staffVendor = await query(
+    `SELECT DISTINCT b.vendor_id FROM staff s
+     JOIN branches b ON s.branch_id = b.id
+     WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
+    [userId]
+  )
+  if (staffVendor && staffVendor.length > 0) {
+    return staffVendor[0].vendor_id
+  }
+
+  const branchVendor = await query(
+    `SELECT DISTINCT vendor_id FROM branches WHERE user_id = $1 AND vendor_id IS NOT NULL`,
+    [userId]
+  )
+  if (branchVendor && branchVendor.length > 0) {
+    return branchVendor[0].vendor_id
+  }
+
+  return null
+}
+
+async function getSessionUserId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get("user_session")
+    if (!sessionCookie?.value) return null
+    
+    const session = JSON.parse(sessionCookie.value)
+    return session.id || null
+  } catch {
+    return null
+  }
+}
+
+async function verifyPartnerOwnership(partnerId: string, vendorId: string): Promise<boolean> {
+  const partner = await query(
+    `SELECT id FROM vendor_partners WHERE id = $1 AND vendor_id = $2`,
+    [partnerId, vendorId]
+  )
+  return partner && partner.length > 0
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getSessionUserId()
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    const vendorId = await getUserVendorId(userId)
+    if (!vendorId) {
+      return NextResponse.json({ success: false, error: "No vendor found for user" }, { status: 403 })
+    }
+
     const { id } = await params
-    const partner = await query(`SELECT * FROM vendor_partners WHERE id = $1`, [id])
+    const partner = await query(
+      `SELECT * FROM vendor_partners WHERE id = $1 AND vendor_id = $2`,
+      [id, vendorId]
+    )
     
     if (!partner || partner.length === 0) {
       return NextResponse.json({ success: false, error: "Partner not found" }, { status: 404 })
@@ -25,7 +92,22 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getSessionUserId()
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    const vendorId = await getUserVendorId(userId)
+    if (!vendorId) {
+      return NextResponse.json({ success: false, error: "No vendor found for user" }, { status: 403 })
+    }
+
     const { id } = await params
+    
+    if (!(await verifyPartnerOwnership(id, vendorId))) {
+      return NextResponse.json({ success: false, error: "Partner not found" }, { status: 404 })
+    }
+
     const body = await request.json()
     const { name, tin, physical_address, contact_person, phone, status } = body
 
@@ -38,9 +120,9 @@ export async function PUT(
            phone = COALESCE($5, phone),
            status = COALESCE($6, status),
            updated_at = NOW()
-       WHERE id = $7
+       WHERE id = $7 AND vendor_id = $8
        RETURNING *`,
-      [name, tin, physical_address, contact_person, phone, status, id]
+      [name, tin, physical_address, contact_person, phone, status, id, vendorId]
     )
 
     if (!result || result.length === 0) {
@@ -65,8 +147,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getSessionUserId()
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    const vendorId = await getUserVendorId(userId)
+    if (!vendorId) {
+      return NextResponse.json({ success: false, error: "No vendor found for user" }, { status: 403 })
+    }
+
     const { id } = await params
-    const result = await query(`DELETE FROM vendor_partners WHERE id = $1 RETURNING id`, [id])
+    const result = await query(
+      `DELETE FROM vendor_partners WHERE id = $1 AND vendor_id = $2 RETURNING id`,
+      [id, vendorId]
+    )
     
     if (!result || result.length === 0) {
       return NextResponse.json({ success: false, error: "Partner not found" }, { status: 404 })

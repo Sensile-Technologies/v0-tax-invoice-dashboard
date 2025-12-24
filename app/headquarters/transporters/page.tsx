@@ -2,39 +2,12 @@
 
 import { DashboardHeader } from "@/components/dashboard-header"
 import { PartnersManager } from "@/components/partners-manager"
-import { useState, useEffect } from "react"
-import { getCurrentUser } from "@/lib/auth/client"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function TransportersPage() {
-  const [vendorId, setVendorId] = useState<string>("")
-  const [loading, setLoading] = useState(true)
   const router = useRouter()
-
-  useEffect(() => {
-    const fetchVendorId = async () => {
-      try {
-        const currentUser = getCurrentUser()
-        if (currentUser?.id) {
-          const response = await fetch(`/api/vendors/current?user_id=${currentUser.id}`)
-          const result = await response.json()
-          if (result.success && result.vendor_id) {
-            setVendorId(result.vendor_id)
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching vendor ID:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    
-    // Small delay to ensure localStorage is available after hydration
-    const timer = setTimeout(fetchVendorId, 100)
-    return () => clearTimeout(timer)
-  }, [])
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-slate-50 to-white">
@@ -53,17 +26,7 @@ export default function TransportersPage() {
           <p className="mt-1 text-muted-foreground">Manage your organization's transporters</p>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </div>
-        ) : vendorId ? (
-          <PartnersManager vendorId={vendorId} partnerType="transporter" title="Transporters" />
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            Unable to load vendor information. Please try again.
-          </div>
-        )}
+        <PartnersManager vendorId="" partnerType="transporter" title="Transporters" />
       </main>
     </div>
   )

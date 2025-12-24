@@ -1,14 +1,69 @@
 import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
+import { cookies } from "next/headers"
+
+async function getUserVendorId(userId: string): Promise<string | null> {
+  // Check if user belongs to this vendor via email match
+  const userVendor = await query(
+    `SELECT v.id FROM users u 
+     JOIN vendors v ON v.email = u.email 
+     WHERE u.id = $1`,
+    [userId]
+  )
+  if (userVendor && userVendor.length > 0) {
+    return userVendor[0].id
+  }
+
+  // Check via staff/branch association
+  const staffVendor = await query(
+    `SELECT DISTINCT b.vendor_id FROM staff s
+     JOIN branches b ON s.branch_id = b.id
+     WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
+    [userId]
+  )
+  if (staffVendor && staffVendor.length > 0) {
+    return staffVendor[0].vendor_id
+  }
+
+  // Check via branch ownership
+  const branchVendor = await query(
+    `SELECT DISTINCT vendor_id FROM branches WHERE user_id = $1 AND vendor_id IS NOT NULL`,
+    [userId]
+  )
+  if (branchVendor && branchVendor.length > 0) {
+    return branchVendor[0].vendor_id
+  }
+
+  return null
+}
+
+async function getSessionUserId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get("user_session")
+    if (!sessionCookie?.value) return null
+    
+    const session = JSON.parse(sessionCookie.value)
+    return session.id || null
+  } catch {
+    return null
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const vendorId = searchParams.get("vendor_id")
     const partnerType = searchParams.get("partner_type")
 
+    // Get user from session and derive vendor_id server-side
+    const userId = await getSessionUserId()
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    const vendorId = await getUserVendorId(userId)
     if (!vendorId) {
-      return NextResponse.json({ success: false, error: "vendor_id is required" }, { status: 400 })
+      return NextResponse.json({ success: false, error: "No vendor found for user" }, { status: 403 })
     }
 
     let sql = `
@@ -34,13 +89,24 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { vendor_id, partner_type, name, tin, physical_address, contact_person, phone } = body
+    // Get user from session and derive vendor_id server-side
+    const userId = await getSessionUserId()
+    if (!userId) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
 
-    if (!vendor_id || !partner_type || !name) {
+    const vendorId = await getUserVendorId(userId)
+    if (!vendorId) {
+      return NextResponse.json({ success: false, error: "No vendor found for user" }, { status: 403 })
+    }
+
+    const body = await request.json()
+    const { partner_type, name, tin, physical_address, contact_person, phone } = body
+
+    if (!partner_type || !name) {
       return NextResponse.json({ 
         success: false, 
-        error: "vendor_id, partner_type, and name are required" 
+        error: "partner_type and name are required" 
       }, { status: 400 })
     }
 
@@ -55,7 +121,7 @@ export async function POST(request: NextRequest) {
       `INSERT INTO vendor_partners (vendor_id, partner_type, name, tin, physical_address, contact_person, phone)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [vendor_id, partner_type, name, tin || null, physical_address || null, contact_person || null, phone || null]
+      [vendorId, partner_type, name, tin || null, physical_address || null, contact_person || null, phone || null]
     )
 
     return NextResponse.json({ success: true, data: result[0] })

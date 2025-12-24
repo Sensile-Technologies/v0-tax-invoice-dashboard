@@ -54,20 +54,21 @@ export function PartnersManager({ vendorId, partnerType, title }: PartnersManage
   })
 
   const fetchPartners = useCallback(async () => {
-    if (!vendorId) return
     try {
       setLoading(true)
-      const response = await fetch(`/api/vendors/partners?vendor_id=${vendorId}&partner_type=${partnerType}`)
+      const response = await fetch(`/api/vendors/partners?partner_type=${partnerType}`)
       const result = await response.json()
       if (result.success) {
         setPartners(result.data || [])
+      } else if (result.error === "Unauthorized") {
+        console.error("User not authenticated")
       }
     } catch (error) {
       console.error("Error fetching partners:", error)
     } finally {
       setLoading(false)
     }
-  }, [vendorId, partnerType])
+  }, [partnerType])
 
   useEffect(() => {
     fetchPartners()
@@ -116,7 +117,7 @@ export function PartnersManager({ vendorId, partnerType, title }: PartnersManage
       
       const body = selectedPartner
         ? formData
-        : { ...formData, vendor_id: vendorId, partner_type: partnerType }
+        : { ...formData, partner_type: partnerType }
 
       const response = await fetch(url, {
         method,
