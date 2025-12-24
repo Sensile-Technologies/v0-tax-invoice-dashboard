@@ -25,7 +25,7 @@ Key features include:
 - **Controller Logs & PTS Integration**: Real-time logging of pump transaction callbacks from PTS controllers, with summary statistics and detailed payload viewing.
 - **Fuel Grade Mapping**: Map pump controller fuel grade IDs to inventory items for automated sales processing. Supports global or controller-specific mappings.
 - **Supplier/Transporter Management**: Manage suppliers and transporters via headquarters interface with full CRUD operations and server-side vendor scoping.
-- **Purchase Order Workflow**: HQ creates purchase orders with auto-incrementing PO numbers per vendor, assigns to branches with expected delivery dates. Branches accept deliveries by capturing tank volumes (before/after), dispenser readings (before/after), bowser volume, and dips. Variance is calculated as: ((Tank Volume After - Before) + (Dispenser Readings After - Before)) - Bowser Volume.
+- **Purchase Order Workflow**: HQ creates purchase orders via a full-page form with mandatory supplier, unit prices, and optional transporter/transport cost, vehicle registration, and driver details. Orders require approval by a Manager or Director at HQ before becoming visible to branches. Rejected orders include comments. Branches accept deliveries by capturing tank volumes (before/after), dispenser readings (before/after), bowser volume, and dips. Variance is calculated as: ((Tank Volume After - Before) + (Dispenser Readings After - Before)) - Bowser Volume.
 - **Modular API Design**: API routes are organized within the `/app` directory, with specific endpoints for mobile and administrative functions.
 
 ## Security Notes
