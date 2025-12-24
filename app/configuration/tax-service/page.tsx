@@ -1,111 +1,137 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { ArrowLeft, Server, Shield, RefreshCw } from "lucide-react"
+import { Download, RefreshCw, Bell, FileText, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
+interface CodeListItem {
+  cd_cls: string
+  cd: string
+  cd_nm: string
+  cd_desc?: string
+  use_yn: string
+}
+
+interface ItemClassification {
+  item_cls_cd: string
+  item_cls_nm: string
+  item_cls_lvl: number
+  tax_ty_cd?: string
+  use_yn: string
+}
+
+interface Notice {
+  notce_no: number
+  title: string
+  cont: string
+  dtl_url?: string
+  last_req_dt?: string
+}
 
 export default function TaxServiceConfigurationPage() {
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [branchData, setBranchData] = useState<any>(null)
-  const [config, setConfig] = useState({
-    server_address: "",
-    server_port: "8080",
-    sr_number: "",
-    bhf_id: "",
-    kra_pin: "",
-    enabled: false,
-  })
+  const [loading, setLoading] = useState<Record<string, boolean>>({})
 
-  useEffect(() => {
-    loadBranchConfig()
-  }, [])
+  const [codeListData, setCodeListData] = useState<CodeListItem[]>([])
+  const [itemClassData, setItemClassData] = useState<ItemClassification[]>([])
+  const [noticesData, setNoticesData] = useState<Notice[]>([])
 
-  const loadBranchConfig = async () => {
-    try {
-      const currentBranch = localStorage.getItem("selectedBranch")
-      if (!currentBranch) {
-        toast.error("Please select a branch first")
-        return
+  const getBackendUrl = () => {
+    const config = localStorage.getItem("backendConfig")
+    if (config) {
+      try {
+        const parsed = JSON.parse(config)
+        return parsed.port ? `${parsed.url}:${parsed.port}` : parsed.url
+      } catch {
+        return "http://20.224.40.56:8088"
       }
-
-      const branch = JSON.parse(currentBranch)
-      setBranchData(branch)
-      
-      setConfig({
-        server_address: branch.server_address || "",
-        server_port: branch.server_port || "8080",
-        sr_number: branch.sr_number || "",
-        bhf_id: branch.bhf_id || "",
-        kra_pin: branch.kra_pin || "",
-        enabled: !!branch.server_address,
-      })
-    } catch (error) {
-      console.error("Error loading config:", error)
-      toast.error("Failed to load configuration")
     }
+    return "http://20.224.40.56:8088"
   }
 
-  const handleSave = async () => {
-    if (!branchData?.id) {
-      toast.error("No branch selected")
-      return
-    }
-
-    setLoading(true)
+  const handlePullCodeList = async () => {
+    setLoading({ ...loading, codelist: true })
     try {
-      const response = await fetch(`/api/branches/${branchData.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          server_address: config.server_address,
-          server_port: config.server_port,
-          sr_number: config.sr_number,
-          bhf_id: config.bhf_id,
-          kra_pin: config.kra_pin,
-        }),
+      const backendUrl = getBackendUrl()
+      const response = await fetch("/api/kra/codes", {
+        method: "POST",
+        headers: {
+          "x-backend-url": backendUrl,
+        },
       })
+
+      if (!response.ok) {
+        throw new Error("Failed to pull code list")
+      }
 
       const result = await response.json()
-      if (result.success) {
-        toast.success("Tax service configuration saved")
-        const updatedBranch = { ...branchData, ...config }
-        localStorage.setItem("selectedBranch", JSON.stringify(updatedBranch))
-      } else {
-        toast.error(result.error || "Failed to save configuration")
-      }
+      const data = result.data || []
+      setCodeListData(data)
+      toast.success(`Successfully pulled ${data.length} code list items`)
     } catch (error) {
-      console.error("Error saving config:", error)
-      toast.error("Failed to save configuration")
+      console.error("Error pulling code list:", error)
+      toast.error("Failed to pull code list from tax service")
     } finally {
-      setLoading(false)
+      setLoading({ ...loading, codelist: false })
     }
   }
 
-  const handleTestConnection = async () => {
-    if (!config.server_address) {
-      toast.error("Please enter a server address")
-      return
-    }
-
-    setLoading(true)
+  const handlePullItemClassification = async () => {
+    setLoading({ ...loading, itemclass: true })
     try {
-      const testUrl = `${config.server_address}:${config.server_port}/api/health`
-      toast.info(`Testing connection to ${testUrl}...`)
-      
-      setTimeout(() => {
-        toast.success("Connection test completed - check your KRA server logs")
-        setLoading(false)
-      }, 2000)
+      const backendUrl = getBackendUrl()
+      const response = await fetch("/api/kra/items/classifications", {
+        method: "POST",
+        headers: {
+          "x-backend-url": backendUrl,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to pull item classifications")
+      }
+
+      const result = await response.json()
+      const data = result.data || []
+      setItemClassData(data)
+      toast.success(`Successfully pulled ${data.length} item classifications`)
     } catch (error) {
-      toast.error("Connection test failed")
-      setLoading(false)
+      console.error("Error pulling item classifications:", error)
+      toast.error("Failed to pull item classifications from tax service")
+    } finally {
+      setLoading({ ...loading, itemclass: false })
+    }
+  }
+
+  const handlePullNotices = async () => {
+    setLoading({ ...loading, notices: true })
+    try {
+      const backendUrl = getBackendUrl()
+      const response = await fetch("/api/kra/notices", {
+        method: "POST",
+        headers: {
+          "x-backend-url": backendUrl,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to pull notices")
+      }
+
+      const result = await response.json()
+      const data = result.data || []
+      setNoticesData(data)
+      toast.success(`Successfully pulled ${data.length} notices from KRA`)
+    } catch (error) {
+      console.error("Error pulling notices:", error)
+      toast.error("Failed to pull notices from tax service")
+    } finally {
+      setLoading({ ...loading, notices: false })
     }
   }
 
@@ -118,41 +144,44 @@ export default function TaxServiceConfigurationPage() {
         </Button>
         <div className="flex-1">
           <h1 className="text-3xl font-bold text-slate-900">Tax Service Configuration</h1>
-          <p className="text-slate-600 mt-1">Configure KRA eTIMS integration settings for this branch</p>
+          <p className="text-slate-600 mt-1">Pull master data and updates from KRA TIMS service</p>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Server className="h-5 w-5" />
-              Server Settings
+              <FileText className="h-5 w-5" />
+              Code List
             </CardTitle>
-            <CardDescription>KRA TIMS server connection details</CardDescription>
+            <CardDescription>
+              Pull tax codes, payment types, units of measure, and other code lists from KRA
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="server_address">Server Address</Label>
-              <Input
-                id="server_address"
-                placeholder="http://localhost or https://tims.kra.go.ke"
-                value={config.server_address}
-                onChange={(e) => setConfig({ ...config, server_address: e.target.value })}
-              />
+            <div className="text-sm text-slate-600">
+              Code lists include:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Tax type codes (A, B, C, D, E)</li>
+                <li>Payment type codes</li>
+                <li>Unit of measure codes</li>
+                <li>Receipt type codes</li>
+                <li>Registration type codes</li>
+              </ul>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="server_port">Server Port</Label>
-              <Input
-                id="server_port"
-                placeholder="8080"
-                value={config.server_port}
-                onChange={(e) => setConfig({ ...config, server_port: e.target.value })}
-              />
-            </div>
-            <Button onClick={handleTestConnection} disabled={loading} variant="outline" className="w-full">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Test Connection
+            <Button onClick={handlePullCodeList} disabled={loading.codelist} className="w-full">
+              {loading.codelist ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Pulling...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Pull Code List
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
@@ -160,51 +189,234 @@ export default function TaxServiceConfigurationPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
-              Tax Credentials
+              <FileText className="h-5 w-5" />
+              Item Classification
             </CardTitle>
-            <CardDescription>Branch registration details for KRA</CardDescription>
+            <CardDescription>Pull product/service classification codes and tax categories from KRA</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="kra_pin">KRA PIN</Label>
-              <Input
-                id="kra_pin"
-                placeholder="P000000000X"
-                value={config.kra_pin}
-                onChange={(e) => setConfig({ ...config, kra_pin: e.target.value })}
-              />
+            <div className="text-sm text-slate-600">
+              Item classifications include:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Product categories</li>
+                <li>Service categories</li>
+                <li>Tax type mappings</li>
+                <li>Classification levels</li>
+                <li>Major target flags</li>
+              </ul>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="bhf_id">Branch ID (BHF ID)</Label>
-              <Input
-                id="bhf_id"
-                placeholder="00"
-                value={config.bhf_id}
-                onChange={(e) => setConfig({ ...config, bhf_id: e.target.value })}
-              />
+            <Button onClick={handlePullItemClassification} disabled={loading.itemclass} className="w-full">
+              {loading.itemclass ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Pulling...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Pull Classifications
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5" />
+              Notices
+            </CardTitle>
+            <CardDescription>Pull important notices, updates, and announcements from KRA</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-sm text-slate-600">
+              Notices include:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>System updates</li>
+                <li>Compliance reminders</li>
+                <li>Policy changes</li>
+                <li>Maintenance schedules</li>
+                <li>Important announcements</li>
+              </ul>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="sr_number">Serial Number (SR Number)</Label>
-              <Input
-                id="sr_number"
-                placeholder="KRXXXXXXXXXX"
-                value={config.sr_number}
-                onChange={(e) => setConfig({ ...config, sr_number: e.target.value })}
-              />
-            </div>
+            <Button onClick={handlePullNotices} disabled={loading.notices} className="w-full">
+              {loading.notices ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Pulling...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  Pull Notices
+                </>
+              )}
+            </Button>
           </CardContent>
         </Card>
       </div>
 
-      <div className="flex justify-end gap-4">
-        <Button variant="outline" onClick={() => router.back()}>
-          Cancel
-        </Button>
-        <Button onClick={handleSave} disabled={loading}>
-          {loading ? "Saving..." : "Save Configuration"}
-        </Button>
-      </div>
+      <Card className="bg-blue-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="text-blue-900">How to Use Tax Service Configuration</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-blue-800 space-y-2">
+          <p>
+            <strong>1. Configure Backend URL:</strong> First, make sure you've configured the KRA TIMS backend URL in
+            Security Settings (profile dropdown → Security Settings → Backend Configuration).
+          </p>
+          <p>
+            <strong>2. Pull Master Data:</strong> Click the buttons above to pull the latest master data from KRA. This
+            should be done:
+          </p>
+          <ul className="list-disc list-inside ml-4 space-y-1">
+            <li>During initial setup</li>
+            <li>When KRA releases updates to code lists or classifications</li>
+            <li>Periodically to check for new notices</li>
+          </ul>
+          <p>
+            <strong>3. Review Notices:</strong> After pulling notices, review them for important compliance updates or
+            system changes.
+          </p>
+          <p>
+            <strong>4. BHF ID Mapping:</strong> Each branch is mapped to a unique Branch Office ID (BHF ID) for KRA
+            compliance. Thika Greens is currently assigned BHF ID "03".
+          </p>
+        </CardContent>
+      </Card>
+
+      {codeListData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Code List Results ({codeListData.length} items)</CardTitle>
+            <CardDescription>Tax codes, payment types, units, and other code lists pulled from KRA</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[400px] w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code Class</TableHead>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Code Name</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {codeListData.map((item, index) => (
+                    <TableRow key={`${item.cd_cls}-${item.cd}-${index}`}>
+                      <TableCell className="font-medium">{item.cd_cls}</TableCell>
+                      <TableCell>{item.cd}</TableCell>
+                      <TableCell>{item.cd_nm}</TableCell>
+                      <TableCell className="text-slate-600">{item.cd_desc || "-"}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${item.use_yn === "Y" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                        >
+                          {item.use_yn === "Y" ? "Active" : "Inactive"}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {itemClassData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Item Classification Results ({itemClassData.length} items)</CardTitle>
+            <CardDescription>Product and service classification codes with tax type mappings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[400px] w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Classification Code</TableHead>
+                    <TableHead>Classification Name</TableHead>
+                    <TableHead>Level</TableHead>
+                    <TableHead>Tax Type</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {itemClassData.map((item, index) => (
+                    <TableRow key={`${item.item_cls_cd}-${index}`}>
+                      <TableCell className="font-medium">{item.item_cls_cd}</TableCell>
+                      <TableCell>{item.item_cls_nm}</TableCell>
+                      <TableCell>{item.item_cls_lvl}</TableCell>
+                      <TableCell>{item.tax_ty_cd || "-"}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${item.use_yn === "Y" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                        >
+                          {item.use_yn === "Y" ? "Active" : "Inactive"}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
+
+      {noticesData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>KRA Notices ({noticesData.length} items)</CardTitle>
+            <CardDescription>Important notices, updates, and announcements from KRA</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[400px] w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Notice No.</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Content</TableHead>
+                    <TableHead>Detail URL</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {noticesData.map((item, index) => (
+                    <TableRow key={`${item.notce_no}-${index}`}>
+                      <TableCell className="font-medium">{item.notce_no}</TableCell>
+                      <TableCell className="font-medium max-w-xs">{item.title}</TableCell>
+                      <TableCell className="text-slate-600 max-w-md truncate">{item.cont}</TableCell>
+                      <TableCell>
+                        {item.dtl_url ? (
+                          <a
+                            href={item.dtl_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
+                      <TableCell className="text-slate-600">
+                        {item.last_req_dt ? new Date(item.last_req_dt).toLocaleDateString() : "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
