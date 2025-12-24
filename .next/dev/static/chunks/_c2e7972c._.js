@@ -2173,7 +2173,7 @@ function CreatePurchaseOrderPage() {
         if (field === "item_id") {
             const selectedItem = items.find((i)=>i.id === value);
             if (selectedItem) {
-                updated[index].item_name = selectedItem.name;
+                updated[index].item_name = selectedItem.item_name;
             }
         }
         if (field === "quantity" || field === "unit_price") {
@@ -2987,7 +2987,7 @@ function CreatePurchaseOrderPage() {
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
                                                                                 children: items.map((i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
                                                                                         value: i.id,
-                                                                                        children: i.name
+                                                                                        children: i.item_name
                                                                                     }, i.id, false, {
                                                                                         fileName: "[project]/app/headquarters/purchase-orders/create/page.tsx",
                                                                                         lineNumber: 445,

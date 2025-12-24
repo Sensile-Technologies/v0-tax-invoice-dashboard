@@ -32,7 +32,7 @@ interface Partner {
 
 interface Item {
   id: string
-  name: string
+  item_name: string
   unit_price?: number
 }
 
@@ -138,7 +138,7 @@ export default function CreatePurchaseOrderPage() {
     if (field === "item_id") {
       const selectedItem = items.find(i => i.id === value)
       if (selectedItem) {
-        updated[index].item_name = selectedItem.name
+        updated[index].item_name = selectedItem.item_name
       }
     }
 
@@ -443,7 +443,7 @@ export default function CreatePurchaseOrderPage() {
                             <SelectContent>
                               {items.map(i => (
                                 <SelectItem key={i.id} value={i.id}>
-                                  {i.name}
+                                  {i.item_name}
                                 </SelectItem>
                               ))}
                             </SelectContent>
