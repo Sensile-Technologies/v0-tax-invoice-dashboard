@@ -42,12 +42,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url)
-    let branchId = searchParams.get("branch_id")
-
-    if (!branchId) {
-      branchId = user.branch_id || await getUserBranchId(user.id)
-    }
+    const branchId = user.branch_id || await getUserBranchId(user.id)
 
     if (!branchId) {
       return NextResponse.json({ success: false, error: "No branch found for user" }, { status: 403 })
@@ -82,6 +77,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
     }
 
+    const userBranchId = user.branch_id || await getUserBranchId(user.id)
+    if (!userBranchId) {
+      return NextResponse.json({ success: false, error: "No branch found for user" }, { status: 403 })
+    }
+
     const body = await request.json()
     const { 
       purchase_order_id, 
@@ -104,12 +104,12 @@ export async function POST(request: NextRequest) {
     const order = await query(
       `SELECT po.*, b.id as branch_id FROM purchase_orders po 
        JOIN branches b ON po.branch_id = b.id
-       WHERE po.id = $1 AND po.status = 'pending'`,
-      [purchase_order_id]
+       WHERE po.id = $1 AND po.status = 'pending' AND po.branch_id = $2`,
+      [purchase_order_id, userBranchId]
     )
 
     if (!order || order.length === 0) {
-      return NextResponse.json({ success: false, error: "Purchase order not found or already accepted" }, { status: 404 })
+      return NextResponse.json({ success: false, error: "Purchase order not found or not assigned to your branch" }, { status: 404 })
     }
 
     const branchId = order[0].branch_id

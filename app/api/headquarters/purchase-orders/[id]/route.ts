@@ -125,6 +125,16 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: "Purchase order not found" }, { status: 404 })
     }
 
+    if (branch_id) {
+      const branchCheck = await query(
+        `SELECT id FROM branches WHERE id = $1 AND vendor_id = $2`,
+        [branch_id, vendorId]
+      )
+      if (!branchCheck || branchCheck.length === 0) {
+        return NextResponse.json({ success: false, error: "Invalid branch" }, { status: 400 })
+      }
+    }
+
     const result = await query(
       `UPDATE purchase_orders 
        SET status = COALESCE($1, status),
