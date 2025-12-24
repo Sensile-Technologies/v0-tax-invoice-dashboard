@@ -1,3 +1,8 @@
 {
-  "/page": "app/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/branches/list/route": "app/api/branches/list/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/page": "app/page.js",
+  "/reports/z-report/page": "app/reports/z-report/page.js",
+  "/sales/summary/page": "app/sales/summary/page.js"
 }
