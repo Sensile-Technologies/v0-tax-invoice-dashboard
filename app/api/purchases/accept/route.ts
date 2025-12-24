@@ -167,6 +167,13 @@ export async function POST(request: NextRequest) {
              VALUES ($1, $2, $3, $4)`,
             [acceptanceId, reading.tank_id, reading.volume_before, reading.volume_after]
           )
+          
+          await client.query(
+            `UPDATE tanks 
+             SET current_stock = $1, updated_at = NOW()
+             WHERE id = $2 AND branch_id = $3`,
+            [parseFloat(reading.volume_after) || 0, reading.tank_id, branchId]
+          )
         }
       }
 

@@ -1,14 +1,5 @@
 {
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/customers/route": "app/api/customers/route.js",
-  "/api/dispensers/route": "app/api/dispensers/route.js",
-  "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
-  "/api/nozzles/route": "app/api/nozzles/route.js",
-  "/api/sales/route": "app/api/sales/route.js",
-  "/api/shifts/route": "app/api/shifts/route.js",
-  "/api/tanks/route": "app/api/tanks/route.js",
-  "/api/vendors/partners/route": "app/api/vendors/partners/route.js",
-  "/headquarters/purchase-orders/create/page": "app/headquarters/purchase-orders/create/page.js",
   "/page": "app/page.js",
   "/sales/summary/page": "app/sales/summary/page.js"
 }
