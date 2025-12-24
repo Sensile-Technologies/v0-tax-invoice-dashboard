@@ -20,6 +20,7 @@ import {
   Loader2,
   StopCircle,
   AlertCircle,
+  Truck,
 } from "lucide-react"
 
 import { useState, useEffect } from "react"
@@ -887,6 +888,31 @@ export default function HeadquartersPage() {
                   <a href="/reports/shifts">
                     <FileText className="mr-2 h-4 w-4" />
                     View Shift Reports
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Suppliers Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="rounded-xl bg-white hover:bg-gray-50">
+                  <Truck className="mr-2 h-4 w-4" />
+                  Suppliers
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 rounded-xl">
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                  <a href="/headquarters/suppliers" className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Suppliers
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                  <a href="/headquarters/transporters" className="flex items-center gap-2">
+                    <Truck className="h-4 w-4" />
+                    Transporters
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
