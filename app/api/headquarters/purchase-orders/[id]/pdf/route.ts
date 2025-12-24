@@ -20,7 +20,7 @@ export async function GET(
         b.name as branch_name,
         vp.name as supplier_name,
         vp.tin as supplier_tin,
-        vp.address as supplier_address,
+        vp.physical_address as supplier_address,
         vp.phone as supplier_phone,
         tp.name as transporter_name,
         u.username as created_by_name,
