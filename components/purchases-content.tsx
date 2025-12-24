@@ -1,16 +1,17 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RefreshCw, Plus, Search, Loader2, Package } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Separator } from "@/components/ui/separator"
+import { RefreshCw, Search, Loader2, Package, ClipboardCheck, Fuel, Gauge, AlertTriangle, CheckCircle2 } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
 
@@ -30,31 +31,72 @@ interface Purchase {
   created_at: string
 }
 
+interface PendingPO {
+  id: string
+  po_number: string
+  supplier_name: string
+  item_count: number
+  total_amount: number
+  expected_delivery: string
+  notes: string
+  issued_at: string
+  created_by_name: string
+}
+
+interface Tank {
+  id: string
+  name: string
+  capacity: number
+  current_volume?: number
+}
+
+interface Dispenser {
+  id: string
+  name: string
+  tank_id: string
+  meter_reading?: number
+}
+
+interface TankReading {
+  tank_id: string
+  tank_name: string
+  volume_before: number
+  volume_after: number
+}
+
+interface DispenserReading {
+  dispenser_id: string
+  dispenser_name: string
+  meter_reading_before: number
+  meter_reading_after: number
+}
+
 export function PurchasesContent() {
   const [activeTab, setActiveTab] = useState("all")
   const { formatCurrency } = useCurrency()
-  const [isPurchaseFormOpen, setIsPurchaseFormOpen] = useState(false)
+  const [isAcceptDialogOpen, setIsAcceptDialogOpen] = useState(false)
+  const [isPendingListOpen, setIsPendingListOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [purchases, setPurchases] = useState<Purchase[]>([])
+  const [pendingPOs, setPendingPOs] = useState<PendingPO[]>([])
+  const [tanks, setTanks] = useState<Tank[]>([])
+  const [dispensers, setDispensers] = useState<Dispenser[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingPending, setLoadingPending] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [currentBranch, setCurrentBranch] = useState<any>(null)
+  const [selectedPO, setSelectedPO] = useState<PendingPO | null>(null)
   
-  const [purchaseForm, setPurchaseForm] = useState({
-    poNumber: "",
-    orderDate: new Date().toISOString().split("T")[0],
-    supplier: "",
-    supplierTin: "",
-    orderType: "",
-    branch: "",
-    productName: "",
-    orderQuantity: "",
-    supplyPrice: "",
-    unitOfMeasurement: "",
-    storageIndex: "",
+  const [acceptanceForm, setAcceptanceForm] = useState({
+    bowserVolume: "",
+    dipsMM: "",
+    acceptanceTimestamp: new Date().toISOString().slice(0, 16),
+    remarks: ""
   })
+  const [tankReadings, setTankReadings] = useState<TankReading[]>([])
+  const [dispenserReadings, setDispenserReadings] = useState<DispenserReading[]>([])
 
   const fetchPurchases = useCallback(async () => {
     try {
@@ -66,7 +108,6 @@ export function PurchasesContent() {
         const branch = JSON.parse(storedBranch)
         branchId = branch.id
         setCurrentBranch(branch)
-        setPurchaseForm(prev => ({ ...prev, branch: branch.name }))
       }
 
       const params = new URLSearchParams()
@@ -90,81 +131,163 @@ export function PurchasesContent() {
     }
   }, [searchQuery, dateFrom, dateTo])
 
+  const fetchPendingPOs = useCallback(async () => {
+    if (!currentBranch?.id) return
+    
+    try {
+      setLoadingPending(true)
+      const response = await fetch(`/api/purchases/accept?branch_id=${currentBranch.id}`)
+      const result = await response.json()
+
+      if (result.success) {
+        setPendingPOs(result.data || [])
+      }
+    } catch (error) {
+      console.error("Error fetching pending POs:", error)
+    } finally {
+      setLoadingPending(false)
+    }
+  }, [currentBranch])
+
+  const fetchTanksAndDispensers = useCallback(async () => {
+    if (!currentBranch?.id) return
+
+    try {
+      const [tanksRes, dispensersRes] = await Promise.all([
+        fetch(`/api/tanks?branch_id=${currentBranch.id}`),
+        fetch(`/api/dispensers?branch_id=${currentBranch.id}`)
+      ])
+
+      const tanksResult = await tanksRes.json()
+      const dispensersResult = await dispensersRes.json()
+
+      if (tanksResult.success) {
+        setTanks(tanksResult.data || [])
+        setTankReadings((tanksResult.data || []).map((t: Tank) => ({
+          tank_id: t.id,
+          tank_name: t.name,
+          volume_before: t.current_volume || 0,
+          volume_after: 0
+        })))
+      }
+
+      if (dispensersResult.success) {
+        setDispensers(dispensersResult.data || [])
+        setDispenserReadings((dispensersResult.data || []).map((d: Dispenser) => ({
+          dispenser_id: d.id,
+          dispenser_name: d.name,
+          meter_reading_before: d.meter_reading || 0,
+          meter_reading_after: 0
+        })))
+      }
+    } catch (error) {
+      console.error("Error fetching tanks/dispensers:", error)
+    }
+  }, [currentBranch])
+
   useEffect(() => {
     fetchPurchases()
   }, [fetchPurchases])
 
+  useEffect(() => {
+    if (currentBranch?.id) {
+      fetchPendingPOs()
+      fetchTanksAndDispensers()
+    }
+  }, [currentBranch, fetchPendingPOs, fetchTanksAndDispensers])
+
   const approvedPurchases = purchases.filter((purchase) => purchase.status === "approved")
   const rejectedPurchases = purchases.filter((purchase) => purchase.status === "rejected")
 
-  const getDisplayPurchases = () => {
-    switch (activeTab) {
-      case "approved":
-        return approvedPurchases
-      case "rejected":
-        return rejectedPurchases
-      default:
-        return purchases
-    }
+  const variance = useMemo(() => {
+    const bowserVol = parseFloat(acceptanceForm.bowserVolume) || 0
+    
+    const tankVariance = tankReadings.reduce((sum, t) => {
+      return sum + ((parseFloat(String(t.volume_after)) || 0) - (parseFloat(String(t.volume_before)) || 0))
+    }, 0)
+
+    const dispenserVariance = dispenserReadings.reduce((sum, d) => {
+      return sum + ((parseFloat(String(d.meter_reading_after)) || 0) - (parseFloat(String(d.meter_reading_before)) || 0))
+    }, 0)
+
+    return (tankVariance + dispenserVariance) - bowserVol
+  }, [acceptanceForm.bowserVolume, tankReadings, dispenserReadings])
+
+  const handleSelectPO = (po: PendingPO) => {
+    setSelectedPO(po)
+    setIsPendingListOpen(false)
+    setIsAcceptDialogOpen(true)
+    setAcceptanceForm({
+      bowserVolume: "",
+      dipsMM: "",
+      acceptanceTimestamp: new Date().toISOString().slice(0, 16),
+      remarks: ""
+    })
+    fetchTanksAndDispensers()
   }
 
-  const handleSubmitPurchase = async () => {
-    if (!currentBranch) {
-      toast.error("Please select a branch first")
+  const handleSubmitAcceptance = async () => {
+    if (!selectedPO) return
+
+    if (!acceptanceForm.bowserVolume) {
+      toast.error("Please enter the bowser volume")
       return
     }
 
-    setSubmitting(true)
     try {
-      const totalAmount = parseFloat(purchaseForm.orderQuantity) * parseFloat(purchaseForm.supplyPrice)
-      const taxAmount = totalAmount * 0.16
+      setSubmitting(true)
 
-      const response = await fetch("/api/purchases", {
+      const response = await fetch("/api/purchases/accept", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          branch_id: currentBranch.id,
-          tin: currentBranch.tin || "",
-          bhf_id: currentBranch.bhf_id || "00",
-          supplier_name: purchaseForm.supplier,
-          supplier_tin: purchaseForm.supplierTin,
-          purchase_date: purchaseForm.orderDate,
-          purchase_type: purchaseForm.orderType,
-          payment_type: "01",
-          total_amount: totalAmount,
-          tax_amount: taxAmount,
-          remark: `${purchaseForm.productName} - ${purchaseForm.orderQuantity} ${purchaseForm.unitOfMeasurement}`,
-        }),
+          purchase_order_id: selectedPO.id,
+          bowser_volume: parseFloat(acceptanceForm.bowserVolume),
+          dips_mm: acceptanceForm.dipsMM ? parseFloat(acceptanceForm.dipsMM) : null,
+          acceptance_timestamp: acceptanceForm.acceptanceTimestamp,
+          remarks: acceptanceForm.remarks,
+          tank_readings: tankReadings.map(t => ({
+            tank_id: t.tank_id,
+            volume_before: parseFloat(String(t.volume_before)) || 0,
+            volume_after: parseFloat(String(t.volume_after)) || 0
+          })),
+          dispenser_readings: dispenserReadings.map(d => ({
+            dispenser_id: d.dispenser_id,
+            meter_reading_before: parseFloat(String(d.meter_reading_before)) || 0,
+            meter_reading_after: parseFloat(String(d.meter_reading_after)) || 0
+          }))
+        })
       })
 
       const result = await response.json()
 
       if (result.success) {
-        toast.success("Purchase order submitted successfully!")
-        setIsPurchaseFormOpen(false)
-        setPurchaseForm({
-          poNumber: "",
-          orderDate: new Date().toISOString().split("T")[0],
-          supplier: "",
-          supplierTin: "",
-          orderType: "",
-          branch: currentBranch?.name || "",
-          productName: "",
-          orderQuantity: "",
-          supplyPrice: "",
-          unitOfMeasurement: "",
-          storageIndex: "",
-        })
+        toast.success(`Purchase order ${selectedPO.po_number} accepted successfully!`)
+        setIsAcceptDialogOpen(false)
+        setSelectedPO(null)
         fetchPurchases()
+        fetchPendingPOs()
       } else {
-        toast.error(result.error || "Failed to submit purchase order")
+        toast.error(result.error || "Failed to accept purchase order")
       }
     } catch (error) {
-      console.error("Error submitting purchase:", error)
-      toast.error("Failed to submit purchase order")
+      console.error("Error accepting purchase order:", error)
+      toast.error("Failed to accept purchase order")
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const updateTankReading = (index: number, field: keyof TankReading, value: number) => {
+    const updated = [...tankReadings]
+    updated[index] = { ...updated[index], [field]: value }
+    setTankReadings(updated)
+  }
+
+  const updateDispenserReading = (index: number, field: keyof DispenserReading, value: number) => {
+    const updated = [...dispenserReadings]
+    updated[index] = { ...updated[index], [field]: value }
+    setDispenserReadings(updated)
   }
 
   const renderPurchaseTable = (purchaseList: Purchase[]) => (
@@ -217,17 +340,22 @@ export function PurchasesContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">Purchases</h1>
-          <p className="mt-1 text-sm text-muted-foreground text-pretty">Manage your purchase orders and supplier invoices</p>
+          <p className="mt-1 text-sm text-muted-foreground text-pretty">Accept purchase orders from headquarters</p>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
           <Button
-            onClick={() => setIsPurchaseFormOpen(true)}
-            className="rounded-xl gap-2 bg-blue-600 hover:bg-blue-700 text-sm"
+            onClick={() => { fetchPendingPOs(); setIsPendingListOpen(true) }}
+            className="rounded-xl gap-2 bg-green-600 hover:bg-green-700 text-sm relative"
             size="sm"
           >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Add Purchase</span>
+            <ClipboardCheck className="h-4 w-4" />
+            <span className="hidden sm:inline">Accept Purchase</span>
+            {pendingPOs.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {pendingPOs.length}
+              </span>
+            )}
           </Button>
           <Button 
             onClick={fetchPurchases}
@@ -307,188 +435,234 @@ export function PurchasesContent() {
         </CardContent>
       </Card>
 
-      <Dialog open={isPurchaseFormOpen} onOpenChange={setIsPurchaseFormOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl">
+      <Dialog open={isPendingListOpen} onOpenChange={setIsPendingListOpen}>
+        <DialogContent className="max-w-2xl rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl md:text-2xl">Add New Purchase Order</DialogTitle>
-            <DialogDescription>Fill in the details to create a new purchase order</DialogDescription>
+            <DialogTitle className="flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5" />
+              Pending Purchase Orders
+            </DialogTitle>
+            <DialogDescription>
+              Select a purchase order from headquarters to accept
+            </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="po-number">P.O Number *</Label>
-                <Input
-                  id="po-number"
-                  placeholder="e.g., PO-001"
-                  value={purchaseForm.poNumber}
-                  onChange={(e) => setPurchaseForm({ ...purchaseForm, poNumber: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="order-date">Order Date *</Label>
-                <Input
-                  id="order-date"
-                  type="date"
-                  value={purchaseForm.orderDate}
-                  onChange={(e) => setPurchaseForm({ ...purchaseForm, orderDate: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
+          
+          {loadingPending ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="supplier">Supplier *</Label>
-                <Input
-                  id="supplier"
-                  placeholder="Supplier name"
-                  value={purchaseForm.supplier}
-                  onChange={(e) => setPurchaseForm({ ...purchaseForm, supplier: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="supplier-tin">Supplier TIN</Label>
-                <Input
-                  id="supplier-tin"
-                  placeholder="e.g., P051234567A"
-                  value={purchaseForm.supplierTin}
-                  onChange={(e) => setPurchaseForm({ ...purchaseForm, supplierTin: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
+          ) : pendingPOs.length === 0 ? (
+            <div className="text-center py-12">
+              <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+              <p className="text-lg font-medium">All caught up!</p>
+              <p className="text-muted-foreground">No pending purchase orders to accept</p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="order-type">Order Type *</Label>
-                <Select
-                  value={purchaseForm.orderType}
-                  onValueChange={(value) => setPurchaseForm({ ...purchaseForm, orderType: value })}
+          ) : (
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {pendingPOs.map(po => (
+                <div 
+                  key={po.id} 
+                  onClick={() => handleSelectPO(po)}
+                  className="p-4 border rounded-xl hover:bg-accent cursor-pointer transition-colors"
                 >
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="01">Normal Purchase</SelectItem>
-                    <SelectItem value="02">Import</SelectItem>
-                    <SelectItem value="03">Credit Purchase</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">{po.po_number}</p>
+                      <p className="text-sm text-muted-foreground">{po.supplier_name || "No supplier specified"}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">{formatCurrency(parseFloat(String(po.total_amount)) || 0)}</p>
+                      <p className="text-sm text-muted-foreground">{po.item_count} items</p>
+                    </div>
+                  </div>
+                  {po.notes && (
+                    <p className="text-sm text-muted-foreground mt-2 truncate">{po.notes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isAcceptDialogOpen} onOpenChange={setIsAcceptDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Accept Purchase Order: {selectedPO?.po_number}</DialogTitle>
+            <DialogDescription>
+              Record delivery details, tank volumes, and dispenser readings
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Bowser Volume (Litres) *</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 33000"
+                  value={acceptanceForm.bowserVolume}
+                  onChange={(e) => setAcceptanceForm({ ...acceptanceForm, bowserVolume: e.target.value })}
+                  className="rounded-xl"
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="branch">Branch *</Label>
-                <Input id="branch" value={purchaseForm.branch || "Select a branch"} disabled className="rounded-xl bg-muted" />
+                <Label>Dips (mm)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 1500"
+                  value={acceptanceForm.dipsMM}
+                  onChange={(e) => setAcceptanceForm({ ...acceptanceForm, dipsMM: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Acceptance Timestamp *</Label>
+                <Input
+                  type="datetime-local"
+                  value={acceptanceForm.acceptanceTimestamp}
+                  onChange={(e) => setAcceptanceForm({ ...acceptanceForm, acceptanceTimestamp: e.target.value })}
+                  className="rounded-xl"
+                />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="product-name">Product Name *</Label>
-                <Input
-                  id="product-name"
-                  placeholder="Product name"
-                  value={purchaseForm.productName}
-                  onChange={(e) => setPurchaseForm({ ...purchaseForm, productName: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="order-quantity">Order Quantity *</Label>
-                <Input
-                  id="order-quantity"
-                  type="number"
-                  placeholder="Quantity"
-                  value={purchaseForm.orderQuantity}
-                  onChange={(e) => setPurchaseForm({ ...purchaseForm, orderQuantity: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
+            <Separator />
+
+            <div>
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <Fuel className="h-5 w-5" />
+                Tank Volume Readings
+              </h3>
+              {tankReadings.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">No tanks configured for this branch</p>
+              ) : (
+                <div className="space-y-3">
+                  {tankReadings.map((tank, index) => (
+                    <div key={tank.tank_id} className="grid grid-cols-3 gap-3 p-3 border rounded-xl">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Tank</Label>
+                        <p className="font-medium">{tank.tank_name}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Volume Before (L)</Label>
+                        <Input
+                          type="number"
+                          value={tank.volume_before || ""}
+                          onChange={(e) => updateTankReading(index, "volume_before", parseFloat(e.target.value) || 0)}
+                          className="rounded-xl h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Volume After (L)</Label>
+                        <Input
+                          type="number"
+                          value={tank.volume_after || ""}
+                          onChange={(e) => updateTankReading(index, "volume_after", parseFloat(e.target.value) || 0)}
+                          className="rounded-xl h-9"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="supply-price">Supply Price per Unit *</Label>
-                <Input
-                  id="supply-price"
-                  type="number"
-                  placeholder="Price per unit"
-                  value={purchaseForm.supplyPrice}
-                  onChange={(e) => setPurchaseForm({ ...purchaseForm, supplyPrice: e.target.value })}
-                  className="rounded-xl"
-                />
+            <Separator />
+
+            <div>
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <Gauge className="h-5 w-5" />
+                Dispenser Meter Readings
+              </h3>
+              {dispenserReadings.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">No dispensers configured for this branch</p>
+              ) : (
+                <div className="space-y-3">
+                  {dispenserReadings.map((dispenser, index) => (
+                    <div key={dispenser.dispenser_id} className="grid grid-cols-3 gap-3 p-3 border rounded-xl">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Dispenser</Label>
+                        <p className="font-medium">{dispenser.dispenser_name}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Meter Before</Label>
+                        <Input
+                          type="number"
+                          value={dispenser.meter_reading_before || ""}
+                          onChange={(e) => updateDispenserReading(index, "meter_reading_before", parseFloat(e.target.value) || 0)}
+                          className="rounded-xl h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Meter After</Label>
+                        <Input
+                          type="number"
+                          value={dispenser.meter_reading_after || ""}
+                          onChange={(e) => updateDispenserReading(index, "meter_reading_after", parseFloat(e.target.value) || 0)}
+                          className="rounded-xl h-9"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            <div className={`p-4 rounded-xl ${Math.abs(variance) > 100 ? 'bg-red-50 border-red-200' : variance === 0 ? 'bg-gray-50' : 'bg-yellow-50 border-yellow-200'} border`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {Math.abs(variance) > 100 ? (
+                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                  ) : (
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  )}
+                  <span className="font-semibold">Calculated Variance</span>
+                </div>
+                <span className={`text-2xl font-bold ${variance > 0 ? 'text-green-600' : variance < 0 ? 'text-red-600' : ''}`}>
+                  {variance > 0 ? '+' : ''}{variance.toFixed(2)} L
+                </span>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="unit-measurement">Unit of Measurement *</Label>
-                <Select
-                  value={purchaseForm.unitOfMeasurement}
-                  onValueChange={(value) => setPurchaseForm({ ...purchaseForm, unitOfMeasurement: value })}
-                >
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="Select unit" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="pcs">Pieces (pcs)</SelectItem>
-                    <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                    <SelectItem value="litres">Litres (L)</SelectItem>
-                    <SelectItem value="metres">Metres (m)</SelectItem>
-                    <SelectItem value="boxes">Boxes</SelectItem>
-                    <SelectItem value="cartons">Cartons</SelectItem>
-                    <SelectItem value="dozens">Dozens</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Formula: (Tank After - Tank Before) + (Dispenser After - Dispenser Before) - Bowser Volume
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="storage-index">Storage Index *</Label>
-              <Select
-                value={purchaseForm.storageIndex}
-                onValueChange={(value) => setPurchaseForm({ ...purchaseForm, storageIndex: value })}
-              >
-                <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Select storage location" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="tank-1">Tank 1</SelectItem>
-                  <SelectItem value="tank-2">Tank 2</SelectItem>
-                  <SelectItem value="warehouse-a">Warehouse A</SelectItem>
-                  <SelectItem value="warehouse-b">Warehouse B</SelectItem>
-                  <SelectItem value="cold-storage">Cold Storage</SelectItem>
-                  <SelectItem value="dry-storage">Dry Storage</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Remarks</Label>
+              <Textarea
+                placeholder="Any observations or notes about the delivery..."
+                value={acceptanceForm.remarks}
+                onChange={(e) => setAcceptanceForm({ ...acceptanceForm, remarks: e.target.value })}
+                className="rounded-xl"
+              />
             </div>
           </div>
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={() => setIsPurchaseFormOpen(false)} className="rounded-xl">
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAcceptDialogOpen(false)} className="rounded-xl">
               Cancel
             </Button>
-            <Button
-              onClick={handleSubmitPurchase}
-              className="rounded-xl bg-blue-600 hover:bg-blue-700"
-              disabled={
-                submitting ||
-                !purchaseForm.supplier ||
-                !purchaseForm.orderType ||
-                !purchaseForm.productName ||
-                !purchaseForm.orderQuantity ||
-                !purchaseForm.supplyPrice ||
-                !purchaseForm.unitOfMeasurement ||
-                !purchaseForm.storageIndex
-              }
+            <Button 
+              onClick={handleSubmitAcceptance} 
+              disabled={submitting || !acceptanceForm.bowserVolume}
+              className="rounded-xl bg-green-600 hover:bg-green-700"
             >
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Submitting...
+                  Accepting...
                 </>
               ) : (
-                "Submit Purchase Order"
+                <>
+                  <ClipboardCheck className="h-4 w-4 mr-2" />
+                  Accept Delivery
+                </>
               )}
             </Button>
-          </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
