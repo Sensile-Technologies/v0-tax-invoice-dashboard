@@ -121,7 +121,10 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
       const tanksWithDetails = (tanksResult.data || []).map((tank: any) => ({
         ...tank,
-        dispensers: allDispensers.filter((d: any) => d.tank_id === tank.id || (!d.tank_id && d.fuel_type === tank.fuel_type)),
+        dispensers: allDispensers.filter((d: any) => {
+          const tankIds = d.tank_ids || []
+          return tankIds.includes(tank.id) || d.tank_id === tank.id || (!d.tank_id && !tankIds.length && d.fuel_type === tank.fuel_type)
+        }),
         nozzles: allNozzles.filter((n: any) => n.fuel_type === tank.fuel_type),
       }))
 
@@ -529,6 +532,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                     size="sm"
                     onClick={() => {
                       setSelectedTankForDispenser(tank)
+                      setNewDispenserForm({ dispenserNumber: "", selectedTankIds: [tank.id] })
                       setShowAddDispenserDialog(true)
                     }}
                     className="rounded-xl"

@@ -133,5 +133,14 @@ BEGIN
   END IF;
 END $$;
 
+-- 11. Dispenser-Tanks Junction Table (many-to-many relationship)
+CREATE TABLE IF NOT EXISTS dispenser_tanks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dispenser_id UUID NOT NULL REFERENCES dispensers(id) ON DELETE CASCADE,
+  tank_id UUID NOT NULL REFERENCES tanks(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(dispenser_id, tank_id)
+);
+
 -- Done!
 SELECT 'Migration completed successfully!' as status;

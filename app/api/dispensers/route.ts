@@ -11,7 +11,16 @@ export async function GET(request: NextRequest) {
     const branchId = searchParams.get('branch_id')
     const tankId = searchParams.get('tank_id')
 
-    let query = 'SELECT d.*, i.item_name, t.tank_name FROM dispensers d LEFT JOIN items i ON d.item_id = i.id LEFT JOIN tanks t ON d.tank_id = t.id WHERE 1=1'
+    let query = `
+      SELECT d.*, i.item_name, t.tank_name,
+        COALESCE(
+          (SELECT array_agg(dt.tank_id) FROM dispenser_tanks dt WHERE dt.dispenser_id = d.id),
+          ARRAY[d.tank_id]::uuid[]
+        ) as tank_ids
+      FROM dispensers d 
+      LEFT JOIN items i ON d.item_id = i.id 
+      LEFT JOIN tanks t ON d.tank_id = t.id 
+      WHERE 1=1`
     const params: any[] = []
 
     if (branchId) {
@@ -21,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     if (tankId) {
       params.push(tankId)
-      query += ` AND d.tank_id = $${params.length}`
+      query += ` AND (d.tank_id = $${params.length} OR d.id IN (SELECT dispenser_id FROM dispenser_tanks WHERE tank_id = $${params.length}))`
     }
 
     query += ' ORDER BY d.dispenser_number ASC'
