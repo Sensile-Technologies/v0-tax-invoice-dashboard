@@ -60,6 +60,8 @@ export async function POST(request: NextRequest) {
     const dispenserNumber = dispenserResult.rows[0]?.dispenser_number || 1
 
     let nozzlesCreated = 0
+    const createdNozzles: any[] = []
+    
     if (tankIdsArray.length > 0) {
       const existingNozzlesResult = await pool.query(
         'SELECT tank_id FROM nozzles WHERE dispenser_id = $1',
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
       const existingTankIds = existingNozzlesResult.rows.map((n: any) => n.tank_id)
 
       const tanksResultForNozzles = await pool.query(
-        'SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1::uuid[])',
+        'SELECT id, fuel_type, item_id, tank_name FROM tanks WHERE id = ANY($1::uuid[])',
         [tankIdsArray]
       )
 
@@ -78,11 +80,22 @@ export async function POST(request: NextRequest) {
         if (!existingTankIds.includes(tank.id)) {
           const nozzleNumber = i + 1
 
-          await pool.query(
+          const nozzleResult = await pool.query(
             `INSERT INTO nozzles (branch_id, dispenser_id, tank_id, nozzle_number, fuel_type, item_id, status, initial_meter_reading)
-             VALUES ($1, $2, $3, $4, $5, $6, 'active', 0)`,
+             VALUES ($1, $2, $3, $4, $5, $6, 'active', 0)
+             RETURNING id, nozzle_number, fuel_type`,
             [branch_id, dispenser_id, tank.id, nozzleNumber, tank.fuel_type, tank.item_id]
           )
+          
+          if (nozzleResult.rows.length > 0) {
+            createdNozzles.push({
+              id: nozzleResult.rows[0].id,
+              nozzle_number: nozzleResult.rows[0].nozzle_number,
+              fuel_type: nozzleResult.rows[0].fuel_type,
+              tank_name: tank.tank_name,
+              dispenser_number: dispenserNumber
+            })
+          }
           nozzlesCreated++
         }
       }
@@ -92,6 +105,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: "Tanks assigned successfully",
       nozzlesCreated,
+      createdNozzles,
       fuelType,
       itemId
     })

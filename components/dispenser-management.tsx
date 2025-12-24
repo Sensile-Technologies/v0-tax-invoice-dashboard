@@ -48,6 +48,15 @@ interface Tank {
   status: string
 }
 
+interface CreatedNozzle {
+  id: string
+  nozzle_number: number
+  fuel_type: string
+  tank_name: string
+  dispenser_number: number
+  meter_reading: string
+}
+
 export default function DispenserManagement({ branchId }: { branchId: string | null }) {
   const [dispensers, setDispensers] = useState<Dispenser[]>([])
   const [tanks, setTanks] = useState<Tank[]>([])
@@ -55,7 +64,9 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showAssignTanksDialog, setShowAssignTanksDialog] = useState(false)
+  const [showMeterReadingDialog, setShowMeterReadingDialog] = useState(false)
   const [selectedDispenser, setSelectedDispenser] = useState<Dispenser | null>(null)
+  const [createdNozzles, setCreatedNozzles] = useState<CreatedNozzle[]>([])
 
   const [formData, setFormData] = useState({
     dispenser_number: "",
@@ -145,11 +156,21 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
 
       const result = await res.json()
       if (result.success) {
-        toast.success(`Tanks assigned and ${result.nozzlesCreated || 0} nozzles created`)
         setShowAssignTanksDialog(false)
-        setSelectedDispenser(null)
-        setSelectedTankIds([])
-        fetchData()
+        
+        if (result.createdNozzles && result.createdNozzles.length > 0) {
+          setCreatedNozzles(result.createdNozzles.map((n: any) => ({
+            ...n,
+            meter_reading: "0"
+          })))
+          setShowMeterReadingDialog(true)
+          toast.success(`Tanks assigned. Please enter meter readings for ${result.createdNozzles.length} new nozzle(s).`)
+        } else {
+          toast.success("Tanks assigned successfully")
+          setSelectedDispenser(null)
+          setSelectedTankIds([])
+          fetchData()
+        }
       } else {
         toast.error(result.error || "Failed to assign tanks")
       }
@@ -157,6 +178,37 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
       console.error("Error assigning tanks:", error)
       toast.error("Failed to assign tanks")
     }
+  }
+
+  const handleSaveMeterReadings = async () => {
+    try {
+      for (const nozzle of createdNozzles) {
+        await fetch("/api/nozzles", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: nozzle.id,
+            initial_meter_reading: parseFloat(nozzle.meter_reading) || 0
+          })
+        })
+      }
+      
+      toast.success("Meter readings saved successfully")
+      setShowMeterReadingDialog(false)
+      setCreatedNozzles([])
+      setSelectedDispenser(null)
+      setSelectedTankIds([])
+      fetchData()
+    } catch (error) {
+      console.error("Error saving meter readings:", error)
+      toast.error("Failed to save meter readings")
+    }
+  }
+
+  const updateNozzleMeterReading = (nozzleId: string, value: string) => {
+    setCreatedNozzles(prev => prev.map(n => 
+      n.id === nozzleId ? { ...n, meter_reading: value } : n
+    ))
   }
 
   const handleEditDispenser = async () => {
@@ -490,6 +542,60 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
             </Button>
             <Button onClick={handleAssignTanks} className="rounded-xl">
               Assign Tanks & Create Nozzles
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showMeterReadingDialog} onOpenChange={setShowMeterReadingDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Enter Nozzle Meter Readings</DialogTitle>
+            <DialogDescription>
+              Enter the current meter readings for the newly created nozzles.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto">
+            {createdNozzles.map((nozzle) => (
+              <div key={nozzle.id} className="flex items-center gap-4 p-3 border rounded-lg">
+                <div className="flex-1">
+                  <p className="font-medium">
+                    D{nozzle.dispenser_number}N{nozzle.nozzle_number}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {nozzle.tank_name} - {nozzle.fuel_type}
+                  </p>
+                </div>
+                <div className="w-40">
+                  <Label className="text-xs">Meter Reading</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={nozzle.meter_reading}
+                    onChange={(e) => updateNozzleMeterReading(nozzle.id, e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowMeterReadingDialog(false)
+                setCreatedNozzles([])
+                setSelectedDispenser(null)
+                setSelectedTankIds([])
+                fetchData()
+              }}
+              className="rounded-xl"
+            >
+              Skip
+            </Button>
+            <Button onClick={handleSaveMeterReadings} className="rounded-xl">
+              Save Meter Readings
             </Button>
           </DialogFooter>
         </DialogContent>
