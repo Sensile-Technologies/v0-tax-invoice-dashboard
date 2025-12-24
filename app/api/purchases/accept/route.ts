@@ -87,7 +87,16 @@ export async function GET(request: NextRequest) {
         
         if (tankIds.length > 0) {
           dispensers = await query(
-            `SELECT d.*, t.tank_name 
+            `SELECT d.*, t.tank_name,
+             COALESCE(
+               (SELECT meter_reading_after 
+                FROM po_acceptance_dispenser_readings pdr
+                JOIN purchase_order_acceptances poa ON pdr.acceptance_id = poa.id
+                WHERE pdr.dispenser_id = d.id 
+                ORDER BY poa.acceptance_timestamp DESC 
+                LIMIT 1),
+               0
+             ) as last_meter_reading
              FROM dispensers d 
              LEFT JOIN tanks t ON d.tank_id = t.id 
              WHERE d.branch_id = $1 AND d.tank_id = ANY($2::uuid[])

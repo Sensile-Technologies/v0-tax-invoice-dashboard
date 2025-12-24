@@ -3319,7 +3319,7 @@ function PurchasesContent() {
                 setDispenserReadings((result.dispensers || []).map((d)=>({
                         dispenser_id: d.id,
                         dispenser_name: `Dispenser ${d.dispenser_number}`,
-                        meter_reading_before: d.meter_reading || 0,
+                        meter_reading_before: parseFloat(d.last_meter_reading) || 0,
                         meter_reading_after: 0
                     })));
             }
