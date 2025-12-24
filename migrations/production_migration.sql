@@ -149,4 +149,12 @@ CREATE TABLE IF NOT EXISTS dispenser_tanks (
 );
 
 -- Done!
+-- 12. Backfill item_id for legacy dispensers from their linked tanks
+UPDATE dispensers d
+SET item_id = t.item_id
+FROM tanks t
+WHERE d.tank_id = t.id 
+  AND d.item_id IS NULL 
+  AND t.item_id IS NOT NULL;
+
 SELECT 'Migration completed successfully!' as status;

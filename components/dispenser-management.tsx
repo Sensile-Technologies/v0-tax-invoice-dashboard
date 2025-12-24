@@ -181,9 +181,19 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
   }
 
   const handleSaveMeterReadings = async () => {
+    // Validate all meter readings are valid numbers
+    for (const nozzle of createdNozzles) {
+      const reading = parseFloat(nozzle.meter_reading)
+      if (isNaN(reading) || reading < 0) {
+        toast.error(`Invalid meter reading for D${nozzle.dispenser_number}N${nozzle.nozzle_number}`)
+        return
+      }
+    }
+
     try {
+      let hasError = false
       for (const nozzle of createdNozzles) {
-        await fetch("/api/nozzles", {
+        const res = await fetch("/api/nozzles", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -191,9 +201,17 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
             initial_meter_reading: parseFloat(nozzle.meter_reading) || 0
           })
         })
+        
+        const result = await res.json()
+        if (!result.success) {
+          hasError = true
+          toast.error(`Failed to save reading for D${nozzle.dispenser_number}N${nozzle.nozzle_number}`)
+        }
       }
       
-      toast.success("Meter readings saved successfully")
+      if (!hasError) {
+        toast.success("Meter readings saved successfully")
+      }
       setShowMeterReadingDialog(false)
       setCreatedNozzles([])
       setSelectedDispenser(null)

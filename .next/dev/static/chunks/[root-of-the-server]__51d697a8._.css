@@ -2075,6 +2075,10 @@
     max-height: 300px;
   }
 
+  .max-h-\[400px\] {
+    max-height: 400px;
+  }
+
   .max-h-\[600px\] {
     max-height: 600px;
   }

@@ -64,10 +64,16 @@ export async function POST(request: NextRequest) {
     
     if (tankIdsArray.length > 0) {
       const existingNozzlesResult = await pool.query(
-        'SELECT tank_id FROM nozzles WHERE dispenser_id = $1',
+        'SELECT tank_id, nozzle_number FROM nozzles WHERE dispenser_id = $1',
         [dispenser_id]
       )
       const existingTankIds = existingNozzlesResult.rows.map((n: any) => n.tank_id)
+      const existingNozzleNumbers = existingNozzlesResult.rows.map((n: any) => n.nozzle_number)
+      
+      // Find the next available nozzle number
+      let nextNozzleNumber = existingNozzleNumbers.length > 0 
+        ? Math.max(...existingNozzleNumbers) + 1 
+        : 1
 
       const tanksResultForNozzles = await pool.query(
         'SELECT id, fuel_type, item_id, tank_name FROM tanks WHERE id = ANY($1::uuid[])',
@@ -78,7 +84,7 @@ export async function POST(request: NextRequest) {
         const tank = tanksResultForNozzles.rows[i]
         
         if (!existingTankIds.includes(tank.id)) {
-          const nozzleNumber = i + 1
+          const nozzleNumber = nextNozzleNumber++
 
           const nozzleResult = await pool.query(
             `INSERT INTO nozzles (branch_id, dispenser_id, tank_id, nozzle_number, fuel_type, item_id, status, initial_meter_reading)

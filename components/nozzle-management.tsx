@@ -245,7 +245,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                   <TableHead>Dispenser</TableHead>
                   <TableHead>Fuel Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Initial Reading</TableHead>
+                  <TableHead>Current Meter Reading</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -330,7 +330,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
               </Select>
             </div>
             <div>
-              <Label>Initial Meter Reading</Label>
+              <Label>Current Meter Reading</Label>
               <Input
                 type="number"
                 min="0"
@@ -393,7 +393,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
               </Select>
             </div>
             <div>
-              <Label>Initial Meter Reading</Label>
+              <Label>Current Meter Reading</Label>
               <Input
                 type="number"
                 min="0"
