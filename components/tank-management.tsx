@@ -145,10 +145,10 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
   const fetchItems = async () => {
     try {
-      const response = await fetch(`/api/items?branch_id=${branchId}`)
+      const response = await fetch(`/api/items?branchId=${branchId}`)
       const result = await response.json()
       if (result.success) {
-        setItems(result.data || [])
+        setItems(result.items || [])
       }
     } catch (error) {
       console.error("Error fetching items:", error)
@@ -332,8 +332,8 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       const dispensersResult = await dispensersRes.json()
       const existingDispensers = dispensersResult.success ? dispensersResult.data : []
       
-      const dispenserNumbers = (existingDispensers || []).map((d: any) => Number(d.dispenser_number) || 0)
-      const maxNumber = dispenserNumbers.length > 0 ? Math.max(...dispenserNumbers) : 0
+      const allDispenserNumbers = (existingDispensers || []).map((d: any) => Number(d.dispenser_number) || 0)
+      const maxNumber = allDispenserNumbers.length > 0 ? Math.max(...allDispenserNumbers) : 0
       const nextDispenserNumber = maxNumber + 1
 
       const fuelType = selectedTankForDispenser.fuel_type || "Petrol"
