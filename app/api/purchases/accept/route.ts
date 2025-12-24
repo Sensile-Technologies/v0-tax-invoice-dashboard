@@ -182,6 +182,27 @@ export async function POST(request: NextRequest) {
 
     const branchId = order[0].branch_id
 
+    // Validate tank capacity before processing
+    if (tank_readings && Array.isArray(tank_readings)) {
+      for (const reading of tank_readings) {
+        const tankResult = await query(
+          `SELECT tank_name, capacity FROM tanks WHERE id = $1`,
+          [reading.tank_id]
+        )
+        if (tankResult && tankResult.length > 0) {
+          const tank = tankResult[0]
+          const volumeAfter = parseFloat(reading.volume_after) || 0
+          const capacity = parseFloat(tank.capacity) || 0
+          if (capacity > 0 && volumeAfter > capacity) {
+            return NextResponse.json({ 
+              success: false, 
+              error: `${tank.tank_name}: Volume after (${volumeAfter}L) exceeds tank capacity (${capacity}L)` 
+            }, { status: 400 })
+          }
+        }
+      }
+    }
+
     let totalTankVariance = 0
     let totalDispenserVariance = 0
 

@@ -3545,6 +3545,10 @@
     border-color: var(--color-red-300);
   }
 
+  .border-red-500 {
+    border-color: var(--color-red-500);
+  }
+
   .border-slate-200 {
     border-color: var(--color-slate-200);
   }

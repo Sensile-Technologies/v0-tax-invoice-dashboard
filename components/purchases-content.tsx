@@ -60,6 +60,7 @@ interface Dispenser {
 interface TankReading {
   tank_id: string
   tank_name: string
+  capacity: number
   volume_before: number
   volume_after: number
 }
@@ -166,6 +167,7 @@ export function PurchasesContent() {
         setTankReadings((tanksResult.data || []).map((t: Tank) => ({
           tank_id: t.id,
           tank_name: t.tank_name,
+          capacity: t.capacity || 0,
           volume_before: t.current_stock || 0,
           volume_after: 0
         })))
@@ -229,9 +231,10 @@ export function PurchasesContent() {
       
       if (result.success) {
         setTanks(result.tanks || [])
-        setTankReadings((result.tanks || []).map((t: Tank) => ({
+        setTankReadings((result.tanks || []).map((t: any) => ({
           tank_id: t.id,
           tank_name: t.tank_name,
+          capacity: parseFloat(t.capacity) || 0,
           volume_before: t.current_stock || 0,
           volume_after: 0
         })))
@@ -255,6 +258,15 @@ export function PurchasesContent() {
     if (!acceptanceForm.bowserVolume) {
       toast.error("Please enter the bowser volume")
       return
+    }
+
+    // Check if any tank exceeds capacity
+    for (const tank of tankReadings) {
+      const volumeAfter = parseFloat(String(tank.volume_after)) || 0
+      if (tank.capacity > 0 && volumeAfter > tank.capacity) {
+        toast.error(`${tank.tank_name}: Volume after (${volumeAfter}L) exceeds capacity (${tank.capacity}L)`)
+        return
+      }
     }
 
     try {
@@ -561,32 +573,39 @@ export function PurchasesContent() {
                 <p className="text-muted-foreground text-center py-4">No tanks configured for this branch</p>
               ) : (
                 <div className="space-y-3">
-                  {tankReadings.map((tank, index) => (
-                    <div key={tank.tank_id} className="grid grid-cols-3 gap-3 p-3 border rounded-xl">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Tank</Label>
-                        <p className="font-medium">{tank.tank_name}</p>
+                  {tankReadings.map((tank, index) => {
+                    const exceedsCapacity = tank.capacity > 0 && (parseFloat(String(tank.volume_after)) || 0) > tank.capacity
+                    return (
+                      <div key={tank.tank_id} className={`grid grid-cols-3 gap-3 p-3 border rounded-xl ${exceedsCapacity ? 'border-red-500 bg-red-50' : ''}`}>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Tank</Label>
+                          <p className="font-medium">{tank.tank_name}</p>
+                          <p className="text-xs text-muted-foreground">Capacity: {tank.capacity?.toLocaleString()}L</p>
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Volume Before (L)</Label>
+                          <Input
+                            type="number"
+                            value={tank.volume_before || ""}
+                            onChange={(e) => updateTankReading(index, "volume_before", parseFloat(e.target.value) || 0)}
+                            className="rounded-xl h-9"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Volume After (L)</Label>
+                          <Input
+                            type="number"
+                            value={tank.volume_after || ""}
+                            onChange={(e) => updateTankReading(index, "volume_after", parseFloat(e.target.value) || 0)}
+                            className={`rounded-xl h-9 ${exceedsCapacity ? 'border-red-500' : ''}`}
+                          />
+                          {exceedsCapacity && (
+                            <p className="text-xs text-red-600 font-medium">Exceeds capacity ({tank.capacity?.toLocaleString()}L)</p>
+                          )}
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Volume Before (L)</Label>
-                        <Input
-                          type="number"
-                          value={tank.volume_before || ""}
-                          onChange={(e) => updateTankReading(index, "volume_before", parseFloat(e.target.value) || 0)}
-                          className="rounded-xl h-9"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Volume After (L)</Label>
-                        <Input
-                          type="number"
-                          value={tank.volume_after || ""}
-                          onChange={(e) => updateTankReading(index, "volume_after", parseFloat(e.target.value) || 0)}
-                          className="rounded-xl h-9"
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>

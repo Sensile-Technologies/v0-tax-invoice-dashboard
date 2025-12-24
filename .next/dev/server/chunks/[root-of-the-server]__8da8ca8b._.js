@@ -330,6 +330,27 @@ async function POST(request) {
             });
         }
         const branchId = order[0].branch_id;
+        // Validate tank capacity before processing
+        if (tank_readings && Array.isArray(tank_readings)) {
+            for (const reading of tank_readings){
+                const tankResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT tank_name, capacity FROM tanks WHERE id = $1`, [
+                    reading.tank_id
+                ]);
+                if (tankResult && tankResult.length > 0) {
+                    const tank = tankResult[0];
+                    const volumeAfter = parseFloat(reading.volume_after) || 0;
+                    const capacity = parseFloat(tank.capacity) || 0;
+                    if (capacity > 0 && volumeAfter > capacity) {
+                        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                            success: false,
+                            error: `${tank.tank_name}: Volume after (${volumeAfter}L) exceeds tank capacity (${capacity}L)`
+                        }, {
+                            status: 400
+                        });
+                    }
+                }
+            }
+        }
         let totalTankVariance = 0;
         let totalDispenserVariance = 0;
         if (tank_readings && Array.isArray(tank_readings)) {
