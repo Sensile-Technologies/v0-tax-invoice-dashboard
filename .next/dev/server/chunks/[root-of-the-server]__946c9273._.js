@@ -82,17 +82,21 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
         const status = searchParams.get('status');
-        let query = 'SELECT * FROM nozzles WHERE 1=1';
+        let query = `
+      SELECT n.*, d.dispenser_number 
+      FROM nozzles n
+      LEFT JOIN dispensers d ON n.dispenser_id = d.id
+      WHERE 1=1`;
         const params = [];
         if (branchId) {
             params.push(branchId);
-            query += ` AND branch_id = $${params.length}`;
+            query += ` AND n.branch_id = $${params.length}`;
         }
         if (status) {
             params.push(status);
-            query += ` AND status = $${params.length}`;
+            query += ` AND n.status = $${params.length}`;
         }
-        query += ' ORDER BY created_at DESC';
+        query += ' ORDER BY d.dispenser_number, n.nozzle_number';
         const result = await pool.query(query, params);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,

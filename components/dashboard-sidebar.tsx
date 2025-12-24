@@ -23,7 +23,6 @@ import {
   LineChart,
   Leaf,
   ChevronDown,
-  Settings,
   X,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -56,7 +55,6 @@ const regularNavigationItems: NavigationItem[] = [
   { icon: Upload, label: "Imports", href: "/imports", hasDropdown: true },
   { icon: UserCog, label: "Staff", href: "/staff" },
   { icon: FileText, label: "Reports", href: "/reports", hasDropdown: true },
-  { icon: Settings, label: "Configuration", href: "/configuration", hasDropdown: true },
 ]
 
 const headquartersNavigationItems: NavigationItem[] = [
@@ -298,16 +296,6 @@ export function DashboardSidebar({
                       </Link>
                     </div>
                   )}
-                  {item.label === "Configuration" && (
-                    <>
-                      <Link href="/configuration" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Station Config
-                      </Link>
-                      <Link href="/configuration/tax-service" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Tax Service Configuration
-                      </Link>
-                    </>
-                  )}
                 </CollapsibleContent>
               </Collapsible>
             )
@@ -318,8 +306,7 @@ export function DashboardSidebar({
               item.label === "Customers" ||
               item.label === "Items" ||
               item.label === "Imports" ||
-              item.label === "Reports" ||
-              item.label === "Configuration") &&
+              item.label === "Reports") &&
             !collapsed
           ) {
             return null
