@@ -33,6 +33,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { getCurrentUser } from "@/lib/auth/client"
 
 interface PurchaseOrder {
   id: string
@@ -84,15 +85,14 @@ export default function PurchaseOrdersPage() {
     }
   }, [])
 
-  const fetchUserRole = useCallback(async () => {
+  const fetchUserRole = useCallback(() => {
     try {
-      const response = await fetch("/api/auth/me")
-      const result = await response.json()
-      if (result.user?.role) {
-        setUserRole(result.user.role.toLowerCase())
+      const user = getCurrentUser()
+      if (user?.role) {
+        setUserRole(user.role.toLowerCase())
       }
     } catch (error) {
-      console.error("Error fetching user role:", error)
+      console.error("Error getting user role:", error)
     }
   }, [])
 

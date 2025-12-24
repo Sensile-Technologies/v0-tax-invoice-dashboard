@@ -17,6 +17,7 @@ import {
 import { ArrowLeft, Plus, Trash2, Loader2, Package, Truck, User, Building } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { getCurrentUser } from "@/lib/auth/client"
 
 interface Branch {
   id: string
@@ -65,7 +66,10 @@ export default function CreatePurchaseOrderPage() {
 
   const fetchBranches = useCallback(async () => {
     try {
-      const response = await fetch("/api/branches/list")
+      const user = getCurrentUser()
+      const userId = user?.id
+      const url = userId ? `/api/branches/list?user_id=${userId}` : "/api/branches/list"
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         setBranches(data || [])
