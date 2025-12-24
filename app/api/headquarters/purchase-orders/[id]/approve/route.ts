@@ -37,15 +37,22 @@ async function getUserVendorId(userId: string): Promise<string | null> {
   return null
 }
 
-async function getUserRole(userId: string): Promise<string | null> {
-  const result = await query(
-    `SELECT role FROM users WHERE id = $1`,
+async function getUserRoleAndHQAccess(userId: string, vendorId: string): Promise<{ role: string | null, hasHQAccess: boolean }> {
+  const userResult = await query(
+    `SELECT u.role, v.id as vendor_id 
+     FROM users u 
+     LEFT JOIN vendors v ON v.email = u.email
+     WHERE u.id = $1`,
     [userId]
   )
-  if (result && result.length > 0) {
-    return result[0].role
+  
+  if (userResult && userResult.length > 0) {
+    if (userResult[0].vendor_id === vendorId) {
+      return { role: userResult[0].role, hasHQAccess: true }
+    }
+    return { role: userResult[0].role, hasHQAccess: false }
   }
-  return null
+  return { role: null, hasHQAccess: false }
 }
 
 export async function POST(
@@ -63,8 +70,16 @@ export async function POST(
       return NextResponse.json({ success: false, error: "No vendor found for user" }, { status: 403 })
     }
 
-    const userRole = await getUserRole(user.id)
+    const { role: userRole, hasHQAccess } = await getUserRoleAndHQAccess(user.id, vendorId)
     const allowedRoles = ['manager', 'director', 'admin', 'owner']
+    
+    if (!hasHQAccess) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Only headquarters staff can approve purchase orders" 
+      }, { status: 403 })
+    }
+    
     if (!userRole || !allowedRoles.includes(userRole.toLowerCase())) {
       return NextResponse.json({ 
         success: false, 

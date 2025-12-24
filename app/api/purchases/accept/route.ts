@@ -52,13 +52,15 @@ export async function GET(request: NextRequest) {
       `SELECT 
         po.*,
         vp.name as supplier_name,
+        tp.name as transporter_name,
         u.full_name as created_by_name,
         (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
         (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount
        FROM purchase_orders po
        LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
+       LEFT JOIN vendor_partners tp ON po.transporter_id = tp.id
        LEFT JOIN users u ON po.created_by = u.id
-       WHERE po.branch_id = $1 AND po.status = 'pending'
+       WHERE po.branch_id = $1 AND po.status = 'pending' AND po.approval_status = 'approved'
        ORDER BY po.issued_at DESC`,
       [branchId]
     )
