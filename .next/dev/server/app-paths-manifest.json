@@ -1,5 +1,8 @@
 {
+  "/api/auth/signin/route": "app/api/auth/signin/route.js",
+  "/api/auth/signup/route": "app/api/auth/signup/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
+  "/api/branches/register-backend/route": "app/api/branches/register-backend/route.js",
   "/api/branches/route": "app/api/branches/route.js",
   "/api/customers/route": "app/api/customers/route.js",
   "/api/dispensers/route": "app/api/dispensers/route.js",
@@ -9,6 +12,9 @@
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
   "/api/tanks/route": "app/api/tanks/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
+  "/auth/sign-up-success/page": "app/auth/sign-up-success/page.js",
+  "/auth/sign-up/page": "app/auth/sign-up/page.js",
   "/inventory/page": "app/inventory/page.js",
   "/items/page": "app/items/page.js",
   "/page": "app/page.js",
