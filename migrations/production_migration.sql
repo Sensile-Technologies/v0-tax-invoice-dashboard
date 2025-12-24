@@ -131,6 +131,12 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'nozzles' AND column_name = 'initial_meter_reading') THEN
     ALTER TABLE nozzles ADD COLUMN initial_meter_reading NUMERIC DEFAULT 0;
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'nozzles' AND column_name = 'tank_id') THEN
+    ALTER TABLE nozzles ADD COLUMN tank_id UUID;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'nozzles' AND column_name = 'item_id') THEN
+    ALTER TABLE nozzles ADD COLUMN item_id UUID;
+  END IF;
 END $$;
 
 -- 11. Dispenser-Tanks Junction Table (many-to-many relationship)

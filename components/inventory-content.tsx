@@ -23,6 +23,7 @@ import {
 import { useCurrency } from "@/lib/currency-utils"
 import TankManagement from "./tank-management"
 import NozzleManagement from "./nozzle-management"
+import DispenserManagement from "./dispenser-management"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 
@@ -81,7 +82,7 @@ type SortDirection = "asc" | "desc" | null
 
 export function InventoryContent() {
   const [activeView, setActiveView] = useState<
-    "cards" | "stockIn" | "stockOut" | "tankManagement" | "nozzleManagement" | "stockReport"
+    "cards" | "stockIn" | "stockOut" | "tankManagement" | "dispenserManagement" | "nozzleManagement" | "stockReport"
   >("cards")
   const [searchQuery, setSearchQuery] = useState("")
   const [startDate, setStartDate] = useState("")
@@ -273,6 +274,20 @@ export function InventoryContent() {
             <CardContent>
               <div className="text-2xl font-bold">Manage Tanks</div>
               <p className="text-xs text-muted-foreground mt-1">Stock levels & transfers</p>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="rounded-2xl cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setActiveView("dispenserManagement")}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Dispenser Management</CardTitle>
+              <Fuel className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">Manage Dispensers</div>
+              <p className="text-xs text-muted-foreground mt-1">Add dispensers & assign tanks</p>
             </CardContent>
           </Card>
 
@@ -609,6 +624,17 @@ export function InventoryContent() {
             </Button>
           </div>
           <TankManagement branchId={selectedBranchId} />
+        </div>
+      )}
+
+      {activeView === "dispenserManagement" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
+              ← Back to Overview
+            </Button>
+          </div>
+          <DispenserManagement branchId={selectedBranchId} />
         </div>
       )}
 
