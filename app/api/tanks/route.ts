@@ -12,7 +12,11 @@ export async function GET(request: NextRequest) {
     }
 
     const tanks = await query(
-      "SELECT * FROM tanks WHERE branch_id = $1 ORDER BY tank_name",
+      `SELECT t.*, i.item_name 
+       FROM tanks t 
+       LEFT JOIN items i ON t.item_id = i.id 
+       WHERE t.branch_id = $1 
+       ORDER BY t.tank_name`,
       [branchId]
     )
 

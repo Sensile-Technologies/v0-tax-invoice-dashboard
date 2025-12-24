@@ -25,6 +25,8 @@ interface Tank {
   capacity: number
   current_stock: number
   status: string
+  item_id?: string
+  item_name?: string
   dispensers?: any[]
   nozzles?: any[]
 }
@@ -34,9 +36,17 @@ interface Branch {
   name: string
 }
 
+interface Item {
+  id: string
+  item_name: string
+  item_code?: string
+  item_type?: string
+}
+
 export default function TankManagement({ branchId }: { branchId: string | null }) {
   const [tanks, setTanks] = useState<Tank[]>([])
   const [branches, setBranches] = useState<Branch[]>([])
+  const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [showAdjustDialog, setShowAdjustDialog] = useState(false)
   const [showReceiveDialog, setShowReceiveDialog] = useState(false)
@@ -81,6 +91,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     if (branchId) {
       fetchTanks()
       fetchBranches()
+      fetchItems()
     }
   }, [branchId])
 
@@ -108,7 +119,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
       const tanksWithDetails = (tanksResult.data || []).map((tank: any) => ({
         ...tank,
-        dispensers: allDispensers,
+        dispensers: allDispensers.filter((d: any) => d.tank_id === tank.id || (!d.tank_id && d.fuel_type === tank.fuel_type)),
         nozzles: allNozzles.filter((n: any) => n.fuel_type === tank.fuel_type),
       }))
 
@@ -129,6 +140,41 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       }
     } catch (error) {
       console.error("Error fetching branches:", error)
+    }
+  }
+
+  const fetchItems = async () => {
+    try {
+      const response = await fetch(`/api/items?branch_id=${branchId}`)
+      const result = await response.json()
+      if (result.success) {
+        setItems(result.data || [])
+      }
+    } catch (error) {
+      console.error("Error fetching items:", error)
+    }
+  }
+
+  const handleUpdateTankItem = async (tankId: string, itemId: string | null) => {
+    try {
+      const response = await fetch('/api/tanks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: tankId,
+          item_id: itemId,
+        })
+      })
+
+      if (response.ok) {
+        toast.success("Item mapped to tank successfully")
+        fetchTanks()
+      } else {
+        toast.error("Failed to map item to tank")
+      }
+    } catch (error) {
+      console.error("Error updating tank item:", error)
+      toast.error("Failed to map item to tank")
     }
   }
 
@@ -290,8 +336,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       const maxNumber = dispenserNumbers.length > 0 ? Math.max(...dispenserNumbers) : 0
       const nextDispenserNumber = maxNumber + 1
 
-      const selectedTank = tanks.find((t) => t.id === selectedTankForDispenser)
-      const fuelType = selectedTank?.fuel_type || "Petrol"
+      const fuelType = selectedTankForDispenser.fuel_type || "Petrol"
 
       const response = await fetch('/api/dispensers', {
         method: 'POST',
@@ -301,6 +346,8 @@ export default function TankManagement({ branchId }: { branchId: string | null }
           dispenser_number: nextDispenserNumber,
           fuel_type: fuelType,
           status: "active",
+          tank_id: selectedTankForDispenser.id,
+          item_id: selectedTankForDispenser.item_id,
         })
       })
 
@@ -370,7 +417,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   <div>
                     <p className="text-xs text-muted-foreground">Capacity</p>
                     <p className="text-lg font-semibold">{tank.capacity.toLocaleString()} L</p>
@@ -382,6 +429,25 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                   <div>
                     <p className="text-xs text-muted-foreground">Available Space</p>
                     <p className="text-lg font-semibold">{(tank.capacity - tank.current_stock).toLocaleString()} L</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Linked Item</p>
+                    <Select
+                      value={tank.item_id || "none"}
+                      onValueChange={(value) => handleUpdateTankItem(tank.id, value === "none" ? null : value)}
+                    >
+                      <SelectTrigger className="h-8 rounded-lg text-sm">
+                        <SelectValue placeholder="Select item" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No item linked</SelectItem>
+                        {items.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.item_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
