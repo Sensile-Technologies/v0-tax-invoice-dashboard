@@ -325,12 +325,6 @@ export default function PurchaseOrdersPage() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => router.push(`/headquarters/purchase-orders/${order.id}`)}
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
                               {canApprove && order.approval_status === 'pending_approval' && (
                                 <>
                                   <DropdownMenuItem
