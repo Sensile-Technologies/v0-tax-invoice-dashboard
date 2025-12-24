@@ -54,15 +54,33 @@ export default function TaxServiceConfigurationPage() {
     return "http://20.224.40.56:8088"
   }
 
+  const getSelectedBranchId = () => {
+    const branch = localStorage.getItem("selectedBranch")
+    if (branch) {
+      try {
+        const parsed = JSON.parse(branch)
+        return parsed.id
+      } catch {
+        return null
+      }
+    }
+    return null
+  }
+
   const handlePullCodeList = async () => {
     setLoading({ ...loading, codelist: true })
     try {
       const backendUrl = getBackendUrl()
+      const branchId = getSelectedBranchId()
+      const headers: Record<string, string> = {
+        "x-backend-url": backendUrl,
+      }
+      if (branchId) {
+        headers["x-branch-id"] = branchId
+      }
       const response = await fetch("/api/kra/codes", {
         method: "POST",
-        headers: {
-          "x-backend-url": backendUrl,
-        },
+        headers,
       })
 
       if (!response.ok) {
@@ -85,11 +103,16 @@ export default function TaxServiceConfigurationPage() {
     setLoading({ ...loading, itemclass: true })
     try {
       const backendUrl = getBackendUrl()
+      const branchId = getSelectedBranchId()
+      const headers: Record<string, string> = {
+        "x-backend-url": backendUrl,
+      }
+      if (branchId) {
+        headers["x-branch-id"] = branchId
+      }
       const response = await fetch("/api/kra/items/classifications", {
         method: "POST",
-        headers: {
-          "x-backend-url": backendUrl,
-        },
+        headers,
       })
 
       if (!response.ok) {
@@ -112,11 +135,16 @@ export default function TaxServiceConfigurationPage() {
     setLoading({ ...loading, notices: true })
     try {
       const backendUrl = getBackendUrl()
+      const branchId = getSelectedBranchId()
+      const headers: Record<string, string> = {
+        "x-backend-url": backendUrl,
+      }
+      if (branchId) {
+        headers["x-branch-id"] = branchId
+      }
       const response = await fetch("/api/kra/notices", {
         method: "POST",
-        headers: {
-          "x-backend-url": backendUrl,
-        },
+        headers,
       })
 
       if (!response.ok) {
