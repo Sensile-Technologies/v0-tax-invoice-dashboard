@@ -261,7 +261,53 @@ export async function GET(
           theme: "striped",
           headStyles: { fillColor: [155, 89, 182] },
         })
+
+        yPos = (doc as any).lastAutoTable.finalY + 8
       }
+
+      // Variance Calculation Summary
+      if (yPos > 240) {
+        doc.addPage()
+        yPos = 20
+      }
+
+      const tankIncrease = tankReadings.reduce((sum: number, tr: any) => 
+        sum + (parseFloat(tr.volume_after) - parseFloat(tr.volume_before)), 0)
+      const dispenserDiff = dispenserReadings.reduce((sum: number, dr: any) => 
+        sum + (parseFloat(dr.meter_reading_after) - parseFloat(dr.meter_reading_before)), 0)
+      const bowserVolume = parseFloat(acceptance.bowser_volume) || 0
+      const calculatedVariance = (tankIncrease + dispenserDiff) - bowserVolume
+
+      yPos += 5
+      doc.setFont("helvetica", "bold")
+      doc.setFontSize(11)
+      doc.text("Variance Calculation", 14, yPos)
+      yPos += 6
+
+      doc.setFont("helvetica", "normal")
+      doc.setFontSize(10)
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [["Description", "Volume (L)"]],
+        body: [
+          ["Tank Volume Increase (After - Before)", tankIncrease.toLocaleString()],
+          ["Dispenser Difference (After - Before)", dispenserDiff.toLocaleString()],
+          ["Total Received (Tank + Dispenser)", (tankIncrease + dispenserDiff).toLocaleString()],
+          ["Bowser Volume (Delivered)", bowserVolume.toLocaleString()],
+        ],
+        foot: [[
+          "VARIANCE (Received - Delivered)",
+          `${calculatedVariance >= 0 ? "+" : ""}${calculatedVariance.toLocaleString()} L`
+        ]],
+        theme: "striped",
+        headStyles: { fillColor: [231, 76, 60] },
+        footStyles: { 
+          fillColor: calculatedVariance < 0 ? [231, 76, 60] : [39, 174, 96], 
+          textColor: [255, 255, 255], 
+          fontStyle: "bold" 
+        },
+      })
     }
 
     if (order.notes) {
