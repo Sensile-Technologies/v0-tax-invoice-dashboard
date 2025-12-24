@@ -8,7 +8,7 @@ const pool = new Pool({
 
 export async function POST(request: Request) {
   try {
-    const { email, password, data, branch, lead_id } = await request.json()
+    const { email, password, data, branch } = await request.json()
 
     if (!email || !password) {
       return NextResponse.json(
@@ -17,52 +17,42 @@ export async function POST(request: Request) {
       )
     }
 
-    // Require lead_id for new vendor/branch signups
-    if (branch && !lead_id) {
-      return NextResponse.json(
-        { 
-          error: { 
-            message: "Account creation requires approval through the sales process. Please contact our sales team to get started.",
-            code: "SALES_PROCESS_REQUIRED"
-          } 
-        },
-        { status: 403 }
-      )
-    }
-
     const client = await pool.connect()
 
     try {
       await client.query("BEGIN")
 
-      // Validate lead if provided (required for branch creation)
-      if (lead_id) {
-        const leadResult = await client.query(
-          "SELECT id, stage, company_name, contact_email, contact_phone, kra_pin FROM leads WHERE id = $1",
-          [lead_id]
+      // Validate against sign up requests list (leads table)
+      // Check if KRA PIN and contact phone match any entry in the leads table
+      if (branch?.kra_pin && (branch?.phone || data?.phone)) {
+        const phoneToCheck = branch?.phone || data?.phone
+        const normalizedPhone = phoneToCheck.replace(/[\s\-\(\)]/g, '').replace(/^\+?254/, '0')
+        const normalizedPin = branch.kra_pin.trim().toUpperCase()
+
+        // Check if there's a matching lead in the sign up requests (any stage except signed_up)
+        const matchingLead = await client.query(
+          `SELECT id, company_name, stage FROM leads 
+           WHERE UPPER(TRIM(kra_pin)) = $1 
+           AND REGEXP_REPLACE(REGEXP_REPLACE(contact_phone, '[\\s\\-\\(\\)]', '', 'g'), '^\\+?254', '0') = $2
+           AND stage != 'signed_up'
+           LIMIT 1`,
+          [normalizedPin, normalizedPhone]
         )
 
-        if (leadResult.rows.length === 0) {
+        if (matchingLead.rows.length === 0) {
           await client.query("ROLLBACK")
           return NextResponse.json(
-            { error: { message: "Invalid lead reference. Please contact sales." } },
-            { status: 400 }
-          )
-        }
-
-        const lead = leadResult.rows[0]
-        if (lead.stage !== 'onboarding') {
-          await client.query("ROLLBACK")
-          return NextResponse.json(
-            { 
-              error: { 
-                message: `This lead is in "${lead.stage}" stage. Only leads in "onboarding" stage can create accounts. Please contact sales to progress your application.`,
-                code: "LEAD_NOT_IN_ONBOARDING"
-              } 
-            },
+            { error: { message: "Your details are not in our approved sign up list. Please contact admin to request access." } },
             { status: 403 }
           )
         }
+      } else if (branch) {
+        // Branch signup requires both KRA PIN and phone for validation
+        await client.query("ROLLBACK")
+        return NextResponse.json(
+          { error: { message: "KRA PIN and phone number are required for sign up." } },
+          { status: 400 }
+        )
       }
 
       const existingUser = await client.query(
@@ -101,7 +91,6 @@ export async function POST(request: Request) {
         )
         const bhfId = isHeadquarters ? "00" : "01"
 
-        // Create vendor for this user with all relevant fields
         const vendorResult = await client.query(
           `INSERT INTO vendors (id, name, email, phone, address, kra_pin, status, billing_email, billing_address, subscription_status, created_at, updated_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
@@ -158,16 +147,21 @@ export async function POST(request: Request) {
             data?.phone || null,
           ]
         )
-      }
 
-      // Update lead to 'signed_up' stage if lead_id was provided
-      if (lead_id) {
-        await client.query(
-          `UPDATE leads 
-           SET stage = 'signed_up', updated_at = NOW() 
-           WHERE id = $1`,
-          [lead_id]
-        )
+        // Update matching lead to signed_up stage
+        const phoneToCheck = branch?.phone || data?.phone
+        if (phoneToCheck && branch?.kra_pin) {
+          const normalizedPhone = phoneToCheck.replace(/[\s\-\(\)]/g, '').replace(/^\+?254/, '0')
+          const normalizedPin = branch.kra_pin.trim().toUpperCase()
+
+          await client.query(
+            `UPDATE leads 
+             SET stage = 'signed_up', updated_at = NOW() 
+             WHERE UPPER(TRIM(kra_pin)) = $1 
+             AND REGEXP_REPLACE(REGEXP_REPLACE(contact_phone, '[\\s\\-\\(\\)]', '', 'g'), '^\\+?254', '0') = $2`,
+            [normalizedPin, normalizedPhone]
+          )
+        }
       }
 
       await client.query("COMMIT")

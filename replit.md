@@ -19,7 +19,7 @@ Key features include:
 - **Mobile Application**: An Expo React Native mobile app in the `/mobile` directory supports cashiers and supervisors with functionalities like login, dashboard, invoice creation, and history.
 - **Multi-Vendor/Branch Support**: The system is designed to manage multiple branches and vendors with appropriate security and data isolation.
 - **Loyalty & Discount System**: Integrated features for managing customer loyalty points and applying discounts to sales.
-- **Sales Pipeline Management**: A 5-stage lead pipeline for sales teams, including lead assignment and performance tracking. **Account creation is enforced through the sales pipeline** - new vendor accounts can only be created when a lead is in the "onboarding" stage. Direct signup attempts are blocked with a message directing users to contact sales. Admins can convert leads to accounts via `/api/admin/leads/convert`.
+- **Sales Pipeline Management**: A 5-stage lead pipeline for sales teams, including lead assignment and performance tracking. **Signup validation** - the public signup page validates KRA PIN and phone number against the leads table. If the submitted details don't match any entry in the sign up request list, users see a "contact admin" error.
 - **Notifications System**: In-app notifications for key events like due invoices.
 - **Hardware Management**: Functionality to register and assign hardware devices to branches.
 - **Controller Logs & PTS Integration**: Real-time logging of pump transaction callbacks from PTS controllers, with summary statistics and detailed payload viewing.
