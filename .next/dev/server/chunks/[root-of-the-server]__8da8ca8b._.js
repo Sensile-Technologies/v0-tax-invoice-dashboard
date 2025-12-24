@@ -191,7 +191,7 @@ async function GET(request) {
         po.*,
         vp.name as supplier_name,
         tp.name as transporter_name,
-        u.full_name as created_by_name,
+        u.username as created_by_name,
         (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
         (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount
        FROM purchase_orders po

@@ -45,14 +45,14 @@ interface PendingPO {
 
 interface Tank {
   id: string
-  name: string
+  tank_name: string
   capacity: number
-  current_volume?: number
+  current_stock?: number
 }
 
 interface Dispenser {
   id: string
-  name: string
+  dispenser_number: string
   tank_id: string
   meter_reading?: number
 }
@@ -165,8 +165,8 @@ export function PurchasesContent() {
         setTanks(tanksResult.data || [])
         setTankReadings((tanksResult.data || []).map((t: Tank) => ({
           tank_id: t.id,
-          tank_name: t.name,
-          volume_before: t.current_volume || 0,
+          tank_name: t.tank_name,
+          volume_before: t.current_stock || 0,
           volume_after: 0
         })))
       }
@@ -175,7 +175,7 @@ export function PurchasesContent() {
         setDispensers(dispensersResult.data || [])
         setDispenserReadings((dispensersResult.data || []).map((d: Dispenser) => ({
           dispenser_id: d.id,
-          dispenser_name: d.name,
+          dispenser_name: `Dispenser ${d.dispenser_number}`,
           meter_reading_before: d.meter_reading || 0,
           meter_reading_after: 0
         })))

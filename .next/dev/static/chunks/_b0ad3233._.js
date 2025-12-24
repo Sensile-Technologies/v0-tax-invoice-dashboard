@@ -3231,8 +3231,8 @@ function PurchasesContent() {
                     setTankReadings((tanksResult.data || []).map({
                         "PurchasesContent.useCallback[fetchTanksAndDispensers]": (t)=>({
                                 tank_id: t.id,
-                                tank_name: t.name,
-                                volume_before: t.current_volume || 0,
+                                tank_name: t.tank_name,
+                                volume_before: t.current_stock || 0,
                                 volume_after: 0
                             })
                     }["PurchasesContent.useCallback[fetchTanksAndDispensers]"]));
@@ -3242,7 +3242,7 @@ function PurchasesContent() {
                     setDispenserReadings((dispensersResult.data || []).map({
                         "PurchasesContent.useCallback[fetchTanksAndDispensers]": (d)=>({
                                 dispenser_id: d.id,
-                                dispenser_name: d.name,
+                                dispenser_name: `Dispenser ${d.dispenser_number}`,
                                 meter_reading_before: d.meter_reading || 0,
                                 meter_reading_after: 0
                             })
