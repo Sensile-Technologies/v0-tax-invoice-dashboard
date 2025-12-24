@@ -36,10 +36,11 @@ export async function GET(request: Request) {
       )
 
       const nozzlesResult = await client.query(
-        `SELECT n.id, CONCAT('D', d.id, 'N', n.nozzle_number) as name, n.fuel_type 
+        `SELECT n.id, CONCAT('D', d.dispenser_number, 'N', n.nozzle_number) as name, n.fuel_type 
          FROM nozzles n
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
-         WHERE n.branch_id = $1 AND n.status = 'active'`,
+         WHERE n.branch_id = $1 AND n.status = 'active'
+         ORDER BY d.dispenser_number, n.nozzle_number`,
         [branchId]
       )
 
