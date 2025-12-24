@@ -593,18 +593,7 @@ export function InventoryContent() {
               ← Back to Overview
             </Button>
           </div>
-          <TankManagement
-            branchId={(() => {
-              try {
-                const branchData = localStorage.getItem("selectedBranch")
-                if (!branchData) return ""
-                const parsed = JSON.parse(branchData)
-                return parsed.id || ""
-              } catch {
-                return ""
-              }
-            })()}
-          />
+          <TankManagement branchId={selectedBranchId} />
         </div>
       )}
     </div>

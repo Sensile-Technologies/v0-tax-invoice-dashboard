@@ -376,7 +376,15 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     return "normal"
   }
 
-  if (loading || !branchId) {
+  if (!branchId) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-muted-foreground">Please select a branch to view tank management.</p>
+      </div>
+    )
+  }
+
+  if (loading) {
     return <div className="p-6">Loading tank management...</div>
   }
 
