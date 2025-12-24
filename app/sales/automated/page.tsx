@@ -22,6 +22,7 @@ const PAGE_SIZE = 50
 
 export default function AutomatedSalesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { formatCurrency } = useCurrency()
   const [sales, setSales] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -90,7 +91,6 @@ export default function AutomatedSalesPage() {
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
   
-  // Apply client-side filters
   const filteredSales = sales.filter((sale) => {
     if (filters.documentType === "invoices" && sale.is_credit_note) return false
     if (filters.documentType === "credit_notes" && !sale.is_credit_note) return false
@@ -253,18 +253,23 @@ export default function AutomatedSalesPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex-1 flex flex-col ml-8 my-6 mr-6">
-        <div className="bg-white rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
-          <DashboardHeader />
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-7xl space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">Automated Sales</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-slate-900">Automated Sales</h2>
                   <p className="text-slate-600">Sales transactions posted automatically from external systems</p>
                 </div>
                 <div className="flex gap-2 items-center">
@@ -275,7 +280,7 @@ export default function AutomatedSalesPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
@@ -328,12 +333,12 @@ export default function AutomatedSalesPage() {
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                     <div>
                       <CardTitle>Automated Sales Log</CardTitle>
                       <CardDescription>Transactions automatically posted from external systems</CardDescription>
                     </div>
-                    <div className="flex flex-wrap gap-2 items-center ml-auto">
+                    <div className="flex flex-wrap gap-2 items-center">
                       <div className="flex items-center gap-2">
                         <Label htmlFor="start-date" className="text-sm whitespace-nowrap">From:</Label>
                         <Input
@@ -341,7 +346,7 @@ export default function AutomatedSalesPage() {
                           type="date"
                           value={filters.startDate}
                           onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-                          className="w-40 h-9"
+                          className="w-36 h-9"
                         />
                       </div>
                       <div className="flex items-center gap-2">
@@ -351,13 +356,13 @@ export default function AutomatedSalesPage() {
                           type="date"
                           value={filters.endDate}
                           onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-                          className="w-40 h-9"
+                          className="w-36 h-9"
                         />
                       </div>
                       <div className="flex items-center gap-2">
                         <Label htmlFor="status-filter" className="text-sm whitespace-nowrap">Status:</Label>
                         <Select value={filters.status} onValueChange={(value) => setFilters({ ...filters, status: value })}>
-                          <SelectTrigger id="status-filter" className="w-32 h-9">
+                          <SelectTrigger id="status-filter" className="w-28 h-9">
                             <SelectValue placeholder="All" />
                           </SelectTrigger>
                           <SelectContent>
@@ -367,44 +372,6 @@ export default function AutomatedSalesPage() {
                             <SelectItem value="flagged">Flagged</SelectItem>
                           </SelectContent>
                         </Select>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="doctype-filter" className="text-sm whitespace-nowrap">Type:</Label>
-                        <Select value={filters.documentType} onValueChange={(value) => setFilters({ ...filters, documentType: value })}>
-                          <SelectTrigger id="doctype-filter" className="w-32 h-9">
-                            <SelectValue placeholder="All" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="invoices">Invoices</SelectItem>
-                            <SelectItem value="credit_notes">Credit Notes</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="fuel-filter" className="text-sm whitespace-nowrap">Fuel:</Label>
-                        <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
-                          <SelectTrigger id="fuel-filter" className="w-28 h-9">
-                            <SelectValue placeholder="All" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            {uniqueFuelTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{type}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Label htmlFor="invoice-filter" className="text-sm whitespace-nowrap">Invoice:</Label>
-                        <Input
-                          id="invoice-filter"
-                          type="text"
-                          placeholder="Search..."
-                          value={filters.invoiceNumber}
-                          onChange={(e) => setFilters({ ...filters, invoiceNumber: e.target.value })}
-                          className="w-28 h-9"
-                        />
                       </div>
                       <Button variant="outline" size="sm" onClick={() => setFilters({
                         startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
@@ -429,7 +396,7 @@ export default function AutomatedSalesPage() {
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <Table className="w-full">
+                        <Table className="w-full min-w-[900px]">
                           <TableHeader>
                             <TableRow>
                               <TableCell className="text-left p-2">Date</TableCell>
@@ -507,20 +474,19 @@ export default function AutomatedSalesPage() {
                       </div>
                     )}
 
-                    {filteredSales.length > 0 && (
+                    {totalPages > 1 && (
                       <div className="flex items-center justify-between pt-4 border-t">
-                        <p className="text-sm text-slate-600">
-                          Showing {filteredSales.length} of {totalCount} transactions
+                        <p className="text-sm text-slate-500">
+                          Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, totalCount)} of {totalCount} entries
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
                             size="sm"
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                             disabled={currentPage === 1}
-                            onClick={() => setCurrentPage(currentPage - 1)}
                           >
-                            <ChevronLeft className="h-4 w-4 mr-1" />
-                            Previous
+                            <ChevronLeft className="h-4 w-4" />
                           </Button>
                           <span className="text-sm text-slate-600">
                             Page {currentPage} of {totalPages}
@@ -528,11 +494,10 @@ export default function AutomatedSalesPage() {
                           <Button
                             variant="outline"
                             size="sm"
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                             disabled={currentPage === totalPages}
-                            onClick={() => setCurrentPage(currentPage + 1)}
                           >
-                            Next
-                            <ChevronRight className="h-4 w-4 ml-1" />
+                            <ChevronRight className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -542,7 +507,7 @@ export default function AutomatedSalesPage() {
               </Card>
 
               <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
-                Powered by <span className="font-semibold text-foreground">Sensile Technologies East Africa Ltd</span>
+                Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
               </footer>
             </div>
           </main>
@@ -550,25 +515,22 @@ export default function AutomatedSalesPage() {
       </div>
 
       <Dialog open={creditNoteDialogOpen} onOpenChange={setCreditNoteDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Issue Credit Note</DialogTitle>
             <DialogDescription>
-              Create a credit note for invoice {selectedSaleForCreditNote?.invoice_number || selectedSaleForCreditNote?.receipt_number}
+              Create a credit note for sale {selectedSaleForCreditNote?.invoice_number || selectedSaleForCreditNote?.receipt_number}
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Original Amount</Label>
-              <p className="text-lg font-semibold">{formatCurrency(selectedSaleForCreditNote?.total_amount || 0)}</p>
-            </div>
-            
-            <div className="space-y-2">
               <Label>Refund Type</Label>
-              <RadioGroup 
-                value={creditNoteForm.refundType} 
-                onValueChange={(value: "full" | "partial") => setCreditNoteForm({...creditNoteForm, refundType: value})}
+              <RadioGroup
+                value={creditNoteForm.refundType}
+                onValueChange={(value: "full" | "partial") =>
+                  setCreditNoteForm({ ...creditNoteForm, refundType: value })
+                }
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="full" id="full" />
@@ -580,56 +542,65 @@ export default function AutomatedSalesPage() {
                 </div>
               </RadioGroup>
             </div>
-            
+
             {creditNoteForm.refundType === "partial" && (
               <div className="space-y-2">
-                <Label htmlFor="partialAmount">Refund Amount</Label>
+                <Label htmlFor="partialAmount">Partial Amount</Label>
                 <Input
                   id="partialAmount"
                   type="number"
-                  step="0.01"
                   placeholder="Enter amount"
                   value={creditNoteForm.partialAmount}
-                  onChange={(e) => setCreditNoteForm({...creditNoteForm, partialAmount: e.target.value})}
+                  onChange={(e) =>
+                    setCreditNoteForm({ ...creditNoteForm, partialAmount: e.target.value })
+                  }
                 />
               </div>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="reasonCode">Reason Code</Label>
-              <Select value={creditNoteForm.reasonCode} onValueChange={(value) => setCreditNoteForm({...creditNoteForm, reasonCode: value})}>
-                <SelectTrigger>
+              <Select
+                value={creditNoteForm.reasonCode}
+                onValueChange={(value) =>
+                  setCreditNoteForm({ ...creditNoteForm, reasonCode: value })
+                }
+              >
+                <SelectTrigger id="reasonCode">
                   <SelectValue placeholder="Select reason" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="01">Wrong Quantity Dispensed</SelectItem>
-                  <SelectItem value="02">Wrong Fuel Type</SelectItem>
-                  <SelectItem value="03">Customer Request</SelectItem>
-                  <SelectItem value="04">Pricing Error</SelectItem>
-                  <SelectItem value="05">System Error</SelectItem>
-                  <SelectItem value="06">Other</SelectItem>
+                  <SelectItem value="01">Pricing Error</SelectItem>
+                  <SelectItem value="02">Quality Issues</SelectItem>
+                  <SelectItem value="03">Wrong Product</SelectItem>
+                  <SelectItem value="04">Customer Return</SelectItem>
+                  <SelectItem value="05">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
                 placeholder="Additional notes..."
                 value={creditNoteForm.notes}
-                onChange={(e) => setCreditNoteForm({...creditNoteForm, notes: e.target.value})}
+                onChange={(e) =>
+                  setCreditNoteForm({ ...creditNoteForm, notes: e.target.value })
+                }
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreditNoteDialogOpen(false)}>Cancel</Button>
-            <Button 
-              onClick={handleSubmitCreditNote} 
-              disabled={issuingCreditNote === selectedSaleForCreditNote?.id}
+            <Button variant="outline" onClick={() => setCreditNoteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitCreditNote}
+              disabled={issuingCreditNote !== null}
             >
-              {issuingCreditNote === selectedSaleForCreditNote?.id ? "Processing..." : "Issue Credit Note"}
+              {issuingCreditNote ? "Issuing..." : "Issue Credit Note"}
             </Button>
           </DialogFooter>
         </DialogContent>

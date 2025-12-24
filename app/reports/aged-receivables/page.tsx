@@ -10,6 +10,7 @@ import { Search, Printer, Download } from "lucide-react"
 
 export default function AgedReceivablesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
@@ -80,75 +81,91 @@ export default function AgedReceivablesPage() {
   )
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex flex-1 flex-col overflow-hidden -ml-6 mt-6 bg-white rounded-tl-3xl shadow-2xl z-10">
-        <DashboardHeader />
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-          <div className="mx-auto max-w-7xl space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900">Aged Receivables Report</h1>
-                <p className="text-slate-600 mt-1">
-                  Outstanding customer balances as of {new Date().toLocaleDateString()}
-                </p>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
+            <div className="mx-auto max-w-7xl space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Aged Receivables Report</h1>
+                  <p className="text-slate-600 mt-1">
+                    Outstanding customer balances as of {new Date().toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="rounded-full bg-transparent">
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print
+                  </Button>
+                  <Button variant="outline" size="sm" className="rounded-full bg-transparent">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="rounded-full bg-transparent">
-                  <Printer className="h-4 w-4 mr-2" />
-                  Print
-                </Button>
-                <Button variant="outline" size="sm" className="rounded-full bg-transparent">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <Card className="rounded-2xl">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-slate-600">Current (0-30)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-green-600">KES {totals.current.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-slate-600">31-60 Days</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-yellow-600">KES {totals.days30.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-slate-600">61-90 Days</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-orange-600">KES {totals.days60.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-slate-600">Over 90 Days</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-red-600">KES {totals.over90.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-2xl col-span-2 md:col-span-1">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium text-slate-600">Total Outstanding</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xl font-bold text-blue-600">KES {totals.total.toLocaleString()}</div>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-              <Card className="rounded-2xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">Current (0-30)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold text-green-600">KES {totals.current.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">31-60 Days</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold text-yellow-600">KES {totals.days30.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">61-90 Days</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold text-orange-600">KES {totals.days60.toLocaleString()}</div>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-2xl">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium text-slate-600">Over 90 Days</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-xl font-bold text-red-600">KES {totals.over90.toLocaleString()}</div>
-                </CardContent>
-              </Card>
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl font-semibold">Total Outstanding</CardTitle>
-                    <div className="flex gap-3 items-center">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <CardTitle className="text-xl font-semibold">Receivables Details</CardTitle>
+                    <div className="flex gap-3 items-center flex-wrap">
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                         <Input
@@ -178,7 +195,7 @@ export default function AgedReceivablesPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="w-full min-w-[700px]">
                       <thead>
                         <tr className="border-b">
                           <th className="text-left py-3 px-4 font-semibold text-slate-700">Customer</th>
@@ -229,13 +246,13 @@ export default function AgedReceivablesPage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </main>
 
-        <footer className="mt-12 border-t pt-6 pb-4 text-center text-muted-foreground">
-          Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
-        </footer>
+              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
+                Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
+              </footer>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   )

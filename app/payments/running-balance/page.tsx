@@ -29,6 +29,7 @@ interface BankAccountEntry {
 
 export default function RunningBalanceReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [entries, setEntries] = useState<RunningBalanceEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
@@ -73,17 +74,14 @@ export default function RunningBalanceReportPage() {
           return
         }
 
-        // Create a map of staff_id to full_name
         const staffMap = new Map((staffData || []).map((s: any) => [s.id, s.full_name]))
 
-        // Group sales by shift_id
         const salesByShift = (salesData || []).reduce((acc: any, sale: any) => {
           if (!acc[sale.shift_id]) acc[sale.shift_id] = []
           acc[sale.shift_id].push(sale)
           return acc
         }, {})
 
-        // Attach sales to shifts
         const shiftsWithSales = shifts.map((shift: any) => ({
           ...shift,
           opening_cash: Number(shift.opening_cash) || 0,
@@ -141,9 +139,6 @@ export default function RunningBalanceReportPage() {
           })
         })
 
-        const totalDebit = balanceEntries.reduce((sum, entry) => sum + entry.debit, 0)
-        const totalCredit = balanceEntries.reduce((sum, entry) => sum + entry.credit, 0)
-
         if (shiftsWithSales && shiftsWithSales.length > 0) {
           const lastShift = shiftsWithSales[shiftsWithSales.length - 1]
           balanceEntries.push({
@@ -200,56 +195,11 @@ export default function RunningBalanceReportPage() {
       },
       {
         date: "12/15/2025",
-        shift: "06:00 AM - 02:00 PM",
-        user: "John Doe",
-        debit: 45000,
-        credit: 0,
-        balance: 309000,
-        paymentMethod: "Card",
-      },
-      {
-        date: "12/15/2025",
-        shift: "02:00 PM - 10:00 PM",
-        user: "Jane Smith",
-        debit: 156000,
-        credit: 0,
-        balance: 465000,
-        paymentMethod: "Cash",
-      },
-      {
-        date: "12/15/2025",
-        shift: "02:00 PM - 10:00 PM",
-        user: "Jane Smith",
-        debit: 112000,
-        credit: 0,
-        balance: 577000,
-        paymentMethod: "M-Pesa",
-      },
-      {
-        date: "12/16/2025",
-        shift: "06:00 AM - 02:00 PM",
-        user: "Peter Johnson",
-        debit: 134000,
-        credit: 0,
-        balance: 711000,
-        paymentMethod: "Cash",
-      },
-      {
-        date: "12/16/2025",
-        shift: "06:00 AM - 02:00 PM",
-        user: "Peter Johnson",
-        debit: 98000,
-        credit: 0,
-        balance: 809000,
-        paymentMethod: "M-Pesa",
-      },
-      {
-        date: "12/16/2025",
         shift: "Closing",
         user: "-",
         debit: 0,
         credit: 0,
-        balance: 809000,
+        balance: 264000,
         paymentMethod: "All",
       },
     ]
@@ -298,76 +248,6 @@ export default function RunningBalanceReportPage() {
     window.URL.revokeObjectURL(url)
   }
 
-  const exportBankAccountStatement = () => {
-    const bankEntries: BankAccountEntry[] = []
-
-    const openingEntry = entries.find((e) => e.shift === "Opening")
-    if (openingEntry) {
-      bankEntries.push({
-        date: openingEntry.date,
-        transactionId: "OPN-001",
-        source: "Opening Balance",
-        debit: openingEntry.credit,
-        balance: openingEntry.credit,
-      })
-    }
-
-    let runningBalance = openingEntry ? openingEntry.credit : 0
-    let transactionCounter = 1
-
-    entries
-      .filter((e) => e.shift !== "Opening" && e.shift !== "Closing")
-      .forEach((entry) => {
-        const totalAmount = entry.debit + entry.credit
-        if (totalAmount > 0) {
-          runningBalance += totalAmount
-
-          let source = ""
-          if (entry.paymentMethod === "Cash") {
-            source = "Cash Deposit"
-          } else if (entry.paymentMethod === "M-Pesa") {
-            source = "Mpesa Withdrawal"
-          } else if (entry.paymentMethod === "Card") {
-            source = "Card Payment"
-          } else {
-            source = `${entry.paymentMethod} Transaction`
-          }
-
-          bankEntries.push({
-            date: entry.date,
-            transactionId: `TXN-${String(transactionCounter).padStart(4, "0")}`,
-            source: source,
-            debit: totalAmount,
-            balance: runningBalance,
-          })
-          transactionCounter++
-        }
-      })
-
-    bankEntries.push({
-      date: bankEntries[bankEntries.length - 1]?.date || new Date().toLocaleDateString(),
-      transactionId: "CLS-001",
-      source: "Closing Balance",
-      debit: 0,
-      balance: runningBalance,
-    })
-
-    let csv = "Date,Transaction ID,Source,Debit,Balance\n"
-    bankEntries.forEach((entry) => {
-      csv += `${entry.date},${entry.transactionId},${entry.source},${entry.debit},${entry.balance}\n`
-    })
-
-    const blob = new Blob([csv], { type: "text/csv" })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `bank-account-statement-${new Date().toISOString().split("T")[0]}.csv`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
-  }
-
   const paymentMethods = Array.from(new Set(entries.map((e) => e.paymentMethod).filter((m) => m !== "All")))
 
   const renderTable = (paymentMethod: string) => {
@@ -394,7 +274,7 @@ export default function RunningBalanceReportPage() {
 
     return (
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-[700px]">
           <thead>
             <tr className="border-b">
               <th className="text-left py-3 px-4 font-semibold text-slate-700">Date</th>
@@ -459,183 +339,67 @@ export default function RunningBalanceReportPage() {
     )
   }
 
-  const renderBankAccountStatement = () => {
-    const bankEntries: BankAccountEntry[] = []
-
-    const openingEntry = entries.find((e) => e.shift === "Opening")
-    if (openingEntry) {
-      bankEntries.push({
-        date: openingEntry.date,
-        transactionId: "OPN-001",
-        source: "Opening Balance",
-        debit: openingEntry.credit,
-        balance: openingEntry.credit,
-      })
-    }
-
-    let runningBalance = openingEntry ? openingEntry.credit : 0
-    let transactionCounter = 1
-
-    entries
-      .filter((e) => e.shift !== "Opening" && e.shift !== "Closing")
-      .forEach((entry) => {
-        const totalAmount = entry.debit + entry.credit
-        if (totalAmount > 0) {
-          runningBalance += totalAmount
-
-          let source = ""
-          if (entry.paymentMethod === "Cash") {
-            source = "Cash Deposit"
-          } else if (entry.paymentMethod === "M-Pesa") {
-            source = "Mpesa Withdrawal"
-          } else if (entry.paymentMethod === "Card") {
-            source = "Card Payment"
-          } else {
-            source = `${entry.paymentMethod} Transaction`
-          }
-
-          bankEntries.push({
-            date: entry.date,
-            transactionId: `TXN-${String(transactionCounter).padStart(4, "0")}`,
-            source: source,
-            debit: totalAmount,
-            balance: runningBalance,
-          })
-          transactionCounter++
-        }
-      })
-
-    bankEntries.push({
-      date: bankEntries[bankEntries.length - 1]?.date || new Date().toLocaleDateString(),
-      transactionId: "CLS-001",
-      source: "Closing Balance",
-      debit: 0,
-      balance: runningBalance,
-    })
-
-    const openingRow = bankEntries[0]
-    const closingRow = bankEntries[bankEntries.length - 1]
-    const transactionRows = bankEntries.slice(1, bankEntries.length - 1)
-
-    return (
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-3 px-4 font-semibold text-slate-700">Date</th>
-              <th className="text-left py-3 px-4 font-semibold text-slate-700">Transaction ID</th>
-              <th className="text-left py-3 px-4 font-semibold text-slate-700">Source</th>
-              <th className="text-right py-3 px-4 font-semibold text-slate-700">Debit</th>
-              <th className="text-right py-3 px-4 font-semibold text-slate-700">Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* Opening Balance */}
-            <tr className="bg-green-50 font-semibold border-b">
-              <td className="py-3 px-4">{openingRow.date}</td>
-              <td className="py-3 px-4">{openingRow.transactionId}</td>
-              <td className="py-3 px-4">{openingRow.source}</td>
-              <td className="py-3 px-4 text-right">{formatCurrency(openingRow.debit)}</td>
-              <td className="py-3 px-4 text-right font-semibold">{formatCurrency(openingRow.balance)}</td>
-            </tr>
-
-            {/* Transactions */}
-            {transactionRows.map((entry, index) => (
-              <tr key={index} className="border-b hover:bg-slate-50">
-                <td className="py-3 px-4">{entry.date}</td>
-                <td className="py-3 px-4 font-mono text-sm">{entry.transactionId}</td>
-                <td className="py-3 px-4">{entry.source}</td>
-                <td className="py-3 px-4 text-right">{formatCurrency(entry.debit)}</td>
-                <td className="py-3 px-4 text-right font-semibold">{formatCurrency(entry.balance)}</td>
-              </tr>
-            ))}
-
-            {/* Totals Row */}
-            <tr className="bg-blue-50 font-semibold border-b-2">
-              <td colSpan={3} className="py-3 px-4 text-right">
-                Totals:
-              </td>
-              <td className="py-3 px-4"></td>
-              <td className="py-3 px-4"></td>
-            </tr>
-
-            {/* Closing Balance */}
-            <tr className="bg-amber-50 font-semibold border-b-2">
-              <td className="py-3 px-4">{closingRow.date}</td>
-              <td className="py-3 px-4">{closingRow.transactionId}</td>
-              <td className="py-3 px-4">{closingRow.source}</td>
-              <td className="py-3 px-4 text-right">{formatCurrency(closingRow.debit)}</td>
-              <td className="py-3 px-4 text-right font-semibold">{formatCurrency(closingRow.balance)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    )
-  }
-
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex flex-1 flex-col overflow-hidden -ml-6 mt-6 bg-white rounded-tl-3xl shadow-2xl z-10">
-        <DashboardHeader />
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-          <div className="mx-auto max-w-7xl space-y-6">
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold text-slate-800">Running Balance Report</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="text-center py-8 text-slate-600">Loading...</div>
-                ) : (
-                  <Tabs value={activePaymentMethod} onValueChange={setActivePaymentMethod} className="w-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <TabsList>
-                        {paymentMethods.map((method) => (
-                          <TabsTrigger key={method} value={method}>
-                            {method}
-                          </TabsTrigger>
-                        ))}
-                        <TabsTrigger value="All">All Payment Methods</TabsTrigger>
-                        <TabsTrigger value="BankStatement">Bank Account Statement</TabsTrigger>
-                      </TabsList>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
+            <div className="mx-auto max-w-7xl space-y-6">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold text-slate-800">Running Balance Report</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <div className="text-center py-8 text-slate-600">Loading...</div>
+                  ) : (
+                    <Tabs value={activePaymentMethod} onValueChange={setActivePaymentMethod} className="w-full">
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
+                        <TabsList className="flex-wrap">
+                          {paymentMethods.map((method) => (
+                            <TabsTrigger key={method} value={method}>
+                              {method}
+                            </TabsTrigger>
+                          ))}
+                          <TabsTrigger value="All">All Payment Methods</TabsTrigger>
+                        </TabsList>
 
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (activePaymentMethod === "BankStatement") {
-                            exportBankAccountStatement()
-                          } else {
-                            exportToExcel(activePaymentMethod)
-                          }
-                        }}
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Export
-                      </Button>
-                    </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => exportToExcel(activePaymentMethod)}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Export
+                        </Button>
+                      </div>
 
-                    {paymentMethods.map((method) => (
-                      <TabsContent key={method} value={method}>
-                        {renderTable(method)}
-                      </TabsContent>
-                    ))}
+                      {paymentMethods.map((method) => (
+                        <TabsContent key={method} value={method}>
+                          {renderTable(method)}
+                        </TabsContent>
+                      ))}
+                      <TabsContent value="All">{renderTable("All")}</TabsContent>
+                    </Tabs>
+                  )}
+                </CardContent>
+              </Card>
 
-                    <TabsContent value="All">{renderTable("All")}</TabsContent>
-                    <TabsContent value="BankStatement">{renderBankAccountStatement()}</TabsContent>
-                  </Tabs>
-                )}
-              </CardContent>
-            </Card>
-
-            <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
-              Powered by <span className="font-semibold text-foreground">Sensile Technologies East Africa Ltd</span>
-            </footer>
-          </div>
-        </main>
+              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
+                Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
+              </footer>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   )

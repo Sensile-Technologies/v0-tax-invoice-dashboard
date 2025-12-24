@@ -39,6 +39,7 @@ export default function LogsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedLog, setSelectedLog] = useState<ApiLog | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const fetchBranches = async () => {
     try {
@@ -129,227 +130,233 @@ export default function LogsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-      <div className="flex-1">
-        <DashboardHeader />
-        <main className="p-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>API Logs</CardTitle>
-                  <CardDescription>
-                    Track all backend API calls with payloads, responses, and performance metrics
-                  </CardDescription>
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-background">
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
+      
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
+          
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 lg:p-6">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <CardTitle>API Logs</CardTitle>
+                    <CardDescription>
+                      Track all backend API calls with payloads, responses, and performance metrics
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
+                      <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                      Refresh
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleExport}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleClearLogs}>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Clear All
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
-                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-                    Refresh
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleExport}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleClearLogs}>
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Clear All
-                  </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-4 mb-6 flex-wrap">
+                  <div className="flex-1 min-w-[200px]">
+                    <Input
+                      placeholder="Search by endpoint or method..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <Select value={branchFilter} onValueChange={setBranchFilter}>
+                    <SelectTrigger className="w-[200px]">
+                      <Building2 className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Filter by branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Branches</SelectItem>
+                      {branches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id}>
+                          {branch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filter} onValueChange={setFilter}>
+                    <SelectTrigger className="w-[180px]">
+                      <Filter className="h-4 w-4 mr-2" />
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Requests</SelectItem>
+                      <SelectItem value="success">Success Only</SelectItem>
+                      <SelectItem value="error">Errors Only</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Filters */}
-              <div className="flex gap-4 mb-6">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Search by endpoint or method..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <Select value={branchFilter} onValueChange={setBranchFilter}>
-                  <SelectTrigger className="w-[200px]">
-                    <Building2 className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Filter by branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Branches</SelectItem>
-                    {branches.map((branch) => (
-                      <SelectItem key={branch.id} value={branch.id}>
-                        {branch.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Requests</SelectItem>
-                    <SelectItem value="success">Success Only</SelectItem>
-                    <SelectItem value="error">Errors Only</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
-              {/* Logs Table */}
-              <div className="border rounded-lg overflow-hidden">
-                <div className="overflow-x-auto max-h-[600px]">
-                  <Table>
-                    <TableHeader className="bg-muted sticky top-0">
-                      <TableRow>
-                        <TableHead>Timestamp</TableHead>
-                        <TableHead>Method</TableHead>
-                        <TableHead>Endpoint</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Duration</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {loading ? (
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="overflow-x-auto max-h-[600px]">
+                    <Table className="min-w-[700px]">
+                      <TableHeader className="bg-muted sticky top-0">
                         <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                            Loading logs...
-                          </TableCell>
+                          <TableHead>Timestamp</TableHead>
+                          <TableHead>Method</TableHead>
+                          <TableHead>Endpoint</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Actions</TableHead>
                         </TableRow>
-                      ) : filteredLogs.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                            No logs found
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        filteredLogs.map((log) => (
-                          <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50">
-                            <TableCell className="font-mono text-xs">
-                              {new Date(log.created_at).toLocaleString()}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{log.method}</Badge>
-                            </TableCell>
-                            <TableCell className="font-mono text-sm max-w-[300px] truncate">{log.endpoint}</TableCell>
-                            <TableCell>{getStatusBadge(log.status_code, log.error)}</TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {log.duration_ms ? `${log.duration_ms}ms` : "-"}
-                            </TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm" onClick={() => setSelectedLog(log)}>
-                                View Details
-                              </Button>
+                      </TableHeader>
+                      <TableBody>
+                        {loading ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                              Loading logs...
                             </TableCell>
                           </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
+                        ) : filteredLogs.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                              No logs found
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredLogs.map((log) => (
+                            <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50">
+                              <TableCell className="font-mono text-xs">
+                                {new Date(log.created_at).toLocaleString()}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{log.method}</Badge>
+                              </TableCell>
+                              <TableCell className="font-mono text-sm max-w-[300px] truncate">{log.endpoint}</TableCell>
+                              <TableCell>{getStatusBadge(log.status_code, log.error)}</TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {log.duration_ms ? `${log.duration_ms}ms` : "-"}
+                              </TableCell>
+                              <TableCell>
+                                <Button variant="ghost" size="sm" onClick={() => setSelectedLog(log)}>
+                                  View Details
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
-              </div>
 
-              {/* Log Details Modal */}
-              {selectedLog && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                  <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden">
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle>Log Details</CardTitle>
-                          <CardDescription className="font-mono text-xs mt-1">{selectedLog.endpoint}</CardDescription>
+                {selectedLog && (
+                  <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                      <CardHeader>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <CardTitle>Log Details</CardTitle>
+                            <CardDescription className="font-mono text-xs mt-1">{selectedLog.endpoint}</CardDescription>
+                          </div>
+                          <Button variant="ghost" onClick={() => setSelectedLog(null)}>
+                            Close
+                          </Button>
                         </div>
-                        <Button variant="ghost" onClick={() => setSelectedLog(null)}>
-                          Close
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="overflow-y-auto max-h-[calc(90vh-120px)]">
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="font-semibold mb-2">Request Info</h3>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-muted-foreground">Method:</span>{" "}
-                              <Badge variant="outline">{selectedLog.method}</Badge>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Status:</span>{" "}
-                              {getStatusBadge(selectedLog.status_code, selectedLog.error)}
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Duration:</span> {selectedLog.duration_ms}ms
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground">Timestamp:</span>{" "}
-                              {new Date(selectedLog.created_at).toLocaleString()}
+                      </CardHeader>
+                      <CardContent className="overflow-y-auto max-h-[calc(90vh-120px)]">
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="font-semibold mb-2">Request Info</h3>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Method:</span>{" "}
+                                <Badge variant="outline">{selectedLog.method}</Badge>
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Status:</span>{" "}
+                                {getStatusBadge(selectedLog.status_code, selectedLog.error)}
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Duration:</span> {selectedLog.duration_ms}ms
+                              </div>
+                              <div>
+                                <span className="text-muted-foreground">Timestamp:</span>{" "}
+                                {new Date(selectedLog.created_at).toLocaleString()}
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div>
-                          <h3 className="font-semibold mb-2">Endpoints</h3>
-                          <div className="space-y-2 text-sm">
+                          <div>
+                            <h3 className="font-semibold mb-2">Endpoints</h3>
+                            <div className="space-y-2 text-sm">
+                              <div>
+                                <span className="text-muted-foreground">Middleware Endpoint:</span>
+                                <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
+                                  {selectedLog.endpoint}
+                                </pre>
+                              </div>
+                              {selectedLog.external_endpoint && (
+                                <div>
+                                  <span className="text-muted-foreground">External KRA Endpoint:</span>
+                                  <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
+                                    {selectedLog.external_endpoint}
+                                  </pre>
+                                </div>
+                              )}
+                              {selectedLog.payload?.tin && (
+                                <div>
+                                  <span className="text-muted-foreground">KRA PIN:</span>
+                                  <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
+                                    {selectedLog.payload.tin}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {selectedLog.payload && (
                             <div>
-                              <span className="text-muted-foreground">Middleware Endpoint:</span>
-                              <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
-                                {selectedLog.endpoint}
+                              <h3 className="font-semibold mb-2">Payload</h3>
+                              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
+                                {JSON.stringify(selectedLog.payload, null, 2)}
                               </pre>
                             </div>
-                            {selectedLog.external_endpoint && (
-                              <div>
-                                <span className="text-muted-foreground">External KRA Endpoint:</span>
-                                <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
-                                  {selectedLog.external_endpoint}
-                                </pre>
-                              </div>
-                            )}
-                            {selectedLog.payload?.tin && (
-                              <div>
-                                <span className="text-muted-foreground">KRA PIN:</span>
-                                <pre className="bg-muted p-2 rounded mt-1 font-mono text-xs overflow-x-auto">
-                                  {selectedLog.payload.tin}
-                                </pre>
-                              </div>
-                            )}
-                          </div>
+                          )}
+
+                          {selectedLog.response && (
+                            <div>
+                              <h3 className="font-semibold mb-2">Response</h3>
+                              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
+                                {JSON.stringify(selectedLog.response, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+
+                          {selectedLog.error && (
+                            <div>
+                              <h3 className="font-semibold mb-2 text-destructive">Error</h3>
+                              <pre className="bg-destructive/10 p-4 rounded-lg overflow-x-auto text-xs text-destructive">
+                                {selectedLog.error}
+                              </pre>
+                            </div>
+                          )}
                         </div>
-
-                        {selectedLog.payload && (
-                          <div>
-                            <h3 className="font-semibold mb-2">Payload</h3>
-                            <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
-                              {JSON.stringify(selectedLog.payload, null, 2)}
-                            </pre>
-                          </div>
-                        )}
-
-                        {selectedLog.response && (
-                          <div>
-                            <h3 className="font-semibold mb-2">Response</h3>
-                            <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-xs">
-                              {JSON.stringify(selectedLog.response, null, 2)}
-                            </pre>
-                          </div>
-                        )}
-
-                        {selectedLog.error && (
-                          <div>
-                            <h3 className="font-semibold mb-2 text-destructive">Error</h3>
-                            <pre className="bg-destructive/10 p-4 rounded-lg overflow-x-auto text-xs text-destructive">
-                              {selectedLog.error}
-                            </pre>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </main>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </main>
+        </div>
       </div>
     </div>
   )

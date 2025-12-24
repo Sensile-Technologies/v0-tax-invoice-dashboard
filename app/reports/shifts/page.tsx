@@ -69,6 +69,7 @@ interface TankStock {
 
 export default function ShiftsReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { formatCurrency } = useCurrency()
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
@@ -92,7 +93,6 @@ export default function ShiftsReportPage() {
   const [submitting, setSubmitting] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
 
-  // Initial load - fetch all shifts
   useEffect(() => {
     const userStr = localStorage.getItem("user")
     
@@ -104,7 +104,6 @@ export default function ShiftsReportPage() {
     const user = JSON.parse(userStr)
     setUserId(user.id)
     
-    // Immediately fetch shifts
     const params = new URLSearchParams()
     params.append('user_id', user.id)
     
@@ -130,7 +129,6 @@ export default function ShiftsReportPage() {
       })
   }, [])
 
-  // Re-fetch when date filters change
   useEffect(() => {
     if (userId && (dateFrom || dateTo)) {
       fetchShifts(userId, dateFrom, dateTo)
@@ -176,15 +174,6 @@ export default function ShiftsReportPage() {
     return date.toLocaleString('en-KE', {
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  function formatTime(dateString: string | null) {
-    if (!dateString) return '-'
-    const date = new Date(dateString)
-    return date.toLocaleTimeString('en-KE', {
       hour: '2-digit',
       minute: '2-digit'
     })
@@ -302,175 +291,182 @@ export default function ShiftsReportPage() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
-      <DashboardSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+      <DashboardSidebar 
+        collapsed={sidebarCollapsed} 
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={() => setMobileMenuOpen(false)}
+      />
 
-      <div className="flex flex-1 flex-col overflow-hidden -ml-6 mt-6 bg-white rounded-tl-3xl shadow-2xl z-10">
-        <DashboardHeader />
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
-          <div className="mx-auto max-w-7xl space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900">Shifts Report</h1>
-                <p className="text-slate-600 mt-1">Cashier shift performance and reconciliation</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => {
-                    const userStr = localStorage.getItem("user")
-                    if (userStr) {
-                      const user = JSON.parse(userStr)
-                      setUserId(user.id)
-                      fetchShifts(user.id)
-                    }
-                  }}>
-                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                    Refresh
-                  </Button>
-                <Button variant="outline" size="sm">
-                  <Printer className="h-4 w-4 mr-2" />
-                  Print
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
-            </div>
-
-            <Card className="rounded-2xl mb-6">
-              <CardHeader>
-                <CardTitle>Shift Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-slate-600">Total Shifts</p>
-                    <p className="text-2xl font-bold">{summary.totalShifts}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Total Sales</p>
-                    <p className="text-2xl font-bold">{formatCurrency(summary.totalSales)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Average Per Shift</p>
-                    <p className="text-2xl font-bold">{formatCurrency(summary.averagePerShift)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">Total Variance</p>
-                    <p className={`text-2xl font-bold ${summary.totalVariance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency(summary.totalVariance)}
-                    </p>
-                  </div>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
+            <div className="mx-auto max-w-7xl space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Shifts Report</h1>
+                  <p className="text-slate-600 mt-1">Cashier shift performance and reconciliation</p>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl">
-              <CardHeader>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <span className="text-slate-600 font-medium">Filter by date:</span>
-                  <Input
-                    type="date"
-                    value={dateFrom}
-                    onChange={(e) => setDateFrom(e.target.value)}
-                    className="w-40 rounded-xl"
-                    placeholder="From"
-                  />
-                  <span className="text-slate-600">to</span>
-                  <Input
-                    type="date"
-                    value={dateTo}
-                    onChange={(e) => setDateTo(e.target.value)}
-                    className="w-40 rounded-xl"
-                    placeholder="To"
-                  />
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => { setDateFrom(''); setDateTo(''); if (userId) fetchShifts(userId, '', ''); }}
-                    className="rounded-xl"
-                  >
-                    Clear
+                <div className="flex gap-2 flex-wrap">
+                  <Button variant="outline" size="sm" onClick={() => {
+                      const userStr = localStorage.getItem("user")
+                      if (userStr) {
+                        const user = JSON.parse(userStr)
+                        setUserId(user.id)
+                        fetchShifts(user.id)
+                      }
+                    }}>
+                      <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                  <Button variant="outline" size="sm">
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
                   </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <RefreshCw className="h-8 w-8 animate-spin text-slate-400" />
-                    <span className="ml-2 text-slate-500">Loading shifts...</span>
+              </div>
+
+              <Card className="rounded-2xl mb-6">
+                <CardHeader>
+                  <CardTitle>Shift Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm text-slate-600">Total Shifts</p>
+                      <p className="text-2xl font-bold">{summary.totalShifts}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Total Sales</p>
+                      <p className="text-2xl font-bold">{formatCurrency(summary.totalSales)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Average Per Shift</p>
+                      <p className="text-2xl font-bold">{formatCurrency(summary.averagePerShift)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-600">Total Variance</p>
+                      <p className={`text-2xl font-bold ${summary.totalVariance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(summary.totalVariance)}
+                      </p>
+                    </div>
                   </div>
-                ) : shifts.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-12 text-slate-500">
-                    <Clock className="h-12 w-12 mb-4 text-slate-300" />
-                    <p className="text-lg font-medium">No shifts found</p>
-                    <p className="text-sm">Try adjusting your filters or date range</p>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl">
+                <CardHeader>
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <span className="text-slate-600 font-medium">Filter by date:</span>
+                    <Input
+                      type="date"
+                      value={dateFrom}
+                      onChange={(e) => setDateFrom(e.target.value)}
+                      className="w-40 rounded-xl"
+                      placeholder="From"
+                    />
+                    <span className="text-slate-600">to</span>
+                    <Input
+                      type="date"
+                      value={dateTo}
+                      onChange={(e) => setDateTo(e.target.value)}
+                      className="w-40 rounded-xl"
+                      placeholder="To"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => { setDateFrom(''); setDateTo(''); if (userId) fetchShifts(userId, '', ''); }}
+                      className="rounded-xl"
+                    >
+                      Clear
+                    </Button>
                   </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Branch</th>
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Cashier</th>
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">Start Time</th>
-                          <th className="text-left py-3 px-4 font-semibold text-slate-700">End Time</th>
-                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening Cash</th>
-                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Sales</th>
-                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Cash</th>
-                          <th className="text-right py-3 px-4 font-semibold text-slate-700">Variance</th>
-                          <th className="text-center py-3 px-4 font-semibold text-slate-700">Status</th>
-                          <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {shifts.map((shift) => (
-                          <tr key={shift.id} className="border-b hover:bg-slate-50">
-                            <td className="py-3 px-4">{shift.branch_name || 'Unknown'}</td>
-                            <td className="py-3 px-4">{shift.cashier}</td>
-                            <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
-                            <td className="py-3 px-4">{formatDateTime(shift.end_time)}</td>
-                            <td className="py-3 px-4 text-right">{formatCurrency(shift.opening_cash)}</td>
-                            <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.total_sales)}</td>
-                            <td className="py-3 px-4 text-right">{formatCurrency(shift.closing_cash)}</td>
-                            <td className="py-3 px-4 text-right">
-                              <span className={shift.variance >= 0 ? "text-green-600" : "text-red-600"}>
-                                {shift.variance !== 0 && (
-                                  <AlertCircle className="h-4 w-4 inline mr-1" />
-                                )}
-                                {formatCurrency(shift.variance)}
-                              </span>
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              {getStatusBadge(shift.status)}
-                            </td>
-                            <td className="py-3 px-4 text-center">
-                              {shift.status === 'active' && (
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => openEndShiftDialog(shift)}
-                                >
-                                  <StopCircle className="h-4 w-4 mr-1" />
-                                  End Shift
-                                </Button>
-                              )}
-                            </td>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <RefreshCw className="h-8 w-8 animate-spin text-slate-400" />
+                      <span className="ml-2 text-slate-500">Loading shifts...</span>
+                    </div>
+                  ) : shifts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+                      <Clock className="h-12 w-12 mb-4 text-slate-300" />
+                      <p className="text-lg font-medium">No shifts found</p>
+                      <p className="text-sm">Try adjusting your filters or date range</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[900px]">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-3 px-4 font-semibold text-slate-700">Branch</th>
+                            <th className="text-left py-3 px-4 font-semibold text-slate-700">Cashier</th>
+                            <th className="text-left py-3 px-4 font-semibold text-slate-700">Start Time</th>
+                            <th className="text-left py-3 px-4 font-semibold text-slate-700">End Time</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening Cash</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Sales</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Cash</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Variance</th>
+                            <th className="text-center py-3 px-4 font-semibold text-slate-700">Status</th>
+                            <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                        </thead>
+                        <tbody>
+                          {shifts.map((shift) => (
+                            <tr key={shift.id} className="border-b hover:bg-slate-50">
+                              <td className="py-3 px-4">{shift.branch_name || 'Unknown'}</td>
+                              <td className="py-3 px-4">{shift.cashier}</td>
+                              <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
+                              <td className="py-3 px-4">{formatDateTime(shift.end_time)}</td>
+                              <td className="py-3 px-4 text-right">{formatCurrency(shift.opening_cash)}</td>
+                              <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.total_sales)}</td>
+                              <td className="py-3 px-4 text-right">{formatCurrency(shift.closing_cash)}</td>
+                              <td className="py-3 px-4 text-right">
+                                <span className={shift.variance >= 0 ? "text-green-600" : "text-red-600"}>
+                                  {shift.variance !== 0 && (
+                                    <AlertCircle className="h-4 w-4 inline mr-1" />
+                                  )}
+                                  {formatCurrency(shift.variance)}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                {getStatusBadge(shift.status)}
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                {shift.status === 'active' && (
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => openEndShiftDialog(shift)}
+                                  >
+                                    <StopCircle className="h-4 w-4 mr-1" />
+                                    End Shift
+                                  </Button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-            <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
-              Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
-            </footer>
-          </div>
-        </main>
+              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
+                Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
+              </footer>
+            </div>
+          </main>
+        </div>
       </div>
 
       <Dialog open={endShiftDialogOpen} onOpenChange={setEndShiftDialogOpen}>
@@ -588,9 +584,9 @@ export default function ShiftsReportPage() {
               Cancel
             </Button>
             <Button
-              variant="destructive"
               onClick={handleEndShift}
-              disabled={submitting || endShiftLoading}
+              disabled={submitting}
+              className="bg-red-600 hover:bg-red-700"
             >
               {submitting ? (
                 <>
