@@ -138,6 +138,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           nozzle_number: parseInt(formData.nozzle_number),
           fuel_type: formData.fuel_type,
           status: selectedNozzle.status,
+          initial_meter_reading: parseFloat(formData.initial_meter_reading) || 0,
         }),
       })
 
@@ -390,6 +391,15 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                   <SelectItem value="Kerosene">Kerosene</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label>Initial Meter Reading</Label>
+              <Input
+                type="number"
+                min="0"
+                value={formData.initial_meter_reading}
+                onChange={(e) => setFormData({ ...formData, initial_meter_reading: e.target.value })}
+              />
             </div>
           </div>
           <DialogFooter>

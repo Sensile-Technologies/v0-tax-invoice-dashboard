@@ -150,7 +150,7 @@ async function POST(request) {
 async function PUT(request) {
     try {
         const body = await request.json();
-        const { id, dispenser_id, nozzle_number, fuel_type, status } = body;
+        const { id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading } = body;
         if (!id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Nozzle id is required"
@@ -163,6 +163,7 @@ async function PUT(request) {
            nozzle_number = COALESCE($3, nozzle_number),
            fuel_type = COALESCE($4, fuel_type),
            status = COALESCE($5, status),
+           initial_meter_reading = COALESCE($6, initial_meter_reading),
            updated_at = NOW()
        WHERE id = $1
        RETURNING *`, [
@@ -170,7 +171,8 @@ async function PUT(request) {
             dispenser_id,
             nozzle_number,
             fuel_type,
-            status
+            status,
+            initial_meter_reading
         ]);
         if (result.rows.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -196,7 +198,14 @@ async function PUT(request) {
 async function DELETE(request) {
     try {
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
+        let id = searchParams.get('id');
+        // Also support JSON body for DELETE
+        if (!id) {
+            try {
+                const body = await request.json();
+                id = body.id;
+            } catch  {}
+        }
         if (!id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Nozzle id is required"
