@@ -17,7 +17,7 @@ export async function GET(
     const orderResult = await pool.query(`
       SELECT 
         po.*,
-        b.branch_name,
+        b.name as branch_name,
         vp.name as supplier_name,
         vp.tin as supplier_tin,
         vp.address as supplier_address,
