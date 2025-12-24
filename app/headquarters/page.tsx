@@ -21,6 +21,7 @@ import {
   StopCircle,
   AlertCircle,
   Truck,
+  ClipboardList,
 } from "lucide-react"
 
 import { useState, useEffect } from "react"
@@ -913,6 +914,12 @@ export default function HeadquartersPage() {
                   <a href="/headquarters/transporters" className="flex items-center gap-2">
                     <Truck className="h-4 w-4" />
                     Transporters
+                  </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                  <a href="/headquarters/purchase-orders" className="flex items-center gap-2">
+                    <ClipboardList className="h-4 w-4" />
+                    Purchase Orders
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
