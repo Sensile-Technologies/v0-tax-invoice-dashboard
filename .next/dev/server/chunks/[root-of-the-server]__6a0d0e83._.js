@@ -82,7 +82,16 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
         const tankId = searchParams.get('tank_id');
-        let query = 'SELECT d.*, i.item_name, t.tank_name FROM dispensers d LEFT JOIN items i ON d.item_id = i.id LEFT JOIN tanks t ON d.tank_id = t.id WHERE 1=1';
+        let query = `
+      SELECT d.*, i.item_name, t.tank_name,
+        COALESCE(
+          (SELECT array_agg(dt.tank_id) FROM dispenser_tanks dt WHERE dt.dispenser_id = d.id),
+          ARRAY[d.tank_id]::uuid[]
+        ) as tank_ids
+      FROM dispensers d 
+      LEFT JOIN items i ON d.item_id = i.id 
+      LEFT JOIN tanks t ON d.tank_id = t.id 
+      WHERE 1=1`;
         const params = [];
         if (branchId) {
             params.push(branchId);
@@ -90,7 +99,7 @@ async function GET(request) {
         }
         if (tankId) {
             params.push(tankId);
-            query += ` AND d.tank_id = $${params.length}`;
+            query += ` AND (d.tank_id = $${params.length} OR d.id IN (SELECT dispenser_id FROM dispenser_tanks WHERE tank_id = $${params.length}))`;
         }
         query += ' ORDER BY d.dispenser_number ASC';
         const result = await pool.query(query, params);
@@ -111,7 +120,7 @@ async function GET(request) {
 async function POST(request) {
     try {
         const body = await request.json();
-        const { branch_id, dispenser_number, fuel_type, status, tank_id, item_id } = body;
+        const { branch_id, dispenser_number, fuel_type, status, tank_id, tank_ids, item_id } = body;
         if (!branch_id || !dispenser_number) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
@@ -121,9 +130,12 @@ async function POST(request) {
             });
         }
         let finalItemId = item_id;
-        if (tank_id && !item_id) {
-            const tankResult = await pool.query('SELECT item_id FROM tanks WHERE id = $1', [
-                tank_id
+        const tankIdsArray = tank_ids || (tank_id ? [
+            tank_id
+        ] : []);
+        if (tankIdsArray.length > 0 && !item_id) {
+            const tankResult = await pool.query('SELECT item_id FROM tanks WHERE id = ANY($1) AND item_id IS NOT NULL LIMIT 1', [
+                tankIdsArray
             ]);
             if (tankResult.rows.length > 0 && tankResult.rows[0].item_id) {
                 finalItemId = tankResult.rows[0].item_id;
@@ -136,9 +148,18 @@ async function POST(request) {
             dispenser_number,
             fuel_type || 'Petrol',
             status || 'active',
-            tank_id || null,
+            tankIdsArray[0] || null,
             finalItemId || null
         ]);
+        const dispenserId = result.rows[0].id;
+        if (tankIdsArray.length > 0) {
+            for (const tId of tankIdsArray){
+                await pool.query(`INSERT INTO dispenser_tanks (dispenser_id, tank_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [
+                    dispenserId,
+                    tId
+                ]);
+            }
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: result.rows[0]
