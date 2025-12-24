@@ -29,8 +29,15 @@ import {
   ClipboardList, 
   CheckCircle2, 
   XCircle,
-  Eye 
+  Eye,
+  MoreHorizontal
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { getCurrentUser } from "@/lib/auth/client"
@@ -269,7 +276,7 @@ export default function PurchaseOrdersPage() {
                       <TableHead>Approval</TableHead>
                       <TableHead>Delivery Status</TableHead>
                       <TableHead>Expected</TableHead>
-                      {canApprove && <TableHead>Actions</TableHead>}
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -310,41 +317,56 @@ export default function PurchaseOrdersPage() {
                         </TableCell>
                         <TableCell>{getStatusBadge(order.status)}</TableCell>
                         <TableCell>{formatDate(order.expected_delivery)}</TableCell>
-                        {canApprove && (
-                          <TableCell>
-                            {order.approval_status === 'pending_approval' && (
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="rounded-xl text-green-600 hover:text-green-700 hover:bg-green-50"
-                                  onClick={() => handleApprove(order.id)}
-                                  disabled={processingId === order.id}
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => router.push(`/headquarters/purchase-orders/${order.id}`)}
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </DropdownMenuItem>
+                              {canApprove && order.approval_status === 'pending_approval' && (
+                                <>
+                                  <DropdownMenuItem
+                                    onClick={() => handleApprove(order.id)}
+                                    disabled={processingId === order.id}
+                                    className="text-green-600 focus:text-green-600"
+                                  >
+                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                    Approve
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => openRejectDialog(order)}
+                                    disabled={processingId === order.id}
+                                    className="text-red-600 focus:text-red-600"
+                                  >
+                                    <XCircle className="mr-2 h-4 w-4" />
+                                    Reject
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              {order.approval_status === 'rejected' && order.rejection_comments && (
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedOrder(order)
+                                    setRejectionComments(order.rejection_comments)
+                                    setRejectDialogOpen(true)
+                                  }}
+                                  className="text-red-600 focus:text-red-600"
                                 >
-                                  {processingId === order.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <CheckCircle2 className="h-4 w-4" />
-                                  )}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  onClick={() => openRejectDialog(order)}
-                                  disabled={processingId === order.id}
-                                >
-                                  <XCircle className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
-                            {order.approval_status === 'rejected' && order.rejection_comments && (
-                              <span className="text-xs text-red-600" title={order.rejection_comments}>
-                                View reason
-                              </span>
-                            )}
-                          </TableCell>
-                        )}
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  View Rejection Reason
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
