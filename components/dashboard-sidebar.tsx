@@ -24,6 +24,7 @@ import {
   Leaf,
   ChevronDown,
   X,
+  Settings,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -55,6 +56,7 @@ const regularNavigationItems: NavigationItem[] = [
   { icon: Upload, label: "Imports", href: "/imports", hasDropdown: true },
   { icon: UserCog, label: "Staff", href: "/staff" },
   { icon: FileText, label: "Reports", href: "/reports", hasDropdown: true },
+  { icon: Settings, label: "Tax Service", href: "/configuration/tax-service" },
 ]
 
 const headquartersNavigationItems: NavigationItem[] = [

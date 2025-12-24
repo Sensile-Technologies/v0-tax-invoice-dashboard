@@ -173,6 +173,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$leaf$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Leaf$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/leaf.js [app-client] (ecmascript) <export default as Leaf>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chevron-down.js [app-client] (ecmascript) <export default as ChevronDown>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__X$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/x.js [app-client] (ecmascript) <export default as X>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$settings$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Settings$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/settings.js [app-client] (ecmascript) <export default as Settings>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/button.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/collapsible.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-client] (ecmascript)");
@@ -237,6 +238,11 @@ const regularNavigationItems = [
         label: "Reports",
         href: "/reports",
         hasDropdown: true
+    },
+    {
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$settings$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Settings$3e$__["Settings"],
+        label: "Tax Service",
+        href: "/configuration/tax-service"
     }
 ];
 const headquartersNavigationItems = [
@@ -299,7 +305,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                 onClick: onMobileClose
             }, void 0, false, {
                 fileName: "[project]/components/dashboard-sidebar.tsx",
-                lineNumber: 98,
+                lineNumber: 100,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
@@ -320,7 +326,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                         className: "rounded-lg"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 116,
+                                        lineNumber: 118,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -328,13 +334,13 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                         children: "Flow360"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 117,
+                                        lineNumber: 119,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard-sidebar.tsx",
-                                lineNumber: 115,
+                                lineNumber: 117,
                                 columnNumber: 11
                             }, this),
                             collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -345,13 +351,13 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                 className: "rounded-lg mx-auto"
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-sidebar.tsx",
-                                lineNumber: 121,
+                                lineNumber: 123,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 113,
+                        lineNumber: 115,
                         columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
@@ -372,33 +378,33 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             className: "h-5 w-5 flex-shrink-0"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 141,
+                                                            lineNumber: 143,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             children: item.label
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 142,
+                                                            lineNumber: 144,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                    lineNumber: 140,
+                                                    lineNumber: 142,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
                                                     className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("h-4 w-4 transition-transform", openSections[item.label] && "rotate-180")
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                    lineNumber: 144,
+                                                    lineNumber: 146,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 134,
+                                            lineNumber: 136,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CollapsibleContent"], {
@@ -413,7 +419,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Sales Summary"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 151,
+                                                            lineNumber: 153,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -423,7 +429,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Sales Reports"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 158,
+                                                            lineNumber: 160,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -433,7 +439,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Automated Sales"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 165,
+                                                            lineNumber: 167,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
@@ -447,7 +453,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Register Customer"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 176,
+                                                            lineNumber: 178,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -457,7 +463,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Customer List"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 183,
+                                                            lineNumber: 185,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
@@ -471,7 +477,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Add Item"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 194,
+                                                            lineNumber: 196,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -481,7 +487,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Items List"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 201,
+                                                            lineNumber: 203,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -491,7 +497,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Item Composition"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 208,
+                                                            lineNumber: 210,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
@@ -505,7 +511,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Add Import"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 219,
+                                                            lineNumber: 221,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -515,7 +521,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Import List"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 226,
+                                                            lineNumber: 228,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
@@ -530,7 +536,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Daily Sales Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 237,
+                                                            lineNumber: 239,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -540,7 +546,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Shift Reports"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 240,
+                                                            lineNumber: 242,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -550,7 +556,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "X Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 243,
+                                                            lineNumber: 245,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -560,7 +566,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Z Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 246,
+                                                            lineNumber: 248,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -570,7 +576,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Sales Summary"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 249,
+                                                            lineNumber: 251,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -580,7 +586,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Purchase Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 252,
+                                                            lineNumber: 254,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -590,7 +596,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Inventory Valuation"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 255,
+                                                            lineNumber: 257,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -600,7 +606,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Profit & Loss"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 258,
+                                                            lineNumber: 260,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -610,7 +616,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Balance Sheet"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 261,
+                                                            lineNumber: 263,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -620,7 +626,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Cash Flow"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 264,
+                                                            lineNumber: 266,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -630,7 +636,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Trial Balance"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 267,
+                                                            lineNumber: 269,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -640,7 +646,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "General Ledger"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 270,
+                                                            lineNumber: 272,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -650,7 +656,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Aged Receivables"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 273,
+                                                            lineNumber: 275,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -660,7 +666,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Aged Payables"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 276,
+                                                            lineNumber: 278,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -670,7 +676,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Customer Statement"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 279,
+                                                            lineNumber: 281,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -680,7 +686,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Supplier Statement"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 282,
+                                                            lineNumber: 284,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -690,7 +696,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "VAT Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 285,
+                                                            lineNumber: 287,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -700,7 +706,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Excise Duty Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 288,
+                                                            lineNumber: 290,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -710,7 +716,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Withholding Tax"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 291,
+                                                            lineNumber: 293,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -720,25 +726,25 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                             children: "Expense Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 294,
+                                                            lineNumber: 296,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                    lineNumber: 236,
+                                                    lineNumber: 238,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 148,
+                                            lineNumber: 150,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, item.href, true, {
                                     fileName: "[project]/components/dashboard-sidebar.tsx",
-                                    lineNumber: 129,
+                                    lineNumber: 131,
                                     columnNumber: 15
                                 }, this);
                             }
@@ -754,26 +760,26 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                         className: "h-5 w-5 flex-shrink-0"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 325,
+                                        lineNumber: 327,
                                         columnNumber: 15
                                     }, this),
                                     !collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         children: item.label
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 326,
+                                        lineNumber: 328,
                                         columnNumber: 30
                                     }, this)
                                 ]
                             }, item.href, true, {
                                 fileName: "[project]/components/dashboard-sidebar.tsx",
-                                lineNumber: 316,
+                                lineNumber: 318,
                                 columnNumber: 13
                             }, this);
                         })
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 125,
+                        lineNumber: 127,
                         columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -788,12 +794,12 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                         className: "h-5 w-5 text-green-700"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 338,
+                                        lineNumber: 340,
                                         columnNumber: 13
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/dashboard-sidebar.tsx",
-                                    lineNumber: 337,
+                                    lineNumber: 339,
                                     columnNumber: 11
                                 }, this),
                                 !collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -804,7 +810,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                             children: "Explore Tuzwa"
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 342,
+                                            lineNumber: 344,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -812,24 +818,24 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                             children: "Loyalty Rewards"
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 343,
+                                            lineNumber: 345,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/dashboard-sidebar.tsx",
-                                    lineNumber: 341,
+                                    lineNumber: 343,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 333,
+                            lineNumber: 335,
                             columnNumber: 9
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 332,
+                        lineNumber: 334,
                         columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -841,18 +847,18 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 355,
+                            lineNumber: 357,
                             columnNumber: 22
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$left$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronLeft$3e$__["ChevronLeft"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 355,
+                            lineNumber: 357,
                             columnNumber: 61
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 349,
+                        lineNumber: 351,
                         columnNumber: 7
                     }, this),
                     mobileOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -864,18 +870,18 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                             className: "h-5 w-5"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 365,
+                            lineNumber: 367,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 359,
+                        lineNumber: 361,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard-sidebar.tsx",
-                lineNumber: 103,
+                lineNumber: 105,
                 columnNumber: 7
             }, this)
         ]
