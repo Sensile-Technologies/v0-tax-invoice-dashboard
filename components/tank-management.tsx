@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Fuel, ArrowRightLeft, Plus, Edit, Package } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "react-toastify"
 
 interface Tank {
@@ -85,6 +86,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
   const [newDispenserForm, setNewDispenserForm] = useState({
     dispenserNumber: "",
+    selectedTankIds: [] as string[],
   })
 
   useEffect(() => {
@@ -325,7 +327,11 @@ export default function TankManagement({ branchId }: { branchId: string | null }
   }
 
   const handleAddDispenser = async () => {
-    if (!selectedTankForDispenser) return
+    const selectedTankIds = newDispenserForm.selectedTankIds
+    if (selectedTankIds.length === 0) {
+      toast.error("Please select at least one tank")
+      return
+    }
 
     try {
       const dispensersRes = await fetch(`/api/dispensers?branch_id=${branchId}`)
@@ -336,7 +342,10 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       const maxNumber = allDispenserNumbers.length > 0 ? Math.max(...allDispenserNumbers) : 0
       const nextDispenserNumber = maxNumber + 1
 
-      const fuelType = selectedTankForDispenser.fuel_type || "Petrol"
+      const selectedTanks = tanks.filter(t => selectedTankIds.includes(t.id))
+      const fuelTypes = [...new Set(selectedTanks.map(t => t.fuel_type))]
+      const fuelType = fuelTypes.join("/")
+      const firstTankWithItem = selectedTanks.find(t => t.item_id)
 
       const response = await fetch('/api/dispensers', {
         method: 'POST',
@@ -346,15 +355,15 @@ export default function TankManagement({ branchId }: { branchId: string | null }
           dispenser_number: nextDispenserNumber,
           fuel_type: fuelType,
           status: "active",
-          tank_id: selectedTankForDispenser.id,
-          item_id: selectedTankForDispenser.item_id,
+          tank_ids: selectedTankIds,
+          item_id: firstTankWithItem?.item_id,
         })
       })
 
       if (response.ok) {
         toast.success(`Dispenser ${nextDispenserNumber} added successfully`)
         setShowAddDispenserDialog(false)
-        setNewDispenserForm({ dispenserNumber: "" })
+        setNewDispenserForm({ dispenserNumber: "", selectedTankIds: [] })
         setSelectedTankForDispenser(null)
         fetchTanks()
       } else {
@@ -791,10 +800,45 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       <Dialog open={showAddDispenserDialog} onOpenChange={setShowAddDispenserDialog}>
         <DialogContent className="rounded-2xl">
           <DialogHeader>
-            <DialogTitle>Add Dispenser to {selectedTankForDispenser?.tank_name}</DialogTitle>
-            <DialogDescription>Add a new dispenser for {selectedTankForDispenser?.fuel_type} fuel</DialogDescription>
+            <DialogTitle>Add New Dispenser</DialogTitle>
+            <DialogDescription>Select which tanks this dispenser will serve. The item will be auto-assigned.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label className="mb-2 block">Select Tanks</Label>
+              <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+                {tanks.map((tank) => (
+                  <div key={tank.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`tank-${tank.id}`}
+                      checked={newDispenserForm.selectedTankIds.includes(tank.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setNewDispenserForm({
+                            ...newDispenserForm,
+                            selectedTankIds: [...newDispenserForm.selectedTankIds, tank.id]
+                          })
+                        } else {
+                          setNewDispenserForm({
+                            ...newDispenserForm,
+                            selectedTankIds: newDispenserForm.selectedTankIds.filter(id => id !== tank.id)
+                          })
+                        }
+                      }}
+                    />
+                    <label htmlFor={`tank-${tank.id}`} className="text-sm cursor-pointer flex-1">
+                      {tank.tank_name} - {tank.fuel_type}
+                      {tank.item_id && <span className="text-green-600 ml-2">(Item linked)</span>}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              {newDispenserForm.selectedTankIds.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Selected: {newDispenserForm.selectedTankIds.length} tank(s)
+                </p>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">
               A new dispenser will be automatically assigned the next available number.
             </p>
@@ -805,12 +849,13 @@ export default function TankManagement({ branchId }: { branchId: string | null }
               onClick={() => {
                 setShowAddDispenserDialog(false)
                 setSelectedTankForDispenser(null)
+                setNewDispenserForm({ dispenserNumber: "", selectedTankIds: [] })
               }}
               className="rounded-xl"
             >
               Cancel
             </Button>
-            <Button onClick={handleAddDispenser} className="rounded-xl">
+            <Button onClick={handleAddDispenser} className="rounded-xl" disabled={newDispenserForm.selectedTankIds.length === 0}>
               Add Dispenser
             </Button>
           </DialogFooter>

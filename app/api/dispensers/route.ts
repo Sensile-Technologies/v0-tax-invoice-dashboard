@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { branch_id, dispenser_number, fuel_type, status, tank_id, item_id } = body
+    const { branch_id, dispenser_number, fuel_type, status, tank_id, tank_ids, item_id } = body
 
     if (!branch_id || !dispenser_number) {
       return NextResponse.json(
@@ -55,9 +55,10 @@ export async function POST(request: NextRequest) {
     }
 
     let finalItemId = item_id
+    const tankIdsArray = tank_ids || (tank_id ? [tank_id] : [])
 
-    if (tank_id && !item_id) {
-      const tankResult = await pool.query('SELECT item_id FROM tanks WHERE id = $1', [tank_id])
+    if (tankIdsArray.length > 0 && !item_id) {
+      const tankResult = await pool.query('SELECT item_id FROM tanks WHERE id = ANY($1) AND item_id IS NOT NULL LIMIT 1', [tankIdsArray])
       if (tankResult.rows.length > 0 && tankResult.rows[0].item_id) {
         finalItemId = tankResult.rows[0].item_id
       }
@@ -67,8 +68,19 @@ export async function POST(request: NextRequest) {
       `INSERT INTO dispensers (branch_id, dispenser_number, fuel_type, status, tank_id, item_id)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [branch_id, dispenser_number, fuel_type || 'Petrol', status || 'active', tank_id || null, finalItemId || null]
+      [branch_id, dispenser_number, fuel_type || 'Petrol', status || 'active', tankIdsArray[0] || null, finalItemId || null]
     )
+
+    const dispenserId = result.rows[0].id
+
+    if (tankIdsArray.length > 0) {
+      for (const tId of tankIdsArray) {
+        await pool.query(
+          `INSERT INTO dispenser_tanks (dispenser_id, tank_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          [dispenserId, tId]
+        )
+      }
+    }
 
     return NextResponse.json({
       success: true,
