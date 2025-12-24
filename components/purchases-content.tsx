@@ -24,6 +24,7 @@ interface Purchase {
   items: number
   amount: number
   tax_amount: number
+  volume?: number
   status: string
   purchase_type?: string
   payment_type?: string
@@ -337,6 +338,7 @@ export function PurchasesContent() {
             <TableHead>Supplier</TableHead>
             <TableHead className="hidden md:table-cell">Date</TableHead>
             <TableHead className="hidden sm:table-cell">Items</TableHead>
+            <TableHead className="hidden sm:table-cell">Volume (L)</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
@@ -344,7 +346,7 @@ export function PurchasesContent() {
         <TableBody>
           {purchaseList.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-12">
+              <TableCell colSpan={7} className="text-center py-12">
                 <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No purchases found</p>
               </TableCell>
@@ -356,6 +358,7 @@ export function PurchasesContent() {
                 <TableCell>{purchase.supplier}</TableCell>
                 <TableCell className="hidden md:table-cell">{purchase.date || "N/A"}</TableCell>
                 <TableCell className="hidden sm:table-cell">{purchase.items}</TableCell>
+                <TableCell className="hidden sm:table-cell">{purchase.volume ? purchase.volume.toLocaleString() : "-"}</TableCell>
                 <TableCell>{formatCurrency(purchase.amount)}</TableCell>
                 <TableCell>
                   <Badge

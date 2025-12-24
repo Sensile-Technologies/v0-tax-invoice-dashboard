@@ -30,7 +30,8 @@ import {
   CheckCircle2, 
   XCircle,
   Eye,
-  MoreHorizontal
+  MoreHorizontal,
+  Download
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -358,6 +359,14 @@ export default function PurchaseOrdersPage() {
                                   View Rejection Reason
                                 </DropdownMenuItem>
                               )}
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  window.open(`/api/headquarters/purchase-orders/${order.id}/pdf`, '_blank')
+                                }}
+                              >
+                                <Download className="mr-2 h-4 w-4" />
+                                Download PDF
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

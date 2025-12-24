@@ -169,7 +169,8 @@ async function GET(request) {
         vp.name as supplier_name,
         vp.tin as supplier_tin,
         (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
-        (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount
+        (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount,
+        (SELECT COALESCE(SUM(quantity), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_volume
       FROM purchase_orders po
       LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
       WHERE po.status = 'accepted'
@@ -197,6 +198,7 @@ async function GET(request) {
                 items: parseInt(row.item_count) || 0,
                 amount: parseFloat(row.total_amount) || 0,
                 tax_amount: 0,
+                volume: parseFloat(row.total_volume) || 0,
                 status: 'accepted',
                 purchase_type: 'LOCAL',
                 payment_type: null,
