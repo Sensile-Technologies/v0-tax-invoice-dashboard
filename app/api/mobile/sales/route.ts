@@ -88,6 +88,8 @@ export async function POST(request: Request) {
 
     const client = await pool.connect()
     try {
+      await client.query('BEGIN')
+
       const priceResult = await client.query(
         `SELECT price FROM fuel_prices 
          WHERE branch_id = $1 AND fuel_type = $2 
@@ -97,6 +99,7 @@ export async function POST(request: Request) {
       )
 
       if (priceResult.rows.length === 0) {
+        await client.query('ROLLBACK')
         return NextResponse.json(
           { error: `No price configured for ${fuel_type}` },
           { status: 400 }
@@ -106,6 +109,63 @@ export async function POST(request: Request) {
       const unitPrice = parseFloat(priceResult.rows[0].price)
       const totalAmount = parseFloat(amount)
       const quantity = totalAmount / unitPrice
+
+      // Find the tank to deduct from - first try via nozzle, then by fuel type
+      let tankId = null
+      let tankName = null
+      let previousStock = 0
+      let newStock = 0
+
+      if (nozzle_id) {
+        // Get tank via nozzle -> dispenser -> tank
+        const nozzleTankResult = await client.query(
+          `SELECT t.id, t.tank_name, t.current_stock 
+           FROM nozzles n
+           LEFT JOIN dispensers d ON n.dispenser_id = d.id
+           LEFT JOIN tanks t ON d.tank_id = t.id
+           WHERE n.id = $1 AND t.id IS NOT NULL`,
+          [nozzle_id]
+        )
+        if (nozzleTankResult.rows.length > 0) {
+          tankId = nozzleTankResult.rows[0].id
+          tankName = nozzleTankResult.rows[0].tank_name
+          previousStock = parseFloat(nozzleTankResult.rows[0].current_stock) || 0
+        }
+      }
+
+      // Fallback: find tank by fuel type if not found via nozzle
+      if (!tankId) {
+        const tankResult = await client.query(
+          `SELECT id, tank_name, current_stock 
+           FROM tanks 
+           WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active'
+           ORDER BY current_stock DESC 
+           LIMIT 1`,
+          [branch_id, `%${fuel_type}%`]
+        )
+        if (tankResult.rows.length > 0) {
+          tankId = tankResult.rows[0].id
+          tankName = tankResult.rows[0].tank_name
+          previousStock = parseFloat(tankResult.rows[0].current_stock) || 0
+        }
+      }
+
+      // Deduct from tank if found
+      let tankUpdate = null
+      if (tankId) {
+        newStock = Math.max(0, previousStock - quantity)
+        await client.query(
+          `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
+          [newStock, tankId]
+        )
+        tankUpdate = {
+          tankId,
+          tankName,
+          previousStock,
+          newStock,
+          quantityDeducted: quantity
+        }
+      }
 
       const invoiceNumber = `INV-${Date.now()}`
       const receiptNumber = `RCP-${Date.now()}`
@@ -133,10 +193,16 @@ export async function POST(request: Request) {
         ]
       )
 
+      await client.query('COMMIT')
+
       return NextResponse.json({ 
         success: true, 
-        sale: result.rows[0] 
+        sale: result.rows[0],
+        tankUpdate
       })
+    } catch (err) {
+      await client.query('ROLLBACK')
+      throw err
     } finally {
       client.release()
     }
