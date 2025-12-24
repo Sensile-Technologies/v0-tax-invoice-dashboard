@@ -187,6 +187,58 @@ async function GET(request) {
                 status: 403
             });
         }
+        const { searchParams } = new URL(request.url);
+        const purchaseOrderId = searchParams.get("purchase_order_id");
+        if (purchaseOrderId) {
+            const poCheck = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT id FROM purchase_orders WHERE id = $1 AND branch_id = $2`, [
+                purchaseOrderId,
+                branchId
+            ]);
+            if (!poCheck || poCheck.length === 0) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: false,
+                    error: "Purchase order not found"
+                }, {
+                    status: 404
+                });
+            }
+            const poItems = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT poi.item_id, i.item_name 
+         FROM purchase_order_items poi 
+         JOIN items i ON poi.item_id = i.id 
+         WHERE poi.purchase_order_id = $1`, [
+                purchaseOrderId
+            ]);
+            const itemIds = poItems.map((item)=>item.item_id);
+            let tanks = [];
+            let dispensers = [];
+            if (itemIds.length > 0) {
+                tanks = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT t.*, i.item_name 
+           FROM tanks t 
+           LEFT JOIN items i ON t.item_id = i.id 
+           WHERE t.branch_id = $1 AND t.item_id = ANY($2::uuid[])
+           ORDER BY t.tank_name`, [
+                    branchId,
+                    itemIds
+                ]);
+                const tankIds = tanks.map((t)=>t.id);
+                if (tankIds.length > 0) {
+                    dispensers = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT d.*, t.tank_name 
+             FROM dispensers d 
+             LEFT JOIN tanks t ON d.tank_id = t.id 
+             WHERE d.branch_id = $1 AND d.tank_id = ANY($2::uuid[])
+             ORDER BY d.dispenser_number`, [
+                        branchId,
+                        tankIds
+                    ]);
+                }
+            }
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: true,
+                tanks,
+                dispensers,
+                items: poItems
+            });
+        }
         const orders = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT 
         po.*,
         vp.name as supplier_name,
