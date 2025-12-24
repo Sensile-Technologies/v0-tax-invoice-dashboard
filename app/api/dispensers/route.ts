@@ -183,7 +183,12 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
+    let id = searchParams.get('id')
+
+    if (!id) {
+      const body = await request.json().catch(() => ({}))
+      id = body.id
+    }
 
     if (!id) {
       return NextResponse.json(
@@ -192,6 +197,8 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    await pool.query('DELETE FROM nozzles WHERE dispenser_id = $1', [id])
+    await pool.query('DELETE FROM dispenser_tanks WHERE dispenser_id = $1', [id])
     await pool.query('DELETE FROM dispensers WHERE id = $1', [id])
 
     return NextResponse.json({ success: true })
