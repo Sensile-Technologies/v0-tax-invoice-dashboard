@@ -104,9 +104,17 @@ export async function GET(
     doc.setFont("helvetica", "normal")
 
     let yPos = 40
+    const leftCol = 14
+    const rightCol = pageWidth / 2 + 5
 
+    // Order Details (Left Column)
     doc.setFont("helvetica", "bold")
-    doc.text("Order Details", 14, yPos)
+    doc.text("Order Details", leftCol, yPos)
+    
+    // Transport Details (Right Column)
+    if (order.transporter_name || order.vehicle_registration || order.driver_name) {
+      doc.text("Transport Details", rightCol, yPos)
+    }
     yPos += 6
 
     doc.setFont("helvetica", "normal")
@@ -115,8 +123,8 @@ export async function GET(
       ["Supplier:", order.supplier_name || "N/A"],
       ["Supplier TIN:", order.supplier_tin || "N/A"],
       ["Status:", `${order.status} / ${order.approval_status}`],
-      ["Issued Date:", order.issued_at ? new Date(order.issued_at).toLocaleDateString() : "N/A"],
-      ["Expected Delivery:", order.expected_delivery ? new Date(order.expected_delivery).toLocaleDateString() : "N/A"],
+      ["Issued:", order.issued_at ? new Date(order.issued_at).toLocaleDateString() : "N/A"],
+      ["Expected:", order.expected_delivery ? new Date(order.expected_delivery).toLocaleDateString() : "N/A"],
       ["Created By:", order.created_by_name || "N/A"],
     ]
 
@@ -124,37 +132,35 @@ export async function GET(
       orderDetails.push(["Approved By:", order.approved_by_name])
     }
 
-    orderDetails.forEach(([label, value]) => {
-      doc.text(`${label} ${value}`, 14, yPos)
-      yPos += 5
-    })
-
-    if (order.transporter_name || order.vehicle_registration || order.driver_name) {
-      yPos += 5
-      doc.setFont("helvetica", "bold")
-      doc.text("Transport Details", 14, yPos)
-      yPos += 6
-      doc.setFont("helvetica", "normal")
-
-      if (order.transporter_name) {
-        doc.text(`Transporter: ${order.transporter_name}`, 14, yPos)
-        yPos += 5
-      }
-      if (order.vehicle_registration) {
-        doc.text(`Vehicle: ${order.vehicle_registration}`, 14, yPos)
-        yPos += 5
-      }
-      if (order.driver_name) {
-        doc.text(`Driver: ${order.driver_name} ${order.driver_phone ? `(${order.driver_phone})` : ""}`, 14, yPos)
-        yPos += 5
-      }
-      if (order.transport_cost) {
-        doc.text(`Transport Cost: KES ${parseFloat(order.transport_cost).toLocaleString()}`, 14, yPos)
-        yPos += 5
-      }
+    const transportDetails: string[][] = []
+    if (order.transporter_name) {
+      transportDetails.push(["Transporter:", order.transporter_name])
+    }
+    if (order.vehicle_registration) {
+      transportDetails.push(["Vehicle:", order.vehicle_registration])
+    }
+    if (order.driver_name) {
+      transportDetails.push(["Driver:", order.driver_name])
+    }
+    if (order.driver_phone) {
+      transportDetails.push(["Driver Phone:", order.driver_phone])
+    }
+    if (order.transport_cost) {
+      transportDetails.push(["Transport Cost:", `KES ${parseFloat(order.transport_cost).toLocaleString()}`])
     }
 
-    yPos += 8
+    const maxRows = Math.max(orderDetails.length, transportDetails.length)
+    for (let i = 0; i < maxRows; i++) {
+      if (orderDetails[i]) {
+        doc.text(`${orderDetails[i][0]} ${orderDetails[i][1]}`, leftCol, yPos)
+      }
+      if (transportDetails[i]) {
+        doc.text(`${transportDetails[i][0]} ${transportDetails[i][1]}`, rightCol, yPos)
+      }
+      yPos += 5
+    }
+
+    yPos += 5
     doc.setFont("helvetica", "bold")
     doc.text("Order Items", 14, yPos)
     yPos += 4

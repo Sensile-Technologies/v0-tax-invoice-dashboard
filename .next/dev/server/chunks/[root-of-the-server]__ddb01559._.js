@@ -420,7 +420,82 @@ async function GET(request, { params }) {
                         ]
                     }
                 });
+                yPos = doc.lastAutoTable.finalY + 8;
             }
+            // Variance Calculation Summary
+            if (yPos > 240) {
+                doc.addPage();
+                yPos = 20;
+            }
+            const tankIncrease = tankReadings.reduce((sum, tr)=>sum + (parseFloat(tr.volume_after) - parseFloat(tr.volume_before)), 0);
+            const dispenserDiff = dispenserReadings.reduce((sum, dr)=>sum + (parseFloat(dr.meter_reading_after) - parseFloat(dr.meter_reading_before)), 0);
+            const bowserVolume = parseFloat(acceptance.bowser_volume) || 0;
+            const calculatedVariance = tankIncrease + dispenserDiff - bowserVolume;
+            yPos += 5;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text("Variance Calculation", 14, yPos);
+            yPos += 6;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jspdf$2d$autotable$2f$dist$2f$jspdf$2e$plugin$2e$autotable$2e$mjs__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"])(doc, {
+                startY: yPos,
+                head: [
+                    [
+                        "Description",
+                        "Volume (L)"
+                    ]
+                ],
+                body: [
+                    [
+                        "Tank Volume Increase (After - Before)",
+                        tankIncrease.toLocaleString()
+                    ],
+                    [
+                        "Dispenser Difference (After - Before)",
+                        dispenserDiff.toLocaleString()
+                    ],
+                    [
+                        "Total Received (Tank + Dispenser)",
+                        (tankIncrease + dispenserDiff).toLocaleString()
+                    ],
+                    [
+                        "Bowser Volume (Delivered)",
+                        bowserVolume.toLocaleString()
+                    ]
+                ],
+                foot: [
+                    [
+                        "VARIANCE (Received - Delivered)",
+                        `${calculatedVariance >= 0 ? "+" : ""}${calculatedVariance.toLocaleString()} L`
+                    ]
+                ],
+                theme: "striped",
+                headStyles: {
+                    fillColor: [
+                        231,
+                        76,
+                        60
+                    ]
+                },
+                footStyles: {
+                    fillColor: calculatedVariance < 0 ? [
+                        231,
+                        76,
+                        60
+                    ] : [
+                        39,
+                        174,
+                        96
+                    ],
+                    textColor: [
+                        255,
+                        255,
+                        255
+                    ],
+                    fontStyle: "bold"
+                }
+            });
         }
         if (order.notes) {
             yPos = doc.lastAutoTable?.finalY + 10 || yPos + 10;
