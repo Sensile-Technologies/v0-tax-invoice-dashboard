@@ -244,7 +244,11 @@ async function PATCH(request) {
 async function DELETE(request) {
     try {
         const { searchParams } = new URL(request.url);
-        const id = searchParams.get('id');
+        let id = searchParams.get('id');
+        if (!id) {
+            const body = await request.json().catch(()=>({}));
+            id = body.id;
+        }
         if (!id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
@@ -253,6 +257,12 @@ async function DELETE(request) {
                 status: 400
             });
         }
+        await pool.query('DELETE FROM nozzles WHERE dispenser_id = $1', [
+            id
+        ]);
+        await pool.query('DELETE FROM dispenser_tanks WHERE dispenser_id = $1', [
+            id
+        ]);
         await pool.query('DELETE FROM dispensers WHERE id = $1', [
             id
         ]);
