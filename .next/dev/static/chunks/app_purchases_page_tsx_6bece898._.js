@@ -5,7 +5,7 @@
   "static/chunks/node_modules_next_85bcaee2._.js",
   "static/chunks/node_modules_@radix-ui_40d0f9f7._.js",
   "static/chunks/node_modules_@floating-ui_1b6e7b6d._.js",
-  "static/chunks/node_modules_a6537159._.js"
+  "static/chunks/node_modules_620891b7._.js"
 ],
     source: "dynamic"
 });
