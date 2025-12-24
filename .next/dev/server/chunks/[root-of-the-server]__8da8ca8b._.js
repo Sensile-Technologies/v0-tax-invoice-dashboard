@@ -115,7 +115,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
-"[project]/app/api/headquarters/purchase-orders/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
+"[project]/app/api/purchases/accept/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
 return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
@@ -138,67 +138,39 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 ;
-async function getUserVendorId(userId) {
-    const userVendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id FROM users u 
-     JOIN vendors v ON v.email = u.email 
-     WHERE u.id = $1`, [
-        userId
-    ]);
-    if (userVendor && userVendor.length > 0) {
-        return userVendor[0].id;
-    }
-    const staffVendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
-     JOIN branches b ON s.branch_id = b.id
-     WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
-        userId
-    ]);
-    if (staffVendor && staffVendor.length > 0) {
-        return staffVendor[0].vendor_id;
-    }
-    const branchVendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT vendor_id FROM branches WHERE user_id = $1 AND vendor_id IS NOT NULL`, [
-        userId
-    ]);
-    if (branchVendor && branchVendor.length > 0) {
-        return branchVendor[0].vendor_id;
-    }
-    return null;
-}
-async function getSessionUserId() {
+async function getSessionUser() {
     try {
         const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
         const sessionCookie = cookieStore.get("user_session");
         if (!sessionCookie?.value) return null;
         const session = JSON.parse(sessionCookie.value);
-        return session.id || null;
+        return {
+            id: session.id,
+            branch_id: session.branch_id
+        };
     } catch  {
         return null;
     }
 }
-async function getNextPONumber(vendorId) {
-    const client = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].connect();
-    try {
-        await client.query('BEGIN');
-        const result = await client.query(`INSERT INTO vendor_po_sequences (vendor_id, next_po_number)
-       VALUES ($1, 2)
-       ON CONFLICT (vendor_id) 
-       DO UPDATE SET next_po_number = vendor_po_sequences.next_po_number + 1
-       RETURNING next_po_number - 1 as current_number`, [
-            vendorId
-        ]);
-        await client.query('COMMIT');
-        const poNumber = result.rows[0].current_number;
-        return `PO-${String(poNumber).padStart(5, '0')}`;
-    } catch (error) {
-        await client.query('ROLLBACK');
-        throw error;
-    } finally{
-        client.release();
+async function getUserBranchId(userId) {
+    const staffBranch = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT branch_id FROM staff WHERE user_id = $1 LIMIT 1`, [
+        userId
+    ]);
+    if (staffBranch && staffBranch.length > 0) {
+        return staffBranch[0].branch_id;
     }
+    const branchUser = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT id FROM branches WHERE user_id = $1 LIMIT 1`, [
+        userId
+    ]);
+    if (branchUser && branchUser.length > 0) {
+        return branchUser[0].id;
+    }
+    return null;
 }
 async function GET(request) {
     try {
-        const userId = await getSessionUserId();
-        if (!userId) {
+        const user = await getSessionUser();
+        if (!user) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
                 error: "Unauthorized"
@@ -206,56 +178,34 @@ async function GET(request) {
                 status: 401
             });
         }
-        const vendorId = await getUserVendorId(userId);
-        if (!vendorId) {
+        const branchId = user.branch_id || await getUserBranchId(user.id);
+        if (!branchId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
-                error: "No vendor found for user"
+                error: "No branch found for user"
             }, {
                 status: 403
             });
         }
-        const { searchParams } = new URL(request.url);
-        const branchId = searchParams.get("branch_id");
-        const status = searchParams.get("status");
-        const limit = parseInt(searchParams.get("limit") || "100");
-        let sql = `
-      SELECT 
+        const orders = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT 
         po.*,
-        b.name as branch_name,
         vp.name as supplier_name,
         u.full_name as created_by_name,
         (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
         (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount
-      FROM purchase_orders po
-      LEFT JOIN branches b ON po.branch_id = b.id
-      LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
-      LEFT JOIN users u ON po.created_by = u.id
-      WHERE po.vendor_id = $1
-    `;
-        const params = [
-            vendorId
-        ];
-        let paramIndex = 2;
-        if (branchId) {
-            sql += ` AND po.branch_id = $${paramIndex}`;
-            params.push(branchId);
-            paramIndex++;
-        }
-        if (status) {
-            sql += ` AND po.status = $${paramIndex}`;
-            params.push(status);
-            paramIndex++;
-        }
-        sql += ` ORDER BY po.issued_at DESC LIMIT $${paramIndex}`;
-        params.push(limit);
-        const orders = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, params);
+       FROM purchase_orders po
+       LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
+       LEFT JOIN users u ON po.created_by = u.id
+       WHERE po.branch_id = $1 AND po.status = 'pending'
+       ORDER BY po.issued_at DESC`, [
+            branchId
+        ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: orders
         });
     } catch (error) {
-        console.error("Error fetching purchase orders:", error);
+        console.error("Error fetching pending purchase orders:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: false,
             error: "Failed to fetch purchase orders"
@@ -266,8 +216,8 @@ async function GET(request) {
 }
 async function POST(request) {
     try {
-        const userId = await getSessionUserId();
-        if (!userId) {
+        const user = await getSessionUser();
+        if (!user) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
                 error: "Unauthorized"
@@ -275,91 +225,118 @@ async function POST(request) {
                 status: 401
             });
         }
-        const vendorId = await getUserVendorId(userId);
-        if (!vendorId) {
+        const userBranchId = user.branch_id || await getUserBranchId(user.id);
+        if (!userBranchId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
-                error: "No vendor found for user"
+                error: "No branch found for user"
             }, {
                 status: 403
             });
         }
         const body = await request.json();
-        const { branch_id, supplier_id, expected_delivery, notes, items } = body;
-        if (!branch_id) {
+        const { purchase_order_id, bowser_volume, dips_mm, acceptance_timestamp, tank_readings, dispenser_readings, remarks } = body;
+        if (!purchase_order_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
-                error: "Branch is required"
+                error: "Purchase order ID is required"
             }, {
                 status: 400
             });
         }
-        if (!items || items.length === 0) {
+        if (bowser_volume === undefined || bowser_volume === null) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
-                error: "At least one item is required"
+                error: "Bowser volume is required"
             }, {
                 status: 400
             });
         }
-        const branchCheck = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT id FROM branches WHERE id = $1 AND vendor_id = $2`, [
-            branch_id,
-            vendorId
+        const order = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT po.*, b.id as branch_id FROM purchase_orders po 
+       JOIN branches b ON po.branch_id = b.id
+       WHERE po.id = $1 AND po.status = 'pending' AND po.branch_id = $2`, [
+            purchase_order_id,
+            userBranchId
         ]);
-        if (!branchCheck || branchCheck.length === 0) {
+        if (!order || order.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
-                error: "Invalid branch"
+                error: "Purchase order not found or not assigned to your branch"
             }, {
-                status: 400
+                status: 404
             });
         }
-        if (supplier_id) {
-            const supplierCheck = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT id FROM vendor_partners WHERE id = $1 AND vendor_id = $2`, [
-                supplier_id,
-                vendorId
-            ]);
-            if (!supplierCheck || supplierCheck.length === 0) {
-                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                    success: false,
-                    error: "Invalid supplier"
-                }, {
-                    status: 400
-                });
+        const branchId = order[0].branch_id;
+        let totalTankVariance = 0;
+        let totalDispenserVariance = 0;
+        if (tank_readings && Array.isArray(tank_readings)) {
+            for (const reading of tank_readings){
+                const tankDiff = (parseFloat(reading.volume_after) || 0) - (parseFloat(reading.volume_before) || 0);
+                totalTankVariance += tankDiff;
             }
         }
-        const poNumber = await getNextPONumber(vendorId);
+        if (dispenser_readings && Array.isArray(dispenser_readings)) {
+            for (const reading of dispenser_readings){
+                const dispenserDiff = (parseFloat(reading.meter_reading_after) || 0) - (parseFloat(reading.meter_reading_before) || 0);
+                totalDispenserVariance += dispenserDiff;
+            }
+        }
+        const bowserVol = parseFloat(bowser_volume) || 0;
+        const totalVariance = totalTankVariance + totalDispenserVariance - bowserVol;
         const client = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].connect();
         try {
             await client.query('BEGIN');
-            const orderResult = await client.query(`INSERT INTO purchase_orders (vendor_id, branch_id, supplier_id, po_number, expected_delivery, notes, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+            const acceptanceResult = await client.query(`INSERT INTO purchase_order_acceptances 
+         (purchase_order_id, branch_id, accepted_by, bowser_volume, dips_mm, total_variance, remarks, acceptance_timestamp)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING *`, [
-                vendorId,
-                branch_id,
-                supplier_id || null,
-                poNumber,
-                expected_delivery || null,
-                notes || null,
-                userId
+                purchase_order_id,
+                branchId,
+                user.id,
+                bowserVol,
+                dips_mm || null,
+                totalVariance,
+                remarks || null,
+                acceptance_timestamp || new Date().toISOString()
             ]);
-            const order = orderResult.rows[0];
-            for (const item of items){
-                await client.query(`INSERT INTO purchase_order_items (purchase_order_id, item_id, item_name, quantity, unit_price, total_amount)
-           VALUES ($1, $2, $3, $4, $5, $6)`, [
-                    order.id,
-                    item.item_id || null,
-                    item.item_name,
-                    item.quantity,
-                    item.unit_price || null,
-                    item.total_amount || null
-                ]);
+            const acceptanceId = acceptanceResult.rows[0].id;
+            if (tank_readings && Array.isArray(tank_readings)) {
+                for (const reading of tank_readings){
+                    await client.query(`INSERT INTO po_acceptance_tank_readings 
+             (acceptance_id, tank_id, volume_before, volume_after)
+             VALUES ($1, $2, $3, $4)`, [
+                        acceptanceId,
+                        reading.tank_id,
+                        reading.volume_before,
+                        reading.volume_after
+                    ]);
+                }
             }
+            if (dispenser_readings && Array.isArray(dispenser_readings)) {
+                for (const reading of dispenser_readings){
+                    await client.query(`INSERT INTO po_acceptance_dispenser_readings 
+             (acceptance_id, dispenser_id, meter_reading_before, meter_reading_after)
+             VALUES ($1, $2, $3, $4)`, [
+                        acceptanceId,
+                        reading.dispenser_id,
+                        reading.meter_reading_before,
+                        reading.meter_reading_after
+                    ]);
+                }
+            }
+            await client.query(`UPDATE purchase_orders SET status = 'accepted', accepted_at = NOW(), updated_at = NOW() WHERE id = $1`, [
+                purchase_order_id
+            ]);
             await client.query('COMMIT');
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: true,
-                data: order,
-                message: `Purchase order ${poNumber} created successfully`
+                data: {
+                    acceptance: acceptanceResult.rows[0],
+                    variance: totalVariance,
+                    tank_variance: totalTankVariance,
+                    dispenser_variance: totalDispenserVariance
+                },
+                message: "Purchase order accepted successfully"
             });
         } catch (error) {
             await client.query('ROLLBACK');
@@ -368,10 +345,10 @@ async function POST(request) {
             client.release();
         }
     } catch (error) {
-        console.error("Error creating purchase order:", error);
+        console.error("Error accepting purchase order:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: false,
-            error: "Failed to create purchase order"
+            error: "Failed to accept purchase order"
         }, {
             status: 500
         });
@@ -381,4 +358,4 @@ __turbopack_async_result__();
 } catch(e) { __turbopack_async_result__(e); } }, false);}),
 ];
 
-//# sourceMappingURL=%5Broot-of-the-server%5D__1d510d27._.js.map
+//# sourceMappingURL=%5Broot-of-the-server%5D__8da8ca8b._.js.map

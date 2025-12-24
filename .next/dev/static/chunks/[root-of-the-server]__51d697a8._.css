@@ -1359,8 +1359,20 @@
     grid-column: auto;
   }
 
+  .col-span-1 {
+    grid-column: span 1 / span 1;
+  }
+
   .col-span-2 {
     grid-column: span 2 / span 2;
+  }
+
+  .col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+
+  .col-span-4 {
+    grid-column: span 4 / span 4;
   }
 
   .col-span-full {
@@ -2784,6 +2796,10 @@
 
   .grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .grid-cols-12 {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
 
   .grid-cols-\[0_1fr\] {
@@ -6677,6 +6693,12 @@
       .hover\:bg-primary\/90:hover {
         background-color: color-mix(in oklab, var(--primary) 90%, transparent);
       }
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-red-50:hover {
+      background-color: var(--color-red-50);
     }
   }
 

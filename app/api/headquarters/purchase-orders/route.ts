@@ -95,13 +95,17 @@ export async function GET(request: NextRequest) {
         po.*,
         b.name as branch_name,
         vp.name as supplier_name,
+        tp.name as transporter_name,
         u.full_name as created_by_name,
+        au.full_name as approved_by_name,
         (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
         (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_amount
       FROM purchase_orders po
       LEFT JOIN branches b ON po.branch_id = b.id
       LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
+      LEFT JOIN vendor_partners tp ON po.transporter_id = tp.id
       LEFT JOIN users u ON po.created_by = u.id
+      LEFT JOIN users au ON po.approved_by = au.id
       WHERE po.vendor_id = $1
     `
     const params: any[] = [vendorId]
@@ -147,14 +151,34 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { branch_id, supplier_id, expected_delivery, notes, items } = body
+    const { 
+      branch_id, 
+      supplier_id, 
+      transporter_id,
+      expected_delivery, 
+      notes, 
+      items,
+      transport_cost,
+      vehicle_registration,
+      driver_name,
+      driver_phone
+    } = body
 
     if (!branch_id) {
       return NextResponse.json({ success: false, error: "Branch is required" }, { status: 400 })
     }
 
+    if (!supplier_id) {
+      return NextResponse.json({ success: false, error: "Supplier is required" }, { status: 400 })
+    }
+
     if (!items || items.length === 0) {
       return NextResponse.json({ success: false, error: "At least one item is required" }, { status: 400 })
+    }
+
+    const invalidItems = items.filter((item: any) => !item.unit_price || item.unit_price <= 0)
+    if (invalidItems.length > 0) {
+      return NextResponse.json({ success: false, error: "Unit price is required for all items" }, { status: 400 })
     }
 
     const branchCheck = await query(
@@ -165,13 +189,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid branch" }, { status: 400 })
     }
 
-    if (supplier_id) {
-      const supplierCheck = await query(
-        `SELECT id FROM vendor_partners WHERE id = $1 AND vendor_id = $2`,
-        [supplier_id, vendorId]
+    const supplierCheck = await query(
+      `SELECT id FROM vendor_partners WHERE id = $1 AND vendor_id = $2 AND partner_type = 'supplier'`,
+      [supplier_id, vendorId]
+    )
+    if (!supplierCheck || supplierCheck.length === 0) {
+      return NextResponse.json({ success: false, error: "Invalid supplier" }, { status: 400 })
+    }
+
+    if (transporter_id) {
+      const transporterCheck = await query(
+        `SELECT id FROM vendor_partners WHERE id = $1 AND vendor_id = $2 AND partner_type = 'transporter'`,
+        [transporter_id, vendorId]
       )
-      if (!supplierCheck || supplierCheck.length === 0) {
-        return NextResponse.json({ success: false, error: "Invalid supplier" }, { status: 400 })
+      if (!transporterCheck || transporterCheck.length === 0) {
+        return NextResponse.json({ success: false, error: "Invalid transporter" }, { status: 400 })
       }
     }
 
@@ -182,10 +214,18 @@ export async function POST(request: NextRequest) {
       await client.query('BEGIN')
 
       const orderResult = await client.query(
-        `INSERT INTO purchase_orders (vendor_id, branch_id, supplier_id, po_number, expected_delivery, notes, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO purchase_orders (
+          vendor_id, branch_id, supplier_id, transporter_id, po_number, 
+          expected_delivery, notes, created_by, transport_cost,
+          vehicle_registration, driver_name, driver_phone, approval_status
+        )
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'pending_approval')
          RETURNING *`,
-        [vendorId, branch_id, supplier_id || null, poNumber, expected_delivery || null, notes || null, userId]
+        [
+          vendorId, branch_id, supplier_id, transporter_id || null, poNumber, 
+          expected_delivery || null, notes || null, userId, transport_cost || 0,
+          vehicle_registration || null, driver_name || null, driver_phone || null
+        ]
       )
 
       const order = orderResult.rows[0]
