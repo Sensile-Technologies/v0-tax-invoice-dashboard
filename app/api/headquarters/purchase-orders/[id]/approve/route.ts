@@ -70,15 +70,8 @@ export async function POST(
       return NextResponse.json({ success: false, error: "No vendor found for user" }, { status: 403 })
     }
 
-    const { role: userRole, hasHQAccess } = await getUserRoleAndHQAccess(user.id, vendorId)
+    const { role: userRole } = await getUserRoleAndHQAccess(user.id, vendorId)
     const allowedRoles = ['vendor', 'manager', 'director', 'admin', 'owner']
-    
-    if (!hasHQAccess) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Only headquarters staff can approve purchase orders" 
-      }, { status: 403 })
-    }
     
     if (!userRole || !allowedRoles.includes(userRole.toLowerCase())) {
       return NextResponse.json({ 
