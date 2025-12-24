@@ -24,7 +24,11 @@ Key features include:
 - **Hardware Management**: Functionality to register and assign hardware devices to branches.
 - **Controller Logs & PTS Integration**: Real-time logging of pump transaction callbacks from PTS controllers, with summary statistics and detailed payload viewing.
 - **Fuel Grade Mapping**: Map pump controller fuel grade IDs to inventory items for automated sales processing. Supports global or controller-specific mappings.
+- **Supplier/Transporter Management**: Manage suppliers and transporters via headquarters interface with full CRUD operations and server-side vendor scoping.
 - **Modular API Design**: API routes are organized within the `/app` directory, with specific endpoints for mobile and administrative functions.
+
+## Security Notes
+- **Session Authentication**: The `user_session` cookie is currently unsigned JSON. API endpoints that require vendor scoping derive the vendor_id server-side from the session rather than trusting client input. Future enhancement: implement signed/encrypted cookies or server-side sessions for stronger security.
 
 ## External Dependencies
 - **Replit PostgreSQL**: The primary database, auto-configured via `DATABASE_URL`.
