@@ -192,9 +192,8 @@ export function PurchasesContent() {
   useEffect(() => {
     if (currentBranch?.id) {
       fetchPendingPOs()
-      fetchTanksAndDispensers()
     }
-  }, [currentBranch, fetchPendingPOs, fetchTanksAndDispensers])
+  }, [currentBranch, fetchPendingPOs])
 
   const approvedPurchases = purchases.filter((purchase) => purchase.status === "approved")
   const rejectedPurchases = purchases.filter((purchase) => purchase.status === "rejected")
@@ -213,7 +212,7 @@ export function PurchasesContent() {
     return (tankVariance + dispenserVariance) - bowserVol
   }, [acceptanceForm.bowserVolume, tankReadings, dispenserReadings])
 
-  const handleSelectPO = (po: PendingPO) => {
+  const handleSelectPO = async (po: PendingPO) => {
     setSelectedPO(po)
     setIsPendingListOpen(false)
     setIsAcceptDialogOpen(true)
@@ -223,7 +222,31 @@ export function PurchasesContent() {
       acceptanceTimestamp: new Date().toISOString().slice(0, 16),
       remarks: ""
     })
-    fetchTanksAndDispensers()
+    
+    try {
+      const response = await fetch(`/api/purchases/accept?purchase_order_id=${po.id}`)
+      const result = await response.json()
+      
+      if (result.success) {
+        setTanks(result.tanks || [])
+        setTankReadings((result.tanks || []).map((t: Tank) => ({
+          tank_id: t.id,
+          tank_name: t.tank_name,
+          volume_before: t.current_stock || 0,
+          volume_after: 0
+        })))
+        
+        setDispensers(result.dispensers || [])
+        setDispenserReadings((result.dispensers || []).map((d: Dispenser) => ({
+          dispenser_id: d.id,
+          dispenser_name: `Dispenser ${d.dispenser_number}`,
+          meter_reading_before: d.meter_reading || 0,
+          meter_reading_after: 0
+        })))
+      }
+    } catch (error) {
+      console.error("Error fetching PO-specific tanks/dispensers:", error)
+    }
   }
 
   const handleSubmitAcceptance = async () => {

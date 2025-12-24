@@ -48,6 +48,63 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "No branch found for user" }, { status: 403 })
     }
 
+    const { searchParams } = new URL(request.url)
+    const purchaseOrderId = searchParams.get("purchase_order_id")
+
+    if (purchaseOrderId) {
+      const poCheck = await query(
+        `SELECT id FROM purchase_orders WHERE id = $1 AND branch_id = $2`,
+        [purchaseOrderId, branchId]
+      )
+      if (!poCheck || poCheck.length === 0) {
+        return NextResponse.json({ success: false, error: "Purchase order not found" }, { status: 404 })
+      }
+
+      const poItems = await query(
+        `SELECT poi.item_id, i.item_name 
+         FROM purchase_order_items poi 
+         JOIN items i ON poi.item_id = i.id 
+         WHERE poi.purchase_order_id = $1`,
+        [purchaseOrderId]
+      )
+
+      const itemIds = poItems.map((item: any) => item.item_id)
+
+      let tanks: any[] = []
+      let dispensers: any[] = []
+
+      if (itemIds.length > 0) {
+        tanks = await query(
+          `SELECT t.*, i.item_name 
+           FROM tanks t 
+           LEFT JOIN items i ON t.item_id = i.id 
+           WHERE t.branch_id = $1 AND t.item_id = ANY($2::uuid[])
+           ORDER BY t.tank_name`,
+          [branchId, itemIds]
+        )
+
+        const tankIds = tanks.map((t: any) => t.id)
+        
+        if (tankIds.length > 0) {
+          dispensers = await query(
+            `SELECT d.*, t.tank_name 
+             FROM dispensers d 
+             LEFT JOIN tanks t ON d.tank_id = t.id 
+             WHERE d.branch_id = $1 AND d.tank_id = ANY($2::uuid[])
+             ORDER BY d.dispenser_number`,
+            [branchId, tankIds]
+          )
+        }
+      }
+
+      return NextResponse.json({ 
+        success: true, 
+        tanks,
+        dispensers,
+        items: poItems
+      })
+    }
+
     const orders = await query(
       `SELECT 
         po.*,
