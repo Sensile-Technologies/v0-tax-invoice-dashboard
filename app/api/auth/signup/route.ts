@@ -117,6 +117,39 @@ export async function POST(request: Request) {
         )
       }
 
+      // Check for matching leads by phone or KRA PIN and update their stage
+      if (branch?.phone || branch?.kra_pin) {
+        const conditions = []
+        const matchParams = []
+        let paramIdx = 1
+
+        // Normalize phone: remove spaces, dashes, and common prefixes
+        if (branch.phone) {
+          const normalizedPhone = branch.phone.replace(/[\s\-\(\)]/g, '').replace(/^\+?254/, '0')
+          conditions.push(`REGEXP_REPLACE(REGEXP_REPLACE(contact_phone, '[\\s\\-\\(\\)]', '', 'g'), '^\\+?254', '0') = $${paramIdx}`)
+          matchParams.push(normalizedPhone)
+          paramIdx++
+        }
+        
+        // Normalize KRA PIN: uppercase and trim
+        if (branch.kra_pin) {
+          const normalizedPin = branch.kra_pin.trim().toUpperCase()
+          conditions.push(`UPPER(TRIM(kra_pin)) = $${paramIdx}`)
+          matchParams.push(normalizedPin)
+          paramIdx++
+        }
+
+        if (conditions.length > 0) {
+          // Find matching leads in 'onboarding' stage and update to 'signed_up'
+          await client.query(
+            `UPDATE leads 
+             SET stage = 'signed_up', updated_at = NOW() 
+             WHERE stage = 'onboarding' AND (${conditions.join(' OR ')})`,
+            matchParams
+          )
+        }
+      }
+
       await client.query("COMMIT")
 
       return NextResponse.json({
