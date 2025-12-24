@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Fuel, ArrowRightLeft, Plus, Edit, Package } from "lucide-react"
+import { Fuel, ArrowRightLeft, Plus, Edit, Package, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "react-toastify"
 
@@ -322,6 +322,29 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     }
   }
 
+  const handleDeleteTank = async (tank: Tank) => {
+    if (!confirm(`Are you sure you want to delete "${tank.tank_name}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/tanks?id=${tank.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        toast.success(`Tank "${tank.tank_name}" deleted successfully`)
+        fetchTanks()
+      } else {
+        const result = await response.json()
+        toast.error(result.error || "Failed to delete tank")
+      }
+    } catch (error) {
+      console.error("Error deleting tank:", error)
+      toast.error("Failed to delete tank")
+    }
+  }
+
   const getStockPercentage = (tank: Tank) => {
     return ((tank.current_stock / tank.capacity) * 100).toFixed(1)
   }
@@ -434,7 +457,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -470,6 +493,15 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                   >
                     <ArrowRightLeft className="h-4 w-4 mr-2" />
                     Transfer Stock
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteTank(tank)}
+                    className="rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
                   </Button>
                 </div>
               </CardContent>

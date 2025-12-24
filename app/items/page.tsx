@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, ArrowUpDown, MoreVertical, Loader2, Package, RefreshCw } from "lucide-react"
+import { Search, ArrowUpDown, MoreVertical, Loader2, Package, RefreshCw, Trash2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
@@ -136,6 +136,29 @@ export default function ItemsListPage() {
     } catch (error) {
       console.error("Error updating item:", error)
       toast.error("Failed to update item status")
+    }
+  }
+
+  const handleDeleteItem = async (itemId: string, itemName: string) => {
+    if (!confirm(`Are you sure you want to delete "${itemName}"? This action cannot be undone.`)) {
+      return
+    }
+    
+    try {
+      const response = await fetch(`/api/items/${itemId}`, {
+        method: "DELETE"
+      })
+
+      if (response.ok) {
+        setItems(items.filter(item => item.id !== itemId))
+        toast.success("Item deleted successfully")
+      } else {
+        const result = await response.json()
+        toast.error(result.error || "Failed to delete item")
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error)
+      toast.error("Failed to delete item")
     }
   }
 
@@ -324,6 +347,12 @@ export default function ItemsListPage() {
                                       )}
                                     </DropdownMenuItem>
                                   )}
+                                  <DropdownMenuItem 
+                                    className="rounded-lg text-red-600 focus:text-red-600"
+                                    onClick={() => handleDeleteItem(item.id, item.item_name)}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                  </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </td>
