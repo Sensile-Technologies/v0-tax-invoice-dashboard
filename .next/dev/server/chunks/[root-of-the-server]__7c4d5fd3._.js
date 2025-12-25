@@ -195,6 +195,23 @@ async function POST(request) {
                     status: 401
                 });
             }
+            // Check if vendor's branch has been activated (device_token configured)
+            // Only applies to vendors, not admin or sales users
+            if (user.vendor_id && user.branch_id) {
+                const branchResult = await client.query("SELECT device_token FROM branches WHERE id = $1", [
+                    user.branch_id
+                ]);
+                const branch = branchResult.rows[0];
+                if (!branch || !branch.device_token) {
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                        error: {
+                            message: "Your account is pending activation. Please contact admin to complete your onboarding."
+                        }
+                    }, {
+                        status: 403
+                    });
+                }
+            }
             const token = crypto.randomUUID();
             const refreshToken = crypto.randomUUID();
             const response = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
