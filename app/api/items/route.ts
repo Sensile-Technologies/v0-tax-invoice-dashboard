@@ -183,17 +183,21 @@ export async function GET(request: NextRequest) {
     const vendorId = searchParams.get('vendorId')
     const branchId = searchParams.get('branchId')
 
-    let query = 'SELECT * FROM items WHERE 1=1'
-    const params: string[] = []
+    // CRITICAL: branchId is required to prevent cross-branch data leakage
+    if (!branchId) {
+      return NextResponse.json({
+        success: false,
+        error: "Branch ID is required",
+        items: []
+      }, { status: 400 })
+    }
+
+    let query = 'SELECT * FROM items WHERE branch_id = $1'
+    const params: string[] = [branchId]
 
     if (vendorId) {
       params.push(vendorId)
       query += ` AND vendor_id = $${params.length}`
-    }
-
-    if (branchId) {
-      params.push(branchId)
-      query += ` AND branch_id = $${params.length}`
     }
 
     query += ' ORDER BY created_at DESC'
