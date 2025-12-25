@@ -1222,9 +1222,11 @@ export function SalesSummaryContent() {
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
-            <Button onClick={handleCreateSale} disabled={loading}>Record Sale</Button>
+          <DialogFooter className="pointer-events-auto relative z-[100]">
+            <Button type="button" variant="outline" onClick={() => { console.log("[Cancel] clicked"); setShowSaleDialog(false); }}>Cancel</Button>
+            <Button type="button" onClick={() => { console.log("[Dialog Record Sale] clicked"); handleCreateSale(); }} disabled={loading} className="pointer-events-auto">
+              {loading ? "Recording..." : "Record Sale"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
