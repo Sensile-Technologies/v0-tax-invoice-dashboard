@@ -27,12 +27,12 @@ export async function POST(request: Request) {
       if (branch?.kra_pin) {
         const normalizedPin = branch.kra_pin.trim().toUpperCase()
 
-        // Check if there's a matching lead in the sign up requests (active pipeline stages only)
-        // Exclude leads that have already signed up or are pending activation
+        // Check if there's a matching lead in the sign up requests (onboarding stage only)
+        // Leads must reach 'onboarding' stage in sales pipeline before they can sign up
         const matchingLead = await client.query(
           `SELECT id, company_name, stage FROM leads 
            WHERE UPPER(TRIM(kra_pin)) = $1 
-           AND stage NOT IN ('signed_up', 'pending_activation')
+           AND stage = 'onboarding'
            LIMIT 1`,
           [normalizedPin]
         )
@@ -146,8 +146,9 @@ export async function POST(request: Request) {
           ]
         )
 
-        // Update matching lead to pending_activation stage (moves out of sales pipeline)
-        // Lead will now appear in admin onboarding requests for device_token configuration
+        // Update matching lead from 'onboarding' to 'pending_activation' stage
+        // This moves the lead out of the sales pipeline and sign up requests
+        // Branch will now appear in admin onboarding requests for device_token configuration
         if (branch?.kra_pin) {
           const normalizedPin = branch.kra_pin.trim().toUpperCase()
 
@@ -155,7 +156,7 @@ export async function POST(request: Request) {
             `UPDATE leads 
              SET stage = 'pending_activation', updated_at = NOW() 
              WHERE UPPER(TRIM(kra_pin)) = $1 
-             AND stage NOT IN ('signed_up', 'pending_activation')`,
+             AND stage = 'onboarding'`,
             [normalizedPin]
           )
         }
