@@ -18,11 +18,11 @@ export default function SalesSummaryPage() {
         onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col lg:ml-8 my-0 lg:my-6 mr-0 lg:mr-6">
+      <div className="flex-1 flex flex-col lg:ml-8 my-0 lg:my-6 mr-0 lg:mr-6 relative z-10">
         <div className="bg-white lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
           <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto bg-slate-50 p-4 lg:p-6">
+          <main className="flex-1 overflow-y-auto bg-slate-50 p-4 lg:p-6 pointer-events-auto">
             <div className="mx-auto max-w-7xl space-y-6">
               <SalesSummaryContent />
 
