@@ -138,6 +138,21 @@ export async function PATCH(request: NextRequest) {
       updates.push(`item_id = $${paramIndex}`)
       values.push(item_id || null)
       paramIndex++
+      
+      // When item_id is assigned, also sync the kra_item_cd from the item
+      if (item_id) {
+        const itemResult = await query("SELECT item_code FROM items WHERE id = $1", [item_id])
+        if (itemResult.length > 0 && itemResult[0].item_code) {
+          updates.push(`kra_item_cd = $${paramIndex}`)
+          values.push(itemResult[0].item_code)
+          paramIndex++
+        }
+      } else {
+        // If item_id is being cleared, also clear kra_item_cd
+        updates.push(`kra_item_cd = $${paramIndex}`)
+        values.push(null)
+        paramIndex++
+      }
     }
 
     if (updates.length === 0) {
