@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/table"
 import { 
   Settings2, HardDrive, UserPlus, ClipboardList, Search, 
-  Plus, Building2, Server, Check, AlertCircle, ExternalLink, MoreHorizontal, Pencil, Download, Smartphone
+  Plus, Building2, Server, Check, AlertCircle, ExternalLink, MoreHorizontal, Pencil, Download, Smartphone, Trash2
 } from "lucide-react"
 import {
   DropdownMenu as ActionsMenu,
@@ -277,6 +277,30 @@ export default function OperationsPage() {
       fetchData()
     } catch (error) {
       toast.error("Failed to save changes")
+    }
+  }
+
+  const handleRemoveSignupRequest = async (leadId: string, companyName: string) => {
+    if (!confirm(`Remove "${companyName}" from signup requests? This will move the lead back to the contracting stage in the sales pipeline.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/operations/signups?id=${leadId}`, {
+        method: "DELETE"
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error(data.error || "Failed to remove from signup requests")
+        return
+      }
+
+      toast.success("Lead moved back to contracting stage")
+      fetchData()
+    } catch (error) {
+      toast.error("Failed to remove from signup requests")
     }
   }
 
@@ -883,6 +907,14 @@ export default function OperationsPage() {
                         <Button size="sm" onClick={() => openReviewDialog(request)}>
                           <Pencil className="h-4 w-4 mr-2" />
                           Review
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          onClick={() => handleRemoveSignupRequest(request.lead_id, request.company_name)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Remove
                         </Button>
                       </div>
                     </div>

@@ -78,3 +78,32 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: "Failed to save changes" }, { status: 500 })
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const leadId = searchParams.get('id')
+
+    if (!leadId) {
+      return NextResponse.json({ error: "Lead ID is required" }, { status: 400 })
+    }
+
+    // Move lead back to 'contracting' stage instead of deleting
+    // This allows sales to re-review and move back to onboarding if needed
+    const result = await query(`
+      UPDATE leads 
+      SET stage = 'contracting', updated_at = NOW()
+      WHERE id = $1 AND stage = 'onboarding'
+      RETURNING *
+    `, [leadId])
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: "Lead not found or not in onboarding stage" }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true, message: "Lead moved back to contracting stage" })
+  } catch (error) {
+    console.error("Error removing signup request:", error)
+    return NextResponse.json({ error: "Failed to remove from signup requests" }, { status: 500 })
+  }
+}
