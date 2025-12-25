@@ -6,7 +6,7 @@
     "build": "next build && node scripts/patch-standalone.js",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "node scripts/start.js",
+    "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "deploy": "node scripts/production-server.js"
   },
   "dependencies": {
