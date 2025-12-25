@@ -1224,7 +1224,7 @@ export function SalesSummaryContent() {
           </div>
           <DialogFooter className="pointer-events-auto relative z-[100]">
             <Button type="button" variant="outline" onClick={() => { console.log("[Cancel] clicked"); setShowSaleDialog(false); }} onMouseDown={() => console.log("[Cancel] mousedown")}>Cancel</Button>
-            <Button type="button" onClick={() => { console.log("[Dialog Record Sale] clicked"); handleCreateSale(); }} onMouseDown={() => console.log("[Record Sale] mousedown")} disabled={loading} className="pointer-events-auto">
+            <Button type="button" onClick={() => { console.log("[Dialog Record Sale] clicked, loading:", loading); handleCreateSale(); }} onMouseDown={() => console.log("[Record Sale] mousedown")} className="pointer-events-auto">
               {loading ? "Recording..." : "Record Sale"}
             </Button>
           </DialogFooter>
