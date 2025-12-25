@@ -23,20 +23,17 @@ export async function POST(request: Request) {
       await client.query("BEGIN")
 
       // Validate against sign up requests list (leads table)
-      // Check if KRA PIN and contact phone match any entry in the leads table
-      if (branch?.kra_pin && (branch?.phone || data?.phone)) {
-        const phoneToCheck = branch?.phone || data?.phone
-        const normalizedPhone = phoneToCheck.replace(/[\s\-\(\)]/g, '').replace(/^\+?254/, '0')
+      // Check if KRA PIN matches any entry in the leads table
+      if (branch?.kra_pin) {
         const normalizedPin = branch.kra_pin.trim().toUpperCase()
 
         // Check if there's a matching lead in the sign up requests (any stage except signed_up)
         const matchingLead = await client.query(
           `SELECT id, company_name, stage FROM leads 
            WHERE UPPER(TRIM(kra_pin)) = $1 
-           AND REGEXP_REPLACE(REGEXP_REPLACE(contact_phone, '[\\s\\-\\(\\)]', '', 'g'), '^\\+?254', '0') = $2
            AND stage != 'signed_up'
            LIMIT 1`,
-          [normalizedPin, normalizedPhone]
+          [normalizedPin]
         )
 
         if (matchingLead.rows.length === 0) {
@@ -47,10 +44,10 @@ export async function POST(request: Request) {
           )
         }
       } else if (branch) {
-        // Branch signup requires both KRA PIN and phone for validation
+        // Branch signup requires KRA PIN for validation
         await client.query("ROLLBACK")
         return NextResponse.json(
-          { error: { message: "KRA PIN and phone number are required for sign up." } },
+          { error: { message: "KRA PIN is required for sign up." } },
           { status: 400 }
         )
       }
@@ -148,18 +145,16 @@ export async function POST(request: Request) {
           ]
         )
 
-        // Update matching lead to signed_up stage
-        const phoneToCheck = branch?.phone || data?.phone
-        if (phoneToCheck && branch?.kra_pin) {
-          const normalizedPhone = phoneToCheck.replace(/[\s\-\(\)]/g, '').replace(/^\+?254/, '0')
+        // Update matching lead to signed_up stage (moves out of onboarding)
+        if (branch?.kra_pin) {
           const normalizedPin = branch.kra_pin.trim().toUpperCase()
 
           await client.query(
             `UPDATE leads 
              SET stage = 'signed_up', updated_at = NOW() 
              WHERE UPPER(TRIM(kra_pin)) = $1 
-             AND REGEXP_REPLACE(REGEXP_REPLACE(contact_phone, '[\\s\\-\\(\\)]', '', 'g'), '^\\+?254', '0') = $2`,
-            [normalizedPin, normalizedPhone]
+             AND stage != 'signed_up'`,
+            [normalizedPin]
           )
         }
       }
