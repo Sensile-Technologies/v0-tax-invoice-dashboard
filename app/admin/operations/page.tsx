@@ -252,7 +252,7 @@ export default function OperationsPage() {
     }
   }
 
-  const handleMarkSignedUp = async (leadId: string) => {
+  const handleSaveSignupChanges = async (leadId: string) => {
     try {
       const response = await fetch("/api/admin/operations/signups", {
         method: "PUT",
@@ -266,17 +266,17 @@ export default function OperationsPage() {
         if (data.message) {
           toast.error(data.message)
         } else {
-          toast.error(data.error || "Failed to move to onboarding")
+          toast.error(data.error || "Failed to save changes")
         }
         return
       }
 
-      toast.success("Branch verified! Lead moved to Onboarding Requests")
+      toast.success("Changes saved successfully")
       setReviewDialogOpen(false)
       setSelectedSignup(null)
       fetchData()
     } catch (error) {
-      toast.error("Failed to move to onboarding")
+      toast.error("Failed to save changes")
     }
   }
 
@@ -1172,9 +1172,9 @@ export default function OperationsPage() {
                 <Button variant="outline" onClick={() => setReviewDialogOpen(false)} className="flex-1">
                   Cancel
                 </Button>
-                <Button onClick={() => handleMarkSignedUp(selectedSignup.lead_id)} className="flex-1">
+                <Button onClick={() => handleSaveSignupChanges(selectedSignup.lead_id)} className="flex-1">
                   <Check className="h-4 w-4 mr-2" />
-                  Approve & Move to Onboarding
+                  Save Changes
                 </Button>
               </div>
             </div>
