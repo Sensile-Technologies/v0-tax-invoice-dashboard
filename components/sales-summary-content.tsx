@@ -1074,7 +1074,7 @@ export function SalesSummaryContent() {
       </Dialog>
 
       <Dialog open={showSaleDialog} onOpenChange={setShowSaleDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl" onClick={(e) => console.log("[DialogContent] clicked", e.target)} onMouseDown={(e) => console.log("[DialogContent] mousedown", e.target)}>
           <DialogHeader>
             <DialogTitle>Record Fuel Sale</DialogTitle>
             <DialogDescription>Enter sale details to record a new fuel transaction</DialogDescription>
@@ -1223,8 +1223,8 @@ export function SalesSummaryContent() {
             )}
           </div>
           <DialogFooter className="pointer-events-auto relative z-[100]">
-            <Button type="button" variant="outline" onClick={() => { console.log("[Cancel] clicked"); setShowSaleDialog(false); }}>Cancel</Button>
-            <Button type="button" onClick={() => { console.log("[Dialog Record Sale] clicked"); handleCreateSale(); }} disabled={loading} className="pointer-events-auto">
+            <Button type="button" variant="outline" onClick={() => { console.log("[Cancel] clicked"); setShowSaleDialog(false); }} onMouseDown={() => console.log("[Cancel] mousedown")}>Cancel</Button>
+            <Button type="button" onClick={() => { console.log("[Dialog Record Sale] clicked"); handleCreateSale(); }} onMouseDown={() => console.log("[Record Sale] mousedown")} disabled={loading} className="pointer-events-auto">
               {loading ? "Recording..." : "Record Sale"}
             </Button>
           </DialogFooter>
