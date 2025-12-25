@@ -652,6 +652,22 @@ async function PATCH(request) {
             updates.push(`item_id = $${paramIndex}`);
             values.push(item_id || null);
             paramIndex++;
+            // When item_id is assigned, also sync the kra_item_cd from the item
+            if (item_id) {
+                const itemResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("SELECT item_code FROM items WHERE id = $1", [
+                    item_id
+                ]);
+                if (itemResult.length > 0 && itemResult[0].item_code) {
+                    updates.push(`kra_item_cd = $${paramIndex}`);
+                    values.push(itemResult[0].item_code);
+                    paramIndex++;
+                }
+            } else {
+                // If item_id is being cleared, also clear kra_item_cd
+                updates.push(`kra_item_cd = $${paramIndex}`);
+                values.push(null);
+                paramIndex++;
+            }
         }
         if (updates.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

@@ -576,7 +576,11 @@ export function SalesSummaryContent() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={() => setShowSaleDialog(true)} disabled={!currentShift}>
+          <Button 
+            onClick={() => setShowSaleDialog(true)} 
+            disabled={!currentShift}
+            className={!currentShift ? "opacity-50 cursor-not-allowed" : ""}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Record Sale
           </Button>
