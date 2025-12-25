@@ -27,11 +27,12 @@ export async function POST(request: Request) {
       if (branch?.kra_pin) {
         const normalizedPin = branch.kra_pin.trim().toUpperCase()
 
-        // Check if there's a matching lead in the sign up requests (any stage except signed_up)
+        // Check if there's a matching lead in the sign up requests (active pipeline stages only)
+        // Exclude leads that have already signed up or are pending activation
         const matchingLead = await client.query(
           `SELECT id, company_name, stage FROM leads 
            WHERE UPPER(TRIM(kra_pin)) = $1 
-           AND stage != 'signed_up'
+           AND stage NOT IN ('signed_up', 'pending_activation')
            LIMIT 1`,
           [normalizedPin]
         )
