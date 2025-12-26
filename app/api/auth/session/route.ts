@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { Pool } from "pg"
 import { cookies } from "next/headers"
 
@@ -6,16 +6,10 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const cookieStore = await cookies()
     const sessionCookie = cookieStore.get("user_session")
-    
-    const userId = request.nextUrl.searchParams.get("userId")
-    
-    if (!userId) {
-      return NextResponse.json({ error: "User ID required" }, { status: 400 })
-    }
 
     if (!sessionCookie) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
@@ -28,12 +22,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 })
     }
 
-    if (sessionData.id !== userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    if (!sessionData.id) {
+      return NextResponse.json({ error: "Invalid session" }, { status: 401 })
     }
 
+    // SECURITY: Fetch role and details from database (don't trust cookie values)
     const result = await pool.query(
-      `SELECT u.id, u.email, u.username, u.role, 
+      `SELECT u.id, u.email, u.username, 
+       COALESCE(s.role, u.role) as role,
        v.id as vendor_id, v.name as vendor_name,
        COALESCE(s.branch_id, vb.id) as branch_id, 
        COALESCE(b.name, vb.name) as branch_name,
@@ -44,7 +40,7 @@ export async function GET(request: NextRequest) {
        LEFT JOIN branches b ON b.id = s.branch_id
        LEFT JOIN branches vb ON vb.vendor_id = v.id AND vb.is_main = true
        WHERE u.id = $1`,
-      [userId]
+      [sessionData.id]
     )
 
     if (result.rows.length === 0) {

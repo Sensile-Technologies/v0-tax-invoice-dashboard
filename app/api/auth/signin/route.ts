@@ -187,7 +187,8 @@ export async function POST(request: Request) {
         id: user.id,
         email: user.email,
         vendor_id: user.vendor_id,
-        branch_id: user.branch_id
+        branch_id: user.branch_id,
+        role: user.role || 'vendor'
       }), {
         path: '/',
         maxAge: 60 * 60 * 24 * 7,

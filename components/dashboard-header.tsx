@@ -60,81 +60,88 @@ export function DashboardHeader({
   const router = useRouter()
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (currentUser) {
-      setUserName(currentUser.username || currentUser.full_name || currentUser.email?.split('@')[0] || "User")
-      
-      const role = (currentUser.role || '').toLowerCase()
-      setUserRole(role)
-      
-      // Supervisors and Managers can only access their assigned branch - no switching allowed
-      const restrictedRoles = ['supervisor', 'manager']
-      const canSwitch = !restrictedRoles.includes(role)
-      setCanSwitchBranches(canSwitch)
-      
-      // For restricted roles, always use their assigned branch
-      if (!canSwitch && currentUser.branch_name && currentUser.branch_id) {
-        setCurrentBranchName(currentUser.branch_name)
-        setSelectedBranch(currentUser.branch_id)
-        localStorage.setItem("selectedBranch", JSON.stringify({
-          id: currentUser.branch_id,
-          name: currentUser.branch_name,
-          type: "branch",
-          status: "active"
-        }))
-        return
-      }
-    }
-    
-    const storedBranch = localStorage.getItem("selectedBranch")
-    if (storedBranch) {
+    const initSession = async () => {
+      // SECURITY: Fetch role from server (don't trust localStorage)
       try {
-        const parsedBranch = JSON.parse(storedBranch)
-        if (parsedBranch?.name) {
-          setCurrentBranchName(parsedBranch.name)
+        const response = await fetch('/api/auth/session', { credentials: 'include' })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success && data.user) {
+            const serverUser = data.user
+            setUserName(serverUser.username || serverUser.email?.split('@')[0] || "User")
+            
+            const role = (serverUser.role || '').toLowerCase()
+            setUserRole(role)
+            
+            // Supervisors and Managers can only access their assigned branch - no switching allowed
+            const restrictedRoles = ['supervisor', 'manager']
+            const canSwitch = !restrictedRoles.includes(role)
+            setCanSwitchBranches(canSwitch)
+            
+            // For restricted roles, always use their assigned branch
+            if (!canSwitch && serverUser.branch_name && serverUser.branch_id) {
+              setCurrentBranchName(serverUser.branch_name)
+              setSelectedBranch(serverUser.branch_id)
+              localStorage.setItem("selectedBranch", JSON.stringify({
+                id: serverUser.branch_id,
+                name: serverUser.branch_name,
+                type: "branch",
+                status: "active"
+              }))
+              // Update localStorage with server data
+              localStorage.setItem("currentUser", JSON.stringify(serverUser))
+              localStorage.setItem("user", JSON.stringify(serverUser))
+              return
+            }
+            
+            // Update localStorage with server data for consistency
+            localStorage.setItem("currentUser", JSON.stringify(serverUser))
+            localStorage.setItem("user", JSON.stringify(serverUser))
+            
+            // Fetch branches after role is determined
+            fetchBranchesWithRole(canSwitch)
+            return
+          }
         }
-      } catch (e) {
-        console.error("Error parsing stored branch:", e)
+      } catch (error) {
+        console.error("Error fetching session:", error)
       }
-    } else if (currentUser?.branch_name) {
-      setCurrentBranchName(currentUser.branch_name)
+      
+      // If no session, still try to fetch branches
+      fetchBranchesWithRole(true)
+      
+      // Fallback to localStorage for branch name display
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (storedBranch) {
+        try {
+          const parsedBranch = JSON.parse(storedBranch)
+          if (parsedBranch?.name) {
+            setCurrentBranchName(parsedBranch.name)
+          }
+        } catch (e) {
+          console.error("Error parsing stored branch:", e)
+        }
+      }
     }
+    initSession()
   }, [])
 
   useEffect(() => {
-    fetchBranches()
+    // fetchBranches is called after session is initialized
+    // to ensure canSwitchBranches is set correctly
   }, [])
 
-  const fetchBranches = async () => {
+  const fetchBranchesWithRole = async (canSwitch: boolean) => {
     try {
-      const currentUser = getCurrentUser()
-      const userId = currentUser?.id
-      const role = (currentUser?.role || '').toLowerCase()
-      const restrictedRoles = ['supervisor', 'manager']
-      const isRestricted = restrictedRoles.includes(role)
-      
-      const url = userId ? `/api/branches/list?user_id=${userId}` : "/api/branches/list"
-      const response = await fetch(url)
+      // API now uses session cookie for vendor scoping - no need to pass user_id
+      const response = await fetch('/api/branches/list', { credentials: 'include' })
 
       if (response.ok) {
         const data = await response.json()
         
-        // For restricted roles, only show their assigned branch (no HQ)
-        if (isRestricted) {
-          const assignedBranchId = currentUser?.branch_id
-          const assignedBranch = data.find((b: any) => b.id === assignedBranchId)
-          if (assignedBranch) {
-            setBranches([{
-              id: assignedBranch.id,
-              name: assignedBranch.name,
-              type: "branch",
-              status: assignedBranch.status || "active",
-            }])
-          } else {
-            setBranches([])
-          }
-        } else {
-          // Directors, vendors, and other roles can see HQ + all branches
+        // Server already filters branches based on role and vendor
+        // For directors/vendors, add HQ option
+        if (canSwitch && data.length > 0) {
           const branchList = [
             { id: "hq", name: "Headquarters", type: "headquarters", status: "active" },
             ...data.map((b: any) => ({
@@ -145,6 +152,14 @@ export function DashboardHeader({
             })),
           ]
           setBranches(branchList)
+        } else {
+          // Managers/supervisors get only their assigned branch (already filtered by server)
+          setBranches(data.map((b: any) => ({
+            id: b.id,
+            name: b.name,
+            type: "branch",
+            status: b.status || "active",
+          })))
         }
       }
     } catch (error) {

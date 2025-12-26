@@ -112,86 +112,111 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/client.ts [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/headers.js [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
 ]);
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
 ;
+;
+async function getSessionUserId() {
+    try {
+        const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
+        const sessionCookie = cookieStore.get("user_session");
+        if (!sessionCookie?.value) return null;
+        const session = JSON.parse(sessionCookie.value);
+        // SECURITY: Only trust the user ID from cookie, derive everything else from database
+        return session.id || null;
+    } catch  {
+        return null;
+    }
+}
+async function getVendorIdFromUser(userId) {
+    // Try to get vendor_id from user's vendor record
+    const vendorResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
+     JOIN vendors v ON v.email = u.email 
+     WHERE u.id = $1`, [
+        userId
+    ]);
+    if (vendorResult && vendorResult.length > 0) {
+        return vendorResult[0].vendor_id;
+    }
+    // Try to get vendor_id from user's staff record
+    const staffResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
+     JOIN branches b ON s.branch_id = b.id
+     WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
+        userId
+    ]);
+    if (staffResult && staffResult.length > 0) {
+        return staffResult[0].vendor_id;
+    }
+    return null;
+}
+async function getUserRoleAndBranch(userId) {
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT COALESCE(s.role, u.role) as role, s.branch_id
+     FROM users u 
+     LEFT JOIN staff s ON s.user_id = u.id
+     WHERE u.id = $1`, [
+        userId
+    ]);
+    if (result && result.length > 0) {
+        return {
+            role: result[0].role,
+            branchId: result[0].branch_id
+        };
+    }
+    return {
+        role: null,
+        branchId: null
+    };
+}
 async function GET(request) {
     try {
-        const { searchParams } = new URL(request.url);
-        const name = searchParams.get("name");
-        const userId = searchParams.get("user_id");
-        const vendorId = searchParams.get("vendor_id");
-        let vendorFilter = vendorId;
-        // If user_id is provided, find the user's vendor
-        if (userId && !vendorFilter) {
-            // First try: match user email to vendor email
-            const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
-         JOIN vendors v ON v.email = u.email 
-         WHERE u.id = $1`, [
-                userId
-            ]);
-            if (userResult && userResult.length > 0) {
-                vendorFilter = userResult[0].vendor_id;
-            }
-            // Second try: get vendor_id from user's staff record → branch → vendor
-            if (!vendorFilter) {
-                const staffResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
-           JOIN branches b ON s.branch_id = b.id
-           WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
-                    userId
-                ]);
-                if (staffResult && staffResult.length > 0) {
-                    vendorFilter = staffResult[0].vendor_id;
-                }
-            }
-            // Third try: if still no vendor, get only branches where user has a staff record
-            if (!vendorFilter) {
-                const staffBranchIds = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT branch_id FROM staff WHERE user_id = $1`, [
-                    userId
-                ]);
-                if (staffBranchIds && staffBranchIds.length > 0) {
-                    const branchIds = staffBranchIds.map((s)=>s.branch_id);
-                    const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM branches WHERE id = ANY($1::uuid[]) AND status IN ('active', 'pending_onboarding') ORDER BY name`, [
-                        branchIds
-                    ]);
-                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches);
-                }
-                // SECURITY: No vendor or staff association found - return empty array
-                // Do NOT fall through to return all branches
-                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
-            }
+        // SECURITY: Get user ID from httpOnly session cookie
+        const userId = await getSessionUserId();
+        if (!userId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: 'Unauthorized. Please log in.'
+            }, {
+                status: 401
+            });
         }
-        // Build query with filters - include both active and pending_onboarding branches
-        let sql = "SELECT * FROM branches WHERE status IN ('active', 'pending_onboarding')";
-        const params = [];
-        let paramIndex = 1;
-        // SECURITY: When user_id was provided but vendor lookup succeeded, 
-        // always filter by vendorFilter (which is now set)
-        if (vendorFilter) {
-            sql += ` AND vendor_id = $${paramIndex}`;
-            params.push(vendorFilter);
-            paramIndex++;
-        } else if (userId) {
-            // SECURITY: If user_id was provided but no vendor found and we somehow
-            // got here, return empty array for safety
+        // SECURITY: Always derive vendor_id and role from database (never trust cookie values)
+        const vendorId = await getVendorIdFromUser(userId);
+        const { role, branchId } = await getUserRoleAndBranch(userId);
+        const restrictedRoles = [
+            'supervisor',
+            'manager'
+        ];
+        const isRestricted = role && restrictedRoles.includes(role.toLowerCase());
+        // For managers/supervisors, only return their assigned branch
+        if (isRestricted && branchId) {
+            const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM branches WHERE id = $1 AND status IN ('active', 'pending_onboarding')`, [
+                branchId
+            ]);
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches || []);
+        }
+        // SECURITY: Must have vendor_id to list branches
+        if (!vendorId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
         }
+        const { searchParams } = new URL(request.url);
+        const name = searchParams.get("name");
+        // Build query with vendor filter
+        let sql = "SELECT * FROM branches WHERE status IN ('active', 'pending_onboarding') AND vendor_id = $1";
+        const params = [
+            vendorId
+        ];
+        let paramIndex = 2;
         if (name) {
             sql += ` AND LOWER(name) LIKE LOWER($${paramIndex})`;
             params.push(`%${name}%`);
             paramIndex++;
         }
-        // SECURITY: If no user_id or vendor_id provided, return empty array
-        // to prevent leaking all branches
-        if (!userId && !vendorId) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
-        }
         sql += " ORDER BY name";
         const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, params);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches || []);
     } catch (error) {
         console.error("Error fetching branches:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

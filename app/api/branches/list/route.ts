@@ -1,78 +1,101 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db/client";
+import { cookies } from "next/headers";
+
+async function getSessionUserId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("user_session");
+    if (!sessionCookie?.value) return null;
+    
+    const session = JSON.parse(sessionCookie.value);
+    // SECURITY: Only trust the user ID from cookie, derive everything else from database
+    return session.id || null;
+  } catch {
+    return null;
+  }
+}
+
+async function getVendorIdFromUser(userId: string): Promise<string | null> {
+  // Try to get vendor_id from user's vendor record
+  const vendorResult = await query(
+    `SELECT v.id as vendor_id FROM users u 
+     JOIN vendors v ON v.email = u.email 
+     WHERE u.id = $1`,
+    [userId]
+  );
+  if (vendorResult && vendorResult.length > 0) {
+    return vendorResult[0].vendor_id;
+  }
+  
+  // Try to get vendor_id from user's staff record
+  const staffResult = await query(
+    `SELECT DISTINCT b.vendor_id FROM staff s
+     JOIN branches b ON s.branch_id = b.id
+     WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
+    [userId]
+  );
+  if (staffResult && staffResult.length > 0) {
+    return staffResult[0].vendor_id;
+  }
+  
+  return null;
+}
+
+async function getUserRoleAndBranch(userId: string): Promise<{ role: string | null; branchId: string | null }> {
+  const result = await query(
+    `SELECT COALESCE(s.role, u.role) as role, s.branch_id
+     FROM users u 
+     LEFT JOIN staff s ON s.user_id = u.id
+     WHERE u.id = $1`,
+    [userId]
+  );
+  if (result && result.length > 0) {
+    return { role: result[0].role, branchId: result[0].branch_id };
+  }
+  return { role: null, branchId: null };
+}
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const name = searchParams.get("name");
-    const userId = searchParams.get("user_id");
-    const vendorId = searchParams.get("vendor_id");
+    // SECURITY: Get user ID from httpOnly session cookie
+    const userId = await getSessionUserId();
     
-    let vendorFilter = vendorId;
-    
-    // If user_id is provided, find the user's vendor
-    if (userId && !vendorFilter) {
-      // First try: match user email to vendor email
-      const userResult = await query(
-        `SELECT v.id as vendor_id FROM users u 
-         JOIN vendors v ON v.email = u.email 
-         WHERE u.id = $1`,
-        [userId]
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please log in.' },
+        { status: 401 }
       );
-      if (userResult && userResult.length > 0) {
-        vendorFilter = userResult[0].vendor_id;
-      }
-      
-      // Second try: get vendor_id from user's staff record → branch → vendor
-      if (!vendorFilter) {
-        const staffResult = await query(
-          `SELECT DISTINCT b.vendor_id FROM staff s
-           JOIN branches b ON s.branch_id = b.id
-           WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
-          [userId]
-        );
-        if (staffResult && staffResult.length > 0) {
-          vendorFilter = staffResult[0].vendor_id;
-        }
-      }
-      
-      // Third try: if still no vendor, get only branches where user has a staff record
-      if (!vendorFilter) {
-        const staffBranchIds = await query(
-          `SELECT branch_id FROM staff WHERE user_id = $1`,
-          [userId]
-        );
-        if (staffBranchIds && staffBranchIds.length > 0) {
-          const branchIds = staffBranchIds.map((s: any) => s.branch_id);
-          const branches = await query(
-            `SELECT * FROM branches WHERE id = ANY($1::uuid[]) AND status IN ('active', 'pending_onboarding') ORDER BY name`,
-            [branchIds]
-          );
-          return NextResponse.json(branches);
-        }
-        
-        // SECURITY: No vendor or staff association found - return empty array
-        // Do NOT fall through to return all branches
-        return NextResponse.json([]);
-      }
     }
     
-    // Build query with filters - include both active and pending_onboarding branches
-    let sql = "SELECT * FROM branches WHERE status IN ('active', 'pending_onboarding')";
-    const params: any[] = [];
-    let paramIndex = 1;
+    // SECURITY: Always derive vendor_id and role from database (never trust cookie values)
+    const vendorId = await getVendorIdFromUser(userId);
+    const { role, branchId } = await getUserRoleAndBranch(userId);
     
-    // SECURITY: When user_id was provided but vendor lookup succeeded, 
-    // always filter by vendorFilter (which is now set)
-    if (vendorFilter) {
-      sql += ` AND vendor_id = $${paramIndex}`;
-      params.push(vendorFilter);
-      paramIndex++;
-    } else if (userId) {
-      // SECURITY: If user_id was provided but no vendor found and we somehow
-      // got here, return empty array for safety
+    const restrictedRoles = ['supervisor', 'manager'];
+    const isRestricted = role && restrictedRoles.includes(role.toLowerCase());
+    
+    // For managers/supervisors, only return their assigned branch
+    if (isRestricted && branchId) {
+      const branches = await query(
+        `SELECT * FROM branches WHERE id = $1 AND status IN ('active', 'pending_onboarding')`,
+        [branchId]
+      );
+      return NextResponse.json(branches || []);
+    }
+    
+    // SECURITY: Must have vendor_id to list branches
+    if (!vendorId) {
       return NextResponse.json([]);
     }
+    
+    const { searchParams } = new URL(request.url);
+    const name = searchParams.get("name");
+    
+    // Build query with vendor filter
+    let sql = "SELECT * FROM branches WHERE status IN ('active', 'pending_onboarding') AND vendor_id = $1";
+    const params: any[] = [vendorId];
+    let paramIndex = 2;
     
     if (name) {
       sql += ` AND LOWER(name) LIKE LOWER($${paramIndex})`;
@@ -80,17 +103,11 @@ export async function GET(request: Request) {
       paramIndex++;
     }
     
-    // SECURITY: If no user_id or vendor_id provided, return empty array
-    // to prevent leaking all branches
-    if (!userId && !vendorId) {
-      return NextResponse.json([]);
-    }
-    
     sql += " ORDER BY name";
     
     const branches = await query(sql, params);
     
-    return NextResponse.json(branches);
+    return NextResponse.json(branches || []);
   } catch (error: any) {
     console.error("Error fetching branches:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
