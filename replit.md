@@ -30,6 +30,10 @@ Key features include:
 
 ## Security Notes
 - **Session Authentication**: The `user_session` cookie is currently unsigned JSON. API endpoints that require vendor scoping derive the vendor_id server-side from the session rather than trusting client input. Future enhancement: implement signed/encrypted cookies or server-side sessions for stronger security.
+- **Role-Based Access Control**:
+  - **Cashiers**: Can ONLY access the mobile APK app. Web dashboard login is blocked with a 403 error.
+  - **Supervisors & Managers**: Can only access their assigned branch. Branch switching is disabled, HQ access is blocked. Each supervisor/manager is assigned to exactly one branch.
+  - **Directors & Vendors**: Full access to all branches and HQ dashboard.
 
 ## External Dependencies
 - **Replit PostgreSQL**: The primary database, auto-configured via `DATABASE_URL`.
