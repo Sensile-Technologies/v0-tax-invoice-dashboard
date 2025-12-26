@@ -49,6 +49,10 @@ args = "cd mobile && EXPO_NO_PROMPT=1 npx expo start --tunnel --non-interactive"
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
