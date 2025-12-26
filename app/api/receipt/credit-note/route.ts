@@ -222,7 +222,7 @@ export async function POST(request: Request) {
       const rcptSign = cn.kra_rcpt_sign || ''
       
       const qrData = `${kraPin}${bhfId}${rcptSign}`
-      const qrUrl = `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
+      const qrUrl = `https://etims.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
 
       doc.setFontSize(8)
       doc.setFont("helvetica", "bold")
