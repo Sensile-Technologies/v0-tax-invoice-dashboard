@@ -2,7 +2,7 @@ import { query } from "@/lib/db"
 import { logApiCall } from "@/lib/api-logger"
 import { syncStockAfterSale, syncStockAfterCreditNote } from "@/lib/kra-stock-sync"
 
-const KRA_BASE_URL = "http://20.224.40.56:8088"
+const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
 
 interface KraSaleData {
   branch_id: string

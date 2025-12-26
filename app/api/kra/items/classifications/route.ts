@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   let kraEndpoint = ""
 
   try {
-    let backendUrl = request.headers.get("x-backend-url") || "http://20.224.40.56:8088"
+    let backendUrl = request.headers.get("x-backend-url") || process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
     backendUrl = backendUrl.replace(/\/$/, "")
     const branchId = request.headers.get("x-branch-id")
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
 
-const KRA_BASE_URL = "http://20.224.40.56:8088"
+const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()

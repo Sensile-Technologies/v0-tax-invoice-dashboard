@@ -65,7 +65,7 @@ interface ItemData {
   branch_id: string
 }
 
-const DEFAULT_KRA_URL = "http://20.224.40.56:8088"
+const DEFAULT_KRA_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
 
 async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
   try {
