@@ -36,7 +36,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
-} from "@/components/ui/dialog" // Added DialogFooter
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -48,7 +48,7 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-} from "@/components/ui/dropdown-menu" // Added DropdownMenuSub components
+} from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
@@ -56,7 +56,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useRouter } from "next/navigation"
 
 import { GlobalShiftUploadDialog } from "@/components/global-shift-upload-dialog"
-import { useCurrency } from "@/lib/currency-utils" // Added useCurrency hook
+import { useCurrency } from "@/lib/currency-utils"
 import { getCurrentUser } from "@/lib/auth/client"
 
 interface HQStats {
@@ -79,36 +79,15 @@ export default function HeadquartersPage() {
   const [inventoryOpen, setInventoryOpen] = useState(false)
   const [editingBranch, setEditingBranch] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Role-based access control: Supervisors and Managers cannot access HQ
-  useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (currentUser) {
-      const role = (currentUser.role || '').toLowerCase()
-      const restrictedRoles = ['supervisor', 'manager']
-      if (restrictedRoles.includes(role)) {
-        // Redirect to their branch page
-        const branchId = currentUser.branch_id
-        if (branchId) {
-          router.replace(`/sales/summary?branch=${branchId}`)
-        } else {
-          router.replace('/sales/summary')
-        }
-      }
-    }
-  }, [router])
-
+  const [accessDenied, setAccessDenied] = useState(false)
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true)
   const [globalUploadsOpen, setGlobalUploadsOpen] = useState(false)
   const [uploadFile, setUploadFile] = useState<File | null>(null)
-
   const [branches, setBranches] = useState<any[]>([])
   const [isLoadingBranches, setIsLoadingBranches] = useState(true)
-
   const [globalShiftUploadOpen, setGlobalShiftUploadOpen] = useState(false)
-
   const [hqStats, setHqStats] = useState<HQStats | null>(null)
   const [isLoadingStats, setIsLoadingStats] = useState(true)
-
   const [endAllShiftsOpen, setEndAllShiftsOpen] = useState(false)
   const [activeShifts, setActiveShifts] = useState<any[]>([])
   const [isLoadingActiveShifts, setIsLoadingActiveShifts] = useState(false)
@@ -120,6 +99,38 @@ export default function HeadquartersPage() {
   }>>({})
 
   const { formatCurrency } = useCurrency()
+
+  useEffect(() => {
+    const currentUser = getCurrentUser()
+    if (currentUser) {
+      const role = (currentUser.role || '').toLowerCase()
+      const restrictedRoles = ['supervisor', 'manager', 'cashier']
+      if (restrictedRoles.includes(role)) {
+        setAccessDenied(true)
+        const branchId = currentUser.branch_id
+        setTimeout(() => {
+          if (branchId) {
+            router.replace(`/sales/summary?branch=${branchId}`)
+          } else {
+            router.replace('/sales/summary')
+          }
+        }, 100)
+        return
+      }
+    }
+    setIsCheckingAccess(false)
+  }, [router])
+
+  if (isCheckingAccess || accessDenied) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="text-center text-white">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>{accessDenied ? "Redirecting to your branch..." : "Checking access..."}</p>
+        </div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     fetchBranches()
