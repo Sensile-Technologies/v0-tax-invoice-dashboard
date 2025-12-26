@@ -16,7 +16,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Building2, Search, Phone, MapPin, 
-  Store, FileText, Calendar, Edit2
+  Store, FileText, Calendar, Edit2, Settings
 } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -38,9 +38,14 @@ interface Merchant {
 interface Branch {
   id: string
   bhf_id: string
-  bhf_nm: string
+  name: string
   address: string
   status: string
+  device_token?: string
+  server_address?: string
+  server_port?: string
+  kra_pin?: string
+  trading_name?: string
 }
 
 interface Invoice {
@@ -68,6 +73,15 @@ export default function MerchantsPage() {
     email: "",
     phone: "",
     address: ""
+  })
+  const [branchEditDialogOpen, setBranchEditDialogOpen] = useState(false)
+  const [editingBranch, setEditingBranch] = useState<Branch | null>(null)
+  const [branchEditForm, setBranchEditForm] = useState({
+    bhf_id: "",
+    device_token: "",
+    server_address: "",
+    server_port: "",
+    kra_pin: ""
   })
 
   useEffect(() => {
@@ -147,6 +161,42 @@ export default function MerchantsPage() {
       fetchMerchants()
     } catch (error) {
       toast.error("Failed to update merchant")
+    }
+  }
+
+  const handleBranchEditClick = (e: React.MouseEvent, branch: Branch) => {
+    e.stopPropagation()
+    setEditingBranch(branch)
+    setBranchEditForm({
+      bhf_id: branch.bhf_id || "",
+      device_token: branch.device_token || "",
+      server_address: branch.server_address || "",
+      server_port: branch.server_port || "",
+      kra_pin: branch.kra_pin || ""
+    })
+    setBranchEditDialogOpen(true)
+  }
+
+  const handleSaveBranchEdit = async () => {
+    if (!editingBranch || !selectedMerchant) return
+
+    try {
+      const response = await fetch(`/api/admin/vendors/${selectedMerchant.id}/branches`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branch_id: editingBranch.id,
+          ...branchEditForm
+        })
+      })
+
+      if (!response.ok) throw new Error("Failed to update branch")
+
+      toast.success("Branch KRA configuration updated")
+      setBranchEditDialogOpen(false)
+      fetchMerchantDetails(selectedMerchant)
+    } catch (error) {
+      toast.error("Failed to update branch configuration")
     }
   }
 
@@ -320,21 +370,41 @@ export default function MerchantsPage() {
                               <Store className="h-5 w-5 text-green-600" />
                             </div>
                             <div>
-                              <p className="font-medium">{branch.bhf_nm}</p>
+                              <p className="font-medium">{branch.name || branch.trading_name}</p>
                               <p className="text-sm text-slate-500">{branch.address || "No address"}</p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <Badge variant="outline" className="font-mono">
-                              BHF-ID: {branch.bhf_id}
-                            </Badge>
-                            <div className="mt-1">
-                              <Badge className={getStatusColor(branch.status || 'active')}>
-                                {branch.status || 'active'}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleBranchEditClick(e, branch)}
+                              title="Edit KRA Configuration"
+                            >
+                              <Settings className="h-4 w-4" />
+                            </Button>
+                            <div className="text-right">
+                              <Badge variant="outline" className="font-mono">
+                                BHF-ID: {branch.bhf_id || "Not set"}
                               </Badge>
+                              <div className="mt-1">
+                                <Badge className={getStatusColor(branch.status || 'active')}>
+                                  {branch.status || 'active'}
+                                </Badge>
+                              </div>
                             </div>
                           </div>
                         </div>
+                        {(branch.server_address || branch.device_token) && (
+                          <div className="mt-3 pt-3 border-t text-xs text-slate-500 space-y-1">
+                            {branch.server_address && (
+                              <p>Server: {branch.server_address}:{branch.server_port || "8088"}</p>
+                            )}
+                            {branch.device_token && (
+                              <p>Token: {branch.device_token.substring(0, 8)}...{branch.device_token.substring(branch.device_token.length - 4)}</p>
+                            )}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))
@@ -440,6 +510,83 @@ export default function MerchantsPage() {
               </Button>
               <Button onClick={handleSaveEdit}>
                 Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={branchEditDialogOpen} onOpenChange={setBranchEditDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Edit Branch KRA Configuration
+            </DialogTitle>
+            <DialogDescription>
+              Update KRA TIMS settings for {editingBranch?.name || editingBranch?.trading_name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="branch-bhf-id">Branch ID (BHF ID)</Label>
+              <Input
+                id="branch-bhf-id"
+                value={branchEditForm.bhf_id}
+                onChange={(e) => setBranchEditForm({ ...branchEditForm, bhf_id: e.target.value })}
+                placeholder="00"
+              />
+              <p className="text-xs text-muted-foreground">
+                KRA Branch ID (e.g., 00 for main branch)
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="branch-kra-pin">KRA PIN</Label>
+              <Input
+                id="branch-kra-pin"
+                value={branchEditForm.kra_pin}
+                onChange={(e) => setBranchEditForm({ ...branchEditForm, kra_pin: e.target.value })}
+                placeholder="P000000000X"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="branch-device-token">Device Token</Label>
+              <Input
+                id="branch-device-token"
+                value={branchEditForm.device_token}
+                onChange={(e) => setBranchEditForm({ ...branchEditForm, device_token: e.target.value })}
+                placeholder="Enter device token"
+              />
+              <p className="text-xs text-muted-foreground">
+                KRA VSCU device token for this branch
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="branch-server-address">Server Address</Label>
+                <Input
+                  id="branch-server-address"
+                  value={branchEditForm.server_address}
+                  onChange={(e) => setBranchEditForm({ ...branchEditForm, server_address: e.target.value })}
+                  placeholder="5.189.171.160"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="branch-server-port">Server Port</Label>
+                <Input
+                  id="branch-server-port"
+                  value={branchEditForm.server_port}
+                  onChange={(e) => setBranchEditForm({ ...branchEditForm, server_port: e.target.value })}
+                  placeholder="8088"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setBranchEditDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveBranchEdit}>
+                Save Configuration
               </Button>
             </div>
           </div>
