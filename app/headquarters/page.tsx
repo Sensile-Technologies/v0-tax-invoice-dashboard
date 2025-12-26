@@ -101,30 +101,49 @@ export default function HeadquartersPage() {
   const { formatCurrency } = useCurrency()
 
   useEffect(() => {
-    const currentUser = getCurrentUser()
-    if (currentUser) {
-      const role = (currentUser.role || '').toLowerCase()
-      const restrictedRoles = ['supervisor', 'manager', 'cashier']
-      if (restrictedRoles.includes(role)) {
-        setAccessDenied(true)
-        const branchId = currentUser.branch_id
-        setTimeout(() => {
-          if (branchId) {
-            router.replace(`/sales/summary?branch=${branchId}`)
-          } else {
-            router.replace('/sales/summary')
-          }
-        }, 100)
-        return
+    const checkAccess = async () => {
+      // First check localStorage for immediate feedback
+      const currentUser = getCurrentUser()
+      if (currentUser) {
+        const localRole = (currentUser.role || '').toLowerCase()
+        const restrictedRoles = ['supervisor', 'manager', 'cashier']
+        if (restrictedRoles.includes(localRole)) {
+          setAccessDenied(true)
+          const branchId = currentUser.branch_id
+          router.replace(branchId ? `/sales/summary?branch=${branchId}` : '/sales/summary')
+          return
+        }
       }
+      
+      // Always verify role from server (don't trust localStorage alone)
+      try {
+        const response = await fetch('/api/headquarters/stats', { 
+          credentials: 'include',
+          method: 'GET'
+        })
+        if (response.status === 401 || response.status === 403) {
+          setAccessDenied(true)
+          const branchId = currentUser?.branch_id
+          router.replace(branchId ? `/sales/summary?branch=${branchId}` : '/sales/summary')
+          return
+        }
+        if (response.ok) {
+          const data = await response.json()
+          setHqStats(data)
+          setIsLoadingStats(false)
+        }
+      } catch (error) {
+        console.error('Error checking HQ access:', error)
+      }
+      setIsCheckingAccess(false)
     }
-    setIsCheckingAccess(false)
+    checkAccess()
   }, [router])
 
   useEffect(() => {
     if (!isCheckingAccess && !accessDenied) {
       fetchBranches()
-      fetchHQStats()
+      // Stats already fetched during access check
     }
   }, [isCheckingAccess, accessDenied])
 
