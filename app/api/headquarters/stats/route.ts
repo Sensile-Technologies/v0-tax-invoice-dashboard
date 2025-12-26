@@ -1,57 +1,85 @@
 import { NextResponse } from 'next/server';
 import { pool, query } from '@/lib/db';
+import { cookies } from 'next/headers';
 
-async function getUserVendorFilter(userId: string | null): Promise<{ vendorId: string | null; branchIds: string[] | null }> {
-  if (!userId) {
-    return { vendorId: null, branchIds: null };
+async function getSessionUserId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get("user_session");
+    if (!sessionCookie?.value) return null;
+    
+    const session = JSON.parse(sessionCookie.value);
+    return session.id || null;
+  } catch {
+    return null;
   }
+}
 
+async function getUserRoleAndVendorFilter(userId: string): Promise<{ role: string | null; vendorId: string | null; branchIds: string[] | null }> {
   let vendorId: string | null = null;
+  let role: string | null = null;
   
   const userResult = await query(
-    `SELECT v.id as vendor_id FROM users u 
-     JOIN vendors v ON v.email = u.email 
+    `SELECT u.role, v.id as vendor_id FROM users u 
+     LEFT JOIN vendors v ON v.email = u.email 
      WHERE u.id = $1`,
     [userId]
   );
   if (userResult && userResult.length > 0) {
     vendorId = userResult[0].vendor_id;
+    role = userResult[0].role;
   }
   
   if (!vendorId) {
     const staffResult = await query(
-      `SELECT DISTINCT b.vendor_id FROM staff s
+      `SELECT DISTINCT b.vendor_id, s.role FROM staff s
        JOIN branches b ON s.branch_id = b.id
        WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
       [userId]
     );
     if (staffResult && staffResult.length > 0) {
       vendorId = staffResult[0].vendor_id;
+      if (!role) role = staffResult[0].role;
     }
   }
   
   if (!vendorId) {
     const staffBranchIds = await query(
-      `SELECT branch_id FROM staff WHERE user_id = $1`,
+      `SELECT branch_id, role FROM staff WHERE user_id = $1`,
       [userId]
     );
     if (staffBranchIds && staffBranchIds.length > 0) {
-      return { vendorId: null, branchIds: staffBranchIds.map((s: any) => s.branch_id) };
+      if (!role) role = staffBranchIds[0].role;
+      return { role, vendorId: null, branchIds: staffBranchIds.map((s: any) => s.branch_id) };
     }
-    return { vendorId: null, branchIds: [] };
+    return { role, vendorId: null, branchIds: [] };
   }
   
-  return { vendorId, branchIds: null };
+  return { role, vendorId, branchIds: null };
 }
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('user_id');
+    const userId = await getSessionUserId();
     
-    const { vendorId, branchIds } = await getUserVendorFilter(userId);
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please log in.' },
+        { status: 401 }
+      );
+    }
     
-    if (userId && !vendorId && branchIds && branchIds.length === 0) {
+    const { role, vendorId, branchIds } = await getUserRoleAndVendorFilter(userId);
+    
+    const restrictedRoles = ['supervisor', 'manager', 'cashier'];
+    if (role && restrictedRoles.includes(role.toLowerCase())) {
+      return NextResponse.json(
+        { error: 'Access denied. You do not have permission to view headquarters data.' },
+        { status: 403 }
+      );
+    }
+    
+    if (!vendorId && branchIds && branchIds.length === 0) {
       return NextResponse.json({
         totalRevenue: 0,
         revenueGrowth: 0,

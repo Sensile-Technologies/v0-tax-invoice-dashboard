@@ -121,32 +121,23 @@ export default function HeadquartersPage() {
     setIsCheckingAccess(false)
   }, [router])
 
-  if (isCheckingAccess || accessDenied) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="text-center text-white">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>{accessDenied ? "Redirecting to your branch..." : "Checking access..."}</p>
-        </div>
-      </div>
-    )
-  }
-
   useEffect(() => {
-    fetchBranches()
-    fetchHQStats()
-  }, [])
+    if (!isCheckingAccess && !accessDenied) {
+      fetchBranches()
+      fetchHQStats()
+    }
+  }, [isCheckingAccess, accessDenied])
 
   const fetchHQStats = async () => {
     try {
       setIsLoadingStats(true)
-      const currentUser = getCurrentUser()
-      const userId = currentUser?.id
-      const url = userId ? `/api/headquarters/stats?user_id=${userId}` : '/api/headquarters/stats'
-      const response = await fetch(url)
+      const response = await fetch('/api/headquarters/stats', { credentials: 'include' })
       if (response.ok) {
         const data = await response.json()
         setHqStats(data)
+      } else if (response.status === 403) {
+        setAccessDenied(true)
+        router.replace('/sales/summary')
       }
     } catch (error) {
       console.error('Error fetching HQ stats:', error)
@@ -807,6 +798,17 @@ export default function HeadquartersPage() {
       console.error("Error updating branch status:", error)
       alert(`Error updating branch status. Please try again.`)
     }
+  }
+
+  if (isCheckingAccess || accessDenied) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="text-center text-white">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>{accessDenied ? "Redirecting to your branch..." : "Checking access..."}</p>
+        </div>
+      </div>
+    )
   }
 
   return (
