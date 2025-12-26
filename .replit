@@ -61,3 +61,7 @@ run = ["npm", "run", "start"]
 [userenv]
 
 [userenv.production]
+KRA_VSCU_URL = "http://5.189.171.160:8088"
+
+[userenv.development]
+KRA_VSCU_URL = "http://20.224.40.56:8088"

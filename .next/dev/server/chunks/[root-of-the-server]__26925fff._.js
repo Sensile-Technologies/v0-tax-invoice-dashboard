@@ -148,7 +148,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ]);
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
-const KRA_BASE_URL = "http://20.224.40.56:8088";
+const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088";
 const STOCK_ENDPOINT = "/stock/saveStockItems";
 const SAR_TYPE_CODES = {
     initial_stock: "01",
