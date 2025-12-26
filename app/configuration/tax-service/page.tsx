@@ -48,10 +48,10 @@ export default function TaxServiceConfigurationPage() {
         const parsed = JSON.parse(config)
         return parsed.port ? `${parsed.url}:${parsed.port}` : parsed.url
       } catch {
-        return "http://20.224.40.56:8088"
+        return "http://5.189.171.160:8088"
       }
     }
-    return "http://20.224.40.56:8088"
+    return "http://5.189.171.160:8088"
   }
 
   const getSelectedBranchId = () => {

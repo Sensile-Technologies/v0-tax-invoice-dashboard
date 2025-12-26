@@ -304,7 +304,7 @@ export default function SecuritySettingsPage() {
                         <code className="bg-amber-100 px-1 rounded">https://</code> protocol.
                       </p>
                       <p className="text-sm text-amber-800 mt-2">
-                        Example: <code className="bg-amber-100 px-1 rounded">https://20.224.40.56:8088</code>
+                        Example: <code className="bg-amber-100 px-1 rounded">http://5.189.171.160:8088</code>
                       </p>
                     </div>
                   </div>
@@ -332,13 +332,13 @@ export default function SecuritySettingsPage() {
                           <Input
                             id="backendUrl"
                             type="url"
-                            placeholder="https://20.224.40.56:8088"
+                            placeholder="http://5.189.171.160:8088"
                             value={backendUrl}
                             onChange={(e) => setBackendUrl(e.target.value)}
                             className="rounded-lg"
                           />
                           <p className="text-xs text-muted-foreground">
-                            Enter the full URL with HTTPS protocol (e.g., https://20.224.40.56:8088). KRA TIMS requires HTTPS.
+                            Enter the full URL with protocol (e.g., http://5.189.171.160:8088).
                           </p>
                         </div>
 

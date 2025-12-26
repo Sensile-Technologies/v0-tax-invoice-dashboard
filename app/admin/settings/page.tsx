@@ -22,7 +22,7 @@ interface ConnectedBranch {
 
 export default function SettingsPage() {
   const [backendConfig, setBackendConfig] = useState({
-    url: "http://20.224.40.56",
+    url: "http://5.189.171.160",
     port: "8088"
   })
   const [billingSettings, setBillingSettings] = useState({
