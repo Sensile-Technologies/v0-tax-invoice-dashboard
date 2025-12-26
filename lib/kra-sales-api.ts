@@ -1,8 +1,9 @@
 import { query } from "@/lib/db"
 import { logApiCall } from "@/lib/api-logger"
 import { syncStockAfterSale, syncStockAfterCreditNote } from "@/lib/kra-stock-sync"
+import { buildKraBaseUrl } from "@/lib/kra-url-helper"
 
-const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
+const DEFAULT_KRA_URL = process.env.KRA_VSCU_URL || "http://5.189.171.160:8088"
 
 interface KraSaleData {
   branch_id: string
@@ -287,7 +288,8 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       ]
     }
 
-    const kraEndpoint = `${KRA_BASE_URL}/trnsSales/saveSales`
+    const kraBaseUrl = buildKraBaseUrl(branchConfig.server_address, branchConfig.server_port)
+    const kraEndpoint = `${kraBaseUrl}/trnsSales/saveSales`
     
     console.log(`[KRA Sales API] Calling endpoint: ${kraEndpoint}`)
     console.log(`[KRA Sales API] Request payload:`, JSON.stringify(kraPayload, null, 2))
@@ -403,7 +405,7 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       durationMs,
       branchId: saleData.branch_id,
       error: error.message,
-      externalEndpoint: `${KRA_BASE_URL}/trnsSales/saveSales`
+      externalEndpoint: `${DEFAULT_KRA_URL}/trnsSales/saveSales`
     })
 
     return {
@@ -582,7 +584,8 @@ export async function callKraCreditNote(creditNoteData: CreditNoteData): Promise
       itemList: itemList
     }
 
-    const kraEndpoint = `${KRA_BASE_URL}/trnsSales/saveSales`
+    const kraBaseUrl = buildKraBaseUrl(branchConfig.server_address, branchConfig.server_port)
+    const kraEndpoint = `${kraBaseUrl}/trnsSales/saveSales`
     
     console.log(`[KRA Credit Note API] Calling endpoint: ${kraEndpoint}`)
     console.log(`[KRA Credit Note API] Request payload:`, JSON.stringify(kraPayload, null, 2))

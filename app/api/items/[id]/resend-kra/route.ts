@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
-
-const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
+import { buildKraBaseUrl } from "@/lib/kra-url-helper"
 
 export async function POST(
   request: NextRequest,
@@ -20,7 +19,9 @@ export async function POST(
     }
 
     const itemResult = await query(`
-      SELECT i.*, v.kra_pin, b.bhf_id
+      SELECT i.*, COALESCE(b.kra_pin, v.kra_pin) as kra_pin, b.bhf_id,
+             COALESCE(b.server_address, '5.189.171.160') as server_address,
+             COALESCE(b.server_port, '8088') as server_port
       FROM items i
       JOIN vendors v ON v.id = i.vendor_id
       JOIN branches b ON b.id = i.branch_id
@@ -82,7 +83,8 @@ export async function POST(
       modrId: "Admin"
     }
 
-    const kraEndpoint = `${KRA_BASE_URL}/items/saveItems`
+    const kraBaseUrl = buildKraBaseUrl(item.server_address, item.server_port)
+    const kraEndpoint = `${kraBaseUrl}/items/saveItems`
     
     console.log(`[Items API] Calling KRA endpoint: ${kraEndpoint}`)
     console.log(`[Items API] Request payload:`, JSON.stringify(kraPayload, null, 2))

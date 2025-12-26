@@ -1,6 +1,7 @@
 import { query } from "@/lib/db/client"
 import { NextResponse } from "next/server"
 import { createApiLogger } from "@/lib/api-logger"
+import { buildKraBaseUrl } from "@/lib/kra-url-helper"
 
 export async function POST(request: Request) {
   const logger = createApiLogger("/api/kra/items/classifications", "POST")
@@ -9,17 +10,13 @@ export async function POST(request: Request) {
   let kraEndpoint = ""
 
   try {
-    let backendUrl = request.headers.get("x-backend-url") || process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
-    backendUrl = backendUrl.replace(/\/$/, "")
     const branchId = request.headers.get("x-branch-id")
-
-    console.log("[v0] Backend URL:", backendUrl)
     console.log("[v0] Branch ID from header:", branchId)
 
     let branch
     if (branchId) {
       const branches = await query(
-        "SELECT id, bhf_id, name, kra_pin FROM branches WHERE id = $1",
+        "SELECT id, bhf_id, name, kra_pin, COALESCE(server_address, '5.189.171.160') as server_address, COALESCE(server_port, '8088') as server_port FROM branches WHERE id = $1",
         [branchId]
       )
       if (branches && branches.length > 0) {
@@ -29,13 +26,16 @@ export async function POST(request: Request) {
     
     if (!branch) {
       const branches = await query(
-        "SELECT id, bhf_id, name, kra_pin FROM branches WHERE status = 'active' LIMIT 1"
+        "SELECT id, bhf_id, name, kra_pin, COALESCE(server_address, '5.189.171.160') as server_address, COALESCE(server_port, '8088') as server_port FROM branches WHERE status = 'active' LIMIT 1"
       )
       if (!branches || branches.length === 0) {
         throw new Error("No active branch found. Please configure a branch first.")
       }
       branch = branches[0]
     }
+    
+    const backendUrl = buildKraBaseUrl(branch.server_address, branch.server_port)
+    console.log("[v0] Backend URL:", backendUrl)
 
     if (!branch.bhf_id) {
       throw new Error(`Branch "${branch.name}" is not configured with a BHF ID. Please configure the branch first in Security Settings.`)

@@ -65,13 +65,13 @@ interface ItemData {
   branch_id: string
 }
 
-const DEFAULT_KRA_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
+const DEFAULT_KRA_URL = process.env.KRA_VSCU_URL || "http://5.189.171.160:8088"
 
 async function getBranchConfig(branchId: string): Promise<BranchConfig | null> {
   try {
     const result = await query(`
-      SELECT b.id, b.bhf_id, v.kra_pin, b.device_token, 
-             COALESCE(b.server_address, '20.224.40.56') as server_address, 
+      SELECT b.id, b.bhf_id, COALESCE(b.kra_pin, v.kra_pin) as kra_pin, b.device_token, 
+             COALESCE(b.server_address, '5.189.171.160') as server_address, 
              COALESCE(b.server_port, '8088') as server_port
       FROM branches b
       JOIN vendors v ON v.id = b.vendor_id

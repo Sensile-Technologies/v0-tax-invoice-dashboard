@@ -148,8 +148,46 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ]);
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
-const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088";
+const DEFAULT_KRA_URL = process.env.KRA_VSCU_URL || "http://5.189.171.160:8088";
 const STOCK_ENDPOINT = "/stock/saveStockItems";
+async function getBranchKraFullConfig(branchId) {
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+    SELECT b.kra_pin as tin, b.bhf_id,
+           COALESCE(b.server_address, '5.189.171.160') as server_address,
+           COALESCE(b.server_port, '8088') as server_port
+    FROM branches b
+    WHERE b.id = $1
+  `, [
+        branchId
+    ]);
+    if (result.length === 0) return null;
+    const branch = result[0];
+    if (!branch.tin) {
+        const vendorResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      SELECT v.kra_pin as tin 
+      FROM branches b 
+      JOIN vendors v ON v.id = b.vendor_id 
+      WHERE b.id = $1
+    `, [
+            branchId
+        ]);
+        if (vendorResult.length > 0 && vendorResult[0].tin) {
+            return {
+                tin: vendorResult[0].tin,
+                bhfId: branch.bhf_id || "00",
+                serverAddress: branch.server_address,
+                serverPort: branch.server_port
+            };
+        }
+        return null;
+    }
+    return {
+        tin: branch.tin,
+        bhfId: branch.bhf_id || "00",
+        serverAddress: branch.server_address,
+        serverPort: branch.server_port
+    };
+}
 const SAR_TYPE_CODES = {
     initial_stock: "01",
     stock_receive: "02",
@@ -271,7 +309,7 @@ async function createStockMovementRecord(branchId, kraPayload, kraResponse, http
     ]);
     return result[0].id;
 }
-async function logKraApiCall(endpoint, payload, response, statusCode, durationMs, branchId) {
+async function logKraApiCall(endpoint, payload, response, statusCode, durationMs, branchId, kraBaseUrl) {
     try {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
@@ -284,7 +322,7 @@ async function logKraApiCall(endpoint, payload, response, statusCode, durationMs
             statusCode,
             durationMs,
             branchId,
-            `${KRA_BASE_URL}${endpoint}`
+            `${kraBaseUrl || DEFAULT_KRA_URL}${endpoint}`
         ]);
     } catch (error) {
         console.error("[KRA Stock Service] Failed to log API call:", error);
@@ -293,14 +331,21 @@ async function logKraApiCall(endpoint, payload, response, statusCode, durationMs
 async function syncStockWithKRA(branchId, movementType, items, options) {
     const startTime = Date.now();
     try {
-        const kraInfo = await getBranchKraInfo(branchId);
-        if (!kraInfo) {
+        const kraConfig = await getBranchKraFullConfig(branchId);
+        if (!kraConfig) {
             return {
                 success: false,
                 kraResponse: null,
                 error: "Branch KRA info not configured (missing KRA PIN)"
             };
         }
+        const kraInfo = {
+            tin: kraConfig.tin,
+            bhfId: kraConfig.bhfId
+        };
+        const serverAddr = kraConfig.serverAddress?.replace(/^https?:\/\//, '') || '5.189.171.160';
+        const serverPort = kraConfig.serverPort || '8088';
+        const kraBaseUrl = `http://${serverAddr}:${serverPort}`;
         const sarNo = await getNextSarNo(branchId);
         const sarTyCd = SAR_TYPE_CODES[movementType] || "06";
         let totTaxblAmt = 0;
@@ -367,7 +412,7 @@ async function syncStockWithKRA(branchId, movementType, items, options) {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(()=>controller.abort(), 15000);
-            const response = await fetch(`${KRA_BASE_URL}${STOCK_ENDPOINT}`, {
+            const response = await fetch(`${kraBaseUrl}${STOCK_ENDPOINT}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -396,7 +441,7 @@ async function syncStockWithKRA(branchId, movementType, items, options) {
         }
         const duration = Date.now() - startTime;
         console.log(`[KRA Stock Service] Response (${duration}ms):`, JSON.stringify(kraResponse, null, 2));
-        await logKraApiCall(STOCK_ENDPOINT, payload, kraResponse, httpStatusCode, duration, branchId);
+        await logKraApiCall(STOCK_ENDPOINT, payload, kraResponse, httpStatusCode, duration, branchId, kraBaseUrl);
         const movementId = await createStockMovementRecord(branchId, payload, kraResponse, httpStatusCode, duration);
         const isSuccess = kraResponse?.resultCd === "000" || kraResponse?.resultCd === "0";
         if (isSuccess) {
@@ -430,7 +475,7 @@ async function syncStockWithKRA(branchId, movementType, items, options) {
                     try {
                         const stockMasterController = new AbortController();
                         const stockMasterTimeoutId = setTimeout(()=>stockMasterController.abort(), 15000);
-                        const response = await fetch(`${KRA_BASE_URL}/stockMaster/saveStockMaster`, {
+                        const response = await fetch(`${kraBaseUrl}/stockMaster/saveStockMaster`, {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
@@ -457,7 +502,7 @@ async function syncStockWithKRA(branchId, movementType, items, options) {
                         }
                     }
                     console.log(`[KRA Stock Service] saveStockMaster response for ${itemCd}:`, JSON.stringify(stockMasterResponse, null, 2));
-                    await logKraApiCall("/stockMaster/saveStockMaster", stockMasterPayload, stockMasterResponse, stockMasterStatusCode, Date.now() - stockMasterStartTime, branchId);
+                    await logKraApiCall("/stockMaster/saveStockMaster", stockMasterPayload, stockMasterResponse, stockMasterStatusCode, Date.now() - stockMasterStartTime, branchId, kraBaseUrl);
                 } catch (stockMasterError) {
                     console.error(`[KRA Stock Service] Error calling saveStockMaster for tank ${item.tankId}:`, stockMasterError.message);
                 }

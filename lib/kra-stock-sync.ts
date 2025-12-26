@@ -1,7 +1,33 @@
 import { query } from "@/lib/db"
 import { logApiCall } from "@/lib/api-logger"
+import { buildKraBaseUrl } from "@/lib/kra-url-helper"
 
-const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
+const DEFAULT_KRA_URL = process.env.KRA_VSCU_URL || "http://5.189.171.160:8088"
+
+interface BranchKraConfig {
+  tin: string
+  bhfId: string
+  serverAddress: string
+  serverPort: string
+}
+
+async function getBranchKraConfig(branchId: string): Promise<BranchKraConfig | null> {
+  const result = await query(`
+    SELECT b.kra_pin as tin, b.bhf_id, 
+           COALESCE(b.server_address, '5.189.171.160') as server_address, 
+           COALESCE(b.server_port, '8088') as server_port
+    FROM branches b
+    WHERE b.id = $1
+  `, [branchId])
+  
+  if (result.length === 0 || !result[0].tin) return null
+  return { 
+    tin: result[0].tin, 
+    bhfId: result[0].bhf_id || "00",
+    serverAddress: result[0].server_address,
+    serverPort: result[0].server_port
+  }
+}
 
 interface StockSyncItem {
   itemCode: string
@@ -77,14 +103,17 @@ async function callSaveStockItems(
 ): Promise<{ success: boolean; response: any; sarNo: number }> {
   const startTime = Date.now()
   
-  const kraInfo = await getBranchKraInfo(branchId)
-  if (!kraInfo) {
+  const kraConfig = await getBranchKraConfig(branchId)
+  if (!kraConfig) {
     return { 
       success: false, 
       response: { resultCd: "CONFIG_ERROR", resultMsg: "Branch KRA info not configured" },
       sarNo: 0 
     }
   }
+  
+  const kraInfo = { tin: kraConfig.tin, bhfId: kraConfig.bhfId }
+  const kraBaseUrl = buildKraBaseUrl(kraConfig.serverAddress, kraConfig.serverPort)
   
   const sarNo = await getNextSarNo(branchId)
   
@@ -154,7 +183,7 @@ async function callSaveStockItems(
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
     
-    const res = await fetch(`${KRA_BASE_URL}/stock/saveStockItems`, {
+    const res = await fetch(`${kraBaseUrl}/stock/saveStockItems`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -184,7 +213,7 @@ async function callSaveStockItems(
     statusCode: httpStatus,
     durationMs: duration,
     branchId,
-    externalEndpoint: `${KRA_BASE_URL}/stock/saveStockItems`
+    externalEndpoint: `${kraBaseUrl}/stock/saveStockItems`
   })
   
   const isSuccess = response?.resultCd === "000" || response?.resultCd === "0"
@@ -197,13 +226,16 @@ async function callSaveStockMaster(
 ): Promise<{ success: boolean; response: any }> {
   const startTime = Date.now()
   
-  const kraInfo = await getBranchKraInfo(branchId)
-  if (!kraInfo) {
+  const kraConfig = await getBranchKraConfig(branchId)
+  if (!kraConfig) {
     return { 
       success: false, 
       response: { resultCd: "CONFIG_ERROR", resultMsg: "Branch KRA info not configured" }
     }
   }
+  
+  const kraInfo = { tin: kraConfig.tin, bhfId: kraConfig.bhfId }
+  const kraBaseUrl = buildKraBaseUrl(kraConfig.serverAddress, kraConfig.serverPort)
   
   const tankResult = await query(`
     SELECT t.current_stock 
@@ -236,7 +268,7 @@ async function callSaveStockMaster(
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 15000)
     
-    const res = await fetch(`${KRA_BASE_URL}/stockMaster/saveStockMaster`, {
+    const res = await fetch(`${kraBaseUrl}/stockMaster/saveStockMaster`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -266,7 +298,7 @@ async function callSaveStockMaster(
     statusCode: httpStatus,
     durationMs: duration,
     branchId,
-    externalEndpoint: `${KRA_BASE_URL}/stockMaster/saveStockMaster`
+    externalEndpoint: `${kraBaseUrl}/stockMaster/saveStockMaster`
   })
   
   const isSuccess = response?.resultCd === "000" || response?.resultCd === "0"

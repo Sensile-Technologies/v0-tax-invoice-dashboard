@@ -23,8 +23,8 @@ export function getBackendConfig(): BackendConfig | null {
 export function getBackendUrl(): string {
   const config = getBackendConfig()
   if (!config) {
-    // Return default backend URL if not configured
-    return process.env.KRA_VSCU_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://20.224.40.56:8088"
+    // Return default backend URL if not configured (production KRA VSCU server)
+    return process.env.KRA_VSCU_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://5.189.171.160:8088"
   }
 
   return config.port ? `${config.url}:${config.port}` : config.url
@@ -32,7 +32,7 @@ export function getBackendUrl(): string {
 
 export function getBackendUrlFromRequest(request: Request): string {
   const backendUrl = request.headers.get("x-backend-url")
-  return backendUrl || process.env.KRA_VSCU_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://20.224.40.56:8088"
+  return backendUrl || process.env.KRA_VSCU_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://5.189.171.160:8088"
 }
 
 export function setBackendConfig(config: BackendConfig): void {

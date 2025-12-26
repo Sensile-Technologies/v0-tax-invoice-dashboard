@@ -1,7 +1,54 @@
 import { query } from "@/lib/db"
+import { buildKraBaseUrl } from "@/lib/kra-url-helper"
 
-const KRA_BASE_URL = process.env.KRA_VSCU_URL || "http://20.224.40.56:8088"
+const DEFAULT_KRA_URL = process.env.KRA_VSCU_URL || "http://5.189.171.160:8088"
 const STOCK_ENDPOINT = "/stock/saveStockItems"
+
+interface BranchKraFullConfig {
+  tin: string
+  bhfId: string
+  serverAddress: string
+  serverPort: string
+}
+
+async function getBranchKraFullConfig(branchId: string): Promise<BranchKraFullConfig | null> {
+  const result = await query(`
+    SELECT b.kra_pin as tin, b.bhf_id,
+           COALESCE(b.server_address, '5.189.171.160') as server_address,
+           COALESCE(b.server_port, '8088') as server_port
+    FROM branches b
+    WHERE b.id = $1
+  `, [branchId])
+  
+  if (result.length === 0) return null
+  
+  const branch = result[0]
+  if (!branch.tin) {
+    const vendorResult = await query(`
+      SELECT v.kra_pin as tin 
+      FROM branches b 
+      JOIN vendors v ON v.id = b.vendor_id 
+      WHERE b.id = $1
+    `, [branchId])
+    
+    if (vendorResult.length > 0 && vendorResult[0].tin) {
+      return { 
+        tin: vendorResult[0].tin, 
+        bhfId: branch.bhf_id || "00",
+        serverAddress: branch.server_address,
+        serverPort: branch.server_port
+      }
+    }
+    return null
+  }
+  
+  return { 
+    tin: branch.tin, 
+    bhfId: branch.bhf_id || "00",
+    serverAddress: branch.server_address,
+    serverPort: branch.server_port
+  }
+}
 
 export interface StockItem {
   itemSeq: number
@@ -188,7 +235,8 @@ export async function logKraApiCall(
   response: any,
   statusCode: number,
   durationMs: number,
-  branchId: string
+  branchId: string,
+  kraBaseUrl?: string
 ): Promise<void> {
   try {
     await query(`
@@ -202,7 +250,7 @@ export async function logKraApiCall(
       statusCode,
       durationMs,
       branchId,
-      `${KRA_BASE_URL}${endpoint}`
+      `${kraBaseUrl || DEFAULT_KRA_URL}${endpoint}`
     ])
   } catch (error) {
     console.error("[KRA Stock Service] Failed to log API call:", error)
@@ -230,10 +278,13 @@ export async function syncStockWithKRA(
   const startTime = Date.now()
   
   try {
-    const kraInfo = await getBranchKraInfo(branchId)
-    if (!kraInfo) {
+    const kraConfig = await getBranchKraFullConfig(branchId)
+    if (!kraConfig) {
       return { success: false, kraResponse: null, error: "Branch KRA info not configured (missing KRA PIN)" }
     }
+    
+    const kraInfo = { tin: kraConfig.tin, bhfId: kraConfig.bhfId }
+    const kraBaseUrl = buildKraBaseUrl(kraConfig.serverAddress, kraConfig.serverPort)
     
     const sarNo = await getNextSarNo(branchId)
     const sarTyCd = SAR_TYPE_CODES[movementType] || "06"
@@ -312,7 +363,7 @@ export async function syncStockWithKRA(
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 15000)
       
-      const response = await fetch(`${KRA_BASE_URL}${STOCK_ENDPOINT}`, {
+      const response = await fetch(`${kraBaseUrl}${STOCK_ENDPOINT}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -342,7 +393,7 @@ export async function syncStockWithKRA(
     const duration = Date.now() - startTime
     console.log(`[KRA Stock Service] Response (${duration}ms):`, JSON.stringify(kraResponse, null, 2))
     
-    await logKraApiCall(STOCK_ENDPOINT, payload, kraResponse, httpStatusCode, duration, branchId)
+    await logKraApiCall(STOCK_ENDPOINT, payload, kraResponse, httpStatusCode, duration, branchId, kraBaseUrl)
     
     const movementId = await createStockMovementRecord(branchId, payload, kraResponse, httpStatusCode, duration)
     
@@ -385,7 +436,7 @@ export async function syncStockWithKRA(
             const stockMasterController = new AbortController()
             const stockMasterTimeoutId = setTimeout(() => stockMasterController.abort(), 15000)
             
-            const response = await fetch(`${KRA_BASE_URL}/stockMaster/saveStockMaster`, {
+            const response = await fetch(`${kraBaseUrl}/stockMaster/saveStockMaster`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(stockMasterPayload),
@@ -413,7 +464,7 @@ export async function syncStockWithKRA(
           
           console.log(`[KRA Stock Service] saveStockMaster response for ${itemCd}:`, JSON.stringify(stockMasterResponse, null, 2))
           
-          await logKraApiCall("/stockMaster/saveStockMaster", stockMasterPayload, stockMasterResponse, stockMasterStatusCode, Date.now() - stockMasterStartTime, branchId)
+          await logKraApiCall("/stockMaster/saveStockMaster", stockMasterPayload, stockMasterResponse, stockMasterStatusCode, Date.now() - stockMasterStartTime, branchId, kraBaseUrl)
           
         } catch (stockMasterError: any) {
           console.error(`[KRA Stock Service] Error calling saveStockMaster for tank ${item.tankId}:`, stockMasterError.message)
