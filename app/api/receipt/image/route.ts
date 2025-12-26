@@ -187,7 +187,8 @@ export async function POST(request: Request) {
       const bhfId = sale.bhf_id || '03'
       const rcptSign = sale.kra_rcpt_sign || ''
       const qrData = `${kraPin}${bhfId}${rcptSign}`
-      const qrUrl = `https://etims.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
+      const kraPortal = process.env.NODE_ENV === 'production' ? 'etims.kra.go.ke' : 'etims-sbx.kra.go.ke'
+      const qrUrl = `https://${kraPortal}/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
       
       const qrCodeDataUrl = await QRCode.toDataURL(qrUrl, {
         width: 200,

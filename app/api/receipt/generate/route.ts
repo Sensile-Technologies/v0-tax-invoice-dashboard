@@ -214,7 +214,8 @@ export async function POST(request: Request) {
       const rcptSign = sale.kra_rcpt_sign || ''
       
       const qrData = `${kraPin}${bhfId}${rcptSign}`
-      const qrUrl = `https://etims.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
+      const kraPortal = process.env.NODE_ENV === 'production' ? 'etims.kra.go.ke' : 'etims-sbx.kra.go.ke'
+      const qrUrl = `https://${kraPortal}/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
 
       doc.setFontSize(8)
       doc.setFont("helvetica", "bold")
