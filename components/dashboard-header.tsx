@@ -55,12 +55,35 @@ export function DashboardHeader({
   ])
   const [currentBranchName, setCurrentBranchName] = useState("Headquarters")
   const [userName, setUserName] = useState("")
+  const [userRole, setUserRole] = useState<string>("")
+  const [canSwitchBranches, setCanSwitchBranches] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     const currentUser = getCurrentUser()
     if (currentUser) {
       setUserName(currentUser.username || currentUser.full_name || currentUser.email?.split('@')[0] || "User")
+      
+      const role = (currentUser.role || '').toLowerCase()
+      setUserRole(role)
+      
+      // Supervisors and Managers can only access their assigned branch - no switching allowed
+      const restrictedRoles = ['supervisor', 'manager']
+      const canSwitch = !restrictedRoles.includes(role)
+      setCanSwitchBranches(canSwitch)
+      
+      // For restricted roles, always use their assigned branch
+      if (!canSwitch && currentUser.branch_name && currentUser.branch_id) {
+        setCurrentBranchName(currentUser.branch_name)
+        setSelectedBranch(currentUser.branch_id)
+        localStorage.setItem("selectedBranch", JSON.stringify({
+          id: currentUser.branch_id,
+          name: currentUser.branch_name,
+          type: "branch",
+          status: "active"
+        }))
+        return
+      }
     }
     
     const storedBranch = localStorage.getItem("selectedBranch")
@@ -86,21 +109,43 @@ export function DashboardHeader({
     try {
       const currentUser = getCurrentUser()
       const userId = currentUser?.id
+      const role = (currentUser?.role || '').toLowerCase()
+      const restrictedRoles = ['supervisor', 'manager']
+      const isRestricted = restrictedRoles.includes(role)
+      
       const url = userId ? `/api/branches/list?user_id=${userId}` : "/api/branches/list"
       const response = await fetch(url)
 
       if (response.ok) {
         const data = await response.json()
-        const branchList = [
-          { id: "hq", name: "Headquarters", type: "headquarters", status: "active" },
-          ...data.map((b: any) => ({
-            id: b.id,
-            name: b.name,
-            type: "branch",
-            status: b.status || "active",
-          })),
-        ]
-        setBranches(branchList)
+        
+        // For restricted roles, only show their assigned branch (no HQ)
+        if (isRestricted) {
+          const assignedBranchId = currentUser?.branch_id
+          const assignedBranch = data.find((b: any) => b.id === assignedBranchId)
+          if (assignedBranch) {
+            setBranches([{
+              id: assignedBranch.id,
+              name: assignedBranch.name,
+              type: "branch",
+              status: assignedBranch.status || "active",
+            }])
+          } else {
+            setBranches([])
+          }
+        } else {
+          // Directors, vendors, and other roles can see HQ + all branches
+          const branchList = [
+            { id: "hq", name: "Headquarters", type: "headquarters", status: "active" },
+            ...data.map((b: any) => ({
+              id: b.id,
+              name: b.name,
+              type: "branch",
+              status: b.status || "active",
+            })),
+          ]
+          setBranches(branchList)
+        }
       }
     } catch (error) {
       // Silently ignore network errors during HMR/development
@@ -110,6 +155,12 @@ export function DashboardHeader({
   }
 
   const handleBranchChange = (branchId: string) => {
+    // Security: Block branch switching for restricted roles
+    if (!canSwitchBranches) {
+      console.warn("Branch switching is not allowed for this role")
+      return
+    }
+    
     setSelectedBranch(branchId)
     if (branchId === "hq") {
       localStorage.removeItem("selectedBranch")
@@ -166,38 +217,45 @@ export function DashboardHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2 rounded-xl bg-transparent">
-              <Building2 className="h-4 w-4" />
-              <span className="hidden sm:inline">{currentBranchName}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80 rounded-xl">
-            <DropdownMenuLabel>Switch Branch</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {branches.map((branch) => (
-              <DropdownMenuItem
-                key={branch.id}
-                onClick={() => {
-                  if (branch.status === "pending_onboarding") {
-                    return
-                  }
-                  handleBranchChange(branch.id)
-                }}
-                className={`cursor-pointer rounded-lg ${branch.status === "pending_onboarding" ? "opacity-60" : ""}`}
-              >
-                <Building2 className="mr-2 h-4 w-4" />
-                <span>{branch.name}</span>
-                {branch.status === "pending_onboarding" ? (
-                  <Badge variant="outline" className="ml-auto rounded-full text-orange-600 border-orange-300">Pending Admin Approval</Badge>
-                ) : branch.id === selectedBranch ? (
-                  <Badge className="ml-auto rounded-full">Active</Badge>
-                ) : null}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {canSwitchBranches ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2 rounded-xl bg-transparent">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">{currentBranchName}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 rounded-xl">
+              <DropdownMenuLabel>Switch Branch</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {branches.map((branch) => (
+                <DropdownMenuItem
+                  key={branch.id}
+                  onClick={() => {
+                    if (branch.status === "pending_onboarding") {
+                      return
+                    }
+                    handleBranchChange(branch.id)
+                  }}
+                  className={`cursor-pointer rounded-lg ${branch.status === "pending_onboarding" ? "opacity-60" : ""}`}
+                >
+                  <Building2 className="mr-2 h-4 w-4" />
+                  <span>{branch.name}</span>
+                  {branch.status === "pending_onboarding" ? (
+                    <Badge variant="outline" className="ml-auto rounded-full text-orange-600 border-orange-300">Pending Admin Approval</Badge>
+                  ) : branch.id === selectedBranch ? (
+                    <Badge className="ml-auto rounded-full">Active</Badge>
+                  ) : null}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border bg-muted/50">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <span className="hidden sm:inline text-sm">{currentBranchName}</span>
+          </div>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

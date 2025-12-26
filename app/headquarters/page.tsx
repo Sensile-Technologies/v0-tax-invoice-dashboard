@@ -80,6 +80,24 @@ export default function HeadquartersPage() {
   const [editingBranch, setEditingBranch] = useState<any>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Role-based access control: Supervisors and Managers cannot access HQ
+  useEffect(() => {
+    const currentUser = getCurrentUser()
+    if (currentUser) {
+      const role = (currentUser.role || '').toLowerCase()
+      const restrictedRoles = ['supervisor', 'manager']
+      if (restrictedRoles.includes(role)) {
+        // Redirect to their branch page
+        const branchId = currentUser.branch_id
+        if (branchId) {
+          router.replace(`/sales/summary?branch=${branchId}`)
+        } else {
+          router.replace('/sales/summary')
+        }
+      }
+    }
+  }, [router])
+
   const [globalUploadsOpen, setGlobalUploadsOpen] = useState(false)
   const [uploadFile, setUploadFile] = useState<File | null>(null)
 

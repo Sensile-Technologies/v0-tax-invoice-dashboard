@@ -125,6 +125,14 @@ export async function POST(request: Request) {
         )
       }
 
+      // Block cashiers from web dashboard - they can only use the mobile APK
+      if (user.role && user.role.toLowerCase() === 'cashier') {
+        return NextResponse.json(
+          { error: { message: "Cashiers can only access the system through the mobile app. Please use the Flow360 mobile application." } },
+          { status: 403 }
+        )
+      }
+
       // Check if vendor's branch has been activated (device_token configured)
       // Only applies to vendors, not admin or sales users
       if (user.vendor_id && user.branch_id) {
