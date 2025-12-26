@@ -217,7 +217,7 @@ export function DashboardHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        {canSwitchBranches ? (
+        {canSwitchBranches && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="gap-2 rounded-xl bg-transparent">
@@ -250,11 +250,6 @@ export function DashboardHeader({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border bg-muted/50">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <span className="hidden sm:inline text-sm">{currentBranchName}</span>
-          </div>
         )}
 
         <DropdownMenu>
