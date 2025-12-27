@@ -185,12 +185,12 @@ class PrinterService {
       
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
-      await SunmiPrinterLibrary.setFontSize(32);
+      await SunmiPrinterLibrary.setFontSize(28);
       await SunmiPrinterLibrary.printText(`${invoiceType}\n`);
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`${invoice.branchName}\n`);
       await SunmiPrinterLibrary.setTextStyle('bold', false);
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       if (invoice.branchAddress) {
         await SunmiPrinterLibrary.printText(`${invoice.branchAddress}\n`);
       }
@@ -204,11 +204,11 @@ class PrinterService {
       }
       
       await SunmiPrinterLibrary.setTextStyle('bold', true);
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('BUYER INFORMATION\n');
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.printText(`Buyer PIN: ${invoice.customerPin || 'NOT PROVIDED'}\n`);
       await SunmiPrinterLibrary.printText(`Buyer Name: ${invoice.customerName || 'Walk-in Customer'}\n`);
@@ -216,11 +216,11 @@ class PrinterService {
       
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('PRODUCT DETAILS\n');
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       
       for (const item of invoice.items) {
         const lineTotal = (item.quantity * item.unitPrice) - (item.discount || 0);
@@ -233,16 +233,16 @@ class PrinterService {
           await SunmiPrinterLibrary.printText(`Discount: -${item.discount.toFixed(2)}\n`);
         }
         await SunmiPrinterLibrary.setTextStyle('bold', true);
-        await SunmiPrinterLibrary.setFontSize(30);
+        await SunmiPrinterLibrary.setFontSize(26);
         await SunmiPrinterLibrary.printText(`TOTAL: ${this.formatCurrency(lineTotal)}\n`);
         await SunmiPrinterLibrary.setTextStyle('bold', false);
       }
       
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('TAX BREAKDOWN\n');
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('Rate    Taxable     VAT\n');
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       
@@ -251,7 +251,7 @@ class PrinterService {
       const taxable16 = invoice.taxableAmount || 0;
       const vat16 = invoice.totalTax || 0;
       
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`EX  ${this.formatCurrency(taxExempt).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.printText(`16% ${this.formatCurrency(taxable16).padStart(10)} ${this.formatCurrency(vat16).padStart(9)}\n`);
@@ -259,10 +259,10 @@ class PrinterService {
       await SunmiPrinterLibrary.printText(`0%  ${this.formatCurrency(taxZeroRated).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}\n`);
       
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       if (invoice.cuSerialNumber) {
         await SunmiPrinterLibrary.printText(`SCU ID: ${invoice.cuSerialNumber}\n`);
@@ -278,7 +278,7 @@ class PrinterService {
       }
       
       await SunmiPrinterLibrary.setAlignment('left');
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`Receipt No: ${invoice.receiptNo || invoice.invoiceNumber}\n`);
       await SunmiPrinterLibrary.printText(`Served by: ${invoice.cashierName}\n`);
       await SunmiPrinterLibrary.printText(`Payment: ${invoice.paymentMethod.toLowerCase()}\n`);
@@ -287,10 +287,10 @@ class PrinterService {
       const qrData = invoice.qrCodeData || 
         `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
       await SunmiPrinterLibrary.printQRCode(qrData, 6, 'middle');
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('Scan to verify with KRA eTIMS\n');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
-      await SunmiPrinterLibrary.setFontSize(30);
+      await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('END OF LEGAL RECEIPT\n');
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.lineWrap(3);
