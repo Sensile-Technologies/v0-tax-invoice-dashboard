@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { Toaster } from "sonner"
 import { 
   LayoutDashboard, 
   Users, 
@@ -126,6 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <Toaster position="top-right" richColors />
       <header className="bg-[#0a1628] text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
