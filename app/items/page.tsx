@@ -48,16 +48,29 @@ export default function ItemsListPage() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const storedUser = localStorage.getItem("user")
         let branchId = ""
         
-        if (storedUser) {
-          const user = JSON.parse(storedUser)
-          branchId = user.branchId || user.branch_id || ""
+        const storedBranch = localStorage.getItem("selectedBranch")
+        if (storedBranch) {
+          const branch = JSON.parse(storedBranch)
+          branchId = branch.id || ""
+        }
+        
+        if (!branchId) {
+          const storedUser = localStorage.getItem("user")
+          if (storedUser) {
+            const user = JSON.parse(storedUser)
+            branchId = user.branch_id || user.branchId || ""
+          }
         }
 
-        const url = branchId ? `/api/items?branchId=${branchId}` : "/api/items"
-        const response = await fetch(url)
+        if (!branchId || branchId === "hq") {
+          setItems([])
+          setLoading(false)
+          return
+        }
+
+        const response = await fetch(`/api/items?branchId=${branchId}`)
         const result = await response.json()
 
         if (result.success) {

@@ -64,20 +64,38 @@ export default function AddItemPage() {
 
   useEffect(() => {
     const initUserData = async () => {
+      let vendorId = ""
+      let branchId = ""
+      let bhfId = ""
+      
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (storedBranch) {
+        try {
+          const branch = JSON.parse(storedBranch)
+          branchId = branch.id || ""
+        } catch (e) {
+          console.error("Failed to parse selected branch:", e)
+        }
+      }
+      
       const storedUser = localStorage.getItem("user")
       if (storedUser) {
         try {
           const user = JSON.parse(storedUser)
-          let vendorId = user.vendorId || user.vendor_id
-          let branchId = user.branchId || user.branch_id
-          let bhfId = user.bhfId || user.bhf_id
+          vendorId = user.vendorId || user.vendor_id || ""
+          if (!branchId) {
+            branchId = user.branchId || user.branch_id || ""
+          }
+          bhfId = user.bhfId || user.bhf_id || ""
 
           if (!vendorId || !branchId) {
             const response = await fetch(`/api/auth/session?userId=${user.id}`)
             const result = await response.json()
             if (result.success && result.user) {
               vendorId = result.user.vendor_id
-              branchId = result.user.branch_id
+              if (!branchId) {
+                branchId = result.user.branch_id
+              }
               bhfId = result.user.bhf_id
               const updatedUser = { ...user, vendor_id: vendorId, branch_id: branchId, bhf_id: bhfId }
               localStorage.setItem("user", JSON.stringify(updatedUser))

@@ -29,16 +29,30 @@ export default function InventoryValuationPage() {
   const fetchInventory = useCallback(async () => {
     try {
       setLoading(true)
-      const storedBranch = localStorage.getItem("selectedBranch")
       let branchId = ""
       
+      const storedBranch = localStorage.getItem("selectedBranch")
       if (storedBranch) {
         const branch = JSON.parse(storedBranch)
-        branchId = branch.id
+        branchId = branch.id || ""
+      }
+      
+      if (!branchId) {
+        const storedUser = localStorage.getItem("user")
+        if (storedUser) {
+          const user = JSON.parse(storedUser)
+          branchId = user.branch_id || user.branchId || ""
+        }
+      }
+
+      if (!branchId || branchId === "hq") {
+        setInventoryData([])
+        setLoading(false)
+        return
       }
 
       const params = new URLSearchParams()
-      if (branchId) params.append("branchId", branchId)
+      params.append("branchId", branchId)
       if (searchQuery) params.append("search", searchQuery)
 
       const response = await fetch(`/api/items?${params.toString()}`)
