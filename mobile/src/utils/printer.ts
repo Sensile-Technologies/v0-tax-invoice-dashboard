@@ -120,14 +120,25 @@ class PrinterService {
 
   // Print receipt as image - best for smooth printing without pulsing
   async printReceiptImage(imageBase64: string): Promise<{ success: boolean; message: string }> {
+    sendPrintLog('image_print_start', 'start', 'Starting image print', {
+      isSunmiDevice: this.isSunmiDevice,
+      hasSunmiLib: !!SunmiPrinterLibrary,
+      imageLength: imageBase64?.length || 0
+    });
+
     if (!this.isSunmiDevice || !SunmiPrinterLibrary) {
       console.log('[PrinterService] Sunmi not available for image printing');
+      sendPrintLog('image_print_unavailable', 'error', 'Sunmi printer not available', {
+        isSunmiDevice: this.isSunmiDevice,
+        hasSunmiLib: !!SunmiPrinterLibrary
+      });
       return { success: false, message: 'Sunmi printer not available' };
     }
 
     try {
       console.log('[PrinterService] === IMAGE PRINT START ===');
       console.log('[PrinterService] Image base64 length:', imageBase64.length);
+      sendPrintLog('image_print_processing', 'info', `Processing image, length: ${imageBase64.length}`);
       
       // Ensure data URI prefix is present (printImage requires it)
       let imageData = imageBase64;
@@ -135,19 +146,26 @@ class PrinterService {
         imageData = `data:image/png;base64,${imageBase64}`;
       }
       
+      sendPrintLog('image_print_alignment', 'info', 'Setting alignment');
       await SunmiPrinterLibrary.setAlignment('center');
       
       // Use printImage method with binary mode for faster printing
+      sendPrintLog('image_print_sending', 'info', 'Sending image to printer');
       await SunmiPrinterLibrary.printImage(imageData, 384, 'binary');
       
       // Add some line feeds at the end
       await SunmiPrinterLibrary.lineWrap(3);
       
       console.log('[PrinterService] === IMAGE PRINT SUCCESS ===');
+      sendPrintLog('image_print_complete', 'success', 'Receipt printed successfully');
       return { success: true, message: 'Receipt printed successfully' };
     } catch (error: any) {
       console.error('[PrinterService] === IMAGE PRINT ERROR ===');
       console.error('[PrinterService] Error:', error?.message || error);
+      sendPrintLog('image_print_error', 'error', error?.message || 'Image print failed', {
+        errorName: error?.name,
+        errorStack: error?.stack?.substring(0, 500)
+      });
       return { success: false, message: error?.message || 'Image print failed' };
     }
   }
