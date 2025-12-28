@@ -37,14 +37,14 @@ export async function GET(request: Request) {
           c.branch_id,
           b.name as branch_name,
           COALESCE(
-            (SELECT SUM(lt.points_earned) FROM loyalty_transactions lt WHERE lt.customer_phone = c.tel_no AND lt.branch_id = c.branch_id),
+            (SELECT SUM(lt.points_earned) FROM loyalty_transactions lt WHERE lt.customer_pin = c.cust_tin AND lt.branch_id = c.branch_id),
             0
           ) as total_points,
           COALESCE(
             (SELECT COUNT(*) FROM sales s WHERE s.customer_name = c.cust_nm AND s.branch_id = c.branch_id),
             0
           ) as total_purchases,
-          (SELECT MAX(lt.transaction_date) FROM loyalty_transactions lt WHERE lt.customer_phone = c.tel_no AND lt.branch_id = c.branch_id) as last_activity
+          (SELECT MAX(lt.transaction_date) FROM loyalty_transactions lt WHERE lt.customer_pin = c.cust_tin AND lt.branch_id = c.branch_id) as last_activity
         FROM customers c
         LEFT JOIN branches b ON c.branch_id = b.id
         WHERE c.branch_id = $1 AND c.use_yn = 'Y'
@@ -63,14 +63,14 @@ export async function GET(request: Request) {
           c.branch_id,
           b.name as branch_name,
           COALESCE(
-            (SELECT SUM(lt.points_earned) FROM loyalty_transactions lt WHERE lt.customer_phone = c.tel_no AND lt.branch_id = c.branch_id),
+            (SELECT SUM(lt.points_earned) FROM loyalty_transactions lt WHERE lt.customer_pin = c.cust_tin AND lt.branch_id = c.branch_id),
             0
           ) as total_points,
           COALESCE(
             (SELECT COUNT(*) FROM sales s WHERE s.customer_name = c.cust_nm AND s.branch_id = c.branch_id),
             0
           ) as total_purchases,
-          (SELECT MAX(lt.transaction_date) FROM loyalty_transactions lt WHERE lt.customer_phone = c.tel_no AND lt.branch_id = c.branch_id) as last_activity
+          (SELECT MAX(lt.transaction_date) FROM loyalty_transactions lt WHERE lt.customer_pin = c.cust_tin AND lt.branch_id = c.branch_id) as last_activity
         FROM customers c
         LEFT JOIN branches b ON c.branch_id = b.id
         WHERE b.vendor_id = $1 AND c.use_yn = 'Y'
@@ -89,14 +89,14 @@ export async function GET(request: Request) {
           c.branch_id,
           b.name as branch_name,
           COALESCE(
-            (SELECT SUM(lt.points_earned) FROM loyalty_transactions lt WHERE lt.customer_phone = c.tel_no AND lt.branch_id = c.branch_id),
+            (SELECT SUM(lt.points_earned) FROM loyalty_transactions lt WHERE lt.customer_pin = c.cust_tin AND lt.branch_id = c.branch_id),
             0
           ) as total_points,
           COALESCE(
             (SELECT COUNT(*) FROM sales s WHERE s.customer_name = c.cust_nm AND s.branch_id = c.branch_id),
             0
           ) as total_purchases,
-          (SELECT MAX(lt.transaction_date) FROM loyalty_transactions lt WHERE lt.customer_phone = c.tel_no AND lt.branch_id = c.branch_id) as last_activity
+          (SELECT MAX(lt.transaction_date) FROM loyalty_transactions lt WHERE lt.customer_pin = c.cust_tin AND lt.branch_id = c.branch_id) as last_activity
         FROM customers c
         LEFT JOIN branches b ON c.branch_id = b.id
         WHERE c.use_yn = 'Y'
