@@ -200,13 +200,6 @@ export function DashboardSidebar({
                       >
                         Items List
                       </Link>
-                      <Link
-                        href="/item-composition"
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
-                        onClick={handleLinkClick}
-                      >
-                        Item Composition
-                      </Link>
                     </>
                   )}
                   {item.label === "Imports" && (
