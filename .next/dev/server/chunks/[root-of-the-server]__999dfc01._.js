@@ -127,6 +127,7 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/lib/db/index.ts [app-route] (ecmascript) <locals>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/db/client.ts [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/headers.js [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__,
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
@@ -134,58 +135,89 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$index$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__$3c$locals$3e$__, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
 ;
-async function getUserVendorFilter(userId) {
-    if (!userId) {
-        return {
-            vendorId: null,
-            branchIds: null
-        };
+;
+async function getSessionUserId() {
+    try {
+        const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
+        const sessionCookie = cookieStore.get("user_session");
+        if (!sessionCookie?.value) return null;
+        const session = JSON.parse(sessionCookie.value);
+        return session.id || null;
+    } catch  {
+        return null;
     }
+}
+async function getUserRoleAndVendorFilter(userId) {
     let vendorId = null;
-    const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
-     JOIN vendors v ON v.email = u.email 
+    let role = null;
+    const userResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT u.role, v.id as vendor_id FROM users u 
+     LEFT JOIN vendors v ON v.email = u.email 
      WHERE u.id = $1`, [
         userId
     ]);
     if (userResult && userResult.length > 0) {
         vendorId = userResult[0].vendor_id;
+        role = userResult[0].role;
     }
     if (!vendorId) {
-        const staffResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
+        const staffResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id, s.role FROM staff s
        JOIN branches b ON s.branch_id = b.id
        WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
             userId
         ]);
         if (staffResult && staffResult.length > 0) {
             vendorId = staffResult[0].vendor_id;
+            if (!role) role = staffResult[0].role;
         }
     }
     if (!vendorId) {
-        const staffBranchIds = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT branch_id FROM staff WHERE user_id = $1`, [
+        const staffBranchIds = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT branch_id, role FROM staff WHERE user_id = $1`, [
             userId
         ]);
         if (staffBranchIds && staffBranchIds.length > 0) {
+            if (!role) role = staffBranchIds[0].role;
             return {
+                role,
                 vendorId: null,
                 branchIds: staffBranchIds.map((s)=>s.branch_id)
             };
         }
         return {
+            role,
             vendorId: null,
             branchIds: []
         };
     }
     return {
+        role,
         vendorId,
         branchIds: null
     };
 }
 async function GET(request) {
     try {
-        const { searchParams } = new URL(request.url);
-        const userId = searchParams.get('user_id');
-        const { vendorId, branchIds } = await getUserVendorFilter(userId);
-        if (userId && !vendorId && branchIds && branchIds.length === 0) {
+        const userId = await getSessionUserId();
+        if (!userId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: 'Unauthorized. Please log in.'
+            }, {
+                status: 401
+            });
+        }
+        const { role, vendorId, branchIds } = await getUserRoleAndVendorFilter(userId);
+        const restrictedRoles = [
+            'supervisor',
+            'manager',
+            'cashier'
+        ];
+        if (role && restrictedRoles.includes(role.toLowerCase())) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: 'Access denied. You do not have permission to view headquarters data.'
+            }, {
+                status: 403
+            });
+        }
+        if (!vendorId && branchIds && branchIds.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 totalRevenue: 0,
                 revenueGrowth: 0,
