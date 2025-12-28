@@ -301,7 +301,8 @@ async function POST(request) {
             });
         }
         const kraBaseUrl = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$url$2d$helper$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["buildKraBaseUrl"])(branch.server_address, branch.server_port);
-        const endpoint = `${kraBaseUrl}/initializer/selectInitInfo`;
+        const endpointPath = "initializer/selectInitInfo";
+        const fullEndpoint = `${kraBaseUrl}/${endpointPath}`;
         const payload = {
             tin,
             bhfId,
@@ -310,7 +311,7 @@ async function POST(request) {
         let responseData;
         let status = "success";
         try {
-            const kraResponse = await fetch(endpoint, {
+            const kraResponse = await fetch(fullEndpoint, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -333,14 +334,14 @@ async function POST(request) {
     `, [
             branch_id,
             "kra_initialize",
-            endpoint,
+            endpointPath,
             JSON.stringify(payload),
             JSON.stringify(responseData),
             status
         ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: status === "success",
-            endpoint,
+            endpoint: endpointPath,
             request: payload,
             response: responseData
         });
