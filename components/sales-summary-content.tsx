@@ -1231,7 +1231,14 @@ export function SalesSummaryContent() {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
-            <Button type="submit" disabled={saleLoading}>
+            <Button 
+              type="submit" 
+              disabled={saleLoading}
+              onClick={(e) => {
+                e.preventDefault();
+                handleCreateSale();
+              }}
+            >
               {saleLoading ? "Recording..." : "Record Sale"}
             </Button>
           </DialogFooter>
