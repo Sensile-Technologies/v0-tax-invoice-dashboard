@@ -27,7 +27,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
-function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
+function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'invoice' | 'credit_note' = 'invoice'): string {
   const unitPrice = parseFloat(sale.unit_price) || 0
   const quantity = parseFloat(sale.quantity) || 0
   const totalAmount = parseFloat(sale.total_amount) || 0
@@ -81,7 +81,7 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string): string {
   </style>
 </head>
 <body>
-  <div class="center header">TAX INVOICE</div>
+  <div class="center header">${documentType === 'credit_note' ? 'CREDIT NOTE' : 'TAX INVOICE'}</div>
   <div class="center shop-name">${sale.branch_name || 'Flow360 Station'}</div>
   ${sale.branch_address ? `<div class="center">${sale.branch_address}</div>` : ''}
   ${sale.branch_phone ? `<div class="center">Tel: ${sale.branch_phone}</div>` : ''}

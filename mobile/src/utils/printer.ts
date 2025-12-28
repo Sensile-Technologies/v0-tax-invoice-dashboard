@@ -95,6 +95,7 @@ export interface InvoiceData {
   co2PerLitre?: number;
   totalCo2?: number;
   isReprint?: boolean;
+  documentType?: 'invoice' | 'credit_note';
 }
 
 export type PrinterType = 'sunmi' | 'pdf';
@@ -242,14 +243,19 @@ class PrinterService {
       const customerPin = this.sanitizeText(invoice.customerPin) || 'NOT PROVIDED';
       const cashierName = this.sanitizeText(invoice.cashierName) || 'Cashier';
       
-      const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
+      let documentHeader: string;
+      if (invoice.documentType === 'credit_note') {
+        documentHeader = invoice.isReprint ? 'CREDIT NOTE COPY' : 'CREDIT NOTE';
+      } else {
+        documentHeader = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
+      }
       
       console.log('[PrinterService] Step 1: Header');
       sendPrintLog('step_1_header', 'info', 'Printing header');
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(28);
-      await SunmiPrinterLibrary.printText(`${invoiceType}\n`);
+      await SunmiPrinterLibrary.printText(`${documentHeader}\n`);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`${branchName}\n`);
       await SunmiPrinterLibrary.setTextStyle('bold', false);
@@ -442,7 +448,12 @@ class PrinterService {
     const taxZeroRated = invoice.taxZeroRated || 0;
     const taxable16 = invoice.taxableAmount || 0;
     const vat16 = invoice.totalTax || 0;
-    const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
+    let invoiceType: string;
+    if (invoice.documentType === 'credit_note') {
+      invoiceType = invoice.isReprint ? 'CREDIT NOTE COPY' : 'CREDIT NOTE';
+    } else {
+      invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
+    }
 
     const itemsHtml = invoice.items.map(item => {
       const lineTotal = (item.quantity * item.unitPrice) - (item.discount || 0);
