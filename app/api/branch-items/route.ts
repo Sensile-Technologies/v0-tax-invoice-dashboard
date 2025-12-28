@@ -135,7 +135,11 @@ export async function POST(request: NextRequest) {
     }
 
     const userResult = await client.query(
-      'SELECT role, vendor_id, branch_id FROM users WHERE id = $1',
+      `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id, s.branch_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
       [session.id]
     )
     
@@ -144,6 +148,10 @@ export async function POST(request: NextRequest) {
     }
 
     const user = userResult.rows[0]
+    const userVendorId = user.vendor_id || (await client.query(
+      'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+      [session.id]
+    )).rows[0]?.vendor_id
 
     const branchCheck = await client.query(
       'SELECT id, vendor_id FROM branches WHERE id = $1',
@@ -156,7 +164,7 @@ export async function POST(request: NextRequest) {
 
     const branch = branchCheck.rows[0]
 
-    if (branch.vendor_id !== user.vendor_id) {
+    if (branch.vendor_id !== userVendorId) {
       return NextResponse.json({ success: false, error: "Access denied" }, { status: 403 })
     }
 
@@ -165,11 +173,16 @@ export async function POST(request: NextRequest) {
     }
 
     const itemCheck = await client.query(
-      'SELECT id, vendor_id FROM items WHERE id = $1',
+      'SELECT id, vendor_id, branch_id FROM items WHERE id = $1',
       [itemId]
     )
 
-    if (itemCheck.rows.length === 0 || itemCheck.rows[0].vendor_id !== user.vendor_id) {
+    if (itemCheck.rows.length === 0) {
+      return NextResponse.json({ success: false, error: "Item not found" }, { status: 404 })
+    }
+    
+    const item = itemCheck.rows[0]
+    if (item.vendor_id !== userVendorId && item.branch_id !== branchId) {
       return NextResponse.json({ success: false, error: "Item not found" }, { status: 404 })
     }
 
@@ -213,7 +226,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const userResult = await client.query(
-      'SELECT role, vendor_id, branch_id FROM users WHERE id = $1',
+      `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id, s.branch_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
       [session.id]
     )
     
@@ -222,6 +239,10 @@ export async function PUT(request: NextRequest) {
     }
 
     const user = userResult.rows[0]
+    const userVendorId = user.vendor_id || (await client.query(
+      'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+      [session.id]
+    )).rows[0]?.vendor_id
 
     const branchItemCheck = await client.query(
       `SELECT bi.*, b.vendor_id 
@@ -237,7 +258,7 @@ export async function PUT(request: NextRequest) {
 
     const branchItem = branchItemCheck.rows[0]
 
-    if (branchItem.vendor_id !== user.vendor_id) {
+    if (branchItem.vendor_id !== userVendorId) {
       return NextResponse.json({ success: false, error: "Access denied" }, { status: 403 })
     }
 
@@ -286,7 +307,11 @@ export async function DELETE(request: NextRequest) {
     }
 
     const userResult = await client.query(
-      'SELECT role, vendor_id, branch_id FROM users WHERE id = $1',
+      `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id, s.branch_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
       [session.id]
     )
     
@@ -295,6 +320,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     const user = userResult.rows[0]
+    const userVendorId = user.vendor_id || (await client.query(
+      'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+      [session.id]
+    )).rows[0]?.vendor_id
 
     const branchItemCheck = await client.query(
       `SELECT bi.*, b.vendor_id 
@@ -310,7 +339,7 @@ export async function DELETE(request: NextRequest) {
 
     const branchItem = branchItemCheck.rows[0]
 
-    if (branchItem.vendor_id !== user.vendor_id) {
+    if (branchItem.vendor_id !== userVendorId) {
       return NextResponse.json({ success: false, error: "Access denied" }, { status: 403 })
     }
 
