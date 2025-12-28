@@ -1229,7 +1229,17 @@ export function SalesSummaryContent() {
               </div>
             )}
           </div>
-          <DialogFooter>
+          <div className="mt-4">
+            <Button 
+              type="button"
+              className="w-full h-16 text-xl font-bold bg-green-600 hover:bg-green-700 text-white"
+              disabled={saleLoading}
+              onClick={() => handleCreateSale()}
+            >
+              {saleLoading ? "Processing..." : "SELL"}
+            </Button>
+          </div>
+          <DialogFooter className="mt-4">
             <Button type="button" variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
             <Button 
               type="submit" 
