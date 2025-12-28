@@ -98,6 +98,20 @@ export function DashboardHeader({
             localStorage.setItem("currentUser", JSON.stringify(serverUser))
             localStorage.setItem("user", JSON.stringify(serverUser))
             
+            // For users who can switch branches, restore from localStorage
+            const storedBranch = localStorage.getItem("selectedBranch")
+            if (storedBranch) {
+              try {
+                const parsedBranch = JSON.parse(storedBranch)
+                if (parsedBranch?.id && parsedBranch?.name) {
+                  setSelectedBranch(parsedBranch.id)
+                  setCurrentBranchName(parsedBranch.name)
+                }
+              } catch (e) {
+                console.error("Error parsing stored branch:", e)
+              }
+            }
+            
             // Fetch branches after role is determined
             fetchBranchesWithRole(canSwitch)
             return
