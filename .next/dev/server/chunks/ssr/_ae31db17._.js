@@ -3837,7 +3837,7 @@ function HeadquartersPage() {
                                                 lineNumber: 953,
                                                 columnNumber: 15
                                             }, this),
-                                            "Item Catalog"
+                                            "Item Management"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/headquarters/page.tsx",
