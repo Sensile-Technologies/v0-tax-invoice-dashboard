@@ -14,8 +14,11 @@ export async function POST(request: NextRequest) {
       sale_id,
       branch_id,
       reason_code,
+      reason,
       refund_type,
       partial_amount,
+      refund_amount,
+      return_quantity,
       notes
     } = body
 
@@ -47,22 +50,30 @@ export async function POST(request: NextRequest) {
     const originalQty = Math.abs(parseFloat(originalSale.quantity))
     const unitPrice = parseFloat(originalSale.unit_price)
 
-    let refundAmount: number
+    let refundAmountFinal: number
     let refundQty: number
 
-    if (refund_type === 'partial' && partial_amount) {
-      refundAmount = Math.min(partial_amount, originalTotal)
-      refundQty = refundAmount / unitPrice
+    const effectiveRefundAmount = refund_amount || partial_amount
+    const effectiveReturnQty = return_quantity ? parseFloat(return_quantity) : null
+
+    if (effectiveRefundAmount && parseFloat(effectiveRefundAmount) < originalTotal) {
+      refundAmountFinal = Math.min(parseFloat(effectiveRefundAmount), originalTotal)
+      refundQty = effectiveReturnQty || (refundAmountFinal / unitPrice)
+    } else if (refund_type === 'partial' && partial_amount) {
+      refundAmountFinal = Math.min(partial_amount, originalTotal)
+      refundQty = refundAmountFinal / unitPrice
     } else {
-      refundAmount = originalTotal
+      refundAmountFinal = originalTotal
       refundQty = originalQty
     }
+
+    const effectiveReasonCode = reason_code || reason || '06'
 
     const kraResult = await callKraCreditNote({
       branch_id: branch_id,
       original_sale_id: sale_id,
       original_invoice_no: originalInvoiceNo,
-      refund_reason_code: reason_code || '06',
+      refund_reason_code: effectiveReasonCode,
       customer_tin: originalSale.customer_pin,
       customer_name: originalSale.customer_name,
       items: [{
@@ -104,7 +115,7 @@ export async function POST(request: NextRequest) {
         originalSale.fuel_type,
         -refundQty,
         unitPrice,
-        -refundAmount,
+        -refundAmountFinal,
         originalSale.payment_method,
         originalSale.customer_name,
         originalSale.customer_pin,
