@@ -1212,29 +1212,17 @@ export function SalesSummaryContent() {
               </div>
             )}
           </div>
-          <div className="mt-4">
+          <div className="mt-4 flex gap-2">
+            <Button type="button" variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
             <Button 
               type="button"
-              className="w-full h-16 text-xl font-bold bg-green-600 hover:bg-green-700 text-white"
+              className="flex-1 h-12 text-lg font-bold bg-green-600 hover:bg-green-700 text-white"
               disabled={saleLoading}
               onClick={() => handleCreateSale()}
             >
               {saleLoading ? "Processing..." : "SELL"}
             </Button>
           </div>
-          <DialogFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
-            <Button 
-              type="submit" 
-              disabled={saleLoading}
-              onClick={(e) => {
-                e.preventDefault();
-                handleCreateSale();
-              }}
-            >
-              {saleLoading ? "Recording..." : "Record Sale"}
-            </Button>
-          </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

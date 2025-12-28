@@ -6144,25 +6144,7 @@ function SalesSummaryContent() {
                                     columnNumber: 11
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "mt-4",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                        type: "button",
-                                        className: "w-full h-16 text-xl font-bold bg-green-600 hover:bg-green-700 text-white",
-                                        disabled: saleLoading,
-                                        onClick: ()=>handleCreateSale(),
-                                        children: saleLoading ? "Processing..." : "SELL"
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/sales-summary-content.tsx",
-                                        lineNumber: 1216,
-                                        columnNumber: 13
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/components/sales-summary-content.tsx",
-                                    lineNumber: 1215,
-                                    columnNumber: 11
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
-                                    className: "mt-4",
+                                    className: "mt-4 flex gap-2",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                             type: "button",
@@ -6171,26 +6153,24 @@ function SalesSummaryContent() {
                                             children: "Cancel"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-summary-content.tsx",
-                                            lineNumber: 1226,
+                                            lineNumber: 1216,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                            type: "submit",
+                                            type: "button",
+                                            className: "flex-1 h-12 text-lg font-bold bg-green-600 hover:bg-green-700 text-white",
                                             disabled: saleLoading,
-                                            onClick: (e)=>{
-                                                e.preventDefault();
-                                                handleCreateSale();
-                                            },
-                                            children: saleLoading ? "Recording..." : "Record Sale"
+                                            onClick: ()=>handleCreateSale(),
+                                            children: saleLoading ? "Processing..." : "SELL"
                                         }, void 0, false, {
                                             fileName: "[project]/components/sales-summary-content.tsx",
-                                            lineNumber: 1227,
+                                            lineNumber: 1217,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/sales-summary-content.tsx",
-                                    lineNumber: 1225,
+                                    lineNumber: 1215,
                                     columnNumber: 11
                                 }, this)
                             ]
