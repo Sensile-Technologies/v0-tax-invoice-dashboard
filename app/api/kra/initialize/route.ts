@@ -16,28 +16,33 @@ async function getSessionUser(): Promise<{ id: string; role?: string; vendor_id?
   }
 }
 
-async function getUserVendorId(userId: string): Promise<string | null> {
+async function getUserAuthInfo(userId: string): Promise<{ vendorId: string | null; role: string | null; assignedBranchId: string | null; isVendorOwner: boolean }> {
   const userResult = await query<any>(
-    `SELECT v.id as vendor_id FROM users u 
+    `SELECT u.role, v.id as vendor_id FROM users u 
      LEFT JOIN vendors v ON v.email = u.email 
      WHERE u.id = $1`,
     [userId]
   )
   if (userResult && userResult.length > 0 && userResult[0].vendor_id) {
-    return userResult[0].vendor_id
+    return { vendorId: userResult[0].vendor_id, role: userResult[0].role || 'vendor', assignedBranchId: null, isVendorOwner: true }
   }
   
   const staffResult = await query<any>(
-    `SELECT DISTINCT b.vendor_id FROM staff s
+    `SELECT s.branch_id, s.role, b.vendor_id FROM staff s
      JOIN branches b ON s.branch_id = b.id
      WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
     [userId]
   )
   if (staffResult && staffResult.length > 0) {
-    return staffResult[0].vendor_id
+    return { 
+      vendorId: staffResult[0].vendor_id, 
+      role: staffResult[0].role, 
+      assignedBranchId: staffResult[0].branch_id,
+      isVendorOwner: false 
+    }
   }
   
-  return null
+  return { vendorId: null, role: null, assignedBranchId: null, isVendorOwner: false }
 }
 
 export async function POST(request: NextRequest) {
@@ -47,7 +52,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 })
     }
 
-    const userVendorId = await getUserVendorId(session.id)
+    const authInfo = await getUserAuthInfo(session.id)
 
     const body = await request.json()
     const { branch_id } = body
@@ -63,8 +68,15 @@ export async function POST(request: NextRequest) {
     if (branchOwnerCheck.length === 0) {
       return NextResponse.json({ error: "Branch not found" }, { status: 404 })
     }
-    if (userVendorId && branchOwnerCheck[0].vendor_id !== userVendorId) {
+    if (authInfo.vendorId && branchOwnerCheck[0].vendor_id !== authInfo.vendorId) {
       return NextResponse.json({ error: "Access denied to this branch" }, { status: 403 })
+    }
+    
+    const restrictedRoles = ['supervisor', 'manager', 'cashier']
+    if (authInfo.role && restrictedRoles.includes(authInfo.role.toLowerCase())) {
+      if (authInfo.assignedBranchId !== branch_id) {
+        return NextResponse.json({ error: "Access denied. You can only access your assigned branch." }, { status: 403 })
+      }
     }
 
     const branchResult = await query<any>(`
