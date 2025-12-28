@@ -70,6 +70,20 @@ class PrinterService {
   private initialized: boolean = false;
   private isSunmiDevice: boolean = false;
 
+  // Sanitize text to remove problematic characters for thermal printers
+  private sanitizeText(text: string | undefined | null): string {
+    if (!text) return '';
+    // Remove or replace problematic Unicode characters
+    // Keep basic ASCII, common punctuation, and essential symbols
+    return text
+      .replace(/[\u2018\u2019]/g, "'") // Smart quotes to regular
+      .replace(/[\u201C\u201D]/g, '"') // Smart double quotes
+      .replace(/[\u2013\u2014]/g, '-') // Em/en dashes
+      .replace(/[\u2026]/g, '...') // Ellipsis
+      .replace(/[^\x20-\x7E\n]/g, '') // Remove non-printable chars except newline
+      .trim();
+  }
+
   // Print receipt as image - best for smooth printing without pulsing
   async printReceiptImage(imageBase64: string): Promise<{ success: boolean; message: string }> {
     if (!this.isSunmiDevice || !SunmiPrinterLibrary) {
@@ -177,32 +191,42 @@ class PrinterService {
     try {
       console.log('[PrinterService] === SUNMI PRINT START (SIMPLE MODE) ===');
       console.log('[PrinterService] Invoice:', invoice.invoiceNumber);
+      console.log('[PrinterService] Branch:', invoice.branchName);
+      console.log('[PrinterService] Items count:', invoice.items?.length || 0);
       
-      // Simple direct printing - no buffer transactions
-      // This may pulse but should at least print reliably
+      // Sanitize all text fields to prevent printer issues
+      const branchName = this.sanitizeText(invoice.branchName) || 'Flow360 Station';
+      const branchAddress = this.sanitizeText(invoice.branchAddress);
+      const branchPhone = this.sanitizeText(invoice.branchPhone);
+      const branchPin = this.sanitizeText(invoice.branchPin || invoice.kraPin);
+      const customerName = this.sanitizeText(invoice.customerName) || 'Walk-in Customer';
+      const customerPin = this.sanitizeText(invoice.customerPin) || 'NOT PROVIDED';
+      const cashierName = this.sanitizeText(invoice.cashierName) || 'Cashier';
       
       const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
       
+      console.log('[PrinterService] Step 1: Header');
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(28);
       await SunmiPrinterLibrary.printText(`${invoiceType}\n`);
       await SunmiPrinterLibrary.setFontSize(26);
-      await SunmiPrinterLibrary.printText(`${invoice.branchName}\n`);
+      await SunmiPrinterLibrary.printText(`${branchName}\n`);
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.setFontSize(26);
-      if (invoice.branchAddress) {
-        await SunmiPrinterLibrary.printText(`${invoice.branchAddress}\n`);
+      if (branchAddress) {
+        await SunmiPrinterLibrary.printText(`${branchAddress}\n`);
       }
-      if (invoice.branchPhone) {
-        await SunmiPrinterLibrary.printText(`Tel: ${invoice.branchPhone}\n`);
+      if (branchPhone) {
+        await SunmiPrinterLibrary.printText(`Tel: ${branchPhone}\n`);
       }
-      if (invoice.branchPin || invoice.kraPin) {
+      if (branchPin) {
         await SunmiPrinterLibrary.setTextStyle('bold', true);
-        await SunmiPrinterLibrary.printText(`PIN: ${invoice.branchPin || invoice.kraPin}\n`);
+        await SunmiPrinterLibrary.printText(`PIN: ${branchPin}\n`);
         await SunmiPrinterLibrary.setTextStyle('bold', false);
       }
       
+      console.log('[PrinterService] Step 2: Buyer Info');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('BUYER INFORMATION\n');
@@ -210,10 +234,11 @@ class PrinterService {
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.setTextStyle('bold', true);
-      await SunmiPrinterLibrary.printText(`Buyer PIN: ${invoice.customerPin || 'NOT PROVIDED'}\n`);
-      await SunmiPrinterLibrary.printText(`Buyer Name: ${invoice.customerName || 'Walk-in Customer'}\n`);
+      await SunmiPrinterLibrary.printText(`Buyer PIN: ${customerPin}\n`);
+      await SunmiPrinterLibrary.printText(`Buyer Name: ${customerName}\n`);
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       
+      console.log('[PrinterService] Step 3: Product Details');
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
@@ -222,11 +247,15 @@ class PrinterService {
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
       
-      for (const item of invoice.items) {
+      for (let i = 0; i < (invoice.items || []).length; i++) {
+        const item = invoice.items[i];
+        const itemName = this.sanitizeText(item.name) || 'Item';
+        const dispenser = this.sanitizeText(item.dispenser);
         const lineTotal = (item.quantity * item.unitPrice) - (item.discount || 0);
-        await SunmiPrinterLibrary.printText(`${item.name}\n`);
-        if (item.dispenser) {
-          await SunmiPrinterLibrary.printText(`Dispenser: ${item.dispenser}\n`);
+        console.log(`[PrinterService] Printing item ${i + 1}: ${itemName}`);
+        await SunmiPrinterLibrary.printText(`${itemName}\n`);
+        if (dispenser) {
+          await SunmiPrinterLibrary.printText(`Dispenser: ${dispenser}\n`);
         }
         await SunmiPrinterLibrary.printText(`${this.formatCurrency(item.unitPrice)} x ${item.quantity.toFixed(3)}L\n`);
         if (item.discount && item.discount > 0) {
@@ -238,6 +267,7 @@ class PrinterService {
         await SunmiPrinterLibrary.setTextStyle('bold', false);
       }
       
+      console.log('[PrinterService] Step 4: Tax Breakdown');
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
@@ -258,31 +288,37 @@ class PrinterService {
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       await SunmiPrinterLibrary.printText(`0%  ${this.formatCurrency(taxZeroRated).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       
+      console.log('[PrinterService] Step 5: Date/Time & KRA');
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
-      await SunmiPrinterLibrary.printText(`Date: ${invoice.date} ${invoice.time}\n`);
+      await SunmiPrinterLibrary.printText(`Date: ${invoice.date || 'N/A'} ${invoice.time || ''}\n`);
       
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.setTextStyle('bold', true);
-      if (invoice.cuSerialNumber) {
-        await SunmiPrinterLibrary.printText(`SCU ID: ${invoice.cuSerialNumber}\n`);
+      const cuSerial = this.sanitizeText(invoice.cuSerialNumber);
+      const cuInvNo = this.sanitizeText(invoice.cuInvoiceNo);
+      const intrlData = this.sanitizeText(invoice.intrlData);
+      if (cuSerial) {
+        await SunmiPrinterLibrary.printText(`SCU ID: ${cuSerial}\n`);
       }
-      if (invoice.cuInvoiceNo) {
-        await SunmiPrinterLibrary.printText(`CU INV NO: ${invoice.cuInvoiceNo}\n`);
-      } else if (invoice.cuSerialNumber && invoice.receiptNo) {
-        await SunmiPrinterLibrary.printText(`CU INV NO: ${invoice.cuSerialNumber}/${invoice.receiptNo}\n`);
+      if (cuInvNo) {
+        await SunmiPrinterLibrary.printText(`CU INV NO: ${cuInvNo}\n`);
+      } else if (cuSerial && invoice.receiptNo) {
+        await SunmiPrinterLibrary.printText(`CU INV NO: ${cuSerial}/${invoice.receiptNo}\n`);
       }
       await SunmiPrinterLibrary.setTextStyle('bold', false);
-      if (invoice.intrlData) {
-        await SunmiPrinterLibrary.printText(`Int Data: ${invoice.intrlData}\n`);
+      if (intrlData) {
+        await SunmiPrinterLibrary.printText(`Int Data: ${intrlData}\n`);
       }
       
+      console.log('[PrinterService] Step 6: Receipt Footer');
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
-      await SunmiPrinterLibrary.printText(`Receipt No: ${invoice.receiptNo || invoice.invoiceNumber}\n`);
-      await SunmiPrinterLibrary.printText(`Served by: ${invoice.cashierName}\n`);
-      await SunmiPrinterLibrary.printText(`Payment: ${invoice.paymentMethod.toLowerCase()}\n`);
+      await SunmiPrinterLibrary.printText(`Receipt No: ${invoice.receiptNo || invoice.invoiceNumber || 'N/A'}\n`);
+      await SunmiPrinterLibrary.printText(`Served by: ${cashierName}\n`);
+      await SunmiPrinterLibrary.printText(`Payment: ${(invoice.paymentMethod || 'cash').toLowerCase()}\n`);
       
+      console.log('[PrinterService] Step 7: QR Code');
       await SunmiPrinterLibrary.setAlignment('center');
       const qrData = invoice.qrCodeData || 
         `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
@@ -300,6 +336,12 @@ class PrinterService {
     } catch (error: any) {
       console.error('[PrinterService] === SUNMI PRINT ERROR ===');
       console.error('[PrinterService] Error:', error?.message || error);
+      console.error('[PrinterService] Error stack:', error?.stack);
+      console.log('[PrinterService] Invoice data that failed:', JSON.stringify({
+        invoiceNumber: invoice.invoiceNumber,
+        branchName: invoice.branchName,
+        itemsCount: invoice.items?.length
+      }));
       console.log('[PrinterService] Falling back to PDF...');
       return this.printWithPdf(invoice);
     }
