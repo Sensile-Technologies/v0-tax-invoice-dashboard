@@ -16,7 +16,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
   Building2, Search, Phone, MapPin, 
-  Store, FileText, Calendar, Edit2, Settings
+  Store, FileText, Calendar, Edit2, Settings, Zap, Loader2
 } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -85,6 +85,7 @@ export default function MerchantsPage() {
     device_serial_number: "",
     sr_number: ""
   })
+  const [initializingBranch, setInitializingBranch] = useState(false)
 
   useEffect(() => {
     fetchMerchants()
@@ -201,6 +202,38 @@ export default function MerchantsPage() {
       fetchMerchantDetails(selectedMerchant)
     } catch (error) {
       toast.error("Failed to update branch configuration")
+    }
+  }
+
+  const handleInitializeBranch = async () => {
+    if (!editingBranch) return
+
+    setInitializingBranch(true)
+    try {
+      const response = await fetch("/api/kra/initialize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branch_id: editingBranch.id
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to initialize")
+        return
+      }
+
+      if (result.success) {
+        toast.success("KRA initialization successful - logged to branch profile")
+      } else {
+        toast.warning("KRA initialization completed with errors - check branch logs")
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to initialize branch")
+    } finally {
+      setInitializingBranch(false)
     }
   }
 
@@ -605,13 +638,28 @@ export default function MerchantsPage() {
                 />
               </div>
             </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setBranchEditDialogOpen(false)}>
-                Cancel
+            <div className="flex justify-between items-center gap-2 pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={handleInitializeBranch}
+                disabled={initializingBranch}
+                className="gap-2"
+              >
+                {initializingBranch ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                Initialize
               </Button>
-              <Button onClick={handleSaveBranchEdit}>
-                Save Configuration
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setBranchEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveBranchEdit}>
+                  Save Configuration
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>
