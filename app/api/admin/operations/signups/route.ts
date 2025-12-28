@@ -15,8 +15,6 @@ export async function GET() {
         l.location,
         l.county,
         l.address,
-        l.device_serial_number,
-        l.sr_number,
         l.stage as status,
         l.created_at,
         sp.name as sales_person_name
@@ -45,9 +43,7 @@ export async function PUT(request: NextRequest) {
       phone, 
       location, 
       county, 
-      address,
-      device_serial_number,
-      sr_number
+      address
     } = await request.json()
 
     if (!lead_id) {
@@ -67,12 +63,10 @@ export async function PUT(request: NextRequest) {
         location = COALESCE($8, location),
         county = COALESCE($9, county),
         address = COALESCE($10, address),
-        device_serial_number = COALESCE($11, device_serial_number),
-        sr_number = COALESCE($12, sr_number),
         updated_at = NOW()
       WHERE id = $1
       RETURNING *
-    `, [lead_id, company_name, trading_name, kra_pin, contact_name, email, phone, location, county, address, device_serial_number || null, sr_number ? parseInt(sr_number) : null])
+    `, [lead_id, company_name, trading_name, kra_pin, contact_name, email, phone, location, county, address])
 
     if (result.length === 0) {
       return NextResponse.json({ error: "Lead not found" }, { status: 404 })

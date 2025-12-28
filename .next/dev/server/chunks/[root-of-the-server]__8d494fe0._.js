@@ -94,6 +94,39 @@ async function POST(request) {
         const client = await pool.connect();
         try {
             await client.query("BEGIN");
+            // Validate against sign up requests list (leads table)
+            // Check if KRA PIN matches any entry in the leads table
+            if (branch?.kra_pin) {
+                const normalizedPin = branch.kra_pin.trim().toUpperCase();
+                // Check if there's a matching lead in the sign up requests (onboarding stage only)
+                // Leads must reach 'onboarding' stage in sales pipeline before they can sign up
+                const matchingLead = await client.query(`SELECT id, company_name, stage FROM leads 
+           WHERE UPPER(TRIM(kra_pin)) = $1 
+           AND stage = 'onboarding'
+           LIMIT 1`, [
+                    normalizedPin
+                ]);
+                if (matchingLead.rows.length === 0) {
+                    await client.query("ROLLBACK");
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                        error: {
+                            message: "Your details are not in our approved sign up list. Please contact admin to request access."
+                        }
+                    }, {
+                        status: 403
+                    });
+                }
+            } else if (branch) {
+                // Branch signup requires KRA PIN for validation
+                await client.query("ROLLBACK");
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: {
+                        message: "KRA PIN is required for sign up."
+                    }
+                }, {
+                    status: 400
+                });
+            }
             const existingUser = await client.query("SELECT id FROM users WHERE email = $1", [
                 email
             ]);
@@ -124,7 +157,6 @@ async function POST(request) {
                 const vendorId = crypto.randomUUID();
                 const isHeadquarters = branch.name && (branch.name.toLowerCase().includes('headquarters') || branch.name.toLowerCase().includes('head office') || branch.name.toLowerCase() === 'hq');
                 const bhfId = isHeadquarters ? "00" : "01";
-                // Create vendor for this user with all relevant fields
                 const vendorResult = await client.query(`INSERT INTO vendors (id, name, email, phone, address, kra_pin, status, billing_email, billing_address, subscription_status, created_at, updated_at)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
            RETURNING *`, [
@@ -170,31 +202,17 @@ async function POST(request) {
                     email,
                     data?.phone || null
                 ]);
-            }
-            // Check for matching leads by phone or KRA PIN and update their stage
-            if (branch?.phone || branch?.kra_pin) {
-                const conditions = [];
-                const matchParams = [];
-                let paramIdx = 1;
-                // Normalize phone: remove spaces, dashes, and common prefixes
-                if (branch.phone) {
-                    const normalizedPhone = branch.phone.replace(/[\s\-\(\)]/g, '').replace(/^\+?254/, '0');
-                    conditions.push(`REGEXP_REPLACE(REGEXP_REPLACE(contact_phone, '[\\s\\-\\(\\)]', '', 'g'), '^\\+?254', '0') = $${paramIdx}`);
-                    matchParams.push(normalizedPhone);
-                    paramIdx++;
-                }
-                // Normalize KRA PIN: uppercase and trim
-                if (branch.kra_pin) {
+                // Update matching lead from 'onboarding' to 'pending_activation' stage
+                // This moves the lead out of the sales pipeline and sign up requests
+                // Branch will now appear in admin onboarding requests for device_token configuration
+                if (branch?.kra_pin) {
                     const normalizedPin = branch.kra_pin.trim().toUpperCase();
-                    conditions.push(`UPPER(TRIM(kra_pin)) = $${paramIdx}`);
-                    matchParams.push(normalizedPin);
-                    paramIdx++;
-                }
-                if (conditions.length > 0) {
-                    // Find matching leads in 'onboarding' stage and update to 'signed_up'
                     await client.query(`UPDATE leads 
-             SET stage = 'signed_up', updated_at = NOW() 
-             WHERE stage = 'onboarding' AND (${conditions.join(' OR ')})`, matchParams);
+             SET stage = 'pending_activation', updated_at = NOW() 
+             WHERE UPPER(TRIM(kra_pin)) = $1 
+             AND stage = 'onboarding'`, [
+                        normalizedPin
+                    ]);
                 }
             }
             await client.query("COMMIT");
