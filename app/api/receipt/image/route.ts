@@ -198,7 +198,11 @@ export async function POST(request: Request) {
         errorCorrectionLevel: 'M'
       })
       
-      const html = generateReceiptHTML(sale, qrCodeDataUrl)
+      const isCreditNote = sale.sale_type === 'credit_note' || 
+                            sale.invoice_number?.includes('-CR') || 
+                            parseFloat(sale.total_amount) < 0
+      const documentType = isCreditNote ? 'credit_note' : 'invoice'
+      const html = generateReceiptHTML(sale, qrCodeDataUrl, documentType)
       
       const chromiumPath = getChromiumPath()
       console.log('[Receipt Image API] Using Chromium at:', chromiumPath)

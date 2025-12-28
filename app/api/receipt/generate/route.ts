@@ -38,6 +38,10 @@ export async function POST(request: Request) {
 
       const sale = saleResult.rows[0]
       
+      const isCreditNote = sale.sale_type === 'credit_note' || 
+                           sale.invoice_number?.includes('-CR') || 
+                           parseFloat(sale.total_amount) < 0
+      
       const pageWidth = 80
       const doc = new jsPDF({ unit: 'mm', format: [pageWidth, 280] })
       
@@ -64,7 +68,7 @@ export async function POST(request: Request) {
 
       doc.setFontSize(12)
       doc.setFont("helvetica", "bold")
-      doc.text("TAX INVOICE", pageWidth / 2, y, { align: "center" })
+      doc.text(isCreditNote ? "CREDIT NOTE" : "TAX INVOICE", pageWidth / 2, y, { align: "center" })
       y += 6
 
       doc.setFontSize(10)
