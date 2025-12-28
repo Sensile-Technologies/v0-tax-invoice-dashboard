@@ -1080,11 +1080,12 @@ export function SalesSummaryContent() {
       </Dialog>
 
       <Dialog open={showSaleDialog} onOpenChange={setShowSaleDialog}>
-        <DialogContent className="max-w-2xl" onClick={(e) => console.log("[DialogContent] clicked", e.target)} onMouseDown={(e) => console.log("[DialogContent] mousedown", e.target)}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Record Fuel Sale</DialogTitle>
             <DialogDescription>Enter sale details to record a new fuel transaction</DialogDescription>
           </DialogHeader>
+          <form onSubmit={(e) => { e.preventDefault(); handleCreateSale(); }}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -1230,10 +1231,11 @@ export function SalesSummaryContent() {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
-            <Button type="button" onClick={() => { console.log("[Record Sale Button] Clicked, saleLoading:", saleLoading); handleCreateSale(); }} disabled={saleLoading}>
+            <Button type="submit" disabled={saleLoading}>
               {saleLoading ? "Recording..." : "Record Sale"}
             </Button>
           </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
