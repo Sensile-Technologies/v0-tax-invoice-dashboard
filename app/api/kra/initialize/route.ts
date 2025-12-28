@@ -109,7 +109,8 @@ export async function POST(request: NextRequest) {
     }
 
     const kraBaseUrl = buildKraBaseUrl(branch.server_address, branch.server_port)
-    const endpoint = `${kraBaseUrl}/initializer/selectInitInfo`
+    const endpointPath = "initializer/selectInitInfo"
+    const fullEndpoint = `${kraBaseUrl}/${endpointPath}`
 
     const payload = {
       tin,
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
     let status = "success"
 
     try {
-      const kraResponse = await fetch(endpoint, {
+      const kraResponse = await fetch(fullEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -142,11 +143,11 @@ export async function POST(request: NextRequest) {
     await query(`
       INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
       VALUES ($1, $2, $3, $4, $5, $6)
-    `, [branch_id, "kra_initialize", endpoint, JSON.stringify(payload), JSON.stringify(responseData), status])
+    `, [branch_id, "kra_initialize", endpointPath, JSON.stringify(payload), JSON.stringify(responseData), status])
 
     return NextResponse.json({
       success: status === "success",
-      endpoint,
+      endpoint: endpointPath,
       request: payload,
       response: responseData
     })
