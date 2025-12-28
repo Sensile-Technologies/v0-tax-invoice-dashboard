@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import sunmiPrinter from '../utils/printer'
+import sunmiPrinter, { setPrintContext } from '../utils/printer'
 
 interface Nozzle {
   id: string
@@ -221,6 +221,12 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   async function printInvoice(saleId: string): Promise<{ success: boolean; message: string }> {
     console.log('[CreateInvoice] printInvoice called, saleId:', saleId, 'printerReady:', printerReady)
     
+    setPrintContext({
+      branch_id: user?.branch_id,
+      vendor_id: user?.vendor_id,
+      user_id: user?.id,
+      username: user?.username
+    })
     setPrinting(true)
     console.log('[CreateInvoice] Fetching receipt image from server...')
     try {

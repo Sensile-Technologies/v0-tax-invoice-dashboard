@@ -2,6 +2,39 @@ import { Platform } from 'react-native';
 import * as Print from 'expo-print';
 import QRCode from 'qrcode';
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://flow360.live';
+
+interface PrintLogContext {
+  branch_id?: string;
+  vendor_id?: string;
+  user_id?: string;
+  username?: string;
+  invoice_number?: string;
+}
+
+let currentPrintContext: PrintLogContext = {};
+
+export function setPrintContext(context: PrintLogContext) {
+  currentPrintContext = { ...context };
+}
+
+function sendPrintLog(step: string, status: 'start' | 'success' | 'error' | 'info', message?: string, errorDetails?: any) {
+  try {
+    fetch(`${API_BASE_URL}/api/mobile/printer-logs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...currentPrintContext,
+        step,
+        status,
+        message,
+        error_details: errorDetails
+      })
+    }).catch(() => {});
+  } catch (e) {
+  }
+}
+
 let SunmiPrinterLibrary: any = null;
 try {
   // Use require for compatibility with Expo/React Native bundler
@@ -194,6 +227,12 @@ class PrinterService {
       console.log('[PrinterService] Branch:', invoice.branchName);
       console.log('[PrinterService] Items count:', invoice.items?.length || 0);
       
+      currentPrintContext.invoice_number = invoice.invoiceNumber;
+      sendPrintLog('sunmi_start', 'start', `Starting print for ${invoice.invoiceNumber}`, {
+        branch: invoice.branchName,
+        items_count: invoice.items?.length || 0
+      });
+      
       // Sanitize all text fields to prevent printer issues
       const branchName = this.sanitizeText(invoice.branchName) || 'Flow360 Station';
       const branchAddress = this.sanitizeText(invoice.branchAddress);
@@ -206,6 +245,7 @@ class PrinterService {
       const invoiceType = invoice.isReprint ? 'INVOICE COPY' : 'ORIGINAL INVOICE';
       
       console.log('[PrinterService] Step 1: Header');
+      sendPrintLog('step_1_header', 'info', 'Printing header');
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(28);
@@ -227,6 +267,7 @@ class PrinterService {
       }
       
       console.log('[PrinterService] Step 2: Buyer Info');
+      sendPrintLog('step_2_buyer', 'info', 'Printing buyer info');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText('BUYER INFORMATION\n');
@@ -239,6 +280,7 @@ class PrinterService {
       await SunmiPrinterLibrary.setTextStyle('bold', false);
       
       console.log('[PrinterService] Step 3: Product Details');
+      sendPrintLog('step_3_products', 'info', `Printing ${(invoice.items || []).length} items`);
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
@@ -268,6 +310,7 @@ class PrinterService {
       }
       
       console.log('[PrinterService] Step 4: Tax Breakdown');
+      sendPrintLog('step_4_tax', 'info', 'Printing tax breakdown');
       await SunmiPrinterLibrary.setAlignment('center');
       await SunmiPrinterLibrary.setTextStyle('bold', true);
       await SunmiPrinterLibrary.setFontSize(26);
@@ -289,6 +332,7 @@ class PrinterService {
       await SunmiPrinterLibrary.printText(`0%  ${this.formatCurrency(taxZeroRated).padStart(10)} ${this.formatCurrency(0).padStart(9)}\n`);
       
       console.log('[PrinterService] Step 5: Date/Time & KRA');
+      sendPrintLog('step_5_kra', 'info', 'Printing KRA info');
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`Date: ${invoice.date || 'N/A'} ${invoice.time || ''}\n`);
@@ -312,6 +356,7 @@ class PrinterService {
       }
       
       console.log('[PrinterService] Step 6: Receipt Footer');
+      sendPrintLog('step_6_footer', 'info', 'Printing receipt footer');
       await SunmiPrinterLibrary.setAlignment('left');
       await SunmiPrinterLibrary.setFontSize(26);
       await SunmiPrinterLibrary.printText(`Receipt No: ${invoice.receiptNo || invoice.invoiceNumber || 'N/A'}\n`);
@@ -319,6 +364,7 @@ class PrinterService {
       await SunmiPrinterLibrary.printText(`Payment: ${(invoice.paymentMethod || 'cash').toLowerCase()}\n`);
       
       console.log('[PrinterService] Step 7: QR Code');
+      sendPrintLog('step_7_qr', 'info', 'Printing QR code');
       await SunmiPrinterLibrary.setAlignment('center');
       const qrData = invoice.qrCodeData || 
         `https://itax.kra.go.ke/KRA-Portal/invoiceChk.htm?actionCode=loadPage&invoiceNo=${invoice.invoiceNumber}`;
@@ -332,6 +378,7 @@ class PrinterService {
       await SunmiPrinterLibrary.lineWrap(3);
       
       console.log('[PrinterService] === SUNMI PRINT SUCCESS (SIMPLE MODE) ===');
+      sendPrintLog('sunmi_complete', 'success', 'Receipt printed successfully');
       return { success: true, message: 'Receipt printed successfully' };
     } catch (error: any) {
       console.error('[PrinterService] === SUNMI PRINT ERROR ===');
@@ -342,6 +389,11 @@ class PrinterService {
         branchName: invoice.branchName,
         itemsCount: invoice.items?.length
       }));
+      sendPrintLog('sunmi_error', 'error', error?.message || 'Print failed', {
+        stack: error?.stack,
+        invoiceNumber: invoice.invoiceNumber,
+        branchName: invoice.branchName
+      });
       console.log('[PrinterService] Falling back to PDF...');
       return this.printWithPdf(invoice);
     }

@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import { sunmiPrinter, InvoiceData } from '../utils/printer'
+import { sunmiPrinter, InvoiceData, setPrintContext } from '../utils/printer'
 
 interface Sale {
   id: string
@@ -207,6 +207,12 @@ export default function SalesScreen() {
       
       const sale = response.sale
       if (sale && printerReady) {
+        setPrintContext({
+          branch_id: branchId,
+          vendor_id: user?.vendor_id,
+          user_id: user?.id,
+          username: user?.username
+        })
         const price = parseFloat(sale.unit_price) || 0
         const qty = parseFloat(sale.quantity) || 0
         const total = parseFloat(sale.total_amount) || 0

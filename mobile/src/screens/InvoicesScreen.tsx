@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
-import { sunmiPrinter, InvoiceData } from '../utils/printer'
+import { sunmiPrinter, InvoiceData, setPrintContext } from '../utils/printer'
 
 interface SaleInvoice {
   id: string
@@ -78,6 +78,12 @@ export default function InvoicesScreen({ navigation }: any) {
       Alert.alert('Printer Not Ready', 'The printer is not available. Please try again.')
       return
     }
+    setPrintContext({
+      branch_id: user?.branch_id,
+      vendor_id: user?.vendor_id,
+      user_id: user?.id,
+      username: user?.username
+    })
     setPrintingId(invoice.id)
     try {
       const saleDate = new Date(invoice.sale_date)
