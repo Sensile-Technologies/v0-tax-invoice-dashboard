@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Search, Package, Edit, RefreshCw } from "lucide-react"
@@ -367,89 +367,69 @@ export function HqItemsManager() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Item Type *</Label>
-                <Select value={formData.itemType} onValueChange={(v) => setFormData({ ...formData, itemType: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {codes.itemTypes.map((t) => (
-                      <SelectItem key={t.cd} value={t.cd}>{t.cd_nm}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={formData.itemType}
+                  onValueChange={(v) => setFormData({ ...formData, itemType: v })}
+                  placeholder="Select type"
+                  searchPlaceholder="Search item types..."
+                  options={codes.itemTypes.map((t) => ({ value: t.cd, label: t.cd_nm }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Origin *</Label>
-                <Select value={formData.origin} onValueChange={(v) => setFormData({ ...formData, origin: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select origin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {codes.origins.map((o) => (
-                      <SelectItem key={o.cd} value={o.cd}>{o.cd_nm}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={formData.origin}
+                  onValueChange={(v) => setFormData({ ...formData, origin: v })}
+                  placeholder="Select origin"
+                  searchPlaceholder="Search origins..."
+                  options={codes.origins.map((o) => ({ value: o.cd, label: o.cd_nm }))}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Classification Code *</Label>
-                <Select value={formData.classCode} onValueChange={(v) => setFormData({ ...formData, classCode: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select classification" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {classifications.map((c) => (
-                      <SelectItem key={c.item_cls_cd} value={c.item_cls_cd}>
-                        {c.item_cls_cd} - {c.item_cls_nm}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={formData.classCode}
+                  onValueChange={(v) => setFormData({ ...formData, classCode: v })}
+                  placeholder="Select classification"
+                  searchPlaceholder="Search classifications..."
+                  options={classifications.map((c) => ({ value: c.item_cls_cd, label: `${c.item_cls_cd} - ${c.item_cls_nm}` }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Tax Type *</Label>
-                <Select value={formData.taxType} onValueChange={(v) => setFormData({ ...formData, taxType: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tax type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {codes.taxTypes.map((t) => (
-                      <SelectItem key={t.cd} value={t.cd}>{t.cd_nm}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={formData.taxType}
+                  onValueChange={(v) => setFormData({ ...formData, taxType: v })}
+                  placeholder="Select tax type"
+                  searchPlaceholder="Search tax types..."
+                  options={codes.taxTypes.map((t) => ({ value: t.cd, label: t.cd_nm }))}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Quantity Unit *</Label>
-                <Select value={formData.quantityUnit} onValueChange={(v) => setFormData({ ...formData, quantityUnit: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select unit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {codes.quantityUnits.map((u) => (
-                      <SelectItem key={u.cd} value={u.cd}>{u.cd_nm}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={formData.quantityUnit}
+                  onValueChange={(v) => setFormData({ ...formData, quantityUnit: v })}
+                  placeholder="Select unit"
+                  searchPlaceholder="Search units..."
+                  options={codes.quantityUnits.map((u) => ({ value: u.cd, label: u.cd_nm }))}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Package Unit *</Label>
-                <Select value={formData.packageUnit} onValueChange={(v) => setFormData({ ...formData, packageUnit: v })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select package" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {codes.packageUnits.map((p) => (
-                      <SelectItem key={p.cd} value={p.cd}>{p.cd_nm}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={formData.packageUnit}
+                  onValueChange={(v) => setFormData({ ...formData, packageUnit: v })}
+                  placeholder="Select package"
+                  searchPlaceholder="Search packages..."
+                  options={codes.packageUnits.map((p) => ({ value: p.cd, label: p.cd_nm }))}
+                />
               </div>
             </div>
 
