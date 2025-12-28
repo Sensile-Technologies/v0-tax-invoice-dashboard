@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/table"
 import { 
   Settings2, HardDrive, UserPlus, ClipboardList, Search, 
-  Plus, Building2, Server, Check, AlertCircle, ExternalLink, MoreHorizontal, Pencil, Download, Smartphone, Trash2
+  Plus, Building2, Server, Check, AlertCircle, ExternalLink, MoreHorizontal, Pencil, Download, Smartphone, Trash2, Zap, Loader2
 } from "lucide-react"
 import {
   DropdownMenu as ActionsMenu,
@@ -147,6 +147,7 @@ export default function OperationsPage() {
     device_serial_number: "",
     sr_number: ""
   })
+  const [initializingBranch, setInitializingBranch] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -430,6 +431,41 @@ export default function OperationsPage() {
     } catch (error: any) {
       console.error("[Onboarding] Error:", error)
       toast.error(error.message || "Failed to save configuration")
+    }
+  }
+
+  const handleInitializeBranch = async () => {
+    if (!selectedRequest?.branch_id) {
+      toast.error("Branch ID not available for initialization")
+      return
+    }
+
+    setInitializingBranch(true)
+    try {
+      const response = await fetch("/api/kra/initialize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branch_id: selectedRequest.branch_id
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        toast.error(result.error || "Failed to initialize")
+        return
+      }
+
+      if (result.success) {
+        toast.success("KRA initialization successful - logged to branch profile")
+      } else {
+        toast.warning("KRA initialization completed with errors - check branch logs")
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to initialize branch")
+    } finally {
+      setInitializingBranch(false)
     }
   }
 
@@ -1127,10 +1163,25 @@ export default function OperationsPage() {
               </div>
               <p className="text-xs text-slate-500 mt-2">Hardware will be registered and assigned to this branch when configuration is saved.</p>
             </div>
-            <Button onClick={handleConfigureOnboarding} className="w-full">
-              <Check className="h-4 w-4 mr-2" />
-              Save Configuration
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleInitializeBranch}
+                disabled={initializingBranch}
+                className="gap-2"
+              >
+                {initializingBranch ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )}
+                Initialize
+              </Button>
+              <Button onClick={handleConfigureOnboarding} className="flex-1">
+                <Check className="h-4 w-4 mr-2" />
+                Save Configuration
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
