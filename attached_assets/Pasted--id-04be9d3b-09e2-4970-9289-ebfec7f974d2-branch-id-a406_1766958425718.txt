@@ -1,0 +1,70 @@
+ {
+    "id": "04be9d3b-09e2-4970-9289-ebfec7f974d2",
+    "branch_id": "a4069ca9-73e5-41eb-9cf4-30b668d4eef6",
+    "vendor_id": null,
+    "user_id": "966a5a25-96eb-4adf-baf6-24b5e0cd35bd",
+    "username": "Liban.D",
+    "step": "image_print_error",
+    "status": "error",
+    "message": "Image print failed",
+    "invoice_number": null,
+    "error_details": {},
+    "created_at": "2025-12-28T21:46:20.008Z"
+  },
+  {
+    "id": "1536ed6b-c953-48fa-b8ca-401f3ceb3890",
+    "branch_id": "a4069ca9-73e5-41eb-9cf4-30b668d4eef6",
+    "vendor_id": null,
+    "user_id": "966a5a25-96eb-4adf-baf6-24b5e0cd35bd",
+    "username": "Liban.D",
+    "step": "image_print_sending",
+    "status": "info",
+    "message": "Sending image to printer",
+    "invoice_number": null,
+    "error_details": null,
+    "created_at": "2025-12-28T21:46:19.984Z"
+  },
+  {
+    "id": "005305f6-9767-44cc-a1d8-01cd7cc7b0b9",
+    "branch_id": "a4069ca9-73e5-41eb-9cf4-30b668d4eef6",
+    "vendor_id": null,
+    "user_id": "966a5a25-96eb-4adf-baf6-24b5e0cd35bd",
+    "username": "Liban.D",
+    "step": "image_print_processing",
+    "status": "info",
+    "message": "Processing image, length: 134256",
+    "invoice_number": null,
+    "error_details": null,
+    "created_at": "2025-12-28T21:46:19.981Z"
+  },
+  {
+    "id": "59344d45-12b4-4447-a454-30e1581a3644",
+    "branch_id": "a4069ca9-73e5-41eb-9cf4-30b668d4eef6",
+    "vendor_id": null,
+    "user_id": "966a5a25-96eb-4adf-baf6-24b5e0cd35bd",
+    "username": "Liban.D",
+    "step": "image_print_alignment",
+    "status": "info",
+    "message": "Setting alignment",
+    "invoice_number": null,
+    "error_details": null,
+    "created_at": "2025-12-28T21:46:19.980Z"
+  },
+  {
+    "id": "c6d6c7d6-fce8-4906-a948-1e7f3534dedb",
+    "branch_id": "a4069ca9-73e5-41eb-9cf4-30b668d4eef6",
+    "vendor_id": null,
+    "user_id": "966a5a25-96eb-4adf-baf6-24b5e0cd35bd",
+    "username": "Liban.D",
+    "step": "image_print_start",
+    "status": "start",
+    "message": "Starting image print",
+    "invoice_number": null,
+    "error_details": {
+      "hasSunmiLib": true,
+      "imageLength": 134256,
+      "isSunmiDevice": true
+    },
+    "created_at": "2025-12-28T21:46:19.878Z"
+  }
+]
