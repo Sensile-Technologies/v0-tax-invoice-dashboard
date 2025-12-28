@@ -222,7 +222,7 @@ async function GET(request) {
                 ]);
                 const tankIds = tanks.map((t)=>t.id);
                 if (tankIds.length > 0) {
-                    dispensers = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT d.*, t.tank_name,
+                    dispensers = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT d.*, t.tank_name,
              COALESCE(
                (SELECT meter_reading_after 
                 FROM po_acceptance_dispenser_readings pdr
@@ -233,8 +233,10 @@ async function GET(request) {
                0
              ) as last_meter_reading
              FROM dispensers d 
-             LEFT JOIN tanks t ON d.tank_id = t.id 
-             WHERE d.branch_id = $1 AND d.tank_id = ANY($2::uuid[])
+             LEFT JOIN tanks t ON d.tank_id = t.id
+             LEFT JOIN dispenser_tanks dt ON d.id = dt.dispenser_id
+             WHERE d.branch_id = $1 
+               AND (d.tank_id = ANY($2::uuid[]) OR dt.tank_id = ANY($2::uuid[]))
              ORDER BY d.dispenser_number`, [
                         branchId,
                         tankIds
