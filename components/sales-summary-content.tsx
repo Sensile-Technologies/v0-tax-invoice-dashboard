@@ -259,6 +259,7 @@ export function SalesSummaryContent() {
     setSaleLoading(true)
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
+      console.log("[handleCreateSale] currentBranch:", currentBranch)
       if (!currentBranch) {
         toast.error("No branch selected")
         setSaleLoading(false)
@@ -267,8 +268,10 @@ export function SalesSummaryContent() {
 
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
+      console.log("[handleCreateSale] branchId:", branchId)
 
       const fuelPrice = fuelPrices.find((p) => p.fuel_type === saleForm.fuel_type)
+      console.log("[handleCreateSale] fuelPrice:", fuelPrice)
       if (!fuelPrice) {
         toast.error(`No price configured for ${saleForm.fuel_type}`)
         setSaleLoading(false)
@@ -276,9 +279,13 @@ export function SalesSummaryContent() {
       }
 
       const selectedNozzle = nozzles.find((n) => n.id === saleForm.nozzle_id)
+      console.log("[handleCreateSale] selectedNozzle:", selectedNozzle)
 
+      console.log("[handleCreateSale] Fetching previous sales...")
       const prevSalesRes = await fetch(`/api/sales?nozzle_id=${saleForm.nozzle_id}`)
+      console.log("[handleCreateSale] prevSalesRes status:", prevSalesRes.status)
       const prevSalesResult = await prevSalesRes.json()
+      console.log("[handleCreateSale] prevSalesResult:", prevSalesResult)
       const previousSales = prevSalesResult.success ? prevSalesResult.data : []
 
       let calculatedMeterReading = Number(selectedNozzle?.initial_meter_reading) || 0
