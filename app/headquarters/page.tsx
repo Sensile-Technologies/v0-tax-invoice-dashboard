@@ -845,7 +845,7 @@ export default function HeadquartersPage() {
             {/* Branches Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="rounded-xl bg-white hover:bg-gray-50">
+                <Button variant="ghost" className="rounded-xl bg-transparent text-white hover:bg-white/10">
                   <Building2 className="mr-2 h-4 w-4" />
                   Branches
                   <ChevronDown className="ml-2 h-4 w-4" />
@@ -890,7 +890,7 @@ export default function HeadquartersPage() {
             {/* Users Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2 rounded-xl bg-white hover:bg-gray-50">
+                <Button variant="ghost" className="gap-2 rounded-xl bg-transparent text-white hover:bg-white/10">
                   <Users className="h-4 w-4" />
                   Users
                   <ChevronDown className="h-4 w-4" />
@@ -920,7 +920,7 @@ export default function HeadquartersPage() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="rounded-xl bg-white hover:bg-gray-50">
+                <Button variant="ghost" className="rounded-xl bg-transparent text-white hover:bg-white/10">
                   <Clock className="mr-2 h-4 w-4" />
                   Shifts
                   <ChevronDown className="ml-2 h-4 w-4" />
@@ -946,8 +946,8 @@ export default function HeadquartersPage() {
 
             {/* Item Management Button */}
             <Button
-              variant="outline"
-              className="rounded-xl bg-white hover:bg-gray-50"
+              variant="ghost"
+              className="rounded-xl bg-transparent text-white hover:bg-white/10"
               onClick={() => router.push("/headquarters/items")}
             >
               <Package className="mr-2 h-4 w-4" />
@@ -957,7 +957,7 @@ export default function HeadquartersPage() {
             {/* Suppliers Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="rounded-xl bg-white hover:bg-gray-50">
+                <Button variant="ghost" className="rounded-xl bg-transparent text-white hover:bg-white/10">
                   <Truck className="mr-2 h-4 w-4" />
                   Suppliers
                   <ChevronDown className="ml-2 h-4 w-4" />
