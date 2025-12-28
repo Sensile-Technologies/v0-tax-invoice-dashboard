@@ -8,14 +8,14 @@ export async function GET(
   try {
     const { id } = await params
 
-    const result = await query(`
+    const result = await query<any>(`
       SELECT id, invoice_number, status, due_date, total_amount, paid_amount
       FROM invoices
       WHERE vendor_id = $1
       ORDER BY created_at DESC
     `, [id])
 
-    const invoices = result.rows.map((row: any) => ({
+    const invoices = (result || []).map((row: any) => ({
       ...row,
       due_date: row.due_date ? row.due_date.toISOString() : null,
       total_amount: row.total_amount ? Number(row.total_amount) : 0,
