@@ -94,7 +94,11 @@ export async function GET(request: NextRequest) {
           CASE WHEN bi.id IS NOT NULL THEN true ELSE false END as is_assigned
         FROM items i
         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-        WHERE i.vendor_id = $2 AND i.branch_id IS NULL AND i.status = 'active'
+        WHERE i.status = 'active' 
+          AND (
+            (i.vendor_id = $2 AND i.branch_id IS NULL)
+            OR i.branch_id = $1
+          )
         ORDER BY i.item_name`,
         [branchId, branch.vendor_id]
       )

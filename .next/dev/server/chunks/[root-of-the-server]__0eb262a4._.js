@@ -112,7 +112,11 @@ async function GET(request) {
         }
         const client = await pool.connect();
         try {
-            const userResult = await client.query('SELECT role, vendor_id, branch_id FROM users WHERE id = $1', [
+            const userResult = await client.query(`SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id, s.branch_id
+         FROM users u
+         LEFT JOIN vendors v ON v.email = u.email
+         LEFT JOIN staff s ON s.user_id = u.id
+         WHERE u.id = $1`, [
                 session.id
             ]);
             if (userResult.rows.length === 0) {
@@ -124,6 +128,9 @@ async function GET(request) {
                 });
             }
             const user = userResult.rows[0];
+            const userVendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+                session.id
+            ])).rows[0]?.vendor_id;
             const branchCheck = await client.query('SELECT id, vendor_id FROM branches WHERE id = $1', [
                 branchId
             ]);
@@ -136,7 +143,7 @@ async function GET(request) {
                 });
             }
             const branch = branchCheck.rows[0];
-            if (branch.vendor_id !== user.vendor_id) {
+            if (branch.vendor_id !== userVendorId) {
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                     success: false,
                     error: "Access denied"
@@ -177,7 +184,11 @@ async function GET(request) {
           CASE WHEN bi.id IS NOT NULL THEN true ELSE false END as is_assigned
         FROM items i
         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-        WHERE i.vendor_id = $2 AND i.branch_id IS NULL AND i.status = 'active'
+        WHERE i.status = 'active' 
+          AND (
+            (i.vendor_id = $2 AND i.branch_id IS NULL)
+            OR i.branch_id = $1
+          )
         ORDER BY i.item_name`, [
                 branchId,
                 branch.vendor_id

@@ -67,9 +67,11 @@ export async function GET(request: NextRequest) {
 
       const result = await client.query(
         `SELECT i.*, 
+         b.name as branch_name,
          (SELECT COUNT(*) FROM branch_items bi WHERE bi.item_id = i.id) as assigned_branches
          FROM items i 
-         WHERE i.vendor_id = $1 AND i.branch_id IS NULL
+         LEFT JOIN branches b ON i.branch_id = b.id
+         WHERE i.vendor_id = $1 OR i.branch_id IN (SELECT id FROM branches WHERE vendor_id = $1)
          ORDER BY i.created_at DESC`,
         [vendorId]
       )

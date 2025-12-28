@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
-import { Search, RefreshCw, Edit, Check, X, DollarSign } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Search, RefreshCw, DollarSign, MoreVertical, Edit, Trash2 } from "lucide-react"
 import { toast } from "react-toastify"
 import { useCurrency } from "@/lib/currency-utils"
 
@@ -35,17 +36,15 @@ interface BranchItem {
   kra_last_synced_at: string | null
 }
 
-interface BranchItemPricingProps {
-  branchId: string | null
-}
-
-export default function BranchItemPricing({ branchId }: BranchItemPricingProps) {
+export default function BranchItemPricing() {
   const [items, setItems] = useState<BranchItem[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [showPriceDialog, setShowPriceDialog] = useState(false)
   const [selectedItem, setSelectedItem] = useState<BranchItem | null>(null)
   const [saving, setSaving] = useState(false)
+  const [branchId, setBranchId] = useState<string | null>(null)
+  const [branchName, setBranchName] = useState<string>("")
   const { formatCurrency } = useCurrency()
 
   const [priceForm, setPriceForm] = useState({
@@ -55,10 +54,49 @@ export default function BranchItemPricing({ branchId }: BranchItemPricingProps) 
   })
 
   useEffect(() => {
+    fetchCurrentBranch()
+  }, [])
+
+  useEffect(() => {
     if (branchId) {
       fetchBranchItems()
     }
   }, [branchId])
+
+  const fetchCurrentBranch = async () => {
+    try {
+      const branchData = localStorage.getItem("selectedBranch")
+      if (branchData) {
+        const parsed = JSON.parse(branchData)
+        if (parsed.id) {
+          setBranchId(parsed.id)
+          setBranchName(parsed.name || "")
+          return
+        }
+      }
+
+      const response = await fetch("/api/auth/session")
+      const result = await response.json()
+      if (result.success && result.session?.branch_id) {
+        setBranchId(result.session.branch_id)
+        const branchRes = await fetch(`/api/branches/${result.session.branch_id}`)
+        const branchResult = await branchRes.json()
+        if (branchResult.success) {
+          setBranchName(branchResult.branch?.name || "")
+        }
+      } else {
+        const branchRes = await fetch("/api/branches")
+        const branchResult = await branchRes.json()
+        if (branchResult.success && branchResult.data?.length > 0) {
+          const firstBranch = branchResult.data[0]
+          setBranchId(firstBranch.id)
+          setBranchName(firstBranch.name)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching branch:", error)
+    }
+  }
 
   const fetchBranchItems = async () => {
     if (!branchId) return
@@ -178,14 +216,11 @@ export default function BranchItemPricing({ branchId }: BranchItemPricingProps) 
     item.item_code.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const assignedItems = filteredItems.filter(i => i.is_assigned)
-  const unassignedItems = filteredItems.filter(i => !i.is_assigned)
-
   if (!branchId) {
     return (
       <Card className="rounded-2xl">
         <CardContent className="py-8 text-center text-muted-foreground">
-          Please select a branch to manage item pricing
+          Loading branch information...
         </CardContent>
       </Card>
     )
@@ -198,16 +233,23 @@ export default function BranchItemPricing({ branchId }: BranchItemPricingProps) 
           <div>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              Branch Item Pricing
+              Set Prices
             </CardTitle>
             <CardDescription>
-              Set branch-specific prices for items from the vendor catalog
+              Manage selling prices for items at {branchName || "your branch"}
             </CardDescription>
           </div>
-          <Button variant="outline" onClick={fetchBranchItems} className="rounded-xl">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            {branchName && (
+              <Badge variant="outline" className="text-sm">
+                {branchName}
+              </Badge>
+            )}
+            <Button variant="outline" onClick={fetchBranchItems} className="rounded-xl">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
@@ -224,101 +266,81 @@ export default function BranchItemPricing({ branchId }: BranchItemPricingProps) 
 
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Loading items...</div>
-          ) : items.length === 0 ? (
+          ) : filteredItems.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No items in vendor catalog. Items must be created at headquarters first.
+              No items found. Add items in Item Management first.
             </div>
           ) : (
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  Assigned Items ({assignedItems.length})
-                </h3>
-                {assignedItems.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No items assigned to this branch yet</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Item Code</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead className="text-right">Sale Price</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {assignedItems.map((item) => (
-                        <TableRow key={item.item_id}>
-                          <TableCell className="font-mono text-sm">{item.item_code}</TableCell>
-                          <TableCell className="font-medium">{item.item_name}</TableCell>
-                          <TableCell>{item.item_type}</TableCell>
-                          <TableCell className="text-right font-medium">
-                            {formatCurrency(item.branch_sale_price || 0)}
-                            {item.branch_sale_price !== item.default_sale_price && (
-                              <span className="text-xs text-muted-foreground ml-1">
-                                (default: {formatCurrency(item.default_sale_price)})
-                              </span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {item.is_available !== false ? (
-                              <Badge className="bg-green-100 text-green-800">Available</Badge>
-                            ) : (
-                              <Badge className="bg-gray-100 text-gray-800">Disabled</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right space-x-1">
-                            <Button variant="ghost" size="sm" onClick={() => openPriceDialog(item)}>
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => handleRemoveFromBranch(item)}>
-                              <X className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </div>
-
-              {unassignedItems.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-3 flex items-center gap-2 text-muted-foreground">
-                    Available to Assign ({unassignedItems.length})
-                  </h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Item Code</TableHead>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead className="text-right">Default Price</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {unassignedItems.map((item) => (
-                        <TableRow key={item.item_id} className="opacity-70 hover:opacity-100">
-                          <TableCell className="font-mono text-sm">{item.item_code}</TableCell>
-                          <TableCell>{item.item_name}</TableCell>
-                          <TableCell>{item.item_type}</TableCell>
-                          <TableCell className="text-right">{formatCurrency(item.default_sale_price)}</TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="outline" size="sm" onClick={() => openPriceDialog(item)}>
-                              Assign & Set Price
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Item Code</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Default Price</TableHead>
+                  <TableHead className="text-right">Selling Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredItems.map((item) => (
+                  <TableRow key={item.item_id}>
+                    <TableCell className="font-mono text-sm">{item.item_code}</TableCell>
+                    <TableCell className="font-medium">{item.item_name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="capitalize">
+                        {item.item_type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {formatCurrency(item.default_sale_price)}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {item.is_assigned && item.branch_sale_price !== null
+                        ? formatCurrency(item.branch_sale_price)
+                        : <span className="text-muted-foreground">Not set</span>
+                      }
+                    </TableCell>
+                    <TableCell>
+                      {item.is_assigned ? (
+                        item.is_available !== false ? (
+                          <Badge className="bg-green-100 text-green-800">Active</Badge>
+                        ) : (
+                          <Badge className="bg-gray-100 text-gray-800">Disabled</Badge>
+                        )
+                      ) : (
+                        <Badge className="bg-yellow-100 text-yellow-800">Not Assigned</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openPriceDialog(item)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            {item.is_assigned ? "Edit Price" : "Set Price"}
+                          </DropdownMenuItem>
+                          {item.is_assigned && item.branch_item_id && (
+                            <DropdownMenuItem 
+                              onClick={() => handleRemoveFromBranch(item)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove from Branch
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
@@ -327,12 +349,12 @@ export default function BranchItemPricing({ branchId }: BranchItemPricingProps) 
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedItem?.is_assigned ? "Edit Item Price" : "Assign Item to Branch"}
+              {selectedItem?.is_assigned ? "Edit Selling Price" : "Set Selling Price"}
             </DialogTitle>
             <DialogDescription>
               {selectedItem?.is_assigned 
-                ? "Update the branch-specific price for this item"
-                : "Set the price for this item at your branch"}
+                ? "Update the selling price for this item"
+                : "Set the selling price for this item at your branch"}
             </DialogDescription>
           </DialogHeader>
 
@@ -345,42 +367,47 @@ export default function BranchItemPricing({ branchId }: BranchItemPricingProps) 
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Sale Price *</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={priceForm.salePrice}
-                  onChange={(e) => setPriceForm({ ...priceForm, salePrice: e.target.value })}
-                  placeholder="0.00"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Default: {formatCurrency(selectedItem?.default_sale_price || 0)}
-                </p>
+            <div className="space-y-2">
+              <Label>Default Price</Label>
+              <div className="p-3 bg-muted rounded-lg text-muted-foreground">
+                {formatCurrency(selectedItem?.default_sale_price || 0)}
               </div>
-              <div className="space-y-2">
-                <Label>Purchase Price</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={priceForm.purchasePrice}
-                  onChange={(e) => setPriceForm({ ...priceForm, purchasePrice: e.target.value })}
-                  placeholder="0.00"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Default: {formatCurrency(selectedItem?.default_purchase_price || 0)}
-                </p>
-              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="salePrice">Selling Price *</Label>
+              <Input
+                id="salePrice"
+                type="number"
+                step="0.01"
+                value={priceForm.salePrice}
+                onChange={(e) => setPriceForm({ ...priceForm, salePrice: e.target.value })}
+                placeholder="Enter selling price"
+                className="rounded-xl"
+              />
+              <p className="text-xs text-muted-foreground">
+                This price will override the default price for this branch
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="purchasePrice">Purchase Price (Optional)</Label>
+              <Input
+                id="purchasePrice"
+                type="number"
+                step="0.01"
+                value={priceForm.purchasePrice}
+                onChange={(e) => setPriceForm({ ...priceForm, purchasePrice: e.target.value })}
+                placeholder="Enter purchase price"
+                className="rounded-xl"
+              />
             </div>
 
             {selectedItem?.is_assigned && (
               <div className="flex items-center justify-between">
-                <div>
-                  <Label>Available for Sale</Label>
-                  <p className="text-sm text-muted-foreground">Disable to temporarily remove from branch</p>
-                </div>
+                <Label htmlFor="isAvailable">Item Available for Sale</Label>
                 <Switch
+                  id="isAvailable"
                   checked={priceForm.isAvailable}
                   onCheckedChange={(checked) => setPriceForm({ ...priceForm, isAvailable: checked })}
                 />
@@ -389,9 +416,11 @@ export default function BranchItemPricing({ branchId }: BranchItemPricingProps) 
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPriceDialog(false)}>Cancel</Button>
-            <Button onClick={handleSavePrice} disabled={saving}>
-              {saving ? "Saving..." : selectedItem?.is_assigned ? "Update Price" : "Assign Item"}
+            <Button variant="outline" onClick={() => setShowPriceDialog(false)} className="rounded-xl">
+              Cancel
+            </Button>
+            <Button onClick={handleSavePrice} disabled={saving} className="rounded-xl">
+              {saving ? "Saving..." : "Save Price"}
             </Button>
           </DialogFooter>
         </DialogContent>

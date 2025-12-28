@@ -2175,6 +2175,10 @@
     width: --radix-popover-trigger-width;
   }
 
+  .w-\[50px\] {
+    width: 50px;
+  }
+
   .w-\[180px\] {
     width: 180px;
   }
@@ -3094,12 +3098,6 @@
 
   :where(.space-y-reverse > :not(:last-child)) {
     --tw-space-y-reverse: 1;
-  }
-
-  :where(.space-x-1 > :not(:last-child)) {
-    --tw-space-x-reverse: 0;
-    margin-inline-start: calc(calc(var(--spacing) * 1) * var(--tw-space-x-reverse));
-    margin-inline-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-x-reverse)));
   }
 
   :where(.space-x-2 > :not(:last-child)) {
