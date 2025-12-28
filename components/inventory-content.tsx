@@ -19,11 +19,13 @@ import {
   Fuel,
   FileText,
   RefreshCw,
+  DollarSign,
 } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
 import TankManagement from "./tank-management"
 import NozzleManagement from "./nozzle-management"
 import DispenserManagement from "./dispenser-management"
+import BranchItemPricing from "./branch-item-pricing"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 
@@ -82,7 +84,7 @@ type SortDirection = "asc" | "desc" | null
 
 export function InventoryContent() {
   const [activeView, setActiveView] = useState<
-    "cards" | "stockIn" | "stockOut" | "tankManagement" | "dispenserManagement" | "nozzleManagement" | "stockReport"
+    "cards" | "stockIn" | "stockOut" | "tankManagement" | "dispenserManagement" | "nozzleManagement" | "stockReport" | "itemPricing"
   >("cards")
   const [searchQuery, setSearchQuery] = useState("")
   const [startDate, setStartDate] = useState("")
@@ -302,6 +304,20 @@ export function InventoryContent() {
             <CardContent>
               <div className="text-2xl font-bold">Manage Nozzles</div>
               <p className="text-xs text-muted-foreground mt-1">Add & configure nozzles</p>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="rounded-2xl cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setActiveView("itemPricing")}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Item Pricing</CardTitle>
+              <DollarSign className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">Set Prices</div>
+              <p className="text-xs text-muted-foreground mt-1">Branch-specific item prices</p>
             </CardContent>
           </Card>
         </div>
@@ -646,6 +662,29 @@ export function InventoryContent() {
             </Button>
           </div>
           <NozzleManagement branchId={selectedBranchId} />
+        </div>
+      )}
+
+      {activeView === "itemPricing" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
+              ← Back to Overview
+            </Button>
+            <div className="w-64">
+              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <BranchItemPricing branchId={selectedBranchId} />
         </div>
       )}
     </div>

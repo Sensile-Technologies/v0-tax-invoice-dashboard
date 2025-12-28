@@ -1,0 +1,35 @@
+"use client"
+
+import { DashboardHeader } from "@/components/dashboard-header"
+import { HqItemsManager } from "@/components/hq-items-manager"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
+
+export default function HqItemsPage() {
+  const router = useRouter()
+
+  return (
+    <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+      <DashboardHeader currentBranch="hq" />
+      <main className="flex-1 overflow-y-auto p-8">
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/headquarters")}
+            className="rounded-xl mb-4"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Headquarters
+          </Button>
+          <h1 className="text-3xl font-bold tracking-tight">Item Catalog Management</h1>
+          <p className="mt-1 text-muted-foreground">
+            Create and manage items centrally. Items created here will be available for all branches to use with their own pricing.
+          </p>
+        </div>
+
+        <HqItemsManager />
+      </main>
+    </div>
+  )
+}

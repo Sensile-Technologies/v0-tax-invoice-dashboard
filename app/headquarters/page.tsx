@@ -944,6 +944,16 @@ export default function HeadquartersPage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            {/* Item Catalog Button */}
+            <Button
+              variant="outline"
+              className="rounded-xl bg-white hover:bg-gray-50"
+              onClick={() => router.push("/headquarters/items")}
+            >
+              <Package className="mr-2 h-4 w-4" />
+              Item Catalog
+            </Button>
+
             {/* Suppliers Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
