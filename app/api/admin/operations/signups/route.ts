@@ -12,9 +12,9 @@ export async function GET() {
         l.contact_name,
         l.contact_email as email,
         l.contact_phone as phone,
-        l.location,
-        l.county,
-        l.address,
+        COALESCE(l.location, '') as location,
+        COALESCE(l.county, '') as county,
+        COALESCE(l.address, '') as address,
         l.stage as status,
         l.created_at,
         sp.name as sales_person_name

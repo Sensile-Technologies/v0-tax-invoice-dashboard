@@ -149,11 +149,9 @@ async function GET() {
         l.contact_name,
         l.contact_email as email,
         l.contact_phone as phone,
-        l.location,
-        l.county,
-        l.address,
-        l.device_serial_number,
-        l.sr_number,
+        COALESCE(l.location, '') as location,
+        COALESCE(l.county, '') as county,
+        COALESCE(l.address, '') as address,
         l.stage as status,
         l.created_at,
         sp.name as sales_person_name
@@ -170,7 +168,7 @@ async function GET() {
 }
 async function PUT(request) {
     try {
-        const { lead_id, company_name, trading_name, kra_pin, contact_name, email, phone, location, county, address, device_serial_number, sr_number } = await request.json();
+        const { lead_id, company_name, trading_name, kra_pin, contact_name, email, phone, location, county, address } = await request.json();
         if (!lead_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Lead ID is required"
@@ -191,8 +189,6 @@ async function PUT(request) {
         location = COALESCE($8, location),
         county = COALESCE($9, county),
         address = COALESCE($10, address),
-        device_serial_number = COALESCE($11, device_serial_number),
-        sr_number = COALESCE($12, sr_number),
         updated_at = NOW()
       WHERE id = $1
       RETURNING *
@@ -206,9 +202,7 @@ async function PUT(request) {
             phone,
             location,
             county,
-            address,
-            device_serial_number || null,
-            sr_number ? parseInt(sr_number) : null
+            address
         ]);
         if (result.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
