@@ -241,25 +241,19 @@ export function SalesSummaryContent() {
   }
 
   async function handleCreateSale() {
-    console.log("[handleCreateSale] Called with form:", saleForm)
-    
     if (!saleForm.nozzle_id || !saleForm.fuel_type || !saleForm.amount) {
-      console.log("[handleCreateSale] Missing required fields", { nozzle_id: saleForm.nozzle_id, fuel_type: saleForm.fuel_type, amount: saleForm.amount })
       toast.error("Please fill in all required fields")
       return
     }
 
     if (!currentShift) {
-      console.log("[handleCreateSale] No current shift")
       toast.error("Please start a shift before recording sales")
       return
     }
 
-    console.log("[handleCreateSale] Starting sale creation...")
     setSaleLoading(true)
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
-      console.log("[handleCreateSale] currentBranch:", currentBranch)
       if (!currentBranch) {
         toast.error("No branch selected")
         setSaleLoading(false)
@@ -268,31 +262,14 @@ export function SalesSummaryContent() {
 
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
-      console.log("[handleCreateSale] branchId:", branchId)
 
       const fuelPrice = fuelPrices.find((p) => p.fuel_type === saleForm.fuel_type)
-      console.log("[handleCreateSale] fuelPrice:", fuelPrice)
       if (!fuelPrice) {
         toast.error(`No price configured for ${saleForm.fuel_type}`)
         setSaleLoading(false)
         return
       }
 
-      const selectedNozzle = nozzles.find((n) => n.id === saleForm.nozzle_id)
-      console.log("[handleCreateSale] selectedNozzle:", selectedNozzle)
-
-      console.log("[handleCreateSale] Fetching previous sales...")
-      const prevSalesRes = await fetch(`/api/sales?nozzle_id=${saleForm.nozzle_id}`)
-      console.log("[handleCreateSale] prevSalesRes status:", prevSalesRes.status)
-      const prevSalesResult = await prevSalesRes.json()
-      console.log("[handleCreateSale] prevSalesResult:", prevSalesResult)
-      const previousSales = prevSalesResult.success ? prevSalesResult.data : []
-
-      let calculatedMeterReading = Number(selectedNozzle?.initial_meter_reading) || 0
-      if (previousSales && previousSales.length > 0) {
-        const totalPreviousSales = previousSales.reduce((sum: number, sale: any) => sum + Number(sale.quantity), 0)
-        calculatedMeterReading = calculatedMeterReading + totalPreviousSales
-      }
       const grossAmount = Number.parseFloat(saleForm.amount)
       const unitPrice = Number.parseFloat(fuelPrice.price)
       
@@ -307,7 +284,6 @@ export function SalesSummaryContent() {
       }
       const totalAmount = Math.max(grossAmount - discountAmount, 0)
       const quantity = totalAmount / unitPrice
-      calculatedMeterReading = calculatedMeterReading + quantity
 
       const invoiceNumber = `INV-${Date.now()}`
       const receiptNumber = `RCP-${Date.now()}`
@@ -328,7 +304,7 @@ export function SalesSummaryContent() {
           vehicle_number: saleForm.vehicle_number || null,
           customer_pin: saleForm.customer_pin || null,
           invoice_number: invoiceNumber,
-          meter_reading_after: calculatedMeterReading,
+          meter_reading_after: 0,
           transmission_status: "pending",
           receipt_number: receiptNumber,
           is_loyalty_sale: saleForm.is_loyalty_sale,
