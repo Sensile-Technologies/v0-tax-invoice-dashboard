@@ -194,13 +194,6 @@ export function DashboardSidebar({
                   {item.label === "Items" && (
                     <>
                       <Link
-                        href="/add-item"
-                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
-                        onClick={handleLinkClick}
-                      >
-                        Add Item
-                      </Link>
-                      <Link
                         href="/items"
                         className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
                         onClick={handleLinkClick}
