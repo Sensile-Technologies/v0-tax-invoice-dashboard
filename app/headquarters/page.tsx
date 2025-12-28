@@ -922,7 +922,7 @@ export default function HeadquartersPage() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="rounded-xl bg-white hover:bg-gray-50">
                   <Clock className="mr-2 h-4 w-4" />
-                  Shift Management
+                  Shifts
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -951,7 +951,7 @@ export default function HeadquartersPage() {
               onClick={() => router.push("/headquarters/items")}
             >
               <Package className="mr-2 h-4 w-4" />
-              Item Management
+              Items
             </Button>
 
             {/* Suppliers Dropdown */}
