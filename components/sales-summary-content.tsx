@@ -49,6 +49,7 @@ export function SalesSummaryContent() {
   const [tankBaselines, setTankBaselines] = useState<Record<string, number>>({})
   const [currentShift, setCurrentShift] = useState<any | null>(null)
   const [loading, setLoading] = useState(false)
+  const [saleLoading, setSaleLoading] = useState(false)
   const [showSaleDialog, setShowSaleDialog] = useState(false)
   const [showShiftDialog, setShowShiftDialog] = useState(false)
   const [shiftAction, setShiftAction] = useState<"start" | "end" | null>(null)
@@ -255,12 +256,12 @@ export function SalesSummaryContent() {
     }
 
     console.log("[handleCreateSale] Starting sale creation...")
-    setLoading(true)
+    setSaleLoading(true)
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
       if (!currentBranch) {
         toast.error("No branch selected")
-        setLoading(false)
+        setSaleLoading(false)
         return
       }
 
@@ -270,7 +271,7 @@ export function SalesSummaryContent() {
       const fuelPrice = fuelPrices.find((p) => p.fuel_type === saleForm.fuel_type)
       if (!fuelPrice) {
         toast.error(`No price configured for ${saleForm.fuel_type}`)
-        setLoading(false)
+        setSaleLoading(false)
         return
       }
 
@@ -377,7 +378,7 @@ export function SalesSummaryContent() {
           discount_value: "",
         })
         setShowSaleDialog(false)
-        setLoading(false)
+        setSaleLoading(false)
         fetchSales(currentShift?.id).catch(console.error)
         return
       }
@@ -385,7 +386,7 @@ export function SalesSummaryContent() {
       console.error("Sale creation error:", error)
       toast.error("Failed to record sale")
     } finally {
-      setLoading(false)
+      setSaleLoading(false)
     }
   }
 
@@ -1229,8 +1230,8 @@ export function SalesSummaryContent() {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
-            <Button type="button" onClick={() => { console.log("[Record Sale Button] Clicked, loading:", loading); handleCreateSale(); }} disabled={loading}>
-              {loading ? "Recording..." : "Record Sale"}
+            <Button type="button" onClick={() => { console.log("[Record Sale Button] Clicked, saleLoading:", saleLoading); handleCreateSale(); }} disabled={saleLoading}>
+              {saleLoading ? "Recording..." : "Record Sale"}
             </Button>
           </DialogFooter>
         </DialogContent>
