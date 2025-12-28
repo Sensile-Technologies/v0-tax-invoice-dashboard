@@ -121,6 +121,8 @@ __turbopack_async_result__();
 return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
 
 __turbopack_context__.s([
+    "DELETE",
+    ()=>DELETE,
     "GET",
     ()=>GET,
     "PUT",
@@ -142,9 +144,16 @@ async function GET() {
       SELECT 
         l.id as lead_id,
         l.company_name,
+        l.trading_name,
+        l.kra_pin,
         l.contact_name,
         l.contact_email as email,
         l.contact_phone as phone,
+        l.location,
+        l.county,
+        l.address,
+        l.device_serial_number,
+        l.sr_number,
         l.stage as status,
         l.created_at,
         sp.name as sales_person_name
@@ -161,56 +170,99 @@ async function GET() {
 }
 async function PUT(request) {
     try {
-        const { lead_id } = await request.json();
-        // First get the lead to check company name
-        const leadResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT company_name FROM leads WHERE id = $1
+        const { lead_id, company_name, trading_name, kra_pin, contact_name, email, phone, location, county, address, device_serial_number, sr_number } = await request.json();
+        if (!lead_id) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Lead ID is required"
+            }, {
+                status: 400
+            });
+        }
+        // Update lead with editable fields (allows admin to correct input mistakes)
+        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+      UPDATE leads 
+      SET 
+        company_name = COALESCE($2, company_name),
+        trading_name = COALESCE($3, trading_name),
+        kra_pin = COALESCE($4, kra_pin),
+        contact_name = COALESCE($5, contact_name),
+        contact_email = COALESCE($6, contact_email),
+        contact_phone = COALESCE($7, contact_phone),
+        location = COALESCE($8, location),
+        county = COALESCE($9, county),
+        address = COALESCE($10, address),
+        device_serial_number = COALESCE($11, device_serial_number),
+        sr_number = COALESCE($12, sr_number),
+        updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
     `, [
-            lead_id
+            lead_id,
+            company_name,
+            trading_name,
+            kra_pin,
+            contact_name,
+            email,
+            phone,
+            location,
+            county,
+            address,
+            device_serial_number || null,
+            sr_number ? parseInt(sr_number) : null
         ]);
-        if (leadResult.length === 0) {
+        if (result.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Lead not found"
             }, {
                 status: 404
             });
         }
-        const companyName = leadResult[0].company_name;
-        // Check if a branch exists with this company name (case-insensitive)
-        const branchResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT b.id, b.name, v.name as merchant_name
-      FROM branches b
-      JOIN vendors v ON b.vendor_id = v.id
-      WHERE LOWER(b.name) = LOWER($1) OR LOWER(v.name) = LOWER($1)
-      LIMIT 1
-    `, [
-            companyName
-        ]);
-        if (branchResult.length === 0) {
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(result[0]);
+    } catch (error) {
+        console.error("Error updating signup request:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Failed to save changes"
+        }, {
+            status: 500
+        });
+    }
+}
+async function DELETE(request) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const leadId = searchParams.get('id');
+        if (!leadId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "No branch found",
-                message: `No branch or merchant found with the name "${companyName}". Please ensure the merchant has been created in the system first.`
+                error: "Lead ID is required"
             }, {
                 status: 400
             });
         }
-        // Branch exists, move lead to signed_up stage
+        // Move lead back to 'contracting' stage instead of deleting
+        // This allows sales to re-review and move back to onboarding if needed
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       UPDATE leads 
-      SET stage = 'signed_up', updated_at = NOW()
-      WHERE id = $1
+      SET stage = 'contracting', updated_at = NOW()
+      WHERE id = $1 AND stage = 'onboarding'
       RETURNING *
     `, [
-            lead_id
+            leadId
         ]);
+        if (result.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Lead not found or not in onboarding stage"
+            }, {
+                status: 404
+            });
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            ...result[0],
-            branch_found: branchResult[0]
+            success: true,
+            message: "Lead moved back to contracting stage"
         });
     } catch (error) {
-        console.error("Error updating signup:", error);
+        console.error("Error removing signup request:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            error: "Failed to mark as signed up"
+            error: "Failed to remove from signup requests"
         }, {
             status: 500
         });

@@ -195,6 +195,16 @@ async function POST(request) {
                     status: 401
                 });
             }
+            // Block cashiers from web dashboard - they can only use the mobile APK
+            if (user.role && user.role.toLowerCase() === 'cashier') {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: {
+                        message: "Cashiers can only access the system through the mobile app. Please use the Flow360 mobile application."
+                    }
+                }, {
+                    status: 403
+                });
+            }
             // Check if vendor's branch has been activated (device_token configured)
             // Only applies to vendors, not admin or sales users
             if (user.vendor_id && user.branch_id) {
@@ -247,7 +257,8 @@ async function POST(request) {
                 id: user.id,
                 email: user.email,
                 vendor_id: user.vendor_id,
-                branch_id: user.branch_id
+                branch_id: user.branch_id,
+                role: user.role || 'vendor'
             }), {
                 path: '/',
                 maxAge: 60 * 60 * 24 * 7,
