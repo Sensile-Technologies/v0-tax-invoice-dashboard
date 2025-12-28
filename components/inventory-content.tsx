@@ -671,11 +671,21 @@ export function InventoryContent() {
             <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
               ← Back to Overview
             </Button>
-            {selectedBranchId && (
-              <Badge variant="outline" className="text-sm">
-                {branches.find(b => b.id === selectedBranchId)?.name || "Current Branch"}
-              </Badge>
-            )}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Branch:</span>
+              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <BranchItemPricing branchId={selectedBranchId} />
         </div>
