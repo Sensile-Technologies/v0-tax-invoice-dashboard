@@ -146,31 +146,15 @@ class PrinterService {
         imageData = `data:image/png;base64,${imageBase64}`;
       }
       
-      // Enter printer buffer mode for image printing (recommended for reliability)
-      sendPrintLog('image_print_enter_buffer', 'info', 'Entering printer buffer mode');
-      try {
-        await SunmiPrinterLibrary.enterPrinterBuffer(true);
-      } catch (bufferErr: any) {
-        sendPrintLog('image_print_buffer_warning', 'info', `Buffer mode optional: ${bufferErr?.message}`);
-      }
-      
       sendPrintLog('image_print_alignment', 'info', 'Setting alignment');
       await SunmiPrinterLibrary.setAlignment('center');
       
-      // Use printImage method with grayscale mode for better compatibility
-      sendPrintLog('image_print_sending', 'info', 'Sending image to printer (grayscale mode)');
-      await SunmiPrinterLibrary.printImage(imageData, 384, 'grayscale');
+      // Use printImage method with binary mode (standard for receipts)
+      sendPrintLog('image_print_sending', 'info', 'Sending image to printer');
+      await SunmiPrinterLibrary.printImage(imageData, 384, 'binary');
       
       // Add some line feeds at the end
       await SunmiPrinterLibrary.lineWrap(3);
-      
-      // Exit buffer mode to flush print
-      sendPrintLog('image_print_exit_buffer', 'info', 'Exiting printer buffer mode');
-      try {
-        await SunmiPrinterLibrary.exitPrinterBuffer(true);
-      } catch (bufferErr: any) {
-        sendPrintLog('image_print_buffer_exit_warning', 'info', `Buffer exit optional: ${bufferErr?.message}`);
-      }
       
       console.log('[PrinterService] === IMAGE PRINT SUCCESS ===');
       sendPrintLog('image_print_complete', 'success', 'Receipt printed successfully');
