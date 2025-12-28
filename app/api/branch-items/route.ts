@@ -34,7 +34,11 @@ export async function GET(request: NextRequest) {
     const client = await pool.connect()
     try {
       const userResult = await client.query(
-        'SELECT role, vendor_id, branch_id FROM users WHERE id = $1',
+        `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id, s.branch_id
+         FROM users u
+         LEFT JOIN vendors v ON v.email = u.email
+         LEFT JOIN staff s ON s.user_id = u.id
+         WHERE u.id = $1`,
         [session.id]
       )
       
@@ -43,6 +47,10 @@ export async function GET(request: NextRequest) {
       }
 
       const user = userResult.rows[0]
+      const userVendorId = user.vendor_id || (await client.query(
+        'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+        [session.id]
+      )).rows[0]?.vendor_id
 
       const branchCheck = await client.query(
         'SELECT id, vendor_id FROM branches WHERE id = $1',
@@ -55,7 +63,7 @@ export async function GET(request: NextRequest) {
 
       const branch = branchCheck.rows[0]
 
-      if (branch.vendor_id !== user.vendor_id) {
+      if (branch.vendor_id !== userVendorId) {
         return NextResponse.json({ success: false, error: "Access denied" }, { status: 403 })
       }
 

@@ -38,7 +38,12 @@ export async function GET(request: NextRequest) {
     const client = await pool.connect()
     try {
       const userResult = await client.query(
-        'SELECT role, vendor_id FROM users WHERE id = $1',
+        `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+         FROM users u
+         LEFT JOIN vendors v ON v.email = u.email
+         LEFT JOIN staff s ON s.user_id = u.id
+         LEFT JOIN branches b ON b.id = s.branch_id
+         WHERE u.id = $1`,
         [session.id]
       )
       
@@ -47,9 +52,17 @@ export async function GET(request: NextRequest) {
       }
 
       const user = userResult.rows[0]
+      const vendorId = user.vendor_id || (await client.query(
+        'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+        [session.id]
+      )).rows[0]?.vendor_id
       
       if (!['director', 'vendor'].includes(user.role)) {
         return NextResponse.json({ success: false, error: "Access denied. HQ access required." }, { status: 403 })
+      }
+
+      if (!vendorId) {
+        return NextResponse.json({ success: false, error: "Vendor not found" }, { status: 404 })
       }
 
       const result = await client.query(
@@ -58,7 +71,7 @@ export async function GET(request: NextRequest) {
          FROM items i 
          WHERE i.vendor_id = $1 AND i.branch_id IS NULL
          ORDER BY i.created_at DESC`,
-        [user.vendor_id]
+        [vendorId]
       )
 
       return NextResponse.json({
@@ -86,7 +99,11 @@ export async function POST(request: NextRequest) {
     }
 
     const userResult = await client.query(
-      'SELECT role, vendor_id FROM users WHERE id = $1',
+      `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
       [session.id]
     )
     
@@ -95,9 +112,17 @@ export async function POST(request: NextRequest) {
     }
 
     const user = userResult.rows[0]
+    const vendorId = user.vendor_id || (await client.query(
+      'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+      [session.id]
+    )).rows[0]?.vendor_id
     
     if (!['director', 'vendor'].includes(user.role)) {
       return NextResponse.json({ success: false, error: "Access denied. Only HQ can create items." }, { status: 403 })
+    }
+
+    if (!vendorId) {
+      return NextResponse.json({ success: false, error: "Vendor not found" }, { status: 404 })
     }
 
     const body = await request.json()
@@ -127,7 +152,7 @@ export async function POST(request: NextRequest) {
 
     const vendorResult = await client.query(
       'SELECT item_count FROM vendors WHERE id = $1 FOR UPDATE',
-      [user.vendor_id]
+      [vendorId]
     )
 
     if (vendorResult.rows.length === 0) {
@@ -148,7 +173,7 @@ export async function POST(request: NextRequest) {
 
     const existingItem = await client.query(
       'SELECT id FROM items WHERE item_code = $1 AND vendor_id = $2',
-      [itemCode, user.vendor_id]
+      [itemCode, vendorId]
     )
 
     if (existingItem.rows.length > 0) {
@@ -170,7 +195,7 @@ export async function POST(request: NextRequest) {
         'active', NOW(), NOW()
       ) RETURNING *`,
       [
-        user.vendor_id,
+        vendorId,
         itemCode,
         itemName,
         description || null,
@@ -189,7 +214,7 @@ export async function POST(request: NextRequest) {
 
     await client.query(
       'UPDATE vendors SET item_count = $1 WHERE id = $2',
-      [newItemCount, user.vendor_id]
+      [newItemCount, vendorId]
     )
 
     await client.query('COMMIT')
@@ -220,7 +245,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const userResult = await client.query(
-      'SELECT role, vendor_id FROM users WHERE id = $1',
+      `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
       [session.id]
     )
     
@@ -229,9 +258,17 @@ export async function PUT(request: NextRequest) {
     }
 
     const user = userResult.rows[0]
+    const vendorId = user.vendor_id || (await client.query(
+      'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+      [session.id]
+    )).rows[0]?.vendor_id
     
     if (!['director', 'vendor'].includes(user.role)) {
       return NextResponse.json({ success: false, error: "Access denied. Only HQ can edit items." }, { status: 403 })
+    }
+
+    if (!vendorId) {
+      return NextResponse.json({ success: false, error: "Vendor not found" }, { status: 404 })
     }
 
     const body = await request.json()
@@ -243,7 +280,7 @@ export async function PUT(request: NextRequest) {
 
     const itemCheck = await client.query(
       'SELECT id FROM items WHERE id = $1 AND vendor_id = $2',
-      [id, user.vendor_id]
+      [id, vendorId]
     )
 
     if (itemCheck.rows.length === 0) {
@@ -260,7 +297,7 @@ export async function PUT(request: NextRequest) {
         updated_at = NOW()
       WHERE id = $6 AND vendor_id = $7
       RETURNING *`,
-      [itemName, description, purchasePrice, salePrice, status, id, user.vendor_id]
+      [itemName, description, purchasePrice, salePrice, status, id, vendorId]
     )
 
     return NextResponse.json({
