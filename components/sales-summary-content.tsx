@@ -240,16 +240,21 @@ export function SalesSummaryContent() {
   }
 
   async function handleCreateSale() {
+    console.log("[handleCreateSale] Called with form:", saleForm)
+    
     if (!saleForm.nozzle_id || !saleForm.fuel_type || !saleForm.amount) {
+      console.log("[handleCreateSale] Missing required fields", { nozzle_id: saleForm.nozzle_id, fuel_type: saleForm.fuel_type, amount: saleForm.amount })
       toast.error("Please fill in all required fields")
       return
     }
 
     if (!currentShift) {
+      console.log("[handleCreateSale] No current shift")
       toast.error("Please start a shift before recording sales")
       return
     }
 
+    console.log("[handleCreateSale] Starting sale creation...")
     setLoading(true)
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
@@ -1224,7 +1229,7 @@ export function SalesSummaryContent() {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setShowSaleDialog(false)}>Cancel</Button>
-            <Button type="button" onClick={handleCreateSale} disabled={loading}>
+            <Button type="button" onClick={() => { console.log("[Record Sale Button] Clicked, loading:", loading); handleCreateSale(); }} disabled={loading}>
               {loading ? "Recording..." : "Record Sale"}
             </Button>
           </DialogFooter>

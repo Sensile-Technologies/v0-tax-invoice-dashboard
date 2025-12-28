@@ -210,15 +210,23 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const vendorId = searchParams.get('vendorId');
         const branchId = searchParams.get('branchId');
-        let query = 'SELECT * FROM items WHERE 1=1';
-        const params = [];
+        // CRITICAL: branchId is required to prevent cross-branch data leakage
+        if (!branchId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Branch ID is required",
+                items: []
+            }, {
+                status: 400
+            });
+        }
+        let query = 'SELECT * FROM items WHERE branch_id = $1';
+        const params = [
+            branchId
+        ];
         if (vendorId) {
             params.push(vendorId);
             query += ` AND vendor_id = $${params.length}`;
-        }
-        if (branchId) {
-            params.push(branchId);
-            query += ` AND branch_id = $${params.length}`;
         }
         query += ' ORDER BY created_at DESC';
         const result = await pool.query(query, params);
