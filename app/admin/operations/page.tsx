@@ -135,7 +135,9 @@ export default function OperationsPage() {
     kra_pin: "",
     location: "",
     county: "",
-    address: ""
+    address: "",
+    device_serial_number: "",
+    sr_number: ""
   })
   const [configData, setConfigData] = useState({
     device_token: "",
@@ -315,7 +317,9 @@ export default function OperationsPage() {
       kra_pin: signup.kra_pin || "",
       location: signup.location || "",
       county: signup.county || "",
-      address: signup.address || ""
+      address: signup.address || "",
+      device_serial_number: (signup as any).device_serial_number || "",
+      sr_number: (signup as any).sr_number || ""
     })
     setReviewDialogOpen(true)
   }
@@ -1199,6 +1203,24 @@ export default function OperationsPage() {
                   placeholder="Full address"
                   rows={2}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Device Serial Number</Label>
+                  <Input
+                    value={reviewData.device_serial_number}
+                    onChange={(e) => setReviewData({ ...reviewData, device_serial_number: e.target.value })}
+                    placeholder="Device serial number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>SR Number</Label>
+                  <Input
+                    value={reviewData.sr_number}
+                    onChange={(e) => setReviewData({ ...reviewData, sr_number: e.target.value })}
+                    placeholder="SR number"
+                  />
+                </div>
               </div>
               <div className="flex gap-3 pt-4">
                 <Button variant="outline" onClick={() => setReviewDialogOpen(false)} className="flex-1">

@@ -81,7 +81,9 @@ export default function MerchantsPage() {
     device_token: "",
     server_address: "",
     server_port: "",
-    kra_pin: ""
+    kra_pin: "",
+    device_serial_number: "",
+    sr_number: ""
   })
 
   useEffect(() => {
@@ -172,7 +174,9 @@ export default function MerchantsPage() {
       device_token: branch.device_token || "",
       server_address: branch.server_address || "",
       server_port: branch.server_port || "",
-      kra_pin: branch.kra_pin || ""
+      kra_pin: branch.kra_pin || "",
+      device_serial_number: (branch as any).device_serial_number || "",
+      sr_number: (branch as any).sr_number?.toString() || ""
     })
     setBranchEditDialogOpen(true)
   }
@@ -578,6 +582,26 @@ export default function MerchantsPage() {
                   value={branchEditForm.server_port}
                   onChange={(e) => setBranchEditForm({ ...branchEditForm, server_port: e.target.value })}
                   placeholder="8088"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="branch-device-serial">Device Serial Number</Label>
+                <Input
+                  id="branch-device-serial"
+                  value={branchEditForm.device_serial_number}
+                  onChange={(e) => setBranchEditForm({ ...branchEditForm, device_serial_number: e.target.value })}
+                  placeholder="Device serial number"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="branch-sr-number">SR Number</Label>
+                <Input
+                  id="branch-sr-number"
+                  value={branchEditForm.sr_number}
+                  onChange={(e) => setBranchEditForm({ ...branchEditForm, sr_number: e.target.value })}
+                  placeholder="SR number"
                 />
               </div>
             </div>

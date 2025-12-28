@@ -9,7 +9,7 @@ export async function GET(
     const { id } = await params
 
     const result = await query(`
-      SELECT id, bhf_id, name, address, status, device_token, server_address, server_port, kra_pin, trading_name
+      SELECT id, bhf_id, name, address, status, device_token, server_address, server_port, kra_pin, trading_name, device_serial_number, sr_number
       FROM branches
       WHERE vendor_id = $1
       ORDER BY name
@@ -29,7 +29,7 @@ export async function PUT(
   try {
     const { id: vendorId } = await params
     const body = await request.json()
-    const { branch_id, bhf_id, device_token, server_address, server_port, kra_pin } = body
+    const { branch_id, bhf_id, device_token, server_address, server_port, kra_pin, device_serial_number, sr_number } = body
 
     if (!branch_id) {
       return NextResponse.json({ error: "Branch ID is required" }, { status: 400 })
@@ -54,9 +54,11 @@ export async function PUT(
         server_address = COALESCE($3, server_address),
         server_port = COALESCE($4, server_port),
         kra_pin = COALESCE($5, kra_pin),
+        device_serial_number = COALESCE($6, device_serial_number),
+        sr_number = COALESCE($7, sr_number),
         updated_at = NOW()
-      WHERE id = $6
-    `, [bhf_id, device_token, server_address, server_port, kra_pin, branch_id])
+      WHERE id = $8
+    `, [bhf_id, device_token, server_address, server_port, kra_pin, device_serial_number || null, sr_number ? parseInt(sr_number) : null, branch_id])
 
     return NextResponse.json({ success: true, message: "Branch KRA configuration updated" })
   } catch (error) {
