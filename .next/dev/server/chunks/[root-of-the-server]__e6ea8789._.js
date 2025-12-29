@@ -102,9 +102,11 @@ async function GET() {
             });
         }
         // SECURITY: Fetch role and details from database (don't trust cookie values)
+        // For staff (including directors), get vendor_id from their branch
         const result = await pool.query(`SELECT u.id, u.email, u.username, 
        COALESCE(s.role, u.role) as role,
-       v.id as vendor_id, v.name as vendor_name,
+       COALESCE(v.id, b.vendor_id) as vendor_id, 
+       COALESCE(v.name, sv.name) as vendor_name,
        COALESCE(s.branch_id, vb.id) as branch_id, 
        COALESCE(b.name, vb.name) as branch_name,
        COALESCE(b.bhf_id, vb.bhf_id) as bhf_id
@@ -112,6 +114,7 @@ async function GET() {
        LEFT JOIN vendors v ON v.email = u.email 
        LEFT JOIN staff s ON s.user_id = u.id
        LEFT JOIN branches b ON b.id = s.branch_id
+       LEFT JOIN vendors sv ON sv.id = b.vendor_id
        LEFT JOIN branches vb ON vb.vendor_id = v.id AND vb.is_main = true
        WHERE u.id = $1`, [
             sessionData.id
