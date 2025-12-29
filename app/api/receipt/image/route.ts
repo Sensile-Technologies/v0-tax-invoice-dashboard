@@ -222,9 +222,9 @@ export async function POST(request: Request) {
       const qrUrl = `https://${kraPortal}/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
       
       const qrCodeDataUrl = await QRCode.toDataURL(qrUrl, {
-        width: 200,
+        width: 150,
         margin: 1,
-        errorCorrectionLevel: 'M'
+        errorCorrectionLevel: 'L'
       })
       
       const isCreditNote = sale.sale_type === 'credit_note' || 
@@ -243,7 +243,8 @@ export async function POST(request: Request) {
       })
       
       const page = await browser.newPage()
-      await page.setViewport({ width: 384, height: 800 })
+      // Use narrower width (320px) for smaller image file size
+      await page.setViewport({ width: 320, height: 800 })
       await page.setContent(html, { waitUntil: 'networkidle0' })
       
       const bodyHandle = await page.$('body')
@@ -252,11 +253,10 @@ export async function POST(request: Request) {
       
       const height = boundingBox ? Math.ceil(boundingBox.height) + 20 : 800
       
-      await page.setViewport({ width: 384, height })
+      await page.setViewport({ width: 320, height })
       
       const screenshotBuffer = await page.screenshot({
-        type: 'jpeg',
-        quality: 100,
+        type: 'png',
         fullPage: true,
         omitBackground: false
       })
@@ -264,14 +264,12 @@ export async function POST(request: Request) {
       await browser.close()
       
       const base64Image = Buffer.from(screenshotBuffer).toString('base64')
-      // Include data URI prefix so APK doesn't need to add it
-      const dataUri = `data:image/jpeg;base64,${base64Image}`
 
       return NextResponse.json({
         success: true,
-        receipt_image: dataUri,
-        content_type: 'image/jpeg',
-        width: 384,
+        receipt_image: base64Image,
+        content_type: 'image/png',
+        width: 320,
         sale_id: sale_id,
         invoice_number: sale.invoice_number
       })
