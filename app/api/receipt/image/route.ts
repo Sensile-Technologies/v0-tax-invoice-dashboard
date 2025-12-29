@@ -27,7 +27,32 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
+// Sanitize text to remove problematic Unicode characters that crash Sunmi printer
+function sanitizeText(text: string | undefined | null): string {
+  if (!text) return '';
+  return text
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'") // Smart single quotes
+    .replace(/[\u201C\u201D\u201E\u201F]/g, '"') // Smart double quotes
+    .replace(/[\u2013\u2014\u2015]/g, '-') // Em/en dashes
+    .replace(/[\u2026]/g, '...') // Ellipsis
+    .replace(/[\u00A0]/g, ' ') // Non-breaking space
+    .replace(/[\u200B-\u200D\uFEFF]/g, '') // Zero-width characters
+    .replace(/[^\x20-\x7E\n]/g, '') // Remove any remaining non-printable/non-ASCII
+    .trim();
+}
+
 function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'invoice' | 'credit_note' = 'invoice'): string {
+  // Sanitize all text fields to prevent printer crashes
+  const branchName = sanitizeText(sale.branch_name) || 'Flow360 Station';
+  const branchAddress = sanitizeText(sale.branch_address);
+  const branchPhone = sanitizeText(sale.branch_phone);
+  const customerPin = sanitizeText(sale.customer_pin) || 'NOT PROVIDED';
+  const customerName = sanitizeText(sale.customer_name) || 'Walk-in Customer';
+  const itemCode = sanitizeText(sale.item_code) || sanitizeText(sale.fuel_type) || 'N/A';
+  const itemName = sanitizeText(sale.item_name) || sanitizeText(sale.fuel_type) || 'Fuel';
+  const cashierName = sanitizeText(sale.cashier_name) || 'System';
+  const paymentMethod = sanitizeText(sale.payment_method) || 'Cash';
+  
   const unitPrice = parseFloat(sale.unit_price) || 0
   const quantity = parseFloat(sale.quantity) || 0
   const totalAmount = parseFloat(sale.total_amount) || 0
@@ -82,9 +107,9 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
 </head>
 <body>
   <div class="center header">${documentType === 'credit_note' ? 'CREDIT NOTE' : 'TAX INVOICE'}</div>
-  <div class="center shop-name">${sale.branch_name || 'Flow360 Station'}</div>
-  ${sale.branch_address ? `<div class="center">${sale.branch_address}</div>` : ''}
-  ${sale.branch_phone ? `<div class="center">Tel: ${sale.branch_phone}</div>` : ''}
+  <div class="center shop-name">${branchName}</div>
+  ${branchAddress ? `<div class="center">${branchAddress}</div>` : ''}
+  ${branchPhone ? `<div class="center">Tel: ${branchPhone}</div>` : ''}
   <div class="center bold">PIN: ${kraPin}</div>
   
   <div class="divider"></div>
@@ -92,13 +117,13 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
   <div class="divider"></div>
   
   <div class="section-title">BUYER INFORMATION</div>
-  <div class="row"><span class="label">Buyer PIN:</span><span class="value">${sale.customer_pin || 'NOT PROVIDED'}</span></div>
-  <div class="row"><span class="label">Buyer Name:</span><span class="value">${sale.customer_name || 'Walk-in Customer'}</span></div>
+  <div class="row"><span class="label">Buyer PIN:</span><span class="value">${customerPin}</span></div>
+  <div class="row"><span class="label">Buyer Name:</span><span class="value">${customerName}</span></div>
   
   <div class="divider"></div>
   <div class="section-title">PRODUCT DETAILS</div>
-  <div class="row"><span class="label">Item Code:</span><span class="value">${sale.item_code || sale.fuel_type || 'N/A'}</span></div>
-  <div class="row"><span class="label">Description:</span><span class="value">${sale.item_name || sale.fuel_type || 'Fuel'}</span></div>
+  <div class="row"><span class="label">Item Code:</span><span class="value">${itemCode}</span></div>
+  <div class="row"><span class="label">Description:</span><span class="value">${itemName}</span></div>
   <div class="row"><span class="label">Dispenser:</span><span class="value">D${sale.dispenser_number || '0'}N${sale.nozzle_number || '1'}</span></div>
   <div class="row"><span class="label">Unit Price:</span><span class="value">KES ${unitPrice.toFixed(2)}</span></div>
   <div class="row"><span class="label">Quantity:</span><span class="value">${quantity.toFixed(3)} L</span></div>
@@ -132,8 +157,8 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
   
   <div class="divider"></div>
   <div class="row"><span class="label">Receipt No:</span><span class="value">${receiptNo}</span></div>
-  <div class="row"><span class="label">Served by:</span><span class="value">${sale.cashier_name || 'System'}</span></div>
-  <div class="row"><span class="label">Payment:</span><span class="value">${sale.payment_method || 'Cash'}</span></div>
+  <div class="row"><span class="label">Served by:</span><span class="value">${cashierName}</span></div>
+  <div class="row"><span class="label">Payment:</span><span class="value">${paymentMethod}</span></div>
   
   <div class="divider"></div>
   <div class="section-title">Carbon Emission Details</div>
