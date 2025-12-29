@@ -255,7 +255,8 @@ export async function POST(request: Request) {
       await page.setViewport({ width: 384, height })
       
       const screenshotBuffer = await page.screenshot({
-        type: 'png',
+        type: 'jpeg',
+        quality: 100,
         fullPage: true,
         omitBackground: false
       })
@@ -263,11 +264,13 @@ export async function POST(request: Request) {
       await browser.close()
       
       const base64Image = Buffer.from(screenshotBuffer).toString('base64')
+      // Include data URI prefix so APK doesn't need to add it
+      const dataUri = `data:image/jpeg;base64,${base64Image}`
 
       return NextResponse.json({
         success: true,
-        receipt_image: base64Image,
-        content_type: 'image/png',
+        receipt_image: dataUri,
+        content_type: 'image/jpeg',
         width: 384,
         sale_id: sale_id,
         invoice_number: sale.invoice_number
