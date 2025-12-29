@@ -13,14 +13,26 @@ export async function GET(request: Request) {
     if (vendorId) {
       vendorFilter = vendorId
     } else if (userId) {
-      const userResult = await query(
+      // First try to get vendor_id from vendors table (for vendor owners)
+      const vendorResult = await query(
         `SELECT v.id as vendor_id FROM users u 
          JOIN vendors v ON v.email = u.email 
          WHERE u.id = $1`,
         [userId]
       )
-      if (userResult && userResult.length > 0) {
-        vendorFilter = userResult[0].vendor_id
+      if (vendorResult && vendorResult.length > 0) {
+        vendorFilter = vendorResult[0].vendor_id
+      } else {
+        // For staff members (including directors), get vendor_id from their branch
+        const staffResult = await query(
+          `SELECT DISTINCT b.vendor_id FROM staff s
+           JOIN branches b ON s.branch_id = b.id
+           WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
+          [userId]
+        )
+        if (staffResult && staffResult.length > 0) {
+          vendorFilter = staffResult[0].vendor_id
+        }
       }
     }
     
