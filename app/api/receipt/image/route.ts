@@ -98,7 +98,7 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
     .divider { border-top: 1px dashed #000; margin: 8px 0; }
     .row { display: flex; justify-content: space-between; margin: 3px 0; }
     .label { width: 40%; }
-    .value { width: 58%; text-align: left; }
+    .value { width: 58%; text-align: left; word-break: break-all; overflow-wrap: anywhere; }
     .section-title { font-weight: bold; text-align: center; margin: 6px 0; font-size: 17px; }
     .tax-table { width: 100%; font-size: 16px; margin: 6px 0; }
     .tax-table th, .tax-table td { text-align: left; padding: 2px 4px; }
@@ -222,9 +222,9 @@ export async function POST(request: Request) {
       const qrUrl = `https://${kraPortal}/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
       
       const qrCodeDataUrl = await QRCode.toDataURL(qrUrl, {
-        width: 150,
+        width: 200,
         margin: 1,
-        errorCorrectionLevel: 'L'
+        errorCorrectionLevel: 'M'
       })
       
       const isCreditNote = sale.sale_type === 'credit_note' || 
@@ -243,8 +243,7 @@ export async function POST(request: Request) {
       })
       
       const page = await browser.newPage()
-      // Use narrower width (320px) for smaller image file size
-      await page.setViewport({ width: 320, height: 800 })
+      await page.setViewport({ width: 384, height: 800 })
       await page.setContent(html, { waitUntil: 'networkidle0' })
       
       const bodyHandle = await page.$('body')
@@ -253,7 +252,7 @@ export async function POST(request: Request) {
       
       const height = boundingBox ? Math.ceil(boundingBox.height) + 20 : 800
       
-      await page.setViewport({ width: 320, height })
+      await page.setViewport({ width: 384, height })
       
       const screenshotBuffer = await page.screenshot({
         type: 'png',
@@ -269,7 +268,7 @@ export async function POST(request: Request) {
         success: true,
         receipt_image: base64Image,
         content_type: 'image/png',
-        width: 320,
+        width: 384,
         sale_id: sale_id,
         invoice_number: sale.invoice_number
       })
