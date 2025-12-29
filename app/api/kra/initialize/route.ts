@@ -132,7 +132,8 @@ export async function POST(request: NextRequest) {
 
       responseData = await kraResponse.json()
       
-      if (!kraResponse.ok) {
+      // Check both HTTP status and KRA resultCd
+      if (!kraResponse.ok || (responseData.resultCd && responseData.resultCd !== "000")) {
         status = "error"
       }
     } catch (fetchError: any) {
