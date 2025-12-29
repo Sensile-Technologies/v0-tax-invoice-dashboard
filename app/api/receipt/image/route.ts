@@ -52,6 +52,10 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
   const itemName = sanitizeText(sale.item_name) || sanitizeText(sale.fuel_type) || 'Fuel';
   const cashierName = sanitizeText(sale.cashier_name) || 'System';
   const paymentMethod = sanitizeText(sale.payment_method) || 'Cash';
+  const kraSscuId = sanitizeText(sale.kra_scu_id) || 'N/A';
+  const kraCuInv = sanitizeText(sale.kra_cu_inv) || 'N/A';
+  const kraInternalData = sanitizeText(sale.kra_internal_data) || sanitizeText(sale.invoice_number) || 'N/A';
+  const kraRcptSign = sanitizeText(sale.kra_rcpt_sign) || '';
   
   const unitPrice = parseFloat(sale.unit_price) || 0
   const quantity = parseFloat(sale.quantity) || 0
@@ -144,9 +148,9 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
   <div class="row"><span class="label">Time:</span><span class="value">${timeStr}</span></div>
   
   <div class="divider"></div>
-  <div class="row" style="font-size: 15px;"><span class="label">SCU ID:</span><span class="value">${sale.kra_scu_id || 'N/A'}</span></div>
-  <div class="row" style="font-size: 15px;"><span class="label">CU INV NO:</span><span class="value">${sale.kra_cu_inv || 'N/A'}</span></div>
-  <div class="row" style="font-size: 15px;"><span class="label">Internal Data:</span><span class="value">${sale.kra_internal_data || sale.invoice_number || 'N/A'}</span></div>
+  <div class="row" style="font-size: 15px;"><span class="label">SCU ID:</span><span class="value">${kraSscuId}</span></div>
+  <div class="row" style="font-size: 15px;"><span class="label">CU INV NO:</span><span class="value">${kraCuInv}</span></div>
+  <div class="row" style="font-size: 15px;"><span class="label">Internal Data:</span><span class="value">${kraInternalData}</span></div>
   
   <div class="divider"></div>
   <div class="section-title">KRA eTIMS Verification</div>
@@ -210,9 +214,9 @@ export async function POST(request: Request) {
 
       const sale = saleResult.rows[0]
       
-      const kraPin = sale.kra_pin || 'P052344628B'
-      const bhfId = sale.bhf_id || '03'
-      const rcptSign = sale.kra_rcpt_sign || ''
+      const kraPin = sanitizeText(sale.kra_pin) || 'P052344628B'
+      const bhfId = sanitizeText(sale.bhf_id) || '03'
+      const rcptSign = sanitizeText(sale.kra_rcpt_sign) || ''
       const qrData = `${kraPin}${bhfId}${rcptSign}`
       const kraPortal = process.env.NODE_ENV === 'production' ? 'etims.kra.go.ke' : 'etims-sbx.kra.go.ke'
       const qrUrl = `https://${kraPortal}/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`
