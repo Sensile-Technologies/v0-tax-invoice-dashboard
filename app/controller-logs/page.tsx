@@ -330,13 +330,13 @@ export default function ControllerLogsPage() {
               <div>
                 <p className="text-sm font-medium text-blue-800">Server IP</p>
                 <code className="text-sm bg-white px-2 py-1 rounded border block mt-1 break-all">
-                  143.244.220.194
+                  {process.env.NEXT_PUBLIC_CALLBACK_SERVER_IP || '143.244.220.194'}
                 </code>
               </div>
               <div>
                 <p className="text-sm font-medium text-blue-800">Port</p>
                 <code className="text-sm bg-white px-2 py-1 rounded border block mt-1">
-                  443
+                  {process.env.NEXT_PUBLIC_CALLBACK_SERVER_PORT || '443'}
                 </code>
               </div>
               <div>

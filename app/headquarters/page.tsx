@@ -740,6 +740,7 @@ export default function HeadquartersPage() {
           storageIndices: branchForm.storageIndices,
           tankConfig: branchForm.tankConfig,
           kraPin: branchForm.kraPin,
+          controllerId: branchForm.controllerId,
         }),
       })
 
@@ -1777,6 +1778,19 @@ export default function HeadquartersPage() {
               />
               <p className="text-xs text-muted-foreground">
                 Required for KRA TIMS integration. Sales will fail without this.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-controller-id">Controller ID (PTS ID)</Label>
+              <Input
+                id="edit-controller-id"
+                placeholder="e.g., 003A003A..."
+                value={branchForm.controllerId}
+                onChange={(e) => setBranchForm({ ...branchForm, controllerId: e.target.value })}
+                className="rounded-xl font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Unique identifier for the pump controller. Used to match pump callbacks to this branch.
               </p>
             </div>
           </div>

@@ -46,6 +46,7 @@ export async function PUT(
       localTaxOffice,
       storageIndices,
       kraPin,
+      controllerId,
     } = body
 
     const rows = await query(
@@ -60,8 +61,9 @@ export async function PUT(
         local_tax_office = COALESCE($8, local_tax_office),
         storage_indices = COALESCE($9, storage_indices),
         kra_pin = COALESCE($10, kra_pin),
+        controller_id = COALESCE($11, controller_id),
         updated_at = NOW()
-      WHERE id = $11
+      WHERE id = $12
       RETURNING *`,
       [
         name,
@@ -74,6 +76,7 @@ export async function PUT(
         localTaxOffice,
         storageIndices ? JSON.stringify(storageIndices) : null,
         kraPin || null,
+        controllerId || null,
         id,
       ]
     )

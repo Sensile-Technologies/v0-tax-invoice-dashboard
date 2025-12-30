@@ -70,3 +70,7 @@ PORT = "5000"
 
 [userenv.development]
 KRA_VSCU_URL = "http://20.224.40.56:8088"
+
+[userenv.shared]
+NEXT_PUBLIC_CALLBACK_SERVER_IP = "143.244.220.194"
+NEXT_PUBLIC_CALLBACK_SERVER_PORT = "443"
