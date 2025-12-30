@@ -8,7 +8,7 @@ const DashboardHeader = dynamic(() => import("@/components/dashboard-header"), {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, RefreshCw, Clock, AlertCircle, StopCircle, Loader2 } from "lucide-react"
+import { Download, Printer, RefreshCw, Clock, AlertCircle, StopCircle, Loader2, Fuel, ChevronDown, ChevronUp, Eye } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
@@ -67,6 +67,38 @@ interface TankStock {
   stock_received: string
 }
 
+interface NozzleReport {
+  nozzle_id: string
+  nozzle_name: string
+  fuel_type: string
+  opening_reading: number
+  closing_reading: number
+  meter_difference: number
+  invoiced_quantity: number
+  invoiced_amount: number
+  variance: number
+}
+
+interface NozzleReportData {
+  shift: {
+    id: string
+    branch_name: string
+    cashier_name: string
+    start_time: string
+    end_time: string
+    status: string
+    opening_cash: number
+    closing_cash: number
+  } | null
+  nozzles: NozzleReport[]
+  totals: {
+    total_meter_difference: number
+    total_invoiced_quantity: number
+    total_invoiced_amount: number
+    total_variance: number
+  } | null
+}
+
 export default function ShiftsReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -92,6 +124,11 @@ export default function ShiftsReportPage() {
   const [tankStocks, setTankStocks] = useState<TankStock[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+
+  const [nozzleReportDialogOpen, setNozzleReportDialogOpen] = useState(false)
+  const [nozzleReportLoading, setNozzleReportLoading] = useState(false)
+  const [nozzleReportData, setNozzleReportData] = useState<NozzleReportData | null>(null)
+  const [selectedReportShift, setSelectedReportShift] = useState<Shift | null>(null)
 
   useEffect(() => {
     const userStr = localStorage.getItem("user")
@@ -290,6 +327,33 @@ export default function ShiftsReportPage() {
     }
   }
 
+  async function openNozzleReport(shift: Shift) {
+    setSelectedReportShift(shift)
+    setNozzleReportLoading(true)
+    setNozzleReportData(null)
+    setNozzleReportDialogOpen(true)
+
+    try {
+      const params = new URLSearchParams()
+      params.append('shift_id', shift.id)
+      if (userId) params.append('user_id', userId)
+
+      const response = await fetch(`/api/shifts/nozzle-report?${params.toString()}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setNozzleReportData(data.data)
+      } else {
+        toast.error(data.error || 'Failed to load nozzle report')
+      }
+    } catch (error) {
+      console.error('Error fetching nozzle report:', error)
+      toast.error('Failed to load nozzle report')
+    } finally {
+      setNozzleReportLoading(false)
+    }
+  }
+
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardSidebar 
@@ -441,16 +505,26 @@ export default function ShiftsReportPage() {
                                 {getStatusBadge(shift.status)}
                               </td>
                               <td className="py-3 px-4 text-center">
-                                {shift.status === 'active' && (
+                                <div className="flex items-center justify-center gap-2">
                                   <Button
                                     size="sm"
-                                    variant="destructive"
-                                    onClick={() => openEndShiftDialog(shift)}
+                                    variant="outline"
+                                    onClick={() => openNozzleReport(shift)}
                                   >
-                                    <StopCircle className="h-4 w-4 mr-1" />
-                                    End Shift
+                                    <Fuel className="h-4 w-4 mr-1" />
+                                    Nozzles
                                   </Button>
-                                )}
+                                  {shift.status === 'active' && (
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => openEndShiftDialog(shift)}
+                                    >
+                                      <StopCircle className="h-4 w-4 mr-1" />
+                                      End
+                                    </Button>
+                                  )}
+                                </div>
                               </td>
                             </tr>
                           ))}
@@ -599,6 +673,104 @@ export default function ShiftsReportPage() {
                   End Shift
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={nozzleReportDialogOpen} onOpenChange={setNozzleReportDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Fuel className="h-5 w-5 text-blue-500" />
+              Nozzle Sales Report
+            </DialogTitle>
+            <DialogDescription>
+              {selectedReportShift && (
+                <>Nozzle breakdown for <strong>{selectedReportShift.branch_name}</strong> - {formatDateTime(selectedReportShift.start_time)} to {formatDateTime(selectedReportShift.end_time)}</>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {nozzleReportLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+              <span className="ml-2 text-slate-500">Loading nozzle report...</span>
+            </div>
+          ) : nozzleReportData && nozzleReportData.nozzles.length > 0 ? (
+            <ScrollArea className="max-h-[60vh]">
+              <div className="space-y-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[700px]">
+                    <thead>
+                      <tr className="border-b bg-slate-50">
+                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Nozzle</th>
+                        <th className="text-left py-3 px-4 font-semibold text-slate-700">Fuel Type</th>
+                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening</th>
+                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing</th>
+                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Meter Diff (L)</th>
+                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Invoiced (L)</th>
+                        <th className="text-right py-3 px-4 font-semibold text-slate-700">Variance (L)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {nozzleReportData.nozzles.map((nozzle) => (
+                        <tr key={nozzle.nozzle_id} className="border-b hover:bg-slate-50">
+                          <td className="py-3 px-4 font-medium">{nozzle.nozzle_name}</td>
+                          <td className="py-3 px-4">
+                            <Badge variant="outline">{nozzle.fuel_type}</Badge>
+                          </td>
+                          <td className="py-3 px-4 text-right font-mono">{nozzle.opening_reading.toLocaleString()}</td>
+                          <td className="py-3 px-4 text-right font-mono">{nozzle.closing_reading.toLocaleString()}</td>
+                          <td className="py-3 px-4 text-right font-mono font-semibold">{nozzle.meter_difference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className="py-3 px-4 text-right font-mono">{nozzle.invoiced_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className="py-3 px-4 text-right">
+                            <span className={`font-mono font-semibold ${nozzle.variance === 0 ? 'text-green-600' : nozzle.variance > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                              {nozzle.variance > 0 ? '+' : ''}{nozzle.variance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              {nozzle.variance !== 0 && <AlertCircle className="h-4 w-4 inline ml-1" />}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-slate-100">
+                      <tr className="font-bold">
+                        <td className="py-3 px-4" colSpan={4}>TOTAL STATION SALES</td>
+                        <td className="py-3 px-4 text-right font-mono">{nozzleReportData.totals?.total_meter_difference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="py-3 px-4 text-right font-mono">{nozzleReportData.totals?.total_invoiced_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="py-3 px-4 text-right">
+                          <span className={`font-mono ${(nozzleReportData.totals?.total_variance || 0) === 0 ? 'text-green-600' : (nozzleReportData.totals?.total_variance || 0) > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                            {(nozzleReportData.totals?.total_variance || 0) > 0 ? '+' : ''}{nozzleReportData.totals?.total_variance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-4 mt-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">How to read this report:</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li><strong>Meter Difference</strong> = Closing Reading - Opening Reading (actual fuel dispensed)</li>
+                    <li><strong>Invoiced</strong> = Total quantity from invoices issued on this nozzle</li>
+                    <li><strong>Variance</strong> = Meter Difference - Invoiced (should be 0 ideally)</li>
+                    <li className="text-amber-700"><strong>Positive variance</strong> = More fuel dispensed than invoiced (potential loss)</li>
+                    <li className="text-red-700"><strong>Negative variance</strong> = Less fuel dispensed than invoiced (data error)</li>
+                  </ul>
+                </div>
+              </div>
+            </ScrollArea>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+              <Fuel className="h-12 w-12 mb-4 text-slate-300" />
+              <p className="text-lg font-medium">No nozzle readings found</p>
+              <p className="text-sm">This shift may not have recorded nozzle readings yet</p>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNozzleReportDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

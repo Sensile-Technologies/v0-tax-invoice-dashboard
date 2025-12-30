@@ -6,7 +6,8 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, BarChart3 } from "lucide-react"
+import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 
 interface SaleCategory {
@@ -26,6 +27,25 @@ interface DailySalesData {
   }
 }
 
+interface NozzleData {
+  nozzle_id: string
+  nozzle_name: string
+  fuel_type: string
+  opening_reading: number
+  closing_reading: number
+  meter_difference: number
+  invoiced_quantity: number
+  invoiced_amount: number
+  variance: number
+}
+
+interface NozzleTotals {
+  total_meter_difference: number
+  total_invoiced_quantity: number
+  total_invoiced_amount: number
+  total_variance: number
+}
+
 export default function DailySalesReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -39,6 +59,9 @@ export default function DailySalesReportPage() {
     net_sales: 0,
   })
   const { formatCurrency } = useCurrency()
+  const [nozzleData, setNozzleData] = useState<NozzleData[]>([])
+  const [nozzleTotals, setNozzleTotals] = useState<NozzleTotals | null>(null)
+  const [nozzleLoading, setNozzleLoading] = useState(false)
 
   const fetchDailySales = useCallback(async () => {
     try {
@@ -100,6 +123,57 @@ export default function DailySalesReportPage() {
   useEffect(() => {
     fetchDailySales()
   }, [fetchDailySales])
+
+  const fetchNozzleReport = useCallback(async () => {
+    try {
+      setNozzleLoading(true)
+      const storedBranch = localStorage.getItem("selectedBranch")
+      const userStr = localStorage.getItem("user")
+      let branchId = ""
+      let userId = ""
+      
+      if (storedBranch) {
+        const branch = JSON.parse(storedBranch)
+        branchId = branch.id
+      }
+      if (userStr) {
+        const user = JSON.parse(userStr)
+        userId = user.id
+      }
+
+      if (!branchId) {
+        setNozzleData([])
+        setNozzleTotals(null)
+        return
+      }
+
+      const params = new URLSearchParams()
+      params.append("branch_id", branchId)
+      params.append("date", selectedDate)
+      if (userId) params.append("user_id", userId)
+
+      const response = await fetch(`/api/shifts/nozzle-report?${params.toString()}`)
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        setNozzleData(result.data.nozzles || [])
+        setNozzleTotals(result.data.totals || null)
+      } else {
+        setNozzleData([])
+        setNozzleTotals(null)
+      }
+    } catch (error) {
+      console.error("Error fetching nozzle report:", error)
+      setNozzleData([])
+      setNozzleTotals(null)
+    } finally {
+      setNozzleLoading(false)
+    }
+  }, [selectedDate])
+
+  useEffect(() => {
+    fetchNozzleReport()
+  }, [fetchNozzleReport])
 
   const handlePrint = () => {
     window.print()
@@ -253,6 +327,95 @@ export default function DailySalesReportPage() {
                           </tr>
                         </tbody>
                       </table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl">
+                <CardHeader>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+                      <Fuel className="h-5 w-5 text-blue-500" />
+                      Nozzle Sales Report
+                    </CardTitle>
+                  </div>
+                  <p className="text-sm text-slate-600">Station sales breakdown by nozzle with variance analysis</p>
+                </CardHeader>
+                <CardContent>
+                  {nozzleLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                      <span className="ml-2 text-muted-foreground">Loading nozzle data...</span>
+                    </div>
+                  ) : nozzleData.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12">
+                      <Fuel className="h-12 w-12 text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">No nozzle readings for this date</p>
+                      <p className="text-sm text-muted-foreground mt-1">Nozzle data is recorded when shifts are completed</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="overflow-x-auto -mx-3 md:mx-0">
+                        <table className="w-full min-w-[700px]">
+                          <thead>
+                            <tr className="border-b bg-slate-50 text-xs md:text-sm">
+                              <th className="text-left py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Nozzle</th>
+                              <th className="text-left py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Fuel Type</th>
+                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Opening</th>
+                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Closing</th>
+                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Meter Diff (L)</th>
+                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Invoiced (L)</th>
+                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Variance (L)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {nozzleData.map((nozzle) => (
+                              <tr key={nozzle.nozzle_id} className="border-b hover:bg-slate-50 text-xs md:text-sm">
+                                <td className="py-2 md:py-3 px-3 md:px-4 font-medium">{nozzle.nozzle_name}</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4">
+                                  <Badge variant="outline">{nozzle.fuel_type}</Badge>
+                                </td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzle.opening_reading.toLocaleString()}</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzle.closing_reading.toLocaleString()}</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono font-semibold">{nozzle.meter_difference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzle.invoiced_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right">
+                                  <span className={`font-mono font-semibold ${nozzle.variance === 0 ? 'text-green-600' : nozzle.variance > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                                    {nozzle.variance > 0 ? '+' : ''}{nozzle.variance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    {nozzle.variance !== 0 && <AlertCircle className="h-3 w-3 inline ml-1" />}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          {nozzleTotals && (
+                            <tfoot className="bg-slate-100">
+                              <tr className="font-bold text-xs md:text-sm">
+                                <td className="py-2 md:py-3 px-3 md:px-4" colSpan={4}>TOTAL STATION SALES</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzleTotals.total_meter_difference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzleTotals.total_invoiced_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="py-2 md:py-3 px-3 md:px-4 text-right">
+                                  <span className={`font-mono ${nozzleTotals.total_variance === 0 ? 'text-green-600' : nozzleTotals.total_variance > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                                    {nozzleTotals.total_variance > 0 ? '+' : ''}{nozzleTotals.total_variance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </span>
+                                </td>
+                              </tr>
+                            </tfoot>
+                          )}
+                        </table>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-3 md:p-4">
+                        <h4 className="font-semibold text-blue-900 mb-2 text-sm">How to read this report:</h4>
+                        <ul className="text-xs text-blue-800 space-y-1">
+                          <li><strong>Meter Difference</strong> = Closing - Opening (actual fuel dispensed)</li>
+                          <li><strong>Invoiced</strong> = Total quantity from invoices issued</li>
+                          <li><strong>Variance</strong> = Meter Difference - Invoiced</li>
+                          <li className="text-amber-700"><strong>Positive</strong> = More dispensed than invoiced (loss)</li>
+                          <li className="text-red-700"><strong>Negative</strong> = Less dispensed than invoiced (error)</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
                 </CardContent>
