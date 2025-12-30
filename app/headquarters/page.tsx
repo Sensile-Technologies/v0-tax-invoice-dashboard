@@ -686,25 +686,25 @@ export default function HeadquartersPage() {
 
   const handleEditBranch = (branch: any) => {
     console.log("[v0] Opening edit dialog for branch:", branch)
-    const latestBranch = branches.find((b) => b.id === branch.id)
-    setEditingBranch(latestBranch || branch)
+    const latestBranch = branches.find((b) => b.id === branch.id) || branch
+    setEditingBranch(latestBranch)
     setBranchForm({
-      name: branch.name || "",
-      location: branch.location || "",
-      manager: branch.manager || "",
-      email: branch.email || "",
-      phone: branch.phone || "",
-      address: branch.address || "",
-      county: branch.county || "",
-      localTaxOffice: branch.local_tax_office || "",
+      name: latestBranch.name || "",
+      location: latestBranch.location || "",
+      manager: latestBranch.manager || "",
+      email: latestBranch.email || "",
+      phone: latestBranch.phone || "",
+      address: latestBranch.address || "",
+      county: latestBranch.county || "",
+      localTaxOffice: latestBranch.local_tax_office || "",
       hardwareType: "",
       serialNumber: "",
-      storageIndices: branch.storage_indices || [],
+      storageIndices: latestBranch.storage_indices || [],
       newStorageIndex: "",
-      vendorId: branch.vendor_id || "",
-      kraPin: branch.kra_pin || "",
-      controllerId: branch.controller_id || "",
-      tankConfig: branch.tank_config || {},
+      vendorId: latestBranch.vendor_id || "",
+      kraPin: latestBranch.kra_pin || "",
+      controllerId: latestBranch.controller_id || "",
+      tankConfig: latestBranch.tank_config || {},
     })
     setEditBranchOpen(true)
   }
