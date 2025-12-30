@@ -13,17 +13,15 @@ interface NozzleReading {
   sale_price: number
 }
 
-function splitIntoDenominations(totalVolume: number): number[] {
+function splitIntoAmountDenominations(totalAmount: number): number[] {
   const denominations: number[] = []
-  let remaining = totalVolume
+  let remaining = totalAmount
 
   const validDenoms = [2500, 2000, 1500, 1000, 500, 300, 200, 100]
 
   while (remaining >= 100) {
     const maxDenom = validDenoms.find(d => d <= remaining) || 100
-    const minDenom = 100
-    
-    const availableDenoms = validDenoms.filter(d => d >= minDenom && d <= maxDenom && d <= remaining)
+    const availableDenoms = validDenoms.filter(d => d >= 100 && d <= maxDenom && d <= remaining)
     
     if (availableDenoms.length === 0) break
     
@@ -34,7 +32,6 @@ function splitIntoDenominations(totalVolume: number): number[] {
 
   if (remaining > 0 && remaining < 100 && denominations.length > 0) {
     denominations[denominations.length - 1] += remaining
-    remaining = 0
   }
 
   return denominations
@@ -138,10 +135,11 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      const denominations = splitIntoDenominations(meterDifference)
+      const nozzleTotalAmount = meterDifference * unitPrice
+      const amountDenominations = splitIntoAmountDenominations(Math.floor(nozzleTotalAmount))
 
-      for (const quantity of denominations) {
-        const totalAmount = quantity * unitPrice
+      for (const invoiceAmount of amountDenominations) {
+        const quantity = parseFloat((invoiceAmount / unitPrice).toFixed(2))
         const invoiceNumber = generateInvoiceNumber(branchCode, invoiceIndex)
         const receiptNumber = generateReceiptNumber()
 
@@ -168,7 +166,7 @@ export async function POST(request: NextRequest) {
             reading.fuel_type,
             quantity,
             unitPrice,
-            totalAmount
+            invoiceAmount
           ]
         )
 
@@ -178,7 +176,7 @@ export async function POST(request: NextRequest) {
           fuel_type: reading.fuel_type,
           quantity: quantity,
           unit_price: unitPrice,
-          total_amount: totalAmount
+          total_amount: invoiceAmount
         })
 
         invoiceIndex++

@@ -75,9 +75,9 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
     connectionString: process.env.DATABASE_URL
 });
-function splitIntoDenominations(totalVolume) {
+function splitIntoAmountDenominations(totalAmount) {
     const denominations = [];
-    let remaining = totalVolume;
+    let remaining = totalAmount;
     const validDenoms = [
         2500,
         2000,
@@ -127,9 +127,10 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
             console.log(`[BULK SALES] Skipping nozzle ${reading.nozzle_id} - no price configured`);
             continue;
         }
-        const denominations = splitIntoDenominations(meterDifference);
-        for (const quantity of denominations){
-            const amount = quantity * unitPrice;
+        const nozzleTotalAmount = meterDifference * unitPrice;
+        const amountDenominations = splitIntoAmountDenominations(Math.floor(nozzleTotalAmount));
+        for (const invoiceAmount of amountDenominations){
+            const quantity = invoiceAmount / unitPrice;
             const timestamp = Date.now().toString(36).toUpperCase();
             const invoiceNumber = `BLK-${branchCode}-${timestamp}-${String(invoiceIndex).padStart(4, '0')}`;
             const receiptNumber = `RCP-${timestamp}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
@@ -152,17 +153,17 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
                 invoiceNumber,
                 receiptNumber,
                 fuel_type,
-                quantity,
+                parseFloat(quantity.toFixed(2)),
                 unitPrice,
-                amount
+                invoiceAmount
             ]);
             invoicesCreated++;
             totalVolume += quantity;
-            totalAmount += amount;
+            totalAmount += invoiceAmount;
             invoiceIndex++;
         }
     }
-    console.log(`[BULK SALES] Generated ${invoicesCreated} invoices, ${totalVolume}L, KES ${totalAmount}`);
+    console.log(`[BULK SALES] Generated ${invoicesCreated} invoices, ${totalVolume.toFixed(2)}L, KES ${totalAmount}`);
     return {
         invoicesCreated,
         totalVolume,

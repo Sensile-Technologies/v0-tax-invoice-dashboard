@@ -5,9 +5,9 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
-function splitIntoDenominations(totalVolume: number): number[] {
+function splitIntoAmountDenominations(totalAmount: number): number[] {
   const denominations: number[] = []
-  let remaining = totalVolume
+  let remaining = totalAmount
 
   const validDenoms = [2500, 2000, 1500, 1000, 500, 300, 200, 100]
 
@@ -70,10 +70,11 @@ async function generateBulkSalesFromMeterDiff(
       continue
     }
 
-    const denominations = splitIntoDenominations(meterDifference)
+    const nozzleTotalAmount = meterDifference * unitPrice
+    const amountDenominations = splitIntoAmountDenominations(Math.floor(nozzleTotalAmount))
 
-    for (const quantity of denominations) {
-      const amount = quantity * unitPrice
+    for (const invoiceAmount of amountDenominations) {
+      const quantity = invoiceAmount / unitPrice
       const timestamp = Date.now().toString(36).toUpperCase()
       const invoiceNumber = `BLK-${branchCode}-${timestamp}-${String(invoiceIndex).padStart(4, '0')}`
       const receiptNumber = `RCP-${timestamp}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
@@ -92,17 +93,17 @@ async function generateBulkSalesFromMeterDiff(
           'pending', NOW()
         )`,
         [branchId, shiftId, staffId, reading.nozzle_id, invoiceNumber, receiptNumber,
-         fuel_type, quantity, unitPrice, amount]
+         fuel_type, parseFloat(quantity.toFixed(2)), unitPrice, invoiceAmount]
       )
 
       invoicesCreated++
       totalVolume += quantity
-      totalAmount += amount
+      totalAmount += invoiceAmount
       invoiceIndex++
     }
   }
 
-  console.log(`[BULK SALES] Generated ${invoicesCreated} invoices, ${totalVolume}L, KES ${totalAmount}`)
+  console.log(`[BULK SALES] Generated ${invoicesCreated} invoices, ${totalVolume.toFixed(2)}L, KES ${totalAmount}`)
   return { invoicesCreated, totalVolume, totalAmount }
 }
 
