@@ -75,6 +75,100 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
     connectionString: process.env.DATABASE_URL
 });
+function splitIntoDenominations(totalVolume) {
+    const denominations = [];
+    let remaining = totalVolume;
+    const validDenoms = [
+        2500,
+        2000,
+        1500,
+        1000,
+        500,
+        300,
+        200,
+        100
+    ];
+    while(remaining >= 100){
+        const maxDenom = validDenoms.find((d)=>d <= remaining) || 100;
+        const availableDenoms = validDenoms.filter((d)=>d >= 100 && d <= maxDenom && d <= remaining);
+        if (availableDenoms.length === 0) break;
+        const randomDenom = availableDenoms[Math.floor(Math.random() * availableDenoms.length)];
+        denominations.push(randomDenom);
+        remaining -= randomDenom;
+    }
+    if (remaining > 0 && remaining < 100 && denominations.length > 0) {
+        denominations[denominations.length - 1] += remaining;
+    }
+    return denominations;
+}
+async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId, branchName, nozzleReadings) {
+    const branchCode = branchName.substring(0, 3).toUpperCase().replace(/\s/g, '');
+    let invoicesCreated = 0;
+    let totalVolume = 0;
+    let totalAmount = 0;
+    let invoiceIndex = 1;
+    for (const reading of nozzleReadings){
+        const openingReading = parseFloat(String(reading.opening_reading)) || 0;
+        const closingReading = parseFloat(String(reading.closing_reading)) || 0;
+        const meterDifference = closingReading - openingReading;
+        if (meterDifference <= 0) continue;
+        const nozzleInfo = await client.query(`SELECT n.fuel_type, n.item_id, COALESCE(bi.sale_price, i.sale_price, 0) as sale_price
+       FROM nozzles n
+       LEFT JOIN items i ON n.item_id = i.id
+       LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $1
+       WHERE n.id = $2`, [
+            branchId,
+            reading.nozzle_id
+        ]);
+        if (nozzleInfo.rows.length === 0) continue;
+        const { fuel_type, sale_price } = nozzleInfo.rows[0];
+        const unitPrice = parseFloat(sale_price) || 0;
+        if (unitPrice <= 0) {
+            console.log(`[BULK SALES] Skipping nozzle ${reading.nozzle_id} - no price configured`);
+            continue;
+        }
+        const denominations = splitIntoDenominations(meterDifference);
+        for (const quantity of denominations){
+            const amount = quantity * unitPrice;
+            const timestamp = Date.now().toString(36).toUpperCase();
+            const invoiceNumber = `BLK-${branchCode}-${timestamp}-${String(invoiceIndex).padStart(4, '0')}`;
+            const receiptNumber = `RCP-${timestamp}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+            await client.query(`INSERT INTO sales (
+          branch_id, shift_id, staff_id, nozzle_id,
+          invoice_number, receipt_number, sale_date,
+          fuel_type, quantity, unit_price, total_amount,
+          payment_method, is_automated, source_system,
+          transmission_status, created_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, NOW(),
+          $7, $8, $9, $10,
+          'cash', true, 'meter_diff_bulk',
+          'pending', NOW()
+        )`, [
+                branchId,
+                shiftId,
+                staffId,
+                reading.nozzle_id,
+                invoiceNumber,
+                receiptNumber,
+                fuel_type,
+                quantity,
+                unitPrice,
+                amount
+            ]);
+            invoicesCreated++;
+            totalVolume += quantity;
+            totalAmount += amount;
+            invoiceIndex++;
+        }
+    }
+    console.log(`[BULK SALES] Generated ${invoicesCreated} invoices, ${totalVolume}L, KES ${totalAmount}`);
+    return {
+        invoicesCreated,
+        totalVolume,
+        totalAmount
+    };
+}
 async function POST(request) {
     try {
         const body = await request.json();
@@ -163,7 +257,9 @@ async function PATCH(request) {
             });
         }
         await client.query('BEGIN');
-        const shiftCheck = await client.query(`SELECT * FROM shifts WHERE id = $1`, [
+        const shiftCheck = await client.query(`SELECT s.*, b.name as branch_name FROM shifts s
+       JOIN branches b ON s.branch_id = b.id
+       WHERE s.id = $1`, [
             id
         ]);
         if (shiftCheck.rows.length === 0) {
@@ -177,6 +273,8 @@ async function PATCH(request) {
         }
         const currentShift = shiftCheck.rows[0];
         const branchId = currentShift.branch_id;
+        const branchName = currentShift.branch_name || 'BRN';
+        const staffId = currentShift.staff_id;
         const endTimeValue = end_time || new Date().toISOString();
         const nozzlesResult = await client.query(`SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1`, [
             branchId
@@ -233,6 +331,7 @@ async function PATCH(request) {
         await client.query(`DELETE FROM shift_readings WHERE shift_id = $1`, [
             id
         ]);
+        const savedNozzleReadings = [];
         if (nozzle_readings && nozzle_readings.length > 0) {
             for (const reading of nozzle_readings){
                 if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
@@ -245,7 +344,26 @@ async function PATCH(request) {
                         openingReading,
                         reading.closing_reading
                     ]);
+                    savedNozzleReadings.push({
+                        nozzle_id: reading.nozzle_id,
+                        opening_reading: openingReading,
+                        closing_reading: reading.closing_reading
+                    });
                 }
+            }
+        }
+        let bulkSalesResult = {
+            invoicesCreated: 0,
+            totalVolume: 0,
+            totalAmount: 0
+        };
+        if (savedNozzleReadings.length > 0) {
+            bulkSalesResult = await generateBulkSalesFromMeterDiff(client, id, branchId, staffId, branchName, savedNozzleReadings);
+            if (bulkSalesResult.totalAmount > 0) {
+                await client.query(`UPDATE shifts SET total_sales = $1 WHERE id = $2`, [
+                    bulkSalesResult.totalAmount,
+                    id
+                ]);
             }
         }
         if (tank_stocks && tank_stocks.length > 0) {
@@ -281,7 +399,12 @@ async function PATCH(request) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: shift,
-            newShift: newShift
+            newShift: newShift,
+            bulkSales: {
+                invoicesCreated: bulkSalesResult.invoicesCreated,
+                totalVolume: bulkSalesResult.totalVolume,
+                totalAmount: bulkSalesResult.totalAmount
+            }
         });
     } catch (error) {
         await client.query('ROLLBACK');

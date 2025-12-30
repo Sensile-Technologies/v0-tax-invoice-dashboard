@@ -1,9 +1,110 @@
 import { NextRequest, NextResponse } from "next/server"
-import { Pool } from "pg"
+import { Pool, PoolClient } from "pg"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
+
+function splitIntoDenominations(totalVolume: number): number[] {
+  const denominations: number[] = []
+  let remaining = totalVolume
+
+  const validDenoms = [2500, 2000, 1500, 1000, 500, 300, 200, 100]
+
+  while (remaining >= 100) {
+    const maxDenom = validDenoms.find(d => d <= remaining) || 100
+    const availableDenoms = validDenoms.filter(d => d >= 100 && d <= maxDenom && d <= remaining)
+    
+    if (availableDenoms.length === 0) break
+    
+    const randomDenom = availableDenoms[Math.floor(Math.random() * availableDenoms.length)]
+    denominations.push(randomDenom)
+    remaining -= randomDenom
+  }
+
+  if (remaining > 0 && remaining < 100 && denominations.length > 0) {
+    denominations[denominations.length - 1] += remaining
+  }
+
+  return denominations
+}
+
+async function generateBulkSalesFromMeterDiff(
+  client: PoolClient,
+  shiftId: string,
+  branchId: string,
+  staffId: string | null,
+  branchName: string,
+  nozzleReadings: Array<{ nozzle_id: string; opening_reading: number; closing_reading: number }>
+): Promise<{ invoicesCreated: number; totalVolume: number; totalAmount: number }> {
+  
+  const branchCode = branchName.substring(0, 3).toUpperCase().replace(/\s/g, '')
+  let invoicesCreated = 0
+  let totalVolume = 0
+  let totalAmount = 0
+  let invoiceIndex = 1
+
+  for (const reading of nozzleReadings) {
+    const openingReading = parseFloat(String(reading.opening_reading)) || 0
+    const closingReading = parseFloat(String(reading.closing_reading)) || 0
+    const meterDifference = closingReading - openingReading
+
+    if (meterDifference <= 0) continue
+
+    const nozzleInfo = await client.query(
+      `SELECT n.fuel_type, n.item_id, COALESCE(bi.sale_price, i.sale_price, 0) as sale_price
+       FROM nozzles n
+       LEFT JOIN items i ON n.item_id = i.id
+       LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $1
+       WHERE n.id = $2`,
+      [branchId, reading.nozzle_id]
+    )
+
+    if (nozzleInfo.rows.length === 0) continue
+
+    const { fuel_type, sale_price } = nozzleInfo.rows[0]
+    const unitPrice = parseFloat(sale_price) || 0
+
+    if (unitPrice <= 0) {
+      console.log(`[BULK SALES] Skipping nozzle ${reading.nozzle_id} - no price configured`)
+      continue
+    }
+
+    const denominations = splitIntoDenominations(meterDifference)
+
+    for (const quantity of denominations) {
+      const amount = quantity * unitPrice
+      const timestamp = Date.now().toString(36).toUpperCase()
+      const invoiceNumber = `BLK-${branchCode}-${timestamp}-${String(invoiceIndex).padStart(4, '0')}`
+      const receiptNumber = `RCP-${timestamp}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+
+      await client.query(
+        `INSERT INTO sales (
+          branch_id, shift_id, staff_id, nozzle_id,
+          invoice_number, receipt_number, sale_date,
+          fuel_type, quantity, unit_price, total_amount,
+          payment_method, is_automated, source_system,
+          transmission_status, created_at
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, NOW(),
+          $7, $8, $9, $10,
+          'cash', true, 'meter_diff_bulk',
+          'pending', NOW()
+        )`,
+        [branchId, shiftId, staffId, reading.nozzle_id, invoiceNumber, receiptNumber,
+         fuel_type, quantity, unitPrice, amount]
+      )
+
+      invoicesCreated++
+      totalVolume += quantity
+      totalAmount += amount
+      invoiceIndex++
+    }
+  }
+
+  console.log(`[BULK SALES] Generated ${invoicesCreated} invoices, ${totalVolume}L, KES ${totalAmount}`)
+  return { invoicesCreated, totalVolume, totalAmount }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -104,7 +205,9 @@ export async function PATCH(request: NextRequest) {
     await client.query('BEGIN')
 
     const shiftCheck = await client.query(
-      `SELECT * FROM shifts WHERE id = $1`,
+      `SELECT s.*, b.name as branch_name FROM shifts s
+       JOIN branches b ON s.branch_id = b.id
+       WHERE s.id = $1`,
       [id]
     )
 
@@ -119,6 +222,8 @@ export async function PATCH(request: NextRequest) {
 
     const currentShift = shiftCheck.rows[0]
     const branchId = currentShift.branch_id
+    const branchName = currentShift.branch_name || 'BRN'
+    const staffId = currentShift.staff_id
     const endTimeValue = end_time || new Date().toISOString()
 
     const nozzlesResult = await client.query(
@@ -182,6 +287,8 @@ export async function PATCH(request: NextRequest) {
       [id]
     )
 
+    const savedNozzleReadings: Array<{ nozzle_id: string; opening_reading: number; closing_reading: number }> = []
+    
     if (nozzle_readings && nozzle_readings.length > 0) {
       for (const reading of nozzle_readings) {
         if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
@@ -191,7 +298,26 @@ export async function PATCH(request: NextRequest) {
              VALUES ($1, $2, 'nozzle', $3, $4, $5)`,
             [id, branchId, reading.nozzle_id, openingReading, reading.closing_reading]
           )
+          savedNozzleReadings.push({
+            nozzle_id: reading.nozzle_id,
+            opening_reading: openingReading,
+            closing_reading: reading.closing_reading
+          })
         }
+      }
+    }
+
+    let bulkSalesResult = { invoicesCreated: 0, totalVolume: 0, totalAmount: 0 }
+    if (savedNozzleReadings.length > 0) {
+      bulkSalesResult = await generateBulkSalesFromMeterDiff(
+        client, id, branchId, staffId, branchName, savedNozzleReadings
+      )
+      
+      if (bulkSalesResult.totalAmount > 0) {
+        await client.query(
+          `UPDATE shifts SET total_sales = $1 WHERE id = $2`,
+          [bulkSalesResult.totalAmount, id]
+        )
       }
     }
 
@@ -228,7 +354,12 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: shift,
-      newShift: newShift
+      newShift: newShift,
+      bulkSales: {
+        invoicesCreated: bulkSalesResult.invoicesCreated,
+        totalVolume: bulkSalesResult.totalVolume,
+        totalAmount: bulkSalesResult.totalAmount
+      }
     })
 
   } catch (error: any) {
