@@ -43,12 +43,12 @@ interface PumpCallbackPayload {
   Packets: PumpTransactionPacket[]
 }
 
-// Helper function to find branch by controller_id (pts_id)
+// Helper function to find branch by controller_id (matches PtsId from pump callback)
 async function findBranchByControllerId(ptsId: string): Promise<{ id: string; name: string } | null> {
   try {
     const result: any = await query(`
       SELECT id, name FROM branches 
-      WHERE controller_id = $1 OR pts_id = $1
+      WHERE controller_id = $1
       LIMIT 1
     `, [ptsId])
     
