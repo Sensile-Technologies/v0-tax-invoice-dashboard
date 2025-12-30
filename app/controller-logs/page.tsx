@@ -328,15 +328,15 @@ export default function ControllerLogsPage() {
           <CardContent className="pt-4 pb-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <p className="text-sm font-medium text-blue-800">Server URL</p>
+                <p className="text-sm font-medium text-blue-800">Server IP</p>
                 <code className="text-sm bg-white px-2 py-1 rounded border block mt-1 break-all">
-                  {typeof window !== 'undefined' ? window.location.origin : 'https://flow360-rji.replit.app'}
+                  143.244.220.194
                 </code>
               </div>
               <div>
                 <p className="text-sm font-medium text-blue-800">Port</p>
                 <code className="text-sm bg-white px-2 py-1 rounded border block mt-1">
-                  {typeof window !== 'undefined' ? (window.location.port || '443') : '443'}
+                  443
                 </code>
               </div>
               <div>

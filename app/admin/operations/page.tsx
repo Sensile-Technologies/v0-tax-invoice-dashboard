@@ -145,7 +145,8 @@ export default function OperationsPage() {
     hardware_type: "",
     hardware_serial: "",
     device_serial_number: "",
-    sr_number: ""
+    sr_number: "",
+    pts_id: ""
   })
   const [initializingBranch, setInitializingBranch] = useState(false)
 
@@ -426,7 +427,7 @@ export default function OperationsPage() {
       toast.success("Configuration saved successfully")
       setConfigDialogOpen(false)
       setSelectedRequest(null)
-      setConfigData({ device_token: "", bhf_id: "", server_address: "", server_port: "", hardware_type: "", hardware_serial: "", device_serial_number: "", sr_number: "" })
+      setConfigData({ device_token: "", bhf_id: "", server_address: "", server_port: "", hardware_type: "", hardware_serial: "", device_serial_number: "", sr_number: "", pts_id: "" })
       fetchData()
     } catch (error: any) {
       console.error("[Onboarding] Error:", error)
@@ -1131,6 +1132,15 @@ export default function OperationsPage() {
                     placeholder="SR number"
                   />
                 </div>
+              </div>
+              <div className="space-y-2 mt-4">
+                <Label>PTS ID (Controller ID)</Label>
+                <Input
+                  value={configData.pts_id}
+                  onChange={(e) => setConfigData({ ...configData, pts_id: e.target.value })}
+                  placeholder="e.g., 003A003A..."
+                />
+                <p className="text-xs text-muted-foreground">The unique identifier for the pump controller. Used to match pump callbacks to this branch.</p>
               </div>
             </div>
             <div className="border-t pt-4 mt-2">

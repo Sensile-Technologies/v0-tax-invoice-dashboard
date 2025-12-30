@@ -395,6 +395,7 @@ export default function HeadquartersPage() {
     newStorageIndex: "",
     vendorId: "",
     kraPin: "",
+    controllerId: "",
     tankConfig: {} as Record<
       string,
       { dispensers: string[]; initialStock: string; fuelType?: string; tankCapacity?: string }
@@ -434,6 +435,7 @@ export default function HeadquartersPage() {
       newStorageIndex: "",
       vendorId: existingVendorId,
       kraPin: "",
+      controllerId: "",
       tankConfig: {},
     })
     setCreateBranchOpen(true)
@@ -468,6 +470,7 @@ export default function HeadquartersPage() {
           county: branchForm.county,
           address: branchForm.address,
           local_tax_office: branchForm.localTaxOffice,
+          controller_id: branchForm.controllerId || undefined,
         })
       })
       
@@ -669,6 +672,7 @@ export default function HeadquartersPage() {
         newStorageIndex: "",
         vendorId: "",
         kraPin: "",
+        controllerId: "",
         tankConfig: {},
       })
       await fetchBranches()
@@ -699,6 +703,7 @@ export default function HeadquartersPage() {
       newStorageIndex: "",
       vendorId: branch.vendor_id || "",
       kraPin: branch.kra_pin || "",
+      controllerId: branch.controller_id || "",
       tankConfig: branch.tank_config || {},
     })
     setEditBranchOpen(true)
@@ -1300,6 +1305,17 @@ export default function HeadquartersPage() {
                   onChange={(e) => setBranchForm({ ...branchForm, vendorId: e.target.value })}
                   className="rounded-xl font-mono text-sm"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="controller-id">Controller ID (PTS ID)</Label>
+                <Input
+                  id="controller-id"
+                  placeholder="e.g., 003A003A..."
+                  value={branchForm.controllerId}
+                  onChange={(e) => setBranchForm({ ...branchForm, controllerId: e.target.value })}
+                  className="rounded-xl font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground">Unique identifier for the pump controller. Used to match pump callbacks to this branch.</p>
               </div>
             </div>
 

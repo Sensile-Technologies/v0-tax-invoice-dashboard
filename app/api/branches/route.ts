@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
       kra_pin,
       bhf_id,
       storage_indices,
+      controller_id,
       status = "pending_onboarding"
     } = body
 
@@ -125,8 +126,8 @@ export async function POST(request: NextRequest) {
     const result = await pool.query(
       `INSERT INTO branches (
         vendor_id, name, location, address, county, local_tax_office, manager,
-        phone, email, kra_pin, bhf_id, storage_indices, status, created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW())
+        phone, email, kra_pin, bhf_id, storage_indices, controller_id, status, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())
       RETURNING *`,
       [
         resolvedVendorId,
@@ -141,6 +142,7 @@ export async function POST(request: NextRequest) {
         kra_pin || null,
         bhf_id || '00',
         storage_indices ? JSON.stringify(storage_indices) : null,
+        controller_id || null,
         status
       ]
     )
