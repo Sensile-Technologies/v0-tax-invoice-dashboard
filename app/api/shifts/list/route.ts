@@ -56,8 +56,8 @@ export async function GET(request: NextRequest) {
         b.name as branch_name,
         st.full_name as staff_name,
         st.username as staff_username,
-        COALESCE(nr.total_opening_reading, 0) as total_opening_reading,
-        COALESCE(nr.total_closing_reading, 0) as total_closing_reading
+        COALESCE(nr.total_opening_reading, nz.total_nozzle_reading, 0) as total_opening_reading,
+        COALESCE(nr.total_closing_reading, nz.total_nozzle_reading, 0) as total_closing_reading
       FROM shifts s
       LEFT JOIN branches b ON s.branch_id = b.id
       LEFT JOIN staff st ON s.staff_id = st.id
@@ -68,6 +68,12 @@ export async function GET(request: NextRequest) {
         FROM shift_readings sr
         WHERE sr.shift_id = s.id AND sr.reading_type = 'nozzle'
       ) nr ON true
+      LEFT JOIN LATERAL (
+        SELECT 
+          SUM(COALESCE(initial_meter_reading, 0)) as total_nozzle_reading
+        FROM nozzles n
+        WHERE n.branch_id = s.branch_id AND n.status = 'active'
+      ) nz ON true
       WHERE 1=1
     `
     const params: any[] = []
