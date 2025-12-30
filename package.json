@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build && node scripts/patch-standalone.js",
+    "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "node .next/standalone/server.js",
-    "deploy": "node scripts/production-server.js"
+    "start": "next start -p 5000 -H 0.0.0.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
