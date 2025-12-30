@@ -38,6 +38,8 @@ interface Shift {
   branch_name: string
   cashier: string
   variance: number
+  total_opening_reading: number
+  total_closing_reading: number
 }
 
 
@@ -111,7 +113,7 @@ export default function ShiftsReportPage() {
     totalShifts: 0,
     totalSales: 0,
     averagePerShift: 0,
-    totalVariance: 0
+    totalMeterDiff: 0
   })
 
   const [endShiftDialogOpen, setEndShiftDialogOpen] = useState(false)
@@ -150,12 +152,12 @@ export default function ShiftsReportPage() {
         if (data.success) {
           setShifts(data.data || [])
           const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
-          const totalVariance = data.data.reduce((sum: number, s: Shift) => sum + (s.variance || 0), 0)
+          const totalMeterDiff = data.data.reduce((sum: number, s: Shift) => sum + ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)), 0)
           setSummary({
             totalShifts: data.data.length,
             totalSales,
             averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
-            totalVariance
+            totalMeterDiff
           })
         }
         setLoading(false)
@@ -187,12 +189,12 @@ export default function ShiftsReportPage() {
         setShifts(data.data || [])
         
         const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
-        const totalVariance = data.data.reduce((sum: number, s: Shift) => sum + (s.variance || 0), 0)
+        const totalMeterDiff = data.data.reduce((sum: number, s: Shift) => sum + ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)), 0)
         setSummary({
           totalShifts: data.data.length,
           totalSales,
           averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
-          totalVariance
+          totalMeterDiff
         })
       } else {
         toast.error(data.error || 'Failed to fetch shifts')
@@ -416,9 +418,9 @@ export default function ShiftsReportPage() {
                       <p className="text-2xl font-bold">{formatCurrency(summary.averagePerShift)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">Total Variance</p>
-                      <p className={`text-2xl font-bold ${summary.totalVariance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(summary.totalVariance)}
+                      <p className="text-sm text-slate-600">Total Meter Diff (L)</p>
+                      <p className="text-2xl font-bold font-mono text-blue-600">
+                        {summary.totalMeterDiff.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
                   </div>
@@ -475,10 +477,10 @@ export default function ShiftsReportPage() {
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">Cashier</th>
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">Start Time</th>
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">End Time</th>
-                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening Cash</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening Meter (L)</th>
                             <th className="text-right py-3 px-4 font-semibold text-slate-700">Sales</th>
-                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Cash</th>
-                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Variance</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Meter (L)</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Meter Diff (L)</th>
                             <th className="text-center py-3 px-4 font-semibold text-slate-700">Status</th>
                             <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
                           </tr>
@@ -490,15 +492,12 @@ export default function ShiftsReportPage() {
                               <td className="py-3 px-4">{shift.cashier}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.end_time)}</td>
-                              <td className="py-3 px-4 text-right">{formatCurrency(shift.opening_cash)}</td>
+                              <td className="py-3 px-4 text-right font-mono">{shift.total_opening_reading.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                               <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.total_sales)}</td>
-                              <td className="py-3 px-4 text-right">{formatCurrency(shift.closing_cash)}</td>
+                              <td className="py-3 px-4 text-right font-mono">{shift.total_closing_reading.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                               <td className="py-3 px-4 text-right">
-                                <span className={shift.variance >= 0 ? "text-green-600" : "text-red-600"}>
-                                  {shift.variance !== 0 && (
-                                    <AlertCircle className="h-4 w-4 inline mr-1" />
-                                  )}
-                                  {formatCurrency(shift.variance)}
+                                <span className="font-mono font-semibold">
+                                  {(shift.total_closing_reading - shift.total_opening_reading).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
                               </td>
                               <td className="py-3 px-4 text-center">

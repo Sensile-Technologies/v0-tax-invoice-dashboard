@@ -55,10 +55,19 @@ export async function GET(request: NextRequest) {
         s.created_at,
         b.name as branch_name,
         st.full_name as staff_name,
-        st.username as staff_username
+        st.username as staff_username,
+        COALESCE(nr.total_opening_reading, 0) as total_opening_reading,
+        COALESCE(nr.total_closing_reading, 0) as total_closing_reading
       FROM shifts s
       LEFT JOIN branches b ON s.branch_id = b.id
       LEFT JOIN staff st ON s.staff_id = st.id
+      LEFT JOIN LATERAL (
+        SELECT 
+          SUM(COALESCE(CAST(opening_reading AS numeric), 0)) as total_opening_reading,
+          SUM(COALESCE(CAST(closing_reading AS numeric), 0)) as total_closing_reading
+        FROM shift_readings sr
+        WHERE sr.shift_id = s.id AND sr.reading_type = 'nozzle'
+      ) nr ON true
       WHERE 1=1
     `
     const params: any[] = []
@@ -103,6 +112,8 @@ export async function GET(request: NextRequest) {
       const totalSales = parseFloat(shift.total_sales) || 0
       const expectedCash = openingCash + totalSales
       const variance = closingCash - expectedCash
+      const totalOpeningReading = parseFloat(shift.total_opening_reading) || 0
+      const totalClosingReading = parseFloat(shift.total_closing_reading) || 0
 
       return {
         ...shift,
@@ -110,6 +121,8 @@ export async function GET(request: NextRequest) {
         closing_cash: closingCash,
         total_sales: totalSales,
         variance: variance,
+        total_opening_reading: totalOpeningReading,
+        total_closing_reading: totalClosingReading,
         cashier: shift.staff_name || shift.staff_username || 'Unknown'
       }
     })
