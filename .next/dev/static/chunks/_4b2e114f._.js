@@ -1010,6 +1010,7 @@ __turbopack_context__.s([
     "default",
     ()=>ControllerLogsPage
 ]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/card.tsx [app-client] (ecmascript)");
@@ -1431,7 +1432,7 @@ function ControllerLogsPage() {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-sm font-medium text-blue-800",
-                                                children: "Server URL"
+                                                children: "Server IP"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
                                                 lineNumber: 331,
@@ -1439,7 +1440,7 @@ function ControllerLogsPage() {
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
                                                 className: "text-sm bg-white px-2 py-1 rounded border block mt-1 break-all",
-                                                children: ("TURBOPACK compile-time truthy", 1) ? window.location.origin : "TURBOPACK unreachable"
+                                                children: ("TURBOPACK compile-time value", "143.244.220.194") || '143.244.220.194'
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
                                                 lineNumber: 332,
@@ -1463,7 +1464,7 @@ function ControllerLogsPage() {
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
                                                 className: "text-sm bg-white px-2 py-1 rounded border block mt-1",
-                                                children: ("TURBOPACK compile-time truthy", 1) ? window.location.port || '443' : "TURBOPACK unreachable"
+                                                children: ("TURBOPACK compile-time value", "443") || '443'
                                             }, void 0, false, {
                                                 fileName: "[project]/app/controller-logs/page.tsx",
                                                 lineNumber: 338,
