@@ -104,7 +104,7 @@ async function GET(request) {
         }
         const client = await pool.connect();
         try {
-            const userResult = await client.query(`SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+            const userResult = await client.query(`SELECT u.id, u.role as user_role, s.role as staff_role, v.id as vendor_id
          FROM users u
          LEFT JOIN vendors v ON v.email = u.email
          LEFT JOIN staff s ON s.user_id = u.id
@@ -124,10 +124,12 @@ async function GET(request) {
             const vendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
                 session.id
             ])).rows[0]?.vendor_id;
-            if (![
+            // Check for HQ access: user must be vendor/director in users table OR director in staff table
+            const hasHqAccess = [
                 'director',
                 'vendor'
-            ].includes(user.role)) {
+            ].includes(user.user_role) || user.staff_role && user.staff_role.toLowerCase() === 'director';
+            if (!hasHqAccess) {
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                     success: false,
                     error: "Access denied. HQ access required."
@@ -181,7 +183,7 @@ async function POST(request) {
                 status: 401
             });
         }
-        const userResult = await client.query(`SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+        const userResult = await client.query(`SELECT u.id, u.role as user_role, s.role as staff_role, v.id as vendor_id
        FROM users u
        LEFT JOIN vendors v ON v.email = u.email
        LEFT JOIN staff s ON s.user_id = u.id
@@ -200,10 +202,12 @@ async function POST(request) {
         const vendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
             session.id
         ])).rows[0]?.vendor_id;
-        if (![
+        // Check for HQ access: user must be vendor/director in users table OR director in staff table
+        const hasHqAccess = [
             'director',
             'vendor'
-        ].includes(user.role)) {
+        ].includes(user.user_role) || user.staff_role && user.staff_role.toLowerCase() === 'director';
+        if (!hasHqAccess) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
                 error: "Access denied. Only HQ can create items."

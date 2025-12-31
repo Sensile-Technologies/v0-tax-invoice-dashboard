@@ -210,8 +210,11 @@ export function HqItemsManager() {
     try {
       const response = await fetch("/api/branches/list")
       const result = await response.json()
-      if (result.success) {
-        setBranches(result.branches || [])
+      // API returns array directly, not { success, branches }
+      if (Array.isArray(result)) {
+        setBranches(result)
+      } else if (result.success && result.branches) {
+        setBranches(result.branches)
       }
     } catch (error) {
       console.error("Error fetching branches:", error)
