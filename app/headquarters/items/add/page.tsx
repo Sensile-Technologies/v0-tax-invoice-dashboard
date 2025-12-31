@@ -170,19 +170,18 @@ export default function AddItemPage() {
         <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           <div className="max-w-4xl mx-auto">
-            <div className="mb-6">
-              <Button 
-                variant="ghost" 
-                onClick={() => router.push("/headquarters/items")}
-                className="mb-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Items
-              </Button>
-            </div>
-
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => router.push("/headquarters/items")}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Items
+                  </Button>
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Package className="h-6 w-6 text-primary" />
