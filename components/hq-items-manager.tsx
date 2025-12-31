@@ -187,9 +187,10 @@ export function HqItemsManager() {
             return true
           })
         }
+        const kraCountries = uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "05").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })))
         setCodes({
           itemTypes: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "24").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
-          origins: COUNTRY_ORIGINS,
+          origins: kraCountries.length > 0 ? kraCountries : COUNTRY_ORIGINS,
           quantityUnits: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "10").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
           packageUnits: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "17").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
           taxTypes: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "04").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })))
