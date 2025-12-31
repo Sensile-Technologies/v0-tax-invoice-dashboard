@@ -47,6 +47,56 @@ interface Branch {
   location: string
 }
 
+const COUNTRY_ORIGINS = [
+  { cd: "KE", cd_nm: "Kenya" },
+  { cd: "AE", cd_nm: "United Arab Emirates" },
+  { cd: "CN", cd_nm: "China" },
+  { cd: "DE", cd_nm: "Germany" },
+  { cd: "EG", cd_nm: "Egypt" },
+  { cd: "ET", cd_nm: "Ethiopia" },
+  { cd: "FR", cd_nm: "France" },
+  { cd: "GB", cd_nm: "United Kingdom" },
+  { cd: "IN", cd_nm: "India" },
+  { cd: "IT", cd_nm: "Italy" },
+  { cd: "JP", cd_nm: "Japan" },
+  { cd: "MY", cd_nm: "Malaysia" },
+  { cd: "NL", cd_nm: "Netherlands" },
+  { cd: "NG", cd_nm: "Nigeria" },
+  { cd: "PK", cd_nm: "Pakistan" },
+  { cd: "RU", cd_nm: "Russia" },
+  { cd: "SA", cd_nm: "Saudi Arabia" },
+  { cd: "SG", cd_nm: "Singapore" },
+  { cd: "TH", cd_nm: "Thailand" },
+  { cd: "TR", cd_nm: "Turkey" },
+  { cd: "TZ", cd_nm: "Tanzania" },
+  { cd: "UG", cd_nm: "Uganda" },
+  { cd: "US", cd_nm: "United States" },
+  { cd: "ZA", cd_nm: "South Africa" },
+  { cd: "ZM", cd_nm: "Zambia" },
+  { cd: "ZW", cd_nm: "Zimbabwe" },
+  { cd: "RW", cd_nm: "Rwanda" },
+  { cd: "BI", cd_nm: "Burundi" },
+  { cd: "CD", cd_nm: "DR Congo" },
+  { cd: "SS", cd_nm: "South Sudan" },
+  { cd: "SO", cd_nm: "Somalia" },
+  { cd: "DJ", cd_nm: "Djibouti" },
+  { cd: "ER", cd_nm: "Eritrea" },
+  { cd: "MW", cd_nm: "Malawi" },
+  { cd: "MZ", cd_nm: "Mozambique" },
+  { cd: "BW", cd_nm: "Botswana" },
+  { cd: "NA", cd_nm: "Namibia" },
+  { cd: "AU", cd_nm: "Australia" },
+  { cd: "BR", cd_nm: "Brazil" },
+  { cd: "CA", cd_nm: "Canada" },
+  { cd: "ES", cd_nm: "Spain" },
+  { cd: "ID", cd_nm: "Indonesia" },
+  { cd: "KR", cd_nm: "South Korea" },
+  { cd: "MX", cd_nm: "Mexico" },
+  { cd: "PH", cd_nm: "Philippines" },
+  { cd: "PL", cd_nm: "Poland" },
+  { cd: "VN", cd_nm: "Vietnam" }
+].sort((a, b) => a.cd_nm.localeCompare(b.cd_nm))
+
 export function HqItemsManager() {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
@@ -73,7 +123,7 @@ export function HqItemsManager() {
     taxTypes: KraCode[]
   }>({
     itemTypes: [],
-    origins: [],
+    origins: COUNTRY_ORIGINS,
     quantityUnits: [],
     packageUnits: [],
     taxTypes: []
@@ -139,7 +189,7 @@ export function HqItemsManager() {
         }
         setCodes({
           itemTypes: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "24").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
-          origins: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "12").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
+          origins: COUNTRY_ORIGINS,
           quantityUnits: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "10").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
           packageUnits: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "17").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
           taxTypes: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "04").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })))
@@ -464,13 +514,13 @@ export function HqItemsManager() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Origin *</Label>
+                <Label>Country of Origin *</Label>
                 <SearchableSelect
                   value={formData.origin}
                   onValueChange={(v) => setFormData({ ...formData, origin: v })}
-                  placeholder="Select origin"
-                  searchPlaceholder="Search origins..."
-                  options={codes.origins.map((o) => ({ value: o.cd, label: o.cd_nm }))}
+                  placeholder="Select country"
+                  searchPlaceholder="Search countries..."
+                  options={codes.origins.map((o) => ({ value: o.cd, label: `${o.cd_nm} (${o.cd})` }))}
                 />
               </div>
             </div>
