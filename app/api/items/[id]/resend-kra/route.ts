@@ -18,19 +18,41 @@ export async function POST(
       )
     }
 
-    const itemResult = await query(`
-      SELECT i.*, COALESCE(b.kra_pin, v.kra_pin) as kra_pin, b.bhf_id,
-             COALESCE(b.server_address, '5.189.171.160') as server_address,
-             COALESCE(b.server_port, '8088') as server_port
-      FROM items i
-      JOIN vendors v ON v.id = i.vendor_id
-      JOIN branches b ON b.id = i.branch_id
-      WHERE i.id = $1
-    `, [id])
+    const { searchParams } = new URL(request.url)
+    const branchId = searchParams.get('branchId')
+
+    let itemResult
+    
+    if (branchId) {
+      itemResult = await query(`
+        SELECT i.*, 
+               bi.sale_price as branch_sale_price,
+               bi.purchase_price as branch_purchase_price,
+               COALESCE(b.kra_pin, v.kra_pin) as kra_pin, 
+               b.bhf_id, b.id as branch_id,
+               COALESCE(b.server_address, '5.189.171.160') as server_address,
+               COALESCE(b.server_port, '8088') as server_port
+        FROM items i
+        JOIN vendors v ON v.id = i.vendor_id
+        JOIN branch_items bi ON bi.item_id = i.id AND bi.branch_id = $2
+        JOIN branches b ON b.id = bi.branch_id
+        WHERE i.id = $1
+      `, [id, branchId])
+    } else {
+      itemResult = await query(`
+        SELECT i.*, COALESCE(b.kra_pin, v.kra_pin) as kra_pin, b.bhf_id,
+               COALESCE(b.server_address, '5.189.171.160') as server_address,
+               COALESCE(b.server_port, '8088') as server_port
+        FROM items i
+        JOIN vendors v ON v.id = i.vendor_id
+        JOIN branches b ON b.id = i.branch_id
+        WHERE i.id = $1
+      `, [id])
+    }
 
     if (itemResult.length === 0) {
       return NextResponse.json(
-        { error: "Item not found" },
+        { error: "Item not found or not assigned to the specified branch" },
         { status: 404 }
       )
     }
@@ -39,7 +61,7 @@ export async function POST(
 
     if (!item.branch_id) {
       return NextResponse.json(
-        { error: "Item does not have a branch assigned" },
+        { error: "Item does not have a branch assigned. For catalog items, specify branchId parameter." },
         { status: 400 }
       )
     }
@@ -53,6 +75,8 @@ export async function POST(
 
     console.log(`[Items API] Resending item ${id} to KRA directly`)
 
+    const effectiveSalePrice = item.branch_sale_price || item.sale_price || 0
+    
     const kraPayload = {
       tin: item.kra_pin,
       bhfId: item.bhf_id || "00",
@@ -67,11 +91,11 @@ export async function POST(
       taxTyCd: item.tax_type || "B",
       btchNo: item.batch_number || null,
       bcd: item.sku || null,
-      dftPrc: item.sale_price || 0,
-      grpPrcL1: item.sale_price || 0,
-      grpPrcL2: item.sale_price || 0,
-      grpPrcL3: item.sale_price || 0,
-      grpPrcL4: item.sale_price || 0,
+      dftPrc: effectiveSalePrice,
+      grpPrcL1: effectiveSalePrice,
+      grpPrcL2: effectiveSalePrice,
+      grpPrcL3: effectiveSalePrice,
+      grpPrcL4: effectiveSalePrice,
       grpPrcL5: null,
       addInfo: null,
       sftyQty: null,
@@ -157,6 +181,16 @@ export async function POST(
           kra_last_synced_at = NOW()
       WHERE id = $3
     `, [status, JSON.stringify(kraResponse), id])
+
+    if (branchId) {
+      await query(`
+        UPDATE branch_items 
+        SET kra_status = $1, 
+            kra_response = $2, 
+            kra_last_synced_at = NOW()
+        WHERE item_id = $3 AND branch_id = $4
+      `, [status, JSON.stringify(kraResponse), id, branchId])
+    }
 
     return NextResponse.json({
       success: isSuccess,

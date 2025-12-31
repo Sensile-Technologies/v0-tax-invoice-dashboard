@@ -90,12 +90,31 @@ export default function ItemsListPage() {
   }, [])
 
   const [resendingItems, setResendingItems] = useState<Set<string>>(new Set())
+  const [currentBranchId, setCurrentBranchId] = useState<string>("")
 
-  const handleResendToKra = async (itemId: string) => {
+  useEffect(() => {
+    const storedBranch = localStorage.getItem("selectedBranch")
+    if (storedBranch) {
+      const branch = JSON.parse(storedBranch)
+      setCurrentBranchId(branch.id || "")
+    } else {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        const user = JSON.parse(storedUser)
+        setCurrentBranchId(user.branch_id || user.branchId || "")
+      }
+    }
+  }, [])
+
+  const handleResendToKra = async (itemId: string, isAssigned: boolean) => {
     setResendingItems(prev => new Set(prev).add(itemId))
     
     try {
-      const response = await fetch(`/api/items/${itemId}/resend-kra`, {
+      const url = isAssigned && currentBranchId
+        ? `/api/items/${itemId}/resend-kra?branchId=${currentBranchId}`
+        : `/api/items/${itemId}/resend-kra`
+      
+      const response = await fetch(url, {
         method: "POST"
       })
 
@@ -109,7 +128,7 @@ export default function ItemsListPage() {
             : item
         ))
       } else {
-        toast.error(result.message || "Failed to submit item to KRA")
+        toast.error(result.message || result.error || "Failed to submit item to KRA")
         setItems(items.map(item => 
           item.item_id === itemId 
             ? { ...item, kra_status: 'rejected', kra_last_synced_at: new Date().toISOString() }
@@ -430,7 +449,7 @@ export default function ItemsListPage() {
                                       {(item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && (
                                         <DropdownMenuItem 
                                           className="rounded-lg"
-                                          onClick={() => handleResendToKra(item.item_id)}
+                                          onClick={() => handleResendToKra(item.item_id, true)}
                                           disabled={resendingItems.has(item.item_id)}
                                         >
                                           {resendingItems.has(item.item_id) ? (
@@ -458,7 +477,7 @@ export default function ItemsListPage() {
                                       {(item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && (
                                         <DropdownMenuItem 
                                           className="rounded-lg"
-                                          onClick={() => handleResendToKra(item.item_id)}
+                                          onClick={() => handleResendToKra(item.item_id, false)}
                                           disabled={resendingItems.has(item.item_id)}
                                         >
                                           {resendingItems.has(item.item_id) ? (

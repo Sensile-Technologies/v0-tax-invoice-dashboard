@@ -104,7 +104,12 @@ async function GET(request) {
         }
         const client = await pool.connect();
         try {
-            const userResult = await client.query('SELECT role, vendor_id FROM users WHERE id = $1', [
+            const userResult = await client.query(`SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+         FROM users u
+         LEFT JOIN vendors v ON v.email = u.email
+         LEFT JOIN staff s ON s.user_id = u.id
+         LEFT JOIN branches b ON b.id = s.branch_id
+         WHERE u.id = $1`, [
                 session.id
             ]);
             if (userResult.rows.length === 0) {
@@ -116,6 +121,9 @@ async function GET(request) {
                 });
             }
             const user = userResult.rows[0];
+            const vendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+                session.id
+            ])).rows[0]?.vendor_id;
             if (![
                 'director',
                 'vendor'
@@ -127,12 +135,22 @@ async function GET(request) {
                     status: 403
                 });
             }
+            if (!vendorId) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: false,
+                    error: "Vendor not found"
+                }, {
+                    status: 404
+                });
+            }
             const result = await client.query(`SELECT i.*, 
+         b.name as branch_name,
          (SELECT COUNT(*) FROM branch_items bi WHERE bi.item_id = i.id) as assigned_branches
          FROM items i 
-         WHERE i.vendor_id = $1 AND i.branch_id IS NULL
+         LEFT JOIN branches b ON i.branch_id = b.id
+         WHERE i.vendor_id = $1 OR i.branch_id IN (SELECT id FROM branches WHERE vendor_id = $1)
          ORDER BY i.created_at DESC`, [
-                user.vendor_id
+                vendorId
             ]);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: true,
@@ -163,7 +181,11 @@ async function POST(request) {
                 status: 401
             });
         }
-        const userResult = await client.query('SELECT role, vendor_id FROM users WHERE id = $1', [
+        const userResult = await client.query(`SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`, [
             session.id
         ]);
         if (userResult.rows.length === 0) {
@@ -175,6 +197,9 @@ async function POST(request) {
             });
         }
         const user = userResult.rows[0];
+        const vendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+            session.id
+        ])).rows[0]?.vendor_id;
         if (![
             'director',
             'vendor'
@@ -184,6 +209,14 @@ async function POST(request) {
                 error: "Access denied. Only HQ can create items."
             }, {
                 status: 403
+            });
+        }
+        if (!vendorId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Vendor not found"
+            }, {
+                status: 404
             });
         }
         const body = await request.json();
@@ -198,7 +231,7 @@ async function POST(request) {
         }
         await client.query('BEGIN');
         const vendorResult = await client.query('SELECT item_count FROM vendors WHERE id = $1 FOR UPDATE', [
-            user.vendor_id
+            vendorId
         ]);
         if (vendorResult.rows.length === 0) {
             await client.query('ROLLBACK');
@@ -214,7 +247,7 @@ async function POST(request) {
         const itemCode = generateItemCode(origin, itemType, packageUnit, quantityUnit, newItemCount);
         const existingItem = await client.query('SELECT id FROM items WHERE item_code = $1 AND vendor_id = $2', [
             itemCode,
-            user.vendor_id
+            vendorId
         ]);
         if (existingItem.rows.length > 0) {
             await client.query('ROLLBACK');
@@ -234,7 +267,7 @@ async function POST(request) {
         $1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
         'active', NOW(), NOW()
       ) RETURNING *`, [
-            user.vendor_id,
+            vendorId,
             itemCode,
             itemName,
             description || null,
@@ -251,7 +284,7 @@ async function POST(request) {
         ]);
         await client.query('UPDATE vendors SET item_count = $1 WHERE id = $2', [
             newItemCount,
-            user.vendor_id
+            vendorId
         ]);
         await client.query('COMMIT');
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -285,7 +318,11 @@ async function PUT(request) {
                 status: 401
             });
         }
-        const userResult = await client.query('SELECT role, vendor_id FROM users WHERE id = $1', [
+        const userResult = await client.query(`SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`, [
             session.id
         ]);
         if (userResult.rows.length === 0) {
@@ -297,6 +334,9 @@ async function PUT(request) {
             });
         }
         const user = userResult.rows[0];
+        const vendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+            session.id
+        ])).rows[0]?.vendor_id;
         if (![
             'director',
             'vendor'
@@ -306,6 +346,14 @@ async function PUT(request) {
                 error: "Access denied. Only HQ can edit items."
             }, {
                 status: 403
+            });
+        }
+        if (!vendorId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Vendor not found"
+            }, {
+                status: 404
             });
         }
         const body = await request.json();
@@ -320,7 +368,7 @@ async function PUT(request) {
         }
         const itemCheck = await client.query('SELECT id FROM items WHERE id = $1 AND vendor_id = $2', [
             id,
-            user.vendor_id
+            vendorId
         ]);
         if (itemCheck.rows.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -345,7 +393,7 @@ async function PUT(request) {
             salePrice,
             status,
             id,
-            user.vendor_id
+            vendorId
         ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
