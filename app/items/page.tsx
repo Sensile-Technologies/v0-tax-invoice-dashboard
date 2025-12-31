@@ -15,25 +15,25 @@ import { toast } from "sonner"
 import Link from "next/link"
 
 interface Item {
-  id: string
+  item_id: string
   item_code: string
   item_name: string
-  batch_number: string | null
   item_type: string
-  purchase_price: number
-  sale_price: number
-  description: string | null
-  origin: string
-  sku: string | null
   class_code: string
   tax_type: string
-  status: string
+  origin: string
   quantity_unit: string | null
   package_unit: string | null
+  default_purchase_price: number
+  default_sale_price: number
+  item_status: string
+  branch_item_id: string | null
+  branch_sale_price: number | null
+  branch_purchase_price: number | null
+  is_available: boolean | null
   kra_status: string | null
-  kra_response: string | null
   kra_last_synced_at: string | null
-  created_at: string
+  is_assigned: boolean
 }
 
 export default function ItemsListPage() {
@@ -70,7 +70,7 @@ export default function ItemsListPage() {
           return
         }
 
-        const response = await fetch(`/api/items?branchId=${branchId}`)
+        const response = await fetch(`/api/branch-items?branchId=${branchId}`)
         const result = await response.json()
 
         if (result.success) {
@@ -104,14 +104,14 @@ export default function ItemsListPage() {
       if (result.success) {
         toast.success("Item successfully submitted to KRA")
         setItems(items.map(item => 
-          item.id === itemId 
+          item.item_id === itemId 
             ? { ...item, kra_status: 'success', kra_last_synced_at: new Date().toISOString() }
             : item
         ))
       } else {
         toast.error(result.message || "Failed to submit item to KRA")
         setItems(items.map(item => 
-          item.id === itemId 
+          item.item_id === itemId 
             ? { ...item, kra_status: 'rejected', kra_last_synced_at: new Date().toISOString() }
             : item
         ))
@@ -140,7 +140,7 @@ export default function ItemsListPage() {
 
       if (response.ok) {
         setItems(items.map(item => 
-          item.id === itemId ? { ...item, status: newStatus } : item
+          item.item_id === itemId ? { ...item, item_status: newStatus } : item
         ))
         toast.success(`Item ${newStatus === "active" ? "activated" : "deactivated"}`)
       } else {
@@ -163,7 +163,7 @@ export default function ItemsListPage() {
       })
 
       if (response.ok) {
-        setItems(items.filter(item => item.id !== itemId))
+        setItems(items.filter(item => item.item_id !== itemId))
         toast.success("Item deleted successfully")
       } else {
         const result = await response.json()

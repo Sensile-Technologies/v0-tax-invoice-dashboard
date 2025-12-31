@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SearchableSelect } from "@/components/ui/searchable-select"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, Package, Edit, RefreshCw } from "lucide-react"
+import { Plus, Search, Package, Edit, RefreshCw, Building2 } from "lucide-react"
 import { toast } from "react-toastify"
 import { useCurrency } from "@/lib/currency-utils"
 
@@ -41,14 +41,27 @@ interface Classification {
   item_cls_nm: string
 }
 
+interface Branch {
+  id: string
+  name: string
+  location: string
+}
+
 export function HqItemsManager() {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showAssignDialog, setShowAssignDialog] = useState(false)
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
   const [saving, setSaving] = useState(false)
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [assignFormData, setAssignFormData] = useState({
+    branchId: "",
+    salePrice: "",
+    purchasePrice: ""
+  })
   const { formatCurrency } = useCurrency()
 
   const [classifications, setClassifications] = useState<Classification[]>([])
@@ -84,6 +97,7 @@ export function HqItemsManager() {
   useEffect(() => {
     fetchItems()
     fetchKraData()
+    fetchBranches()
   }, [])
 
   const fetchItems = async () => {
@@ -115,12 +129,20 @@ export function HqItemsManager() {
 
       if (codelistData.data) {
         const codesArray = codelistData.data
+        const uniqueByCode = (arr: any[]) => {
+          const seen = new Set()
+          return arr.filter((item: any) => {
+            if (seen.has(item.cd)) return false
+            seen.add(item.cd)
+            return true
+          })
+        }
         setCodes({
-          itemTypes: codesArray.filter((c: any) => c.cd_cls === "17").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })),
-          origins: codesArray.filter((c: any) => c.cd_cls === "20").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })),
-          quantityUnits: codesArray.filter((c: any) => c.cd_cls === "10").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })),
-          packageUnits: codesArray.filter((c: any) => c.cd_cls === "17").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })),
-          taxTypes: codesArray.filter((c: any) => c.cd_cls === "04").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))
+          itemTypes: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "24").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
+          origins: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "12").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
+          quantityUnits: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "10").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
+          packageUnits: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "17").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm }))),
+          taxTypes: uniqueByCode(codesArray.filter((c: any) => c.cd_cls === "04").map((c: any) => ({ cd: c.cd, cd_nm: c.cd_nm })))
         })
       }
 
@@ -129,6 +151,69 @@ export function HqItemsManager() {
       }
     } catch (error) {
       console.error("Error fetching KRA data:", error)
+    }
+  }
+
+  const fetchBranches = async () => {
+    try {
+      const response = await fetch("/api/branches/list")
+      const result = await response.json()
+      if (result.success) {
+        setBranches(result.branches || [])
+      }
+    } catch (error) {
+      console.error("Error fetching branches:", error)
+    }
+  }
+
+  const openAssignDialog = (item: Item) => {
+    setSelectedItem(item)
+    setAssignFormData({
+      branchId: "",
+      salePrice: item.sale_price?.toString() || "",
+      purchasePrice: item.purchase_price?.toString() || ""
+    })
+    setShowAssignDialog(true)
+  }
+
+  const handleAssignToBranch = async () => {
+    if (!selectedItem || !assignFormData.branchId) {
+      toast.error("Please select a branch")
+      return
+    }
+
+    if (!assignFormData.salePrice) {
+      toast.error("Please enter a sale price")
+      return
+    }
+
+    setSaving(true)
+    try {
+      const response = await fetch("/api/branch-items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branchId: assignFormData.branchId,
+          itemId: selectedItem.id,
+          salePrice: parseFloat(assignFormData.salePrice),
+          purchasePrice: parseFloat(assignFormData.purchasePrice) || null
+        })
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        toast.success("Item assigned to branch successfully")
+        setShowAssignDialog(false)
+        setSelectedItem(null)
+        fetchItems()
+      } else {
+        toast.error(result.error || "Failed to assign item")
+      }
+    } catch (error) {
+      console.error("Error assigning item:", error)
+      toast.error("Failed to assign item to branch")
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -313,8 +398,11 @@ export function HqItemsManager() {
                         {item.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)}>
+                    <TableCell className="text-right space-x-1">
+                      <Button variant="ghost" size="sm" onClick={() => openAssignDialog(item)} title="Assign to Branch">
+                        <Building2 className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)} title="Edit">
                         <Edit className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -516,6 +604,64 @@ export function HqItemsManager() {
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
             <Button onClick={handleEditItem} disabled={saving}>
               {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Item to Branch</DialogTitle>
+            <DialogDescription>
+              Assign "{selectedItem?.item_name}" to a branch with custom pricing.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label>Item Code</Label>
+              <Input value={selectedItem?.item_code || ""} disabled className="bg-muted font-mono" />
+            </div>
+            <div className="space-y-2">
+              <Label>Select Branch *</Label>
+              <SearchableSelect
+                value={assignFormData.branchId}
+                onValueChange={(v) => setAssignFormData({ ...assignFormData, branchId: v })}
+                placeholder="Select a branch"
+                searchPlaceholder="Search branches..."
+                options={branches.map((b) => ({ value: b.id, label: `${b.name} - ${b.location}` }))}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Purchase Price</Label>
+                <Input
+                  type="number"
+                  value={assignFormData.purchasePrice}
+                  onChange={(e) => setAssignFormData({ ...assignFormData, purchasePrice: e.target.value })}
+                  placeholder={selectedItem?.purchase_price?.toString() || "0.00"}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Sale Price *</Label>
+                <Input
+                  type="number"
+                  value={assignFormData.salePrice}
+                  onChange={(e) => setAssignFormData({ ...assignFormData, salePrice: e.target.value })}
+                  placeholder={selectedItem?.sale_price?.toString() || "0.00"}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              The branch can later update these prices from their Item Pricing page.
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAssignDialog(false)}>Cancel</Button>
+            <Button onClick={handleAssignToBranch} disabled={saving}>
+              {saving ? "Assigning..." : "Assign to Branch"}
             </Button>
           </DialogFooter>
         </DialogContent>
