@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     const client = await pool.connect()
     try {
       const userResult = await client.query(
-        `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+        `SELECT u.id, u.role as user_role, s.role as staff_role, v.id as vendor_id
          FROM users u
          LEFT JOIN vendors v ON v.email = u.email
          LEFT JOIN staff s ON s.user_id = u.id
@@ -57,7 +57,11 @@ export async function GET(request: NextRequest) {
         [session.id]
       )).rows[0]?.vendor_id
       
-      if (!['director', 'vendor'].includes(user.role)) {
+      // Check for HQ access: user must be vendor/director in users table OR director in staff table
+      const hasHqAccess = ['director', 'vendor'].includes(user.user_role) || 
+                          (user.staff_role && user.staff_role.toLowerCase() === 'director')
+      
+      if (!hasHqAccess) {
         return NextResponse.json({ success: false, error: "Access denied. HQ access required." }, { status: 403 })
       }
 
@@ -101,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userResult = await client.query(
-      `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id
+      `SELECT u.id, u.role as user_role, s.role as staff_role, v.id as vendor_id
        FROM users u
        LEFT JOIN vendors v ON v.email = u.email
        LEFT JOIN staff s ON s.user_id = u.id
@@ -119,7 +123,11 @@ export async function POST(request: NextRequest) {
       [session.id]
     )).rows[0]?.vendor_id
     
-    if (!['director', 'vendor'].includes(user.role)) {
+    // Check for HQ access: user must be vendor/director in users table OR director in staff table
+    const hasHqAccess = ['director', 'vendor'].includes(user.user_role) || 
+                        (user.staff_role && user.staff_role.toLowerCase() === 'director')
+    
+    if (!hasHqAccess) {
       return NextResponse.json({ success: false, error: "Access denied. Only HQ can create items." }, { status: 403 })
     }
 
