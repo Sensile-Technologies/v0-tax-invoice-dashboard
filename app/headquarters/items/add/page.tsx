@@ -281,32 +281,6 @@ export default function AddItemPage() {
                     </div>
                   </div>
 
-                  <div className="border-t pt-6">
-                    <h3 className="text-sm font-medium text-muted-foreground mb-4">Default Pricing</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label>Default Purchase Price</Label>
-                        <Input
-                          type="number"
-                          value={formData.purchasePrice}
-                          onChange={(e) => setFormData({ ...formData, purchasePrice: e.target.value })}
-                          placeholder="0.00"
-                        />
-                        <p className="text-xs text-muted-foreground">Branches can set their own prices</p>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Default Sale Price</Label>
-                        <Input
-                          type="number"
-                          value={formData.salePrice}
-                          onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                          placeholder="0.00"
-                        />
-                        <p className="text-xs text-muted-foreground">Branches can set their own prices</p>
-                      </div>
-                    </div>
-                  </div>
-
                   <div className="flex justify-end gap-3 pt-6 border-t">
                     <Button 
                       variant="outline" 

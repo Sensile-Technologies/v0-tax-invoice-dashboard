@@ -110,8 +110,7 @@ export function HqItemsManager() {
   const [branches, setBranches] = useState<Branch[]>([])
   const [assignFormData, setAssignFormData] = useState({
     branchId: "",
-    salePrice: "",
-    purchasePrice: ""
+    salePrice: ""
   })
   const { formatCurrency } = useCurrency()
 
@@ -225,8 +224,7 @@ export function HqItemsManager() {
     setSelectedItem(item)
     setAssignFormData({
       branchId: "",
-      salePrice: item.sale_price?.toString() || "",
-      purchasePrice: item.purchase_price?.toString() || ""
+      salePrice: item.sale_price?.toString() || ""
     })
     setShowAssignDialog(true)
   }
@@ -250,8 +248,7 @@ export function HqItemsManager() {
         body: JSON.stringify({
           branchId: assignFormData.branchId,
           itemId: selectedItem.id,
-          salePrice: parseFloat(assignFormData.salePrice),
-          purchasePrice: parseFloat(assignFormData.purchasePrice) || null
+          salePrice: parseFloat(assignFormData.salePrice)
         })
       })
 
@@ -300,9 +297,7 @@ export function HqItemsManager() {
         body: JSON.stringify({
           id: selectedItem.id,
           itemName: formData.itemName,
-          description: formData.description,
-          purchasePrice: parseFloat(formData.purchasePrice) || 0,
-          salePrice: parseFloat(formData.salePrice) || 0
+          description: formData.description
         })
       })
 
@@ -465,24 +460,9 @@ export function HqItemsManager() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Default Purchase Price</Label>
-                <Input
-                  type="number"
-                  value={formData.purchasePrice}
-                  onChange={(e) => setFormData({ ...formData, purchasePrice: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Default Sale Price</Label>
-                <Input
-                  type="number"
-                  value={formData.salePrice}
-                  onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                />
-              </div>
-            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Prices are managed at the branch level. Use "Assign to Branch" to set initial selling prices.
+            </p>
           </div>
 
           <DialogFooter>
@@ -499,7 +479,7 @@ export function HqItemsManager() {
           <DialogHeader>
             <DialogTitle>Assign Item to Branch</DialogTitle>
             <DialogDescription>
-              Assign "{selectedItem?.item_name}" to a branch with custom pricing.
+              Assign "{selectedItem?.item_name}" to a branch with an initial selling price.
             </DialogDescription>
           </DialogHeader>
 
@@ -518,28 +498,20 @@ export function HqItemsManager() {
                 options={branches.map((b) => ({ value: b.id, label: `${b.name} - ${b.location}` }))}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Purchase Price</Label>
-                <Input
-                  type="number"
-                  value={assignFormData.purchasePrice}
-                  onChange={(e) => setAssignFormData({ ...assignFormData, purchasePrice: e.target.value })}
-                  placeholder={selectedItem?.purchase_price?.toString() || "0.00"}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Sale Price *</Label>
-                <Input
-                  type="number"
-                  value={assignFormData.salePrice}
-                  onChange={(e) => setAssignFormData({ ...assignFormData, salePrice: e.target.value })}
-                  placeholder={selectedItem?.sale_price?.toString() || "0.00"}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Initial Selling Price *</Label>
+              <Input
+                type="number"
+                value={assignFormData.salePrice}
+                onChange={(e) => setAssignFormData({ ...assignFormData, salePrice: e.target.value })}
+                placeholder="0.00"
+              />
+              <p className="text-xs text-muted-foreground">
+                This is the initial selling price. The branch can update it later from Inventory &gt; Set Prices.
+              </p>
             </div>
             <p className="text-xs text-muted-foreground">
-              The branch can later update these prices from their Item Pricing page.
+              Purchase prices are set during the Purchase Order process.
             </p>
           </div>
 

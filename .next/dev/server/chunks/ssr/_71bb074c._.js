@@ -2522,7 +2522,7 @@ function ItemsListPage() {
                     setLoading(false);
                     return;
                 }
-                const response = await fetch(`/api/items?branchId=${branchId}`);
+                const response = await fetch(`/api/branch-items?branchId=${branchId}`);
                 const result = await response.json();
                 if (result.success) {
                     setItems(result.items || []);
@@ -2539,23 +2539,38 @@ function ItemsListPage() {
         fetchItems();
     }, []);
     const [resendingItems, setResendingItems] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(new Set());
-    const handleResendToKra = async (itemId)=>{
+    const [currentBranchId, setCurrentBranchId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const storedBranch = localStorage.getItem("selectedBranch");
+        if (storedBranch) {
+            const branch = JSON.parse(storedBranch);
+            setCurrentBranchId(branch.id || "");
+        } else {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                const user = JSON.parse(storedUser);
+                setCurrentBranchId(user.branch_id || user.branchId || "");
+            }
+        }
+    }, []);
+    const handleResendToKra = async (itemId, isAssigned)=>{
         setResendingItems((prev)=>new Set(prev).add(itemId));
         try {
-            const response = await fetch(`/api/items/${itemId}/resend-kra`, {
+            const url = isAssigned && currentBranchId ? `/api/items/${itemId}/resend-kra?branchId=${currentBranchId}` : `/api/items/${itemId}/resend-kra`;
+            const response = await fetch(url, {
                 method: "POST"
             });
             const result = await response.json();
             if (result.success) {
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].success("Item successfully submitted to KRA");
-                setItems(items.map((item)=>item.id === itemId ? {
+                setItems(items.map((item)=>item.item_id === itemId ? {
                         ...item,
                         kra_status: 'success',
                         kra_last_synced_at: new Date().toISOString()
                     } : item));
             } else {
-                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error(result.message || "Failed to submit item to KRA");
-                setItems(items.map((item)=>item.id === itemId ? {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error(result.message || result.error || "Failed to submit item to KRA");
+                setItems(items.map((item)=>item.item_id === itemId ? {
                         ...item,
                         kra_status: 'rejected',
                         kra_last_synced_at: new Date().toISOString()
@@ -2572,10 +2587,94 @@ function ItemsListPage() {
             });
         }
     };
-    const handleStatusToggle = async (itemId, currentStatus)=>{
-        const newStatus = currentStatus === "active" ? "inactive" : "active";
+    const handleToggleAvailability = async (item)=>{
+        if (!item.branch_item_id) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("This item must be assigned to branch first");
+            return;
+        }
+        const newAvailability = !item.is_available;
         try {
-            const response = await fetch(`/api/items/${itemId}`, {
+            const response = await fetch(`/api/branch-items`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    branchItemId: item.branch_item_id,
+                    isAvailable: newAvailability
+                })
+            });
+            if (response.ok) {
+                setItems(items.map((i)=>i.item_id === item.item_id ? {
+                        ...i,
+                        is_available: newAvailability
+                    } : i));
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].success(`Item ${newAvailability ? "enabled" : "disabled"} for this branch`);
+            } else {
+                const result = await response.json();
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error(result.error || "Failed to update item");
+            }
+        } catch (error) {
+            console.error("Error updating item:", error);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Failed to update item");
+        }
+    };
+    const handleRemoveFromBranch = async (item)=>{
+        if (!item.is_assigned || !item.branch_item_id) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Cannot remove - this is a legacy branch item");
+            return;
+        }
+        if (!confirm(`Remove "${item.item_name}" from this branch? The item will still exist in the catalog.`)) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/branch-items?id=${item.branch_item_id}`, {
+                method: "DELETE"
+            });
+            if (response.ok) {
+                setItems(items.filter((i)=>i.item_id !== item.item_id));
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].success("Item removed from branch");
+            } else {
+                const result = await response.json();
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error(result.error || "Failed to remove item");
+            }
+        } catch (error) {
+            console.error("Error removing item:", error);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Failed to remove item");
+        }
+    };
+    const handleDeleteLegacyItem = async (item)=>{
+        if (item.is_assigned) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Cannot delete catalog item - use Remove from Branch instead");
+            return;
+        }
+        if (!confirm(`Are you sure you want to delete "${item.item_name}"? This action cannot be undone.`)) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/items/${item.item_id}`, {
+                method: "DELETE"
+            });
+            if (response.ok) {
+                setItems(items.filter((i)=>i.item_id !== item.item_id));
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].success("Item deleted successfully");
+            } else {
+                const result = await response.json();
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error(result.error || "Failed to delete item");
+            }
+        } catch (error) {
+            console.error("Error deleting item:", error);
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Failed to delete item");
+        }
+    };
+    const handleLegacyStatusToggle = async (item)=>{
+        if (item.is_assigned) {
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Use availability toggle for catalog items");
+            return;
+        }
+        const newStatus = item.item_status === "active" ? "inactive" : "active";
+        try {
+            const response = await fetch(`/api/items/${item.item_id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
@@ -2585,37 +2684,18 @@ function ItemsListPage() {
                 })
             });
             if (response.ok) {
-                setItems(items.map((item)=>item.id === itemId ? {
-                        ...item,
-                        status: newStatus
-                    } : item));
+                setItems(items.map((i)=>i.item_id === item.item_id ? {
+                        ...i,
+                        item_status: newStatus
+                    } : i));
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].success(`Item ${newStatus === "active" ? "activated" : "deactivated"}`);
             } else {
-                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Failed to update item status");
+                const result = await response.json();
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error(result.error || "Failed to update item status");
             }
         } catch (error) {
             console.error("Error updating item:", error);
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Failed to update item status");
-        }
-    };
-    const handleDeleteItem = async (itemId, itemName)=>{
-        if (!confirm(`Are you sure you want to delete "${itemName}"? This action cannot be undone.`)) {
-            return;
-        }
-        try {
-            const response = await fetch(`/api/items/${itemId}`, {
-                method: "DELETE"
-            });
-            if (response.ok) {
-                setItems(items.filter((item)=>item.id !== itemId));
-                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].success("Item deleted successfully");
-            } else {
-                const result = await response.json();
-                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error(result.error || "Failed to delete item");
-            }
-        } catch (error) {
-            console.error("Error deleting item:", error);
-            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Failed to delete item");
         }
     };
     const filteredItems = items.filter((item)=>item.item_name.toLowerCase().includes(searchTerm.toLowerCase()) || item.item_code.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -2637,7 +2717,7 @@ function ItemsListPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/items/page.tsx",
-                lineNumber: 195,
+                lineNumber: 286,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2649,7 +2729,7 @@ function ItemsListPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/items/page.tsx",
-                            lineNumber: 204,
+                            lineNumber: 295,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2667,7 +2747,7 @@ function ItemsListPage() {
                                                         children: "Items List"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/items/page.tsx",
-                                                        lineNumber: 210,
+                                                        lineNumber: 301,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2675,13 +2755,13 @@ function ItemsListPage() {
                                                         children: "Manage all items in your inventory"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/items/page.tsx",
-                                                        lineNumber: 211,
+                                                        lineNumber: 302,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/items/page.tsx",
-                                                lineNumber: 209,
+                                                lineNumber: 300,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2691,7 +2771,7 @@ function ItemsListPage() {
                                                         className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/items/page.tsx",
-                                                        lineNumber: 214,
+                                                        lineNumber: 305,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -2702,19 +2782,19 @@ function ItemsListPage() {
                                                         className: "pl-9 rounded-xl"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/items/page.tsx",
-                                                        lineNumber: 215,
+                                                        lineNumber: 306,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/items/page.tsx",
-                                                lineNumber: 213,
+                                                lineNumber: 304,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/items/page.tsx",
-                                        lineNumber: 208,
+                                        lineNumber: 299,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2730,7 +2810,7 @@ function ItemsListPage() {
                                                                     children: "All Items"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                    lineNumber: 229,
+                                                                    lineNumber: 320,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -2741,13 +2821,13 @@ function ItemsListPage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                    lineNumber: 230,
+                                                                    lineNumber: 321,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 228,
+                                                            lineNumber: 319,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2757,23 +2837,23 @@ function ItemsListPage() {
                                                                 children: "Add New Item"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                lineNumber: 233,
+                                                                lineNumber: 324,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 232,
+                                                            lineNumber: 323,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/items/page.tsx",
-                                                    lineNumber: 227,
+                                                    lineNumber: 318,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/items/page.tsx",
-                                                lineNumber: 226,
+                                                lineNumber: 317,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2784,7 +2864,7 @@ function ItemsListPage() {
                                                             className: "h-8 w-8 animate-spin text-blue-600"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 240,
+                                                            lineNumber: 331,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2792,13 +2872,13 @@ function ItemsListPage() {
                                                             children: "Loading items..."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 241,
+                                                            lineNumber: 332,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/items/page.tsx",
-                                                    lineNumber: 239,
+                                                    lineNumber: 330,
                                                     columnNumber: 19
                                                 }, this) : filteredItems.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "flex flex-col items-center justify-center py-12 text-center",
@@ -2807,7 +2887,7 @@ function ItemsListPage() {
                                                             className: "h-12 w-12 text-muted-foreground mb-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 245,
+                                                            lineNumber: 336,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -2815,7 +2895,7 @@ function ItemsListPage() {
                                                             children: "No items found"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 246,
+                                                            lineNumber: 337,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2823,7 +2903,7 @@ function ItemsListPage() {
                                                             children: searchTerm ? "Try adjusting your search" : "Get started by adding your first item"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 247,
+                                                            lineNumber: 338,
                                                             columnNumber: 21
                                                         }, this),
                                                         !searchTerm && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -2833,18 +2913,18 @@ function ItemsListPage() {
                                                                 children: "Add New Item"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                lineNumber: 252,
+                                                                lineNumber: 343,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/items/page.tsx",
-                                                            lineNumber: 251,
+                                                            lineNumber: 342,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/items/page.tsx",
-                                                    lineNumber: 244,
+                                                    lineNumber: 335,
                                                     columnNumber: 19
                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                     className: "rounded-xl border overflow-x-auto",
@@ -2867,18 +2947,18 @@ function ItemsListPage() {
                                                                                         className: "ml-2 h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/items/page.tsx",
-                                                                                        lineNumber: 263,
+                                                                                        lineNumber: 354,
                                                                                         columnNumber: 41
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 262,
+                                                                                lineNumber: 353,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 261,
+                                                                            lineNumber: 352,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2893,18 +2973,18 @@ function ItemsListPage() {
                                                                                         className: "ml-2 h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/items/page.tsx",
-                                                                                        lineNumber: 268,
+                                                                                        lineNumber: 359,
                                                                                         columnNumber: 38
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 267,
+                                                                                lineNumber: 358,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 266,
+                                                                            lineNumber: 357,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2919,26 +2999,26 @@ function ItemsListPage() {
                                                                                         className: "ml-2 h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/items/page.tsx",
-                                                                                        lineNumber: 273,
+                                                                                        lineNumber: 364,
                                                                                         columnNumber: 41
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 272,
+                                                                                lineNumber: 363,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 271,
+                                                                            lineNumber: 362,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
                                                                             className: "p-3 text-left text-sm font-medium",
-                                                                            children: "Batch Number"
+                                                                            children: "Source"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 276,
+                                                                            lineNumber: 367,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2946,7 +3026,7 @@ function ItemsListPage() {
                                                                             children: "Type"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 277,
+                                                                            lineNumber: 368,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2961,18 +3041,18 @@ function ItemsListPage() {
                                                                                         className: "ml-2 h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/items/page.tsx",
-                                                                                        lineNumber: 280,
+                                                                                        lineNumber: 371,
                                                                                         columnNumber: 46
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 279,
+                                                                                lineNumber: 370,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 278,
+                                                                            lineNumber: 369,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -2987,26 +3067,26 @@ function ItemsListPage() {
                                                                                         className: "ml-2 h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/items/page.tsx",
-                                                                                        lineNumber: 285,
+                                                                                        lineNumber: 376,
                                                                                         columnNumber: 42
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 284,
+                                                                                lineNumber: 375,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 283,
+                                                                            lineNumber: 374,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
                                                                             className: "p-3 text-left text-sm font-medium",
-                                                                            children: "SKU"
+                                                                            children: "Unit"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 288,
+                                                                            lineNumber: 379,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3014,7 +3094,7 @@ function ItemsListPage() {
                                                                             children: "Class Code"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 289,
+                                                                            lineNumber: 380,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3022,7 +3102,7 @@ function ItemsListPage() {
                                                                             children: "Origin"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 290,
+                                                                            lineNumber: 381,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3030,7 +3110,7 @@ function ItemsListPage() {
                                                                             children: "Tax Type"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 291,
+                                                                            lineNumber: 382,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3038,7 +3118,7 @@ function ItemsListPage() {
                                                                             children: "KRA Status"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 292,
+                                                                            lineNumber: 383,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3046,18 +3126,18 @@ function ItemsListPage() {
                                                                             children: "Actions"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                            lineNumber: 293,
+                                                                            lineNumber: 384,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                    lineNumber: 260,
+                                                                    lineNumber: 351,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                lineNumber: 259,
+                                                                lineNumber: 350,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3069,22 +3149,22 @@ function ItemsListPage() {
                                                                                 children: item.item_code
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 299,
+                                                                                lineNumber: 390,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                                 className: "p-3",
                                                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
-                                                                                    className: `rounded-full ${item.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`,
-                                                                                    children: item.status === "active" ? "Active" : "Inactive"
+                                                                                    className: `rounded-full ${item.item_status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`,
+                                                                                    children: item.item_status === "active" ? "Active" : "Inactive"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                                    lineNumber: 301,
+                                                                                    lineNumber: 392,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 300,
+                                                                                lineNumber: 391,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3092,15 +3172,30 @@ function ItemsListPage() {
                                                                                 children: item.item_name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 309,
+                                                                                lineNumber: 400,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                                className: "p-3 text-muted-foreground",
-                                                                                children: item.batch_number || "N/A"
+                                                                                className: "p-3",
+                                                                                children: item.is_assigned ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
+                                                                                    className: "bg-blue-100 text-blue-800 rounded-full",
+                                                                                    children: "Catalog"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/items/page.tsx",
+                                                                                    lineNumber: 403,
+                                                                                    columnNumber: 33
+                                                                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
+                                                                                    variant: "outline",
+                                                                                    className: "rounded-full",
+                                                                                    children: "Legacy"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/items/page.tsx",
+                                                                                    lineNumber: 405,
+                                                                                    columnNumber: 33
+                                                                                }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 310,
+                                                                                lineNumber: 401,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3108,31 +3203,31 @@ function ItemsListPage() {
                                                                                 children: getItemTypeName(item.item_type)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 311,
+                                                                                lineNumber: 408,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                                 className: "p-3",
-                                                                                children: formatCurrency(item.purchase_price)
+                                                                                children: formatCurrency(item.branch_purchase_price ?? item.default_purchase_price)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 312,
+                                                                                lineNumber: 409,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                                 className: "p-3",
-                                                                                children: formatCurrency(item.sale_price)
+                                                                                children: formatCurrency(item.branch_sale_price ?? item.default_sale_price)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 313,
+                                                                                lineNumber: 410,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                                                 className: "p-3 text-muted-foreground",
-                                                                                children: item.sku || "N/A"
+                                                                                children: item.quantity_unit || "N/A"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 314,
+                                                                                lineNumber: 411,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3140,7 +3235,7 @@ function ItemsListPage() {
                                                                                 children: item.class_code
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 315,
+                                                                                lineNumber: 412,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3148,7 +3243,7 @@ function ItemsListPage() {
                                                                                 children: item.origin
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 316,
+                                                                                lineNumber: 413,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3159,12 +3254,12 @@ function ItemsListPage() {
                                                                                     children: item.tax_type
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                                    lineNumber: 318,
+                                                                                    lineNumber: 415,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 317,
+                                                                                lineNumber: 414,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3174,12 +3269,12 @@ function ItemsListPage() {
                                                                                     children: item.kra_status === "success" ? "Synced" : item.kra_status === "rejected" ? "Rejected" : "Pending"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                                    lineNumber: 323,
+                                                                                    lineNumber: 420,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 322,
+                                                                                lineNumber: 419,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3196,130 +3291,194 @@ function ItemsListPage() {
                                                                                                     className: "h-4 w-4"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                                                    lineNumber: 340,
+                                                                                                    lineNumber: 437,
                                                                                                     columnNumber: 37
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                                lineNumber: 339,
+                                                                                                lineNumber: 436,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                                            lineNumber: 338,
+                                                                                            lineNumber: 435,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
                                                                                             align: "end",
                                                                                             className: "rounded-xl",
-                                                                                            children: [
-                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                                                    className: "rounded-lg",
-                                                                                                    onClick: ()=>handleStatusToggle(item.id, item.status),
-                                                                                                    children: item.status === "active" ? "Deactivate" : "Activate"
-                                                                                                }, void 0, false, {
-                                                                                                    fileName: "[project]/app/items/page.tsx",
-                                                                                                    lineNumber: 344,
-                                                                                                    columnNumber: 35
-                                                                                                }, this),
-                                                                                                (item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                                                    className: "rounded-lg",
-                                                                                                    onClick: ()=>handleResendToKra(item.id),
-                                                                                                    disabled: resendingItems.has(item.id),
-                                                                                                    children: resendingItems.has(item.id) ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                                            children: item.is_assigned && item.branch_item_id ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                                                children: [
+                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                                                        className: "rounded-lg",
+                                                                                                        onClick: ()=>handleToggleAvailability(item),
+                                                                                                        children: item.is_available !== false ? "Disable for Branch" : "Enable for Branch"
+                                                                                                    }, void 0, false, {
+                                                                                                        fileName: "[project]/app/items/page.tsx",
+                                                                                                        lineNumber: 443,
+                                                                                                        columnNumber: 39
+                                                                                                    }, this),
+                                                                                                    (item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                                                        className: "rounded-lg",
+                                                                                                        onClick: ()=>handleResendToKra(item.item_id, true),
+                                                                                                        disabled: resendingItems.has(item.item_id),
+                                                                                                        children: resendingItems.has(item.item_id) ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                                                            children: [
+                                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                                                                                                                    className: "h-4 w-4 mr-2 animate-spin"
+                                                                                                                }, void 0, false, {
+                                                                                                                    fileName: "[project]/app/items/page.tsx",
+                                                                                                                    lineNumber: 456,
+                                                                                                                    columnNumber: 47
+                                                                                                                }, this),
+                                                                                                                " Syncing..."
+                                                                                                            ]
+                                                                                                        }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                                                            children: [
+                                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                                                                                                                    className: "h-4 w-4 mr-2"
+                                                                                                                }, void 0, false, {
+                                                                                                                    fileName: "[project]/app/items/page.tsx",
+                                                                                                                    lineNumber: 458,
+                                                                                                                    columnNumber: 47
+                                                                                                                }, this),
+                                                                                                                " Sync to KRA"
+                                                                                                            ]
+                                                                                                        }, void 0, true)
+                                                                                                    }, void 0, false, {
+                                                                                                        fileName: "[project]/app/items/page.tsx",
+                                                                                                        lineNumber: 450,
+                                                                                                        columnNumber: 41
+                                                                                                    }, this),
+                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                                                        className: "rounded-lg text-orange-600 focus:text-orange-600",
+                                                                                                        onClick: ()=>handleRemoveFromBranch(item),
                                                                                                         children: [
-                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
-                                                                                                                className: "h-4 w-4 mr-2 animate-spin"
-                                                                                                            }, void 0, false, {
-                                                                                                                fileName: "[project]/app/items/page.tsx",
-                                                                                                                lineNumber: 357,
-                                                                                                                columnNumber: 43
-                                                                                                            }, this),
-                                                                                                            " Syncing..."
-                                                                                                        ]
-                                                                                                    }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                                                                        children: [
-                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
                                                                                                                 className: "h-4 w-4 mr-2"
                                                                                                             }, void 0, false, {
                                                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                                                lineNumber: 359,
-                                                                                                                columnNumber: 43
+                                                                                                                lineNumber: 466,
+                                                                                                                columnNumber: 41
                                                                                                             }, this),
-                                                                                                            " Resend to KRA"
+                                                                                                            " Remove from Branch"
                                                                                                         ]
-                                                                                                    }, void 0, true)
-                                                                                                }, void 0, false, {
-                                                                                                    fileName: "[project]/app/items/page.tsx",
-                                                                                                    lineNumber: 351,
-                                                                                                    columnNumber: 37
-                                                                                                }, this),
-                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                                                    className: "rounded-lg text-red-600 focus:text-red-600",
-                                                                                                    onClick: ()=>handleDeleteItem(item.id, item.item_name),
-                                                                                                    children: [
-                                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
-                                                                                                            className: "h-4 w-4 mr-2"
-                                                                                                        }, void 0, false, {
-                                                                                                            fileName: "[project]/app/items/page.tsx",
-                                                                                                            lineNumber: 367,
-                                                                                                            columnNumber: 37
-                                                                                                        }, this),
-                                                                                                        " Delete"
-                                                                                                    ]
-                                                                                                }, void 0, true, {
-                                                                                                    fileName: "[project]/app/items/page.tsx",
-                                                                                                    lineNumber: 363,
-                                                                                                    columnNumber: 35
-                                                                                                }, this)
-                                                                                            ]
-                                                                                        }, void 0, true, {
+                                                                                                    }, void 0, true, {
+                                                                                                        fileName: "[project]/app/items/page.tsx",
+                                                                                                        lineNumber: 462,
+                                                                                                        columnNumber: 39
+                                                                                                    }, this)
+                                                                                                ]
+                                                                                            }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                                                children: [
+                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                                                        className: "rounded-lg",
+                                                                                                        onClick: ()=>handleLegacyStatusToggle(item),
+                                                                                                        children: item.item_status === "active" ? "Deactivate" : "Activate"
+                                                                                                    }, void 0, false, {
+                                                                                                        fileName: "[project]/app/items/page.tsx",
+                                                                                                        lineNumber: 471,
+                                                                                                        columnNumber: 39
+                                                                                                    }, this),
+                                                                                                    (item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                                                        className: "rounded-lg",
+                                                                                                        onClick: ()=>handleResendToKra(item.item_id, false),
+                                                                                                        disabled: resendingItems.has(item.item_id),
+                                                                                                        children: resendingItems.has(item.item_id) ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                                                            children: [
+                                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                                                                                                                    className: "h-4 w-4 mr-2 animate-spin"
+                                                                                                                }, void 0, false, {
+                                                                                                                    fileName: "[project]/app/items/page.tsx",
+                                                                                                                    lineNumber: 484,
+                                                                                                                    columnNumber: 47
+                                                                                                                }, this),
+                                                                                                                " Syncing..."
+                                                                                                            ]
+                                                                                                        }, void 0, true) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                                                            children: [
+                                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                                                                                                                    className: "h-4 w-4 mr-2"
+                                                                                                                }, void 0, false, {
+                                                                                                                    fileName: "[project]/app/items/page.tsx",
+                                                                                                                    lineNumber: 486,
+                                                                                                                    columnNumber: 47
+                                                                                                                }, this),
+                                                                                                                " Sync to KRA"
+                                                                                                            ]
+                                                                                                        }, void 0, true)
+                                                                                                    }, void 0, false, {
+                                                                                                        fileName: "[project]/app/items/page.tsx",
+                                                                                                        lineNumber: 478,
+                                                                                                        columnNumber: 41
+                                                                                                    }, this),
+                                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                                                        className: "rounded-lg text-red-600 focus:text-red-600",
+                                                                                                        onClick: ()=>handleDeleteLegacyItem(item),
+                                                                                                        children: [
+                                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
+                                                                                                                className: "h-4 w-4 mr-2"
+                                                                                                            }, void 0, false, {
+                                                                                                                fileName: "[project]/app/items/page.tsx",
+                                                                                                                lineNumber: 494,
+                                                                                                                columnNumber: 41
+                                                                                                            }, this),
+                                                                                                            " Delete"
+                                                                                                        ]
+                                                                                                    }, void 0, true, {
+                                                                                                        fileName: "[project]/app/items/page.tsx",
+                                                                                                        lineNumber: 490,
+                                                                                                        columnNumber: 39
+                                                                                                    }, this)
+                                                                                                ]
+                                                                                            }, void 0, true)
+                                                                                        }, void 0, false, {
                                                                                             fileName: "[project]/app/items/page.tsx",
-                                                                                            lineNumber: 343,
+                                                                                            lineNumber: 440,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/items/page.tsx",
-                                                                                    lineNumber: 337,
+                                                                                    lineNumber: 434,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                                lineNumber: 336,
+                                                                                lineNumber: 433,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
-                                                                    }, item.id, true, {
+                                                                    }, item.item_id, true, {
                                                                         fileName: "[project]/app/items/page.tsx",
-                                                                        lineNumber: 298,
+                                                                        lineNumber: 389,
                                                                         columnNumber: 27
                                                                     }, this))
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/items/page.tsx",
-                                                                lineNumber: 296,
+                                                                lineNumber: 387,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/items/page.tsx",
-                                                        lineNumber: 258,
+                                                        lineNumber: 349,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/items/page.tsx",
-                                                    lineNumber: 257,
+                                                    lineNumber: 348,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/items/page.tsx",
-                                                lineNumber: 237,
+                                                lineNumber: 328,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/items/page.tsx",
-                                        lineNumber: 225,
+                                        lineNumber: 316,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -3331,41 +3490,41 @@ function ItemsListPage() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/items/page.tsx",
-                                                lineNumber: 382,
+                                                lineNumber: 511,
                                                 columnNumber: 26
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/items/page.tsx",
-                                        lineNumber: 381,
+                                        lineNumber: 510,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/items/page.tsx",
-                                lineNumber: 207,
+                                lineNumber: 298,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/items/page.tsx",
-                            lineNumber: 206,
+                            lineNumber: 297,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/items/page.tsx",
-                    lineNumber: 203,
+                    lineNumber: 294,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/items/page.tsx",
-                lineNumber: 202,
+                lineNumber: 293,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/items/page.tsx",
-        lineNumber: 194,
+        lineNumber: 285,
         columnNumber: 5
     }, this);
 }
