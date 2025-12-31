@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -98,10 +99,10 @@ const COUNTRY_ORIGINS = [
 ].sort((a, b) => a.cd_nm.localeCompare(b.cd_nm))
 
 export function HqItemsManager() {
+  const router = useRouter()
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
-  const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showAssignDialog, setShowAssignDialog] = useState(false)
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
@@ -285,38 +286,6 @@ export function HqItemsManager() {
     })
   }
 
-  const handleAddItem = async () => {
-    if (!formData.itemName || !formData.itemType || !formData.classCode || 
-        !formData.taxType || !formData.origin || !formData.quantityUnit || !formData.packageUnit) {
-      toast.error("Please fill in all required fields")
-      return
-    }
-
-    setSaving(true)
-    try {
-      const response = await fetch("/api/headquarters/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      })
-
-      const result = await response.json()
-      if (result.success) {
-        toast.success(result.message || "Item created successfully")
-        setShowAddDialog(false)
-        resetForm()
-        fetchItems()
-      } else {
-        toast.error(result.error || "Failed to create item")
-      }
-    } catch (error) {
-      console.error("Error creating item:", error)
-      toast.error("Failed to create item")
-    } finally {
-      setSaving(false)
-    }
-  }
-
   const handleEditItem = async () => {
     if (!selectedItem) return
 
@@ -394,7 +363,7 @@ export function HqItemsManager() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button onClick={() => { resetForm(); setShowAddDialog(true) }} className="rounded-xl">
+            <Button onClick={() => router.push("/headquarters/items/add")} className="rounded-xl">
               <Plus className="h-4 w-4 mr-2" />
               Add Item
             </Button>
@@ -464,144 +433,6 @@ export function HqItemsManager() {
           )}
         </CardContent>
       </Card>
-
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add New Item</DialogTitle>
-            <DialogDescription>
-              Create a new item in the vendor catalog. This item will be available for all branches.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Item Name *</Label>
-                <Input
-                  value={formData.itemName}
-                  onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
-                  placeholder="e.g., Super Petrol"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>SKU</Label>
-                <Input
-                  value={formData.sku}
-                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                  placeholder="Optional"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Input
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Optional description"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Item Type *</Label>
-                <SearchableSelect
-                  value={formData.itemType}
-                  onValueChange={(v) => setFormData({ ...formData, itemType: v })}
-                  placeholder="Select type"
-                  searchPlaceholder="Search item types..."
-                  options={codes.itemTypes.map((t) => ({ value: t.cd, label: t.cd_nm }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Country of Origin *</Label>
-                <SearchableSelect
-                  value={formData.origin}
-                  onValueChange={(v) => setFormData({ ...formData, origin: v })}
-                  placeholder="Select country"
-                  searchPlaceholder="Search countries..."
-                  options={codes.origins.map((o) => ({ value: o.cd, label: `${o.cd_nm} (${o.cd})` }))}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Classification Code *</Label>
-                <SearchableSelect
-                  value={formData.classCode}
-                  onValueChange={(v) => setFormData({ ...formData, classCode: v })}
-                  placeholder="Select classification"
-                  searchPlaceholder="Search classifications..."
-                  options={classifications.map((c) => ({ value: c.item_cls_cd, label: `${c.item_cls_cd} - ${c.item_cls_nm}` }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Tax Type *</Label>
-                <SearchableSelect
-                  value={formData.taxType}
-                  onValueChange={(v) => setFormData({ ...formData, taxType: v })}
-                  placeholder="Select tax type"
-                  searchPlaceholder="Search tax types..."
-                  options={codes.taxTypes.map((t) => ({ value: t.cd, label: t.cd_nm }))}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Quantity Unit *</Label>
-                <SearchableSelect
-                  value={formData.quantityUnit}
-                  onValueChange={(v) => setFormData({ ...formData, quantityUnit: v })}
-                  placeholder="Select unit"
-                  searchPlaceholder="Search units..."
-                  options={codes.quantityUnits.map((u) => ({ value: u.cd, label: u.cd_nm }))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Package Unit *</Label>
-                <SearchableSelect
-                  value={formData.packageUnit}
-                  onValueChange={(v) => setFormData({ ...formData, packageUnit: v })}
-                  placeholder="Select package"
-                  searchPlaceholder="Search packages..."
-                  options={codes.packageUnits.map((p) => ({ value: p.cd, label: p.cd_nm }))}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Default Purchase Price</Label>
-                <Input
-                  type="number"
-                  value={formData.purchasePrice}
-                  onChange={(e) => setFormData({ ...formData, purchasePrice: e.target.value })}
-                  placeholder="0.00"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Default Sale Price</Label>
-                <Input
-                  type="number"
-                  value={formData.salePrice}
-                  onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
-                  placeholder="0.00"
-                />
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
-            <Button onClick={handleAddItem} disabled={saving}>
-              {saving ? "Creating..." : "Create Item"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent>
