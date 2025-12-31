@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SearchableSelect } from "@/components/ui/searchable-select"
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { ArrowLeft, Package, Save } from "lucide-react"
 import { toast } from "react-toastify"
@@ -39,8 +38,6 @@ const COUNTRY_ORIGINS = [
 
 export default function AddItemPage() {
   const router = useRouter()
-  const [collapsed, setCollapsed] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [classifications, setClassifications] = useState<Classification[]>([])
   const [codes, setCodes] = useState<{
@@ -159,42 +156,27 @@ export default function AddItemPage() {
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <DashboardSidebar 
-        collapsed={collapsed} 
-        onToggle={() => setCollapsed(!collapsed)} 
-        mobileOpen={mobileMenuOpen} 
-        onMobileClose={() => setMobileMenuOpen(false)} 
-      />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => router.push("/headquarters/items")}
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Items
-                  </Button>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Package className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle>Add New Item</CardTitle>
-                    <CardDescription>
-                      Create a new item in the vendor catalog. This item will be available for assignment to all branches.
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
+    <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+      <DashboardHeader currentBranch="hq" />
+      <main className="flex-1 overflow-y-auto p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6">
+            <Button
+              variant="outline"
+              onClick={() => router.push("/headquarters/items")}
+              className="rounded-xl mb-4"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Item Catalog
+            </Button>
+            <h1 className="text-3xl font-bold tracking-tight">Add New Item</h1>
+            <p className="mt-1 text-muted-foreground">
+              Create a new item in the vendor catalog. This item will be available for assignment to all branches.
+            </p>
+          </div>
+
+          <Card>
+            <CardContent className="pt-6">
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -338,11 +320,10 @@ export default function AddItemPage() {
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
     </div>
   )
 }
