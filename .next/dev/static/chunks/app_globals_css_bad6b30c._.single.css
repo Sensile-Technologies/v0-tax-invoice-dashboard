@@ -6908,6 +6908,10 @@
     color: var(--color-green-600);
   }
 
+  .focus\:text-orange-600:focus {
+    color: var(--color-orange-600);
+  }
+
   .focus\:text-red-600:focus {
     color: var(--color-red-600);
   }

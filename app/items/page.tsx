@@ -128,42 +128,84 @@ export default function ItemsListPage() {
     }
   }
 
-  const handleStatusToggle = async (itemId: string, currentStatus: string) => {
-    const newStatus = currentStatus === "active" ? "inactive" : "active"
+  const handleToggleAvailability = async (item: Item) => {
+    if (!item.branch_item_id) {
+      toast.error("This item must be assigned to branch first")
+      return
+    }
+    
+    const newAvailability = !item.is_available
     
     try {
-      const response = await fetch(`/api/items/${itemId}`, {
-        method: "PATCH",
+      const response = await fetch(`/api/branch-items`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ 
+          branchItemId: item.branch_item_id,
+          isAvailable: newAvailability 
+        })
       })
 
       if (response.ok) {
-        setItems(items.map(item => 
-          item.item_id === itemId ? { ...item, item_status: newStatus } : item
+        setItems(items.map(i => 
+          i.item_id === item.item_id ? { ...i, is_available: newAvailability } : i
         ))
-        toast.success(`Item ${newStatus === "active" ? "activated" : "deactivated"}`)
+        toast.success(`Item ${newAvailability ? "enabled" : "disabled"} for this branch`)
       } else {
-        toast.error("Failed to update item status")
+        const result = await response.json()
+        toast.error(result.error || "Failed to update item")
       }
     } catch (error) {
       console.error("Error updating item:", error)
-      toast.error("Failed to update item status")
+      toast.error("Failed to update item")
     }
   }
 
-  const handleDeleteItem = async (itemId: string, itemName: string) => {
-    if (!confirm(`Are you sure you want to delete "${itemName}"? This action cannot be undone.`)) {
+  const handleRemoveFromBranch = async (item: Item) => {
+    if (!item.is_assigned || !item.branch_item_id) {
+      toast.error("Cannot remove - this is a legacy branch item")
+      return
+    }
+    
+    if (!confirm(`Remove "${item.item_name}" from this branch? The item will still exist in the catalog.`)) {
       return
     }
     
     try {
-      const response = await fetch(`/api/items/${itemId}`, {
+      const response = await fetch(`/api/branch-items?id=${item.branch_item_id}`, {
         method: "DELETE"
       })
 
       if (response.ok) {
-        setItems(items.filter(item => item.item_id !== itemId))
+        setItems(items.filter(i => i.item_id !== item.item_id))
+        toast.success("Item removed from branch")
+      } else {
+        const result = await response.json()
+        toast.error(result.error || "Failed to remove item")
+      }
+    } catch (error) {
+      console.error("Error removing item:", error)
+      toast.error("Failed to remove item")
+    }
+  }
+
+  const handleDeleteLegacyItem = async (item: Item) => {
+    if (item.is_assigned) {
+      toast.error("Cannot delete catalog item - use Remove from Branch instead")
+      return
+    }
+    
+    if (!confirm(`Are you sure you want to delete "${item.item_name}"? This action cannot be undone.`)) {
+      return
+    }
+    
+    try {
+      const response = await fetch(`/api/items/${item.item_id}`, {
+        method: "DELETE"
+      })
+
+      if (response.ok) {
+        setItems(items.filter(i => i.item_id !== item.item_id))
         toast.success("Item deleted successfully")
       } else {
         const result = await response.json()
@@ -172,6 +214,36 @@ export default function ItemsListPage() {
     } catch (error) {
       console.error("Error deleting item:", error)
       toast.error("Failed to delete item")
+    }
+  }
+
+  const handleLegacyStatusToggle = async (item: Item) => {
+    if (item.is_assigned) {
+      toast.error("Use availability toggle for catalog items")
+      return
+    }
+    
+    const newStatus = item.item_status === "active" ? "inactive" : "active"
+    
+    try {
+      const response = await fetch(`/api/items/${item.item_id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (response.ok) {
+        setItems(items.map(i => 
+          i.item_id === item.item_id ? { ...i, item_status: newStatus } : i
+        ))
+        toast.success(`Item ${newStatus === "active" ? "activated" : "deactivated"}`)
+      } else {
+        const result = await response.json()
+        toast.error(result.error || "Failed to update item status")
+      }
+    } catch (error) {
+      console.error("Error updating item:", error)
+      toast.error("Failed to update item status")
     }
   }
 
@@ -273,7 +345,7 @@ export default function ItemsListPage() {
                               Item Name <ArrowUpDown className="ml-2 h-4 w-4" />
                             </Button>
                           </th>
-                          <th className="p-3 text-left text-sm font-medium">Batch Number</th>
+                          <th className="p-3 text-left text-sm font-medium">Source</th>
                           <th className="p-3 text-left text-sm font-medium">Type</th>
                           <th className="p-3 text-left text-sm font-medium">
                             <Button variant="ghost" size="sm" className="h-auto p-0 hover:bg-transparent">
@@ -285,7 +357,7 @@ export default function ItemsListPage() {
                               Sale Price <ArrowUpDown className="ml-2 h-4 w-4" />
                             </Button>
                           </th>
-                          <th className="p-3 text-left text-sm font-medium">SKU</th>
+                          <th className="p-3 text-left text-sm font-medium">Unit</th>
                           <th className="p-3 text-left text-sm font-medium">Class Code</th>
                           <th className="p-3 text-left text-sm font-medium">Origin</th>
                           <th className="p-3 text-left text-sm font-medium">Tax Type</th>
@@ -295,23 +367,29 @@ export default function ItemsListPage() {
                       </thead>
                       <tbody>
                         {filteredItems.map((item) => (
-                          <tr key={item.id} className="border-b hover:bg-muted/50">
+                          <tr key={item.item_id} className="border-b hover:bg-muted/50">
                             <td className="p-3 font-mono font-medium text-sm">{item.item_code}</td>
                             <td className="p-3">
                               <Badge
                                 className={`rounded-full ${
-                                  item.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
+                                  item.item_status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
                                 }`}
                               >
-                                {item.status === "active" ? "Active" : "Inactive"}
+                                {item.item_status === "active" ? "Active" : "Inactive"}
                               </Badge>
                             </td>
                             <td className="p-3 font-medium">{item.item_name}</td>
-                            <td className="p-3 text-muted-foreground">{item.batch_number || "N/A"}</td>
+                            <td className="p-3">
+                              {item.is_assigned ? (
+                                <Badge className="bg-blue-100 text-blue-800 rounded-full">Catalog</Badge>
+                              ) : (
+                                <Badge variant="outline" className="rounded-full">Legacy</Badge>
+                              )}
+                            </td>
                             <td className="p-3">{getItemTypeName(item.item_type)}</td>
-                            <td className="p-3">{formatCurrency(item.purchase_price)}</td>
-                            <td className="p-3">{formatCurrency(item.sale_price)}</td>
-                            <td className="p-3 text-muted-foreground">{item.sku || "N/A"}</td>
+                            <td className="p-3">{formatCurrency(item.branch_purchase_price ?? item.default_purchase_price)}</td>
+                            <td className="p-3">{formatCurrency(item.branch_sale_price ?? item.default_sale_price)}</td>
+                            <td className="p-3 text-muted-foreground">{item.quantity_unit || "N/A"}</td>
                             <td className="p-3 text-muted-foreground font-mono text-xs">{item.class_code}</td>
                             <td className="p-3">{item.origin}</td>
                             <td className="p-3">
@@ -341,31 +419,63 @@ export default function ItemsListPage() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="rounded-xl">
-                                  <DropdownMenuItem 
-                                    className="rounded-lg"
-                                    onClick={() => handleStatusToggle(item.id, item.status)}
-                                  >
-                                    {item.status === "active" ? "Deactivate" : "Activate"}
-                                  </DropdownMenuItem>
-                                  {(item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && (
-                                    <DropdownMenuItem 
-                                      className="rounded-lg"
-                                      onClick={() => handleResendToKra(item.id)}
-                                      disabled={resendingItems.has(item.id)}
-                                    >
-                                      {resendingItems.has(item.id) ? (
-                                        <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Syncing...</>
-                                      ) : (
-                                        <><RefreshCw className="h-4 w-4 mr-2" /> Resend to KRA</>
+                                  {item.is_assigned && item.branch_item_id ? (
+                                    <>
+                                      <DropdownMenuItem 
+                                        className="rounded-lg"
+                                        onClick={() => handleToggleAvailability(item)}
+                                      >
+                                        {item.is_available !== false ? "Disable for Branch" : "Enable for Branch"}
+                                      </DropdownMenuItem>
+                                      {(item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && (
+                                        <DropdownMenuItem 
+                                          className="rounded-lg"
+                                          onClick={() => handleResendToKra(item.item_id)}
+                                          disabled={resendingItems.has(item.item_id)}
+                                        >
+                                          {resendingItems.has(item.item_id) ? (
+                                            <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Syncing...</>
+                                          ) : (
+                                            <><RefreshCw className="h-4 w-4 mr-2" /> Sync to KRA</>
+                                          )}
+                                        </DropdownMenuItem>
                                       )}
-                                    </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        className="rounded-lg text-orange-600 focus:text-orange-600"
+                                        onClick={() => handleRemoveFromBranch(item)}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" /> Remove from Branch
+                                      </DropdownMenuItem>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <DropdownMenuItem 
+                                        className="rounded-lg"
+                                        onClick={() => handleLegacyStatusToggle(item)}
+                                      >
+                                        {item.item_status === "active" ? "Deactivate" : "Activate"}
+                                      </DropdownMenuItem>
+                                      {(item.kra_status === "rejected" || item.kra_status === "pending" || !item.kra_status) && (
+                                        <DropdownMenuItem 
+                                          className="rounded-lg"
+                                          onClick={() => handleResendToKra(item.item_id)}
+                                          disabled={resendingItems.has(item.item_id)}
+                                        >
+                                          {resendingItems.has(item.item_id) ? (
+                                            <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Syncing...</>
+                                          ) : (
+                                            <><RefreshCw className="h-4 w-4 mr-2" /> Sync to KRA</>
+                                          )}
+                                        </DropdownMenuItem>
+                                      )}
+                                      <DropdownMenuItem 
+                                        className="rounded-lg text-red-600 focus:text-red-600"
+                                        onClick={() => handleDeleteLegacyItem(item)}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                      </DropdownMenuItem>
+                                    </>
                                   )}
-                                  <DropdownMenuItem 
-                                    className="rounded-lg text-red-600 focus:text-red-600"
-                                    onClick={() => handleDeleteItem(item.id, item.item_name)}
-                                  >
-                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
-                                  </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </td>
