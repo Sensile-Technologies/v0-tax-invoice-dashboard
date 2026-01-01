@@ -208,10 +208,10 @@ export async function POST(request: NextRequest) {
           console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`)
           
           // Use loyalty customer PIN for KRA when it's a loyalty sale
-          const effectiveCustomerPin = is_loyalty_sale && loyalty_customer_pin 
+          const effectiveCustomerPin = (is_loyalty_sale && loyalty_customer_pin) 
             ? loyalty_customer_pin 
             : (customer_pin || '')
-          const effectiveCustomerName = is_loyalty_sale && loyalty_customer_name
+          const effectiveCustomerName = (is_loyalty_sale && loyalty_customer_name)
             ? loyalty_customer_name
             : (customer_name || 'Walk-in Customer')
           

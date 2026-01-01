@@ -1,19 +1,69 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { cookies } from "next/headers"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
+
+async function getSession() {
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get("user_session")
+  if (!sessionCookie) return null
+  try {
+    return JSON.parse(sessionCookie.value)
+  } catch {
+    return null
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get("status")
     const limit = searchParams.get("limit")
+    const vendorIdParam = searchParams.get("vendor_id")
+
+    let vendorId = vendorIdParam
+
+    // If no vendor_id provided, scope to user's vendor from session
+    if (!vendorId) {
+      const session = await getSession()
+      if (session?.id) {
+        // Get vendor_id from user's vendor or staff assignment
+        const userResult = await pool.query(
+          `SELECT v.id as vendor_id FROM users u
+           LEFT JOIN vendors v ON v.email = u.email
+           WHERE u.id = $1`,
+          [session.id]
+        )
+        if (userResult.rows[0]?.vendor_id) {
+          vendorId = userResult.rows[0].vendor_id
+        } else {
+          // Check staff assignment
+          const staffResult = await pool.query(
+            `SELECT b.vendor_id FROM staff s
+             JOIN branches b ON s.branch_id = b.id
+             WHERE s.user_id = $1 LIMIT 1`,
+            [session.id]
+          )
+          if (staffResult.rows[0]?.vendor_id) {
+            vendorId = staffResult.rows[0].vendor_id
+          }
+        }
+      }
+    }
 
     let query = "SELECT * FROM branches WHERE 1=1"
     const params: any[] = []
     let paramIndex = 1
+
+    // Scope to vendor if found
+    if (vendorId) {
+      query += ` AND vendor_id = $${paramIndex}`
+      params.push(vendorId)
+      paramIndex++
+    }
 
     if (status) {
       query += ` AND status = $${paramIndex}`
