@@ -141,6 +141,7 @@ async function GET(request) {
         const searchParams = request.nextUrl.searchParams;
         const branchId = searchParams.get("branch_id");
         const endpoint = searchParams.get("endpoint");
+        const logType = searchParams.get("log_type");
         const limit = parseInt(searchParams.get("limit") || "500");
         const conditions = [];
         const params = [];
@@ -155,98 +156,30 @@ async function GET(request) {
             params.push(`%${endpoint}%`);
             paramIndex++;
         }
-        const whereClause = conditions.length > 0 ? ` WHERE ` + conditions.join(" AND ") : "";
-        let sql;
-        const queryParams = [];
-        if (branchId || endpoint) {
-            const branchConditions = [];
-            let branchParamIndex = conditions.length + 1;
-            if (branchId) {
-                branchConditions.push(`branch_id = $${branchParamIndex}`);
-                branchParamIndex++;
-            }
-            if (endpoint) {
-                branchConditions.push(`endpoint ILIKE $${branchParamIndex}`);
-                branchParamIndex++;
-            }
-            const branchWhereClause = branchConditions.length > 0 ? ` WHERE ` + branchConditions.join(" AND ") : "";
-            sql = `
-        SELECT * FROM (
-          SELECT 
-            id,
-            endpoint,
-            method,
-            payload,
-            response,
-            status_code,
-            error,
-            duration_ms,
-            created_at,
-            external_endpoint,
-            branch_id,
-            'api' as log_source
-          FROM api_logs
-          ${whereClause}
-          UNION ALL
-          SELECT 
-            id,
-            endpoint,
-            'POST' as method,
-            request_payload as payload,
-            response_payload as response,
-            CASE WHEN status = 'success' THEN 200 ELSE 500 END as status_code,
-            CASE WHEN status = 'error' THEN response_payload::text ELSE NULL END as error,
-            NULL as duration_ms,
-            created_at,
-            endpoint as external_endpoint,
-            branch_id,
-            'branch' as log_source
-          FROM branch_logs
-          ${branchWhereClause}
-        ) combined
-        ORDER BY created_at DESC
-        LIMIT $${branchParamIndex}
-      `;
-            queryParams.push(...params, ...params, limit);
-        } else {
-            sql = `
-        SELECT * FROM (
-          SELECT 
-            id,
-            endpoint,
-            method,
-            payload,
-            response,
-            status_code,
-            error,
-            duration_ms,
-            created_at,
-            external_endpoint,
-            branch_id,
-            'api' as log_source
-          FROM api_logs
-          UNION ALL
-          SELECT 
-            id,
-            endpoint,
-            'POST' as method,
-            request_payload as payload,
-            response_payload as response,
-            CASE WHEN status = 'success' THEN 200 ELSE 500 END as status_code,
-            CASE WHEN status = 'error' THEN response_payload::text ELSE NULL END as error,
-            NULL as duration_ms,
-            created_at,
-            endpoint as external_endpoint,
-            branch_id,
-            'branch' as log_source
-          FROM branch_logs
-        ) combined
-        ORDER BY created_at DESC
-        LIMIT $1
-      `;
-            queryParams.push(limit);
+        if (logType) {
+            conditions.push(`log_type = $${paramIndex}`);
+            params.push(logType);
+            paramIndex++;
         }
-        const logs = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, queryParams);
+        const whereClause = conditions.length > 0 ? ` WHERE ` + conditions.join(" AND ") : "";
+        const sql = `
+      SELECT 
+        id,
+        branch_id,
+        log_type,
+        endpoint,
+        request_payload as payload,
+        response_payload as response,
+        status,
+        CASE WHEN status = 'success' THEN 200 ELSE 500 END as status_code,
+        created_at
+      FROM branch_logs
+      ${whereClause}
+      ORDER BY created_at DESC
+      LIMIT $${paramIndex}
+    `;
+        params.push(limit);
+        const logs = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, params);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             logs
         });
@@ -264,11 +197,11 @@ async function DELETE(request) {
         const searchParams = request.nextUrl.searchParams;
         const branchId = searchParams.get("branch_id");
         if (branchId) {
-            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`DELETE FROM api_logs WHERE branch_id = $1`, [
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`DELETE FROM branch_logs WHERE branch_id = $1`, [
                 branchId
             ]);
         } else {
-            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`DELETE FROM api_logs WHERE id IS NOT NULL`);
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`DELETE FROM branch_logs WHERE id IS NOT NULL`);
         }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true
