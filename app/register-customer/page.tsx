@@ -56,17 +56,18 @@ export default function RegisterCustomerPage() {
 
   const fetchBranches = async () => {
     try {
-      const response = await fetch('/api/branches')
+      // Use branches/list which has proper vendor scoping
+      const response = await fetch('/api/branches/list')
       const result = await response.json()
 
-      if (!result.success) throw new Error(result.error)
+      // branches/list returns array directly, not wrapped in success/data
+      const branchesData = Array.isArray(result) ? result : (result.data || [])
+      setBranches(branchesData)
 
-      setBranches(result.data || [])
-
-      if (result.data && result.data.length > 0) {
+      if (branchesData.length > 0) {
         const storedBranch = localStorage.getItem("selectedBranch")
         if (!storedBranch) {
-          setCurrentBranch(result.data[0])
+          setCurrentBranch(branchesData[0])
         }
       }
     } catch (error) {
