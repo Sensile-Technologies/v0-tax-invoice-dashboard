@@ -53,7 +53,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [loyaltyPhone, setLoyaltyPhone] = useState('')
   const [verifyingLoyalty, setVerifyingLoyalty] = useState(false)
   const [loyaltyVerified, setLoyaltyVerified] = useState(false)
-  const [verifiedCustomer, setVerifiedCustomer] = useState<{id: string, name: string, phone: string} | null>(null)
+  const [verifiedCustomer, setVerifiedCustomer] = useState<{id: string, name: string, phone: string, cust_tin?: string} | null>(null)
   
   // Printing
   const [printing, setPrinting] = useState(false)
@@ -170,7 +170,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     
     setVerifyingLoyalty(true)
     try {
-      const response = await api.get<{customer: {id: string, cust_nm: string, tel_no: string} | null}>(
+      const response = await api.get<{customer: {id: string, cust_nm: string, tel_no: string, cust_tin?: string} | null}>(
         `/api/mobile/verify-loyalty?branch_id=${user?.branch_id}&phone=${loyaltyPhone}`
       )
       
@@ -178,9 +178,13 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         setVerifiedCustomer({
           id: response.customer.id,
           name: response.customer.cust_nm,
-          phone: response.customer.tel_no
+          phone: response.customer.tel_no,
+          cust_tin: response.customer.cust_tin
         })
         setLoyaltyVerified(true)
+        if (response.customer.cust_tin) {
+          setKraPin(response.customer.cust_tin)
+        }
         Alert.alert('Success', `Customer verified: ${response.customer.cust_nm}`)
       } else {
         Alert.alert('Not Found', 'No customer found with this phone number')
@@ -302,13 +306,14 @@ export default function CreateInvoiceScreen({ navigation }: any) {
         net_amount: totalAmount,
         total_amount: totalAmount,
         payment_method: paymentMethod,
-        customer_name: customerName.trim() || 'Walk-in Customer',
+        customer_name: (isLoyaltyCustomer && verifiedCustomer?.name) ? verifiedCustomer.name : (customerName.trim() || 'Walk-in Customer'),
         kra_pin: kraPin,
         vehicle_number: vehicleNumber,
         is_loyalty_customer: isLoyaltyCustomer,
         loyalty_customer_id: verifiedCustomer?.id || null,
         loyalty_customer_name: verifiedCustomer?.name || null,
         loyalty_phone: verifiedCustomer?.phone || null,
+        loyalty_customer_pin: verifiedCustomer?.cust_tin || null,
       })
       
       console.log('[CreateInvoice] Sale created, sale_id:', saleResponse.sale_id)
@@ -685,6 +690,9 @@ export default function CreateInvoiceScreen({ navigation }: any) {
                 <View style={styles.verifiedCustomerInfo}>
                   <Text style={styles.verifiedCustomerName}>{verifiedCustomer.name}</Text>
                   <Text style={styles.verifiedCustomerPhone}>{verifiedCustomer.phone}</Text>
+                  {verifiedCustomer.cust_tin && (
+                    <Text style={styles.verifiedCustomerPhone}>PIN: {verifiedCustomer.cust_tin}</Text>
+                  )}
                 </View>
               </View>
             )}
