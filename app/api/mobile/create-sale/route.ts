@@ -292,9 +292,8 @@ export async function POST(request: Request) {
           kra_scu_id = $3,
           kra_cu_inv = $4,
           kra_internal_data = $5,
-          customer_pin = COALESCE(customer_pin, $7),
-          loyalty_customer_pin = CASE WHEN is_loyalty_sale THEN COALESCE(loyalty_customer_pin, $7) ELSE loyalty_customer_pin END,
-          customer_name = CASE WHEN customer_name = 'Walk-in Customer' AND $8 IS NOT NULL THEN $8 ELSE customer_name END,
+          customer_pin = COALESCE(customer_pin, $7::text),
+          loyalty_customer_pin = CASE WHEN is_loyalty_sale THEN COALESCE(loyalty_customer_pin, $7::text) ELSE loyalty_customer_pin END,
           updated_at = NOW()
         WHERE id = $6`,
         [
@@ -304,8 +303,7 @@ export async function POST(request: Request) {
           kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
           kraData.intrlData || null,
           sale.id,
-          effectiveCustomerPin || null,
-          effectiveCustomerName
+          effectiveCustomerPin || null
         ]
       )
 
