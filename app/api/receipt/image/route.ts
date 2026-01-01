@@ -209,7 +209,9 @@ export async function POST(request: Request) {
          LEFT JOIN items iv ON UPPER(s.fuel_type) = UPPER(iv.item_name) AND iv.vendor_id = b.vendor_id AND iv.branch_id IS NULL
          LEFT JOIN staff st ON s.staff_id = st.id
          LEFT JOIN customer_branches cb ON cb.branch_id = s.branch_id AND cb.status = 'active'
-         LEFT JOIN customers c ON c.id = cb.customer_id AND c.cust_nm = s.loyalty_customer_name
+         LEFT JOIN customers c ON c.id = cb.customer_id 
+           AND (c.cust_nm = s.loyalty_customer_name 
+                OR (s.loyalty_customer_name IS NULL AND s.is_loyalty_sale = true AND c.cust_nm = s.customer_name))
          WHERE s.id = $1`,
         [sale_id]
       )
