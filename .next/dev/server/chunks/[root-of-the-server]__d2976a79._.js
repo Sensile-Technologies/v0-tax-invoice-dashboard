@@ -339,18 +339,17 @@ async function createStockMovementRecord(branchId, kraPayload, kraResponse, http
 }
 async function logKraApiCall(endpoint, payload, response, statusCode, durationMs, branchId, kraBaseUrl) {
     try {
+        const isSuccess = response?.resultCd === "000" || response?.resultCd === "0";
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+      INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+      VALUES ($1, $2, $3, $4, $5, $6)
     `, [
+            branchId,
+            "kra_stock_sync",
             endpoint,
-            "POST",
             JSON.stringify(payload),
             JSON.stringify(response),
-            statusCode,
-            durationMs,
-            branchId,
-            `${kraBaseUrl || DEFAULT_KRA_URL}${endpoint}`
+            isSuccess ? "success" : "error"
         ]);
     } catch (error) {
         console.error("[KRA Stock Service] Failed to log API call:", error);
