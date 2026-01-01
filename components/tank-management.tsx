@@ -143,10 +143,20 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
   const fetchItems = async () => {
     try {
-      const response = await fetch(`/api/items?branchId=${branchId}`)
+      // Use branch-items API which returns both catalog items (from HQ) and legacy branch items
+      const response = await fetch(`/api/branch-items?branchId=${branchId}`)
       const result = await response.json()
       if (result.success) {
-        setItems(result.items || [])
+        // Map to expected format - only include assigned/available items
+        const mappedItems = (result.items || [])
+          .filter((item: any) => item.is_assigned || item.branch_item_id)
+          .map((item: any) => ({
+            id: item.item_id,
+            item_name: item.item_name,
+            item_code: item.item_code,
+            item_type: item.item_type
+          }))
+        setItems(mappedItems)
       }
     } catch (error) {
       console.error("Error fetching items:", error)
