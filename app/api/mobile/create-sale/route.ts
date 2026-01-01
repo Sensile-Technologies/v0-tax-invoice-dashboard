@@ -37,7 +37,8 @@ export async function POST(request: Request) {
     const client = await pool.connect()
     try {
       const duplicateCheck = await client.query(
-        `SELECT id, invoice_number, kra_status, kra_cu_inv, kra_rcpt_sign 
+        `SELECT id, invoice_number, kra_status, kra_cu_inv, kra_rcpt_sign, kra_internal_data,
+                customer_name, customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin
          FROM sales 
          WHERE branch_id = $1 
            AND fuel_type = $2 
@@ -59,6 +60,14 @@ export async function POST(request: Request) {
         )
         const branchData = branchResult.rows[0] || {}
         
+        // Get customer info from the existing sale
+        const dupCustomerName = existingSale.is_loyalty_sale 
+          ? (existingSale.loyalty_customer_name || existingSale.customer_name)
+          : existingSale.customer_name
+        const dupCustomerPin = existingSale.is_loyalty_sale
+          ? (existingSale.loyalty_customer_pin || existingSale.customer_pin)
+          : existingSale.customer_pin
+        
         return NextResponse.json({
           success: true,
           sale_id: existingSale.id,
@@ -71,12 +80,16 @@ export async function POST(request: Request) {
             receipt_no: existingSale.kra_cu_inv?.split('/')[1] || null,
             cu_serial_number: existingSale.kra_cu_inv?.split('/')[0] || null,
             cu_invoice_no: existingSale.kra_cu_inv || null,
+            intrl_data: existingSale.kra_internal_data || null,
             branch_name: branchData.name || null,
             branch_address: branchData.address || null,
             branch_phone: branchData.phone || null,
             branch_pin: branchData.kra_pin || null,
             receipt_signature: existingSale.kra_rcpt_sign || null,
             bhf_id: branchData.bhf_id || '03',
+            customer_name: dupCustomerName || null,
+            customer_pin: dupCustomerPin || null,
+            is_loyalty_customer: existingSale.is_loyalty_sale || false,
           }
         })
       }
@@ -231,6 +244,12 @@ export async function POST(request: Request) {
 
       console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
       
+      // For loyalty customers, use their KRA PIN for the tax invoice
+      const effectiveCustomerPin = kra_pin || ''
+      const effectiveCustomerName = customer_name || 'Walk-in Customer'
+      
+      console.log(`[Mobile Create Sale] is_loyalty_customer: ${is_loyalty_customer}, customer_pin for KRA: ${effectiveCustomerPin}`)
+      
       const kraResult = await callKraSaveSales({
         branch_id,
         invoice_number: invoiceNumber,
@@ -240,8 +259,8 @@ export async function POST(request: Request) {
         unit_price: correctUnitPrice,
         total_amount,
         payment_method: payment_method || 'cash',
-        customer_name: customer_name || 'Walk-in Customer',
-        customer_pin: kra_pin || '',
+        customer_name: effectiveCustomerName,
+        customer_pin: effectiveCustomerPin,
         sale_date: new Date().toISOString(),
         tank_id: tankCheck.rows.length > 0 ? tankCheck.rows[0].id : undefined
       })
@@ -291,6 +310,9 @@ export async function POST(request: Request) {
           item_code: itemCode,
           receipt_signature: kraData.rcptSign || null,
           bhf_id: branchData.bhf_id || '03',
+          customer_name: effectiveCustomerName,
+          customer_pin: effectiveCustomerPin || null,
+          is_loyalty_customer: is_loyalty_customer || false,
         }
       })
     } catch (error) {
