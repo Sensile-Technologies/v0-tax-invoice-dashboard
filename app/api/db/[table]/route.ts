@@ -9,7 +9,7 @@ const ALLOWED_TABLES = [
   'item_classifications', 'notices', 'branch_insurances', 'branch_users',
   'imported_items', 'stock_master', 'sales_transactions', 'sales_transaction_items',
   'sales_receipts', 'purchase_transactions', 'purchase_transaction_items',
-  'stock_movements', 'stock_movement_items', 'api_logs'
+  'stock_movements', 'stock_movement_items', 'branch_logs'
 ];
 
 export async function GET(

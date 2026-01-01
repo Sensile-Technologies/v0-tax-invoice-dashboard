@@ -153,20 +153,19 @@ export async function POST(
     console.log(`[Items API] KRA Response (${duration}ms):`, JSON.stringify(kraResponse, null, 2))
 
     try {
+      const logStatus = (kraResponse.resultCd === "000" || kraResponse.resultCd === "0") ? "success" : "error"
       await query(`
-        INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
       `, [
-        "/api/kra/items/saveItems",
-        "POST",
+        item.branch_id,
+        "kra_save_item",
+        kraEndpoint,
         JSON.stringify(kraPayload),
         JSON.stringify(kraResponse),
-        httpStatusCode,
-        duration,
-        item.branch_id,
-        kraEndpoint
+        logStatus
       ])
-      console.log(`[Items API] Logged API call to api_logs for branch ${item.branch_id}`)
+      console.log(`[Items API] Logged API call to branch_logs for branch ${item.branch_id}`)
     } catch (logError) {
       console.error("[Items API] Failed to log API call:", logError)
     }

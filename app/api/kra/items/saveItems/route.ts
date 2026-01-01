@@ -118,18 +118,17 @@ export async function POST(request: NextRequest) {
     console.log(`[KRA Items Middleware] Response (${duration}ms):`, JSON.stringify(kraResponse, null, 2))
 
     try {
+      const logStatus = (kraResponse.resultCd === "000" || kraResponse.resultCd === "0") ? "success" : "error"
       await query(`
-        INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
       `, [
-        "/api/kra/items/saveItems",
-        "POST",
+        branchId,
+        "kra_save_item",
+        kraEndpoint,
         JSON.stringify(kraPayload),
         JSON.stringify(kraResponse),
-        httpStatusCode,
-        duration,
-        branchId,
-        kraEndpoint
+        logStatus
       ])
     } catch (logError) {
       console.error("[KRA Items Middleware] Failed to log API call:", logError)

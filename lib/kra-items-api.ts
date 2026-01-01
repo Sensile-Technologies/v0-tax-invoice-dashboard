@@ -209,18 +209,17 @@ export async function submitItemToKra(item: ItemData): Promise<{
     console.log(`[KRA Items API] Response (${duration}ms):`, JSON.stringify(kraResponse, null, 2))
 
     try {
+      const logStatus = (kraResponse.resultCd === "000" || kraResponse.resultCd === "0") ? "success" : "error"
       await query(`
-        INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+        INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
       `, [
+        item.branch_id,
+        "kra_save_item",
         kraEndpoint,
-        "POST",
         JSON.stringify(kraPayload),
         JSON.stringify(kraResponse),
-        httpStatusCode,
-        duration,
-        item.branch_id,
-        "kra_items_api"
+        logStatus
       ])
     } catch (logError) {
       console.error("[KRA Items API] Failed to log API call:", logError)

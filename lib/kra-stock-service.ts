@@ -239,18 +239,17 @@ export async function logKraApiCall(
   kraBaseUrl?: string
 ): Promise<void> {
   try {
+    const isSuccess = response?.resultCd === "000" || response?.resultCd === "0"
     await query(`
-      INSERT INTO api_logs (endpoint, method, payload, response, status_code, duration_ms, branch_id, user_agent, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+      INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+      VALUES ($1, $2, $3, $4, $5, $6)
     `, [
+      branchId,
+      "kra_stock_sync",
       endpoint,
-      "POST",
       JSON.stringify(payload),
       JSON.stringify(response),
-      statusCode,
-      durationMs,
-      branchId,
-      `${kraBaseUrl || DEFAULT_KRA_URL}${endpoint}`
+      isSuccess ? "success" : "error"
     ])
   } catch (error) {
     console.error("[KRA Stock Service] Failed to log API call:", error)
