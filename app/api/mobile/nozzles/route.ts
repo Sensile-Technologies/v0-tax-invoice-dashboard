@@ -25,14 +25,16 @@ export async function GET(request: Request) {
         [branchId]
       )
 
+      // Get fuel prices from branch_items (for HQ-assigned items) or legacy items table
       const fuelPricesResult = await client.query(
-        `SELECT item_name, sale_price as price 
-         FROM items 
-         WHERE branch_id = $1 
-         AND (UPPER(item_name) IN ('PETROL', 'DIESEL', 'KEROSENE') 
-              OR item_name ILIKE '%petrol%' 
-              OR item_name ILIKE '%diesel%')
-         ORDER BY item_name`,
+        `SELECT i.item_name, COALESCE(bi.sale_price, i.sale_price) as price 
+         FROM items i
+         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+         WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
+         AND (UPPER(i.item_name) IN ('PETROL', 'DIESEL', 'KEROSENE') 
+              OR i.item_name ILIKE '%petrol%' 
+              OR i.item_name ILIKE '%diesel%')
+         ORDER BY i.item_name`,
         [branchId]
       )
 
