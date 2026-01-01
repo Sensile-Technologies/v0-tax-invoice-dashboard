@@ -207,6 +207,14 @@ export async function POST(request: NextRequest) {
         if (sync_to_kra) {
           console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`)
           
+          // Use loyalty customer PIN for KRA when it's a loyalty sale
+          const effectiveCustomerPin = is_loyalty_sale && loyalty_customer_pin 
+            ? loyalty_customer_pin 
+            : (customer_pin || '')
+          const effectiveCustomerName = is_loyalty_sale && loyalty_customer_name
+            ? loyalty_customer_name
+            : (customer_name || 'Walk-in Customer')
+          
           kraResult = await callKraSaveSales({
             branch_id,
             invoice_number: invoice_number || `INV-${Date.now().toString(36).toUpperCase()}`,
@@ -216,8 +224,8 @@ export async function POST(request: NextRequest) {
             unit_price: unit_price || 0,
             total_amount: total_amount || (quantity * (unit_price || 0)),
             payment_method: payment_method || 'cash',
-            customer_name: customer_name || 'Walk-in Customer',
-            customer_pin: customer_pin || '',
+            customer_name: effectiveCustomerName,
+            customer_pin: effectiveCustomerPin,
             sale_date: new Date().toISOString(),
             tank_id: tank.id
           })
