@@ -24,6 +24,8 @@ export async function POST(request: Request) {
       kra_pin,
       vehicle_number,
       is_loyalty_customer,
+      loyalty_customer_name,
+      loyalty_customer_pin,
     } = body
 
     if (!branch_id || !fuel_type || !total_amount) {
@@ -188,8 +190,8 @@ export async function POST(request: Request) {
           receiptNumber,
           kra_pin || null,
           is_loyalty_customer || false,
-          is_loyalty_customer ? customer_name : null,
-          is_loyalty_customer ? kra_pin : null,
+          loyalty_customer_name || (is_loyalty_customer ? customer_name : null),
+          loyalty_customer_pin || (is_loyalty_customer ? kra_pin : null),
           meterReadingAfter,
           shiftId,
           staffId,
