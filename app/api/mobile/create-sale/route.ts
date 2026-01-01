@@ -244,9 +244,24 @@ export async function POST(request: Request) {
 
       console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
       
-      // For loyalty customers, use their KRA PIN for the tax invoice
-      const effectiveCustomerPin = kra_pin || ''
-      const effectiveCustomerName = customer_name || 'Walk-in Customer'
+      // For loyalty customers, look up their KRA PIN from the customers table if not provided
+      let effectiveCustomerPin = kra_pin || ''
+      let effectiveCustomerName = customer_name || 'Walk-in Customer'
+      
+      if (is_loyalty_customer && !effectiveCustomerPin && customer_name) {
+        const loyaltyCustomerLookup = await client.query(
+          `SELECT c.cust_tin, c.cust_nm FROM customers c
+           INNER JOIN customer_branches cb ON c.id = cb.customer_id
+           WHERE cb.branch_id = $1 AND cb.status = 'active' AND c.cust_nm = $2
+           LIMIT 1`,
+          [branch_id, customer_name]
+        )
+        if (loyaltyCustomerLookup.rows.length > 0) {
+          effectiveCustomerPin = loyaltyCustomerLookup.rows[0].cust_tin || ''
+          effectiveCustomerName = loyaltyCustomerLookup.rows[0].cust_nm || customer_name
+          console.log(`[Mobile Create Sale] Found loyalty customer PIN from DB: ${effectiveCustomerPin}`)
+        }
+      }
       
       console.log(`[Mobile Create Sale] is_loyalty_customer: ${is_loyalty_customer}, customer_pin for KRA: ${effectiveCustomerPin}`)
       
@@ -277,6 +292,9 @@ export async function POST(request: Request) {
           kra_scu_id = $3,
           kra_cu_inv = $4,
           kra_internal_data = $5,
+          customer_pin = COALESCE(customer_pin, $7),
+          loyalty_customer_pin = CASE WHEN is_loyalty_sale THEN COALESCE(loyalty_customer_pin, $7) ELSE loyalty_customer_pin END,
+          customer_name = CASE WHEN customer_name = 'Walk-in Customer' AND $8 IS NOT NULL THEN $8 ELSE customer_name END,
           updated_at = NOW()
         WHERE id = $6`,
         [
@@ -285,7 +303,9 @@ export async function POST(request: Request) {
           kraData.sdcId || null,
           kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
           kraData.intrlData || null,
-          sale.id
+          sale.id,
+          effectiveCustomerPin || null,
+          effectiveCustomerName
         ]
       )
 
