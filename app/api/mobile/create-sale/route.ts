@@ -95,11 +95,14 @@ export async function POST(request: Request) {
         )
       }
 
+      // Get item price from branch_items (for HQ-assigned items) or legacy items table
       const itemPriceResult = await client.query(
-        `SELECT sale_price FROM items 
-         WHERE branch_id = $1 
-         AND (UPPER(item_name) = UPPER($2) OR item_name ILIKE $3)
-         ORDER BY created_at DESC LIMIT 1`,
+        `SELECT COALESCE(bi.sale_price, i.sale_price) as sale_price 
+         FROM items i
+         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+         WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
+         AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
+         ORDER BY i.created_at DESC LIMIT 1`,
         [branch_id, fuel_type, `%${fuel_type}%`]
       )
 
@@ -216,8 +219,12 @@ export async function POST(request: Request) {
       )
       const branchData = branchResult.rows[0] || {}
 
+      // Get item code from branch_items (for HQ-assigned items) or legacy items table
       const itemResult = await client.query(
-        `SELECT item_code FROM items WHERE branch_id = $1 AND item_name ILIKE $2 LIMIT 1`,
+        `SELECT i.item_code FROM items i
+         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+         WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
+         AND i.item_name ILIKE $2 LIMIT 1`,
         [branch_id, `%${fuel_type}%`]
       )
       const itemCode = itemResult.rows[0]?.item_code || null
