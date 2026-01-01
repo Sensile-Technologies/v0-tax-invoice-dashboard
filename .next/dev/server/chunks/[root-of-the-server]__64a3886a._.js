@@ -995,13 +995,17 @@ async function getNextInvoiceNo(branchId) {
     return result[0]?.invoice_number || 1;
 }
 async function getItemInfoByFuelType(branchId, fuelType) {
+    // Query supports both HQ-assigned items (via branch_items) and legacy branch-specific items
     const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-    SELECT item_code, class_code, item_name, package_unit, 
-           quantity_unit, tax_type, sale_price, purchase_price
-    FROM items
-    WHERE branch_id = $1 
-    AND (UPPER(item_name) = UPPER($2) OR item_name ILIKE $3)
-    ORDER BY created_at DESC
+    SELECT i.item_code, i.class_code, i.item_name, i.package_unit, 
+           i.quantity_unit, i.tax_type, 
+           COALESCE(bi.sale_price, i.sale_price) as sale_price, 
+           COALESCE(bi.purchase_price, i.purchase_price) as purchase_price
+    FROM items i
+    LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+    WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
+    AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
+    ORDER BY i.created_at DESC
     LIMIT 1
   `, [
         branchId,

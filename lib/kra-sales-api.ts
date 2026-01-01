@@ -345,6 +345,7 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
     }
 
     const durationMs = Date.now() - startTime
+    const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
 
     await logApiCall({
       endpoint: "/trnsSales/saveSales",
@@ -357,8 +358,23 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       externalEndpoint: kraEndpoint
     })
 
-    const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
-    
+    // Also log to branch_logs for visibility in profile/logs
+    try {
+      await query(`
+        INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [
+        saleData.branch_id, 
+        "kra_save_sales", 
+        "/trnsSales/saveSales", 
+        JSON.stringify(kraPayload), 
+        JSON.stringify(kraResponse), 
+        isSuccess ? "success" : "error"
+      ])
+    } catch (logError) {
+      console.error("[KRA Sales API] Failed to log to branch_logs:", logError)
+    }
+
     if (isSuccess) {
       console.log(`[KRA Sales API] saveSales successful, now syncing stock with KRA`)
       
