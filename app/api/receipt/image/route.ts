@@ -46,8 +46,10 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
   const branchName = sanitizeText(sale.branch_name) || 'Flow360 Station';
   const branchAddress = sanitizeText(sale.branch_address);
   const branchPhone = sanitizeText(sale.branch_phone);
-  const customerPin = sanitizeText(sale.customer_pin) || 'NOT PROVIDED';
-  const customerName = sanitizeText(sale.customer_name) || 'Walk-in Customer';
+  const customerPin = sanitizeText(sale.customer_pin) || sanitizeText(sale.loyalty_customer_pin) || sanitizeText(sale.loyalty_cust_tin) || 'NOT PROVIDED';
+  const customerName = (sale.is_loyalty_sale && sale.loyalty_cust_name) 
+    ? sanitizeText(sale.loyalty_cust_name) 
+    : (sanitizeText(sale.loyalty_customer_name) || sanitizeText(sale.customer_name) || 'Walk-in Customer');
   const itemCode = sanitizeText(sale.item_code) || sanitizeText(sale.fuel_type) || 'N/A';
   const itemName = sanitizeText(sale.item_name) || sanitizeText(sale.fuel_type) || 'Fuel';
   const cashierName = sanitizeText(sale.cashier_name) || 'System';
@@ -196,7 +198,9 @@ export async function POST(request: Request) {
                 n.nozzle_number, d.dispenser_number,
                 COALESCE(i.item_name, iv.item_name) as item_name, 
                 COALESCE(i.item_code, iv.item_code) as item_code,
-                st.full_name as cashier_name
+                st.full_name as cashier_name,
+                c.cust_tin as loyalty_cust_tin,
+                c.cust_nm as loyalty_cust_name
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
@@ -204,6 +208,8 @@ export async function POST(request: Request) {
          LEFT JOIN items i ON UPPER(s.fuel_type) = UPPER(i.item_name) AND i.branch_id = s.branch_id
          LEFT JOIN items iv ON UPPER(s.fuel_type) = UPPER(iv.item_name) AND iv.vendor_id = b.vendor_id AND iv.branch_id IS NULL
          LEFT JOIN staff st ON s.staff_id = st.id
+         LEFT JOIN customer_branches cb ON cb.branch_id = s.branch_id AND cb.status = 'active'
+         LEFT JOIN customers c ON c.id = cb.customer_id AND c.cust_nm = s.loyalty_customer_name
          WHERE s.id = $1`,
         [sale_id]
       )
