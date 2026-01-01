@@ -1253,6 +1253,7 @@ async function callKraSaveSales(saleData) {
             console.log(`[KRA Sales API] Response (network error):`, JSON.stringify(kraResponse, null, 2));
         }
         const durationMs = Date.now() - startTime;
+        const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0";
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2d$logger$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["logApiCall"])({
             endpoint: "/trnsSales/saveSales",
             method: "POST",
@@ -1263,7 +1264,22 @@ async function callKraSaveSales(saleData) {
             branchId: saleData.branch_id,
             externalEndpoint: kraEndpoint
         });
-        const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0";
+        // Also log to branch_logs for visibility in profile/logs
+        try {
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+        VALUES ($1, $2, $3, $4, $5, $6)
+      `, [
+                saleData.branch_id,
+                "kra_save_sales",
+                "/trnsSales/saveSales",
+                JSON.stringify(kraPayload),
+                JSON.stringify(kraResponse),
+                isSuccess ? "success" : "error"
+            ]);
+        } catch (logError) {
+            console.error("[KRA Sales API] Failed to log to branch_logs:", logError);
+        }
         if (isSuccess) {
             console.log(`[KRA Sales API] saveSales successful, now syncing stock with KRA`);
             try {
