@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { query } from "@/lib/db"
 
 export interface ApiLogEntry {
   endpoint: string
@@ -10,25 +10,49 @@ export interface ApiLogEntry {
   durationMs?: number
   branchId?: string
   externalEndpoint?: string
+  logType?: string
+}
+
+function deriveLogType(endpoint: string): string {
+  if (endpoint.includes('saveSales')) return 'kra_save_sales'
+  if (endpoint.includes('saveStockItems')) return 'kra_stock_items'
+  if (endpoint.includes('saveStockMaster')) return 'kra_stock_master'
+  if (endpoint.includes('selectInitInfo')) return 'kra_initialize'
+  if (endpoint.includes('saveItem')) return 'kra_save_item'
+  return 'kra_api'
+}
+
+function deriveStatus(response: any, statusCode?: number, error?: string): string {
+  if (error) return 'error'
+  if (!response) return 'error'
+  if (response.resultCd === '000' || response.resultCd === '0') return 'success'
+  if (statusCode && statusCode >= 200 && statusCode < 300 && !response.resultCd) return 'success'
+  return 'error'
 }
 
 export async function logApiCall(entry: ApiLogEntry) {
-  try {
-    const supabase = await createClient()
+  if (!entry.branchId) {
+    console.warn("[API Logger] No branchId provided, skipping log")
+    return
+  }
 
-    await supabase.from("api_logs").insert({
-      endpoint: entry.endpoint,
-      method: entry.method,
-      payload: entry.payload || null,
-      response: entry.response || null,
-      status_code: entry.statusCode || null,
-      error: entry.error || null,
-      duration_ms: entry.durationMs || null,
-      branch_id: entry.branchId || null,
-      external_endpoint: entry.externalEndpoint || null,
-    })
+  try {
+    const logType = entry.logType || deriveLogType(entry.endpoint)
+    const status = deriveStatus(entry.response, entry.statusCode, entry.error)
+
+    await query(`
+      INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [
+      entry.branchId,
+      logType,
+      entry.endpoint,
+      JSON.stringify(entry.payload || {}),
+      JSON.stringify(entry.response || { error: entry.error }),
+      status
+    ])
   } catch (error) {
-    console.error("[v0] Failed to log API call:", error)
+    console.error("[API Logger] Failed to log API call:", error)
   }
 }
 
