@@ -103,9 +103,15 @@ export default function CreatePurchaseOrderPage() {
     }
   }, [])
 
-  const fetchItems = useCallback(async (branchId: string) => {
+  const fetchItems = useCallback(async () => {
     try {
-      const response = await fetch(`/api/items?branchId=${branchId}`)
+      const user = getCurrentUser()
+      const vendorId = user?.vendor_id
+      if (!vendorId) {
+        console.error("No vendor ID found")
+        return
+      }
+      const response = await fetch(`/api/items?vendorId=${vendorId}&catalog=true`)
       const result = await response.json()
       if (result.success) {
         setItems(result.items || [])
@@ -116,16 +122,10 @@ export default function CreatePurchaseOrderPage() {
   }, [])
 
   useEffect(() => {
-    Promise.all([fetchBranches(), fetchSuppliers(), fetchTransporters()]).finally(() => {
+    Promise.all([fetchBranches(), fetchSuppliers(), fetchTransporters(), fetchItems()]).finally(() => {
       setLoading(false)
     })
-  }, [fetchBranches, fetchSuppliers, fetchTransporters])
-
-  useEffect(() => {
-    if (selectedBranch) {
-      fetchItems(selectedBranch)
-    }
-  }, [selectedBranch, fetchItems])
+  }, [fetchBranches, fetchSuppliers, fetchTransporters, fetchItems])
 
   const addItem = () => {
     setPoItems([...poItems, { item_id: "", item_name: "", quantity: 0, unit_price: 0, total_amount: 0 }])

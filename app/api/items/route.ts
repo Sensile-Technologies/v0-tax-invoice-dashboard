@@ -182,6 +182,19 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const vendorId = searchParams.get('vendorId')
     const branchId = searchParams.get('branchId')
+    const catalogOnly = searchParams.get('catalog') === 'true'
+
+    // For HQ catalog items (branch_id IS NULL), use vendorId + catalog=true
+    if (catalogOnly && vendorId) {
+      const result = await pool.query(
+        `SELECT * FROM items WHERE vendor_id = $1 AND branch_id IS NULL ORDER BY item_name ASC`,
+        [vendorId]
+      )
+      return NextResponse.json({
+        success: true,
+        items: result.rows
+      })
+    }
 
     // CRITICAL: branchId is required to prevent cross-branch data leakage
     if (!branchId) {
