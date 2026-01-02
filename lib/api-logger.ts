@@ -40,6 +40,8 @@ export async function logApiCall(entry: ApiLogEntry) {
     const logType = entry.logType || deriveLogType(entry.endpoint)
     const status = deriveStatus(entry.response, entry.statusCode, entry.error)
 
+    console.log(`[API Logger] Logging ${entry.endpoint} for branch ${entry.branchId} with status ${status}`)
+
     await query(`
       INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -51,8 +53,15 @@ export async function logApiCall(entry: ApiLogEntry) {
       JSON.stringify(entry.response || { error: entry.error }),
       status
     ])
+    
+    console.log(`[API Logger] Successfully logged ${entry.endpoint}`)
   } catch (error) {
     console.error("[API Logger] Failed to log API call:", error)
+    console.error("[API Logger] Entry was:", JSON.stringify({
+      branchId: entry.branchId,
+      endpoint: entry.endpoint,
+      statusCode: entry.statusCode
+    }))
   }
 }
 
