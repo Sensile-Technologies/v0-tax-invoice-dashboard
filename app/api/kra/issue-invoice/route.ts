@@ -106,8 +106,12 @@ export async function POST(request: NextRequest) {
     const nozzle = nozzleResult[0]
     const unitPrice = parseFloat(nozzle.sale_price) || 0
 
+    if (!nozzle.item_id) {
+      return NextResponse.json({ success: false, error: `Nozzle "${nozzle.fuel_type}" is not mapped to an item. Please assign an item to this nozzle first.` }, { status: 400 })
+    }
+
     if (unitPrice <= 0) {
-      return NextResponse.json({ success: false, error: "No price configured for this fuel type" }, { status: 400 })
+      return NextResponse.json({ success: false, error: `No price configured for "${nozzle.fuel_type}". Please set a price for this item.` }, { status: 400 })
     }
 
     let discountAmount = 0

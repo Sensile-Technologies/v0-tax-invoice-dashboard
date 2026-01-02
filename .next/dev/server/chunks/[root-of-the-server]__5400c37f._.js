@@ -157,6 +157,7 @@ async function logApiCall(entry) {
     try {
         const logType = entry.logType || deriveLogType(entry.endpoint);
         const status = deriveStatus(entry.response, entry.statusCode, entry.error);
+        console.log(`[API Logger] Logging ${entry.endpoint} for branch ${entry.branchId} with status ${status}`);
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -170,8 +171,14 @@ async function logApiCall(entry) {
             }),
             status
         ]);
+        console.log(`[API Logger] Successfully logged ${entry.endpoint}`);
     } catch (error) {
         console.error("[API Logger] Failed to log API call:", error);
+        console.error("[API Logger] Entry was:", JSON.stringify({
+            branchId: entry.branchId,
+            endpoint: entry.endpoint,
+            statusCode: entry.statusCode
+        }));
     }
 }
 function createApiLogger(endpoint, method = "POST") {
@@ -565,6 +572,34 @@ async function POST(request) {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE branches SET sr_number = $1 WHERE id = $2`, [
             newSarNo,
             branch_id
+        ]);
+        const kraData = responses.saveSales?.data || {};
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO sales (
+        branch_id, nozzle_id, fuel_type, quantity, unit_price, 
+        total_amount, payment_method, customer_name, customer_pin,
+        invoice_number, transmission_status, 
+        is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, 
+        sale_date, created_at,
+        kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW(), $15, $16, $17, $18)`, [
+            branch_id,
+            nozzle_id,
+            fuel_type || nozzle.fuel_type,
+            quantity,
+            unitPrice,
+            totalAmount,
+            payment_method || 'cash',
+            is_loyalty_sale ? loyalty_customer_name : 'Walk-in Customer',
+            customer_pin || null,
+            trdInvcNo,
+            'transmitted',
+            is_loyalty_sale || false,
+            is_loyalty_sale ? loyalty_customer_name : null,
+            is_loyalty_sale ? customer_pin : null,
+            'success',
+            kraData.rcptSign || null,
+            kraData.sdcId || null,
+            kraData.curRcptNo || null
         ]);
         const splyAmt = Math.round(quantity * unitPrice * 100) / 100;
         const stockTaxAmt = Math.round(splyAmt * 0.16 * 100) / 100;

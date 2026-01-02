@@ -157,6 +157,7 @@ async function logApiCall(entry) {
     try {
         const logType = entry.logType || deriveLogType(entry.endpoint);
         const status = deriveStatus(entry.response, entry.statusCode, entry.error);
+        console.log(`[API Logger] Logging ${entry.endpoint} for branch ${entry.branchId} with status ${status}`);
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       INSERT INTO branch_logs (branch_id, log_type, endpoint, request_payload, response_payload, status)
       VALUES ($1, $2, $3, $4, $5, $6)
@@ -170,8 +171,14 @@ async function logApiCall(entry) {
             }),
             status
         ]);
+        console.log(`[API Logger] Successfully logged ${entry.endpoint}`);
     } catch (error) {
         console.error("[API Logger] Failed to log API call:", error);
+        console.error("[API Logger] Entry was:", JSON.stringify({
+            branchId: entry.branchId,
+            endpoint: entry.endpoint,
+            statusCode: entry.statusCode
+        }));
     }
 }
 function createApiLogger(endpoint, method = "POST") {
