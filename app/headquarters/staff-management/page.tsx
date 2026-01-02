@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, MoreVertical, Edit, RotateCcw, UserX, Plus } from "lucide-react"
+import { Search, MoreVertical, Edit, RotateCcw, UserX, Plus, Key, Copy, Check } from "lucide-react"
 import { roleDescriptions } from "@/lib/auth/rbac"
 import { getCurrentUser } from "@/lib/auth/client"
 
@@ -26,6 +26,7 @@ interface StaffMember {
   status: string
   branchId?: string
   branchName?: string
+  attendantCode?: string
 }
 
 export default function StaffManagementPage() {
@@ -47,6 +48,7 @@ export default function StaffManagementPage() {
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [copiedCode, setCopiedCode] = useState<string | null>(null)
 
   const [isLoadingStaff, setIsLoadingStaff] = useState(true)
 
@@ -90,6 +92,7 @@ export default function StaffManagementPage() {
           status: s.status || "active",
           branchId: s.branch_id || "",
           branchName: s.branch_name || "All Branches",
+          attendantCode: s.attendant_code || "",
         }))
         setStaff(staffList)
       }
@@ -230,6 +233,30 @@ export default function StaffManagementPage() {
     }
   }
 
+  const handleGenerateCode = async (member: any) => {
+    try {
+      const response = await fetch("/api/staff/generate-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_id: member.id }),
+      })
+      
+      const result = await response.json()
+      
+      if (response.ok && result.success) {
+        setStaff(
+          staff.map((s) => (s.id === member.id ? { ...s, attendantCode: result.attendant_code } : s))
+        )
+        alert(`Attendant code generated: ${result.attendant_code}\n\nThis is the 4-digit code ${member.name} will use to log in to the mobile app.`)
+      } else {
+        alert(`Error generating code: ${result.error || "Please try again."}`)
+      }
+    } catch (error) {
+      console.error("Error generating attendant code:", error)
+      alert("Failed to generate attendant code. Please try again.")
+    }
+  }
+
   const handleAddNew = () => {
     setSelectedStaff(null)
     setFormData({
@@ -275,10 +302,10 @@ export default function StaffManagementPage() {
                     <TableHead>Staff ID</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Username</TableHead>
-                    <TableHead>Email</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Branch</TableHead>
+                    <TableHead>APK Code</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="w-12"></TableHead>
                   </TableRow>
@@ -302,10 +329,48 @@ export default function StaffManagementPage() {
                         <TableCell className="font-medium">{member.staffId}</TableCell>
                         <TableCell>{member.name}</TableCell>
                         <TableCell>{member.username}</TableCell>
-                        <TableCell>{member.email}</TableCell>
                         <TableCell>{member.phone}</TableCell>
                         <TableCell>{member.role}</TableCell>
                         <TableCell>{member.branchName || "All Branches"}</TableCell>
+                        <TableCell>
+                          {['Cashier', 'Supervisor', 'Manager', 'cashier', 'supervisor', 'manager'].includes(member.role) ? (
+                            member.attendantCode ? (
+                              <div className="flex items-center gap-2">
+                                <code className="bg-slate-100 px-2 py-1 rounded font-mono text-sm font-bold">
+                                  {member.attendantCode}
+                                </code>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(member.attendantCode || "")
+                                    setCopiedCode(member.id as string)
+                                    setTimeout(() => setCopiedCode(null), 2000)
+                                  }}
+                                >
+                                  {copiedCode === member.id ? (
+                                    <Check className="h-3 w-3 text-green-600" />
+                                  ) : (
+                                    <Copy className="h-3 w-3" />
+                                  )}
+                                </Button>
+                              </div>
+                            ) : (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs h-7"
+                                onClick={() => handleGenerateCode(member)}
+                              >
+                                <Key className="h-3 w-3 mr-1" />
+                                Generate
+                              </Button>
+                            )
+                          ) : (
+                            <span className="text-muted-foreground text-xs">N/A</span>
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge variant={member.status === "active" ? "default" : "secondary"} className="rounded-lg">
                             {member.status}
@@ -326,6 +391,15 @@ export default function StaffManagementPage() {
                                 <Edit className="h-4 w-4" />
                                 Edit
                               </DropdownMenuItem>
+                              {['Cashier', 'Supervisor', 'Manager', 'cashier', 'supervisor', 'manager'].includes(member.role) && (
+                                <DropdownMenuItem
+                                  onClick={() => handleGenerateCode(member)}
+                                  className="gap-2 cursor-pointer rounded-lg"
+                                >
+                                  <Key className="h-4 w-4" />
+                                  {member.attendantCode ? "Regenerate Code" : "Generate Code"}
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
                                 onClick={() => handleResetAccount(member)}
                                 className="gap-2 cursor-pointer rounded-lg"

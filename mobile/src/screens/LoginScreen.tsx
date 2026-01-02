@@ -16,22 +16,26 @@ import { useAuth } from '../context/AuthContext'
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme'
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [attendantCode, setAttendantCode] = useState('')
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
+  const { loginWithCode } = useAuth()
 
   async function handleLogin() {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please enter email and password')
+    if (!attendantCode.trim()) {
+      Alert.alert('Error', 'Please enter your attendant code')
+      return
+    }
+
+    if (!/^\d{4}$/.test(attendantCode.trim())) {
+      Alert.alert('Error', 'Attendant code must be 4 digits')
       return
     }
 
     setLoading(true)
     try {
-      await login(email.trim(), password)
+      await loginWithCode(attendantCode.trim())
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'Invalid credentials')
+      Alert.alert('Login Failed', error.message || 'Invalid code')
     } finally {
       setLoading(false)
     }
@@ -56,28 +60,22 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.formContainer}>
-          <Text style={styles.label}>Email or Username</Text>
+          <Text style={styles.label}>Attendant Code</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
+            placeholder="Enter 4-digit code"
+            value={attendantCode}
+            onChangeText={(text) => setAttendantCode(text.replace(/\D/g, '').slice(0, 4))}
+            keyboardType="number-pad"
+            maxLength={4}
             editable={!loading}
             placeholderTextColor={colors.textLight}
+            textAlign="center"
           />
 
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!loading}
-            placeholderTextColor={colors.textLight}
-          />
+          <Text style={styles.helpText}>
+            Get your code from your supervisor
+          </Text>
 
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
@@ -135,16 +133,25 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.xs,
     fontWeight: '500',
+    textAlign: 'center',
   },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    fontSize: fontSize.md,
-    marginBottom: spacing.md,
+    fontSize: 32,
+    fontWeight: '700',
+    marginBottom: spacing.sm,
     backgroundColor: colors.background,
     color: colors.text,
+    letterSpacing: 12,
+  },
+  helpText: {
+    fontSize: fontSize.xs || 12,
+    color: colors.textLight,
+    textAlign: 'center',
+    marginBottom: spacing.md,
   },
   button: {
     backgroundColor: colors.primary,

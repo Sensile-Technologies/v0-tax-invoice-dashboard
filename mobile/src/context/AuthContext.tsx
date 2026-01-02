@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<void>
+  loginWithCode: (code: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedUser = await SecureStore.getItemAsync('user')
       if (storedUser) {
         const userData = JSON.parse(storedUser)
-        if (['cashier', 'supervisor', 'vendor', 'merchant'].includes(userData.role)) {
+        if (['cashier', 'supervisor', 'manager', 'vendor', 'merchant'].includes(userData.role)) {
           setUser(userData)
         }
       }
@@ -37,16 +37,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function login(email: string, password: string) {
+  async function loginWithCode(code: string) {
     setIsLoading(true)
     try {
-      const response = await api.post<{ user: User; access_token?: string; error?: { message: string } }>('/api/auth/signin', {
-        email,
-        password,
+      const response = await api.post<{ 
+        success?: boolean
+        user: User
+        access_token?: string
+        error?: { message: string } 
+      }>('/api/auth/mobile-signin', {
+        attendant_code: code,
       })
 
       if (response.error || !response.user) {
-        throw new Error(response.error?.message || 'Invalid credentials')
+        throw new Error(response.error?.message || 'Invalid code')
       }
 
       const userData = response.user
@@ -55,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await api.setToken(response.access_token)
       }
       
-      if (!['cashier', 'supervisor', 'vendor', 'merchant'].includes(userData.role)) {
+      if (!['cashier', 'supervisor', 'manager', 'vendor', 'merchant'].includes(userData.role)) {
         throw new Error('Access denied for this role')
       }
 
@@ -78,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
-        login,
+        loginWithCode,
         logout,
       }}
     >

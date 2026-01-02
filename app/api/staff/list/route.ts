@@ -49,6 +49,8 @@ export async function GET(request: Request) {
           s.role,
           s.status,
           s.branch_id,
+          s.attendant_code,
+          s.code_generated_at,
           b.name as branch_name
         FROM staff s
         LEFT JOIN branches b ON s.branch_id = b.id
@@ -66,6 +68,8 @@ export async function GET(request: Request) {
           s.role,
           s.status,
           s.branch_id,
+          s.attendant_code,
+          s.code_generated_at,
           b.name as branch_name
         FROM staff s
         LEFT JOIN branches b ON s.branch_id = b.id
@@ -83,6 +87,8 @@ export async function GET(request: Request) {
           s.role,
           s.status,
           s.branch_id,
+          s.attendant_code,
+          s.code_generated_at,
           b.name as branch_name
         FROM staff s
         LEFT JOIN branches b ON s.branch_id = b.id
