@@ -299,6 +299,38 @@ export async function POST(request: NextRequest) {
     const newSarNo = branch.sr_number + 1
     await query(`UPDATE branches SET sr_number = $1 WHERE id = $2`, [newSarNo, branch_id])
 
+    const kraData = responses.saveSales?.data || {}
+    await query(
+      `INSERT INTO sales (
+        branch_id, nozzle_id, fuel_type, quantity, unit_price, 
+        total_amount, payment_method, customer_name, customer_pin,
+        invoice_number, transmission_status, 
+        is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, 
+        sale_date, created_at,
+        kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW(), $15, $16, $17, $18)`,
+      [
+        branch_id,
+        nozzle_id,
+        fuel_type || nozzle.fuel_type,
+        quantity,
+        unitPrice,
+        totalAmount,
+        payment_method || 'cash',
+        is_loyalty_sale ? loyalty_customer_name : 'Walk-in Customer',
+        customer_pin || null,
+        trdInvcNo,
+        'transmitted',
+        is_loyalty_sale || false,
+        is_loyalty_sale ? loyalty_customer_name : null,
+        is_loyalty_sale ? customer_pin : null,
+        'success',
+        kraData.rcptSign || null,
+        kraData.sdcId || null,
+        kraData.curRcptNo || null
+      ]
+    )
+
     const splyAmt = Math.round(quantity * unitPrice * 100) / 100
     const stockTaxAmt = Math.round(splyAmt * 0.16 * 100) / 100
 
