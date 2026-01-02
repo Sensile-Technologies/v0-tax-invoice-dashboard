@@ -6,13 +6,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Download, Printer, Loader2, RefreshCw } from "lucide-react"
-
-interface Branch {
-  id: string
-  name: string
-}
 
 interface ReportData {
   reportNumber: string
@@ -56,37 +50,23 @@ export default function ZReportPage() {
   const [toDate, setToDate] = useState("")
   const [fromTime, setFromTime] = useState("")
   const [toTime, setToTime] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [reportData, setReportData] = useState<ReportData | null>(null)
   const [branchId, setBranchId] = useState<string | null>(null)
-  const [branches, setBranches] = useState<Branch[]>([])
-  const [isHqUser, setIsHqUser] = useState(false)
 
   useEffect(() => {
-    const fetchSessionAndBranches = async () => {
+    const fetchSession = async () => {
       try {
         const res = await fetch('/api/auth/session')
         const data = await res.json()
-        
         if (data.branch_id) {
           setBranchId(data.branch_id)
-          setIsHqUser(false)
-        } else if (data.vendor_id) {
-          setIsHqUser(true)
-          const branchRes = await fetch('/api/branches/list')
-          const branchData = await branchRes.json()
-          if (branchData.success && branchData.branches) {
-            setBranches(branchData.branches)
-            if (branchData.branches.length > 0) {
-              setBranchId(branchData.branches[0].id)
-            }
-          }
         }
       } catch (error) {
         console.error("Failed to fetch session:", error)
       }
     }
-    fetchSessionAndBranches()
+    fetchSession()
   }, [])
 
   useEffect(() => {
@@ -156,23 +136,6 @@ export default function ZReportPage() {
                 </CardHeader>
                 <CardContent className="p-4 md:p-8 space-y-6">
                   <div className="space-y-4 border-b pb-6 print:hidden">
-                    {isHqUser && branches.length > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">Branch:</span>
-                        <Select value={branchId || ""} onValueChange={(value) => setBranchId(value)}>
-                          <SelectTrigger className="w-64">
-                            <SelectValue placeholder="Select branch" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {branches.map((branch) => (
-                              <SelectItem key={branch.id} value={branch.id}>
-                                {branch.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
                     <div className="flex items-center gap-2 flex-wrap">
                       <Input
                         type="date"
@@ -203,7 +166,7 @@ export default function ZReportPage() {
                         onChange={(e) => setToTime(e.target.value)}
                         className="w-32"
                       />
-                      <Button onClick={handleGenerateReport} disabled={loading || !branchId}>
+                      <Button onClick={handleGenerateReport} disabled={loading}>
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                         <span className="ml-2">Generate</span>
                       </Button>
