@@ -418,7 +418,7 @@ export default function ShiftsReportPage() {
                       <p className="text-2xl font-bold">{formatCurrency(summary.averagePerShift)}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-slate-600">Total Meter Diff (L)</p>
+                      <p className="text-sm text-slate-600">Total Volume (L)</p>
                       <p className="text-2xl font-bold font-mono text-blue-600">
                         {summary.totalMeterDiff.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
@@ -477,10 +477,8 @@ export default function ShiftsReportPage() {
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">Cashier</th>
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">Start Time</th>
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">End Time</th>
-                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Opening Meter (L)</th>
-                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Sales</th>
-                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Closing Meter (L)</th>
-                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Meter Diff (L)</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Volume Sold (L)</th>
+                            <th className="text-right py-3 px-4 font-semibold text-slate-700">Total Amount</th>
                             <th className="text-center py-3 px-4 font-semibold text-slate-700">Status</th>
                             <th className="text-center py-3 px-4 font-semibold text-slate-700">Actions</th>
                           </tr>
@@ -492,14 +490,10 @@ export default function ShiftsReportPage() {
                               <td className="py-3 px-4">{shift.cashier}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.end_time)}</td>
-                              <td className="py-3 px-4 text-right font-mono">{shift.total_opening_reading.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.total_sales)}</td>
-                              <td className="py-3 px-4 text-right font-mono">{shift.total_closing_reading.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="py-3 px-4 text-right">
-                                <span className="font-mono font-semibold">
-                                  {(shift.total_closing_reading - shift.total_opening_reading).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </span>
+                              <td className="py-3 px-4 text-right font-mono font-semibold text-blue-600">
+                                {((shift.total_closing_reading || 0) - (shift.total_opening_reading || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </td>
+                              <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.total_sales)}</td>
                               <td className="py-3 px-4 text-center">
                                 {getStatusBadge(shift.status)}
                               </td>

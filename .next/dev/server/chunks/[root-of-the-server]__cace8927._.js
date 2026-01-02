@@ -156,6 +156,7 @@ async function POST(request) {
                 });
             }
             const sale = saleResult.rows[0];
+            const isCreditNote = sale.sale_type === 'credit_note' || sale.invoice_number?.includes('-CR') || parseFloat(sale.total_amount) < 0;
             const pageWidth = 80;
             const doc = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jspdf$2f$dist$2f$jspdf$2e$node$2e$min$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"]({
                 unit: 'mm',
@@ -184,7 +185,7 @@ async function POST(request) {
             };
             doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
-            doc.text("TAX INVOICE", pageWidth / 2, y, {
+            doc.text(isCreditNote ? "CREDIT NOTE" : "TAX INVOICE", pageWidth / 2, y, {
                 align: "center"
             });
             y += 6;
@@ -332,7 +333,8 @@ async function POST(request) {
             const bhfId = sale.bhf_id || '03';
             const rcptSign = sale.kra_rcpt_sign || '';
             const qrData = `${kraPin}${bhfId}${rcptSign}`;
-            const qrUrl = `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`;
+            const kraPortal = ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : 'etims-sbx.kra.go.ke';
+            const qrUrl = `https://${kraPortal}/common/link/etims/receipt/indexEtimsReceiptData?Data=${qrData}`;
             doc.setFontSize(8);
             doc.setFont("helvetica", "bold");
             doc.text("KRA eTIMS Verification", pageWidth / 2, y, {
