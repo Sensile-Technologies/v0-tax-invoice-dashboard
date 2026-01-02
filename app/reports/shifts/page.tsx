@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 
 const DashboardSidebar = dynamic(() => import("@/components/dashboard-sidebar"), { ssr: false })
@@ -71,6 +72,7 @@ interface TankStock {
 
 
 export default function ShiftsReportPage() {
+  const router = useRouter()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { formatCurrency } = useCurrency()
@@ -441,7 +443,7 @@ export default function ShiftsReportPage() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => window.location.href = `/reports/nozzle-sales?shift_id=${shift.id}`}
+                                    onClick={() => router.push(`/reports/nozzle-sales?shift_id=${shift.id}`)}
                                   >
                                     <Fuel className="h-4 w-4 mr-1" />
                                     Nozzles
