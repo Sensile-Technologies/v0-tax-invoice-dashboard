@@ -82,6 +82,22 @@ export function SalesSummaryContent() {
   })
   const [shiftLoading, setShiftLoading] = useState(false)
 
+  const [showInvoiceDialog, setShowInvoiceDialog] = useState(false)
+  const [invoiceLoading, setInvoiceLoading] = useState(false)
+  const [invoiceCustomerSearchOpen, setInvoiceCustomerSearchOpen] = useState(false)
+  const [invoiceForm, setInvoiceForm] = useState({
+    amount: "",
+    nozzle_id: "",
+    customer_pin: "",
+    payment_method: "cash",
+    discount_type: "fixed" as "fixed" | "percentage",
+    discount_value: "",
+    is_loyalty_sale: false,
+    loyalty_customer_id: "",
+    loyalty_customer_name: "",
+    loyalty_customer_pin: "",
+  })
+
   useEffect(() => {
     const storedBranch = localStorage.getItem("selectedBranch")
     if (storedBranch) {
@@ -542,6 +558,74 @@ export function SalesSummaryContent() {
       })
     : "Unknown"
 
+  async function handleIssueInvoice() {
+    if (!invoiceForm.amount || !invoiceForm.nozzle_id) {
+      toast.error("Please fill in amount and select a nozzle")
+      return
+    }
+
+    const currentBranch = localStorage.getItem("selectedBranch")
+    if (!currentBranch) {
+      toast.error("No branch selected")
+      return
+    }
+
+    const branchData = JSON.parse(currentBranch)
+    const selectedNozzle = nozzles.find(n => n.id === invoiceForm.nozzle_id)
+    
+    if (!selectedNozzle) {
+      toast.error("Invalid nozzle selected")
+      return
+    }
+
+    setInvoiceLoading(true)
+    try {
+      const response = await fetch("/api/kra/issue-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          branch_id: branchData.id,
+          amount: parseFloat(invoiceForm.amount),
+          nozzle_id: invoiceForm.nozzle_id,
+          fuel_type: selectedNozzle.fuel_type,
+          customer_pin: invoiceForm.is_loyalty_sale ? invoiceForm.loyalty_customer_pin : invoiceForm.customer_pin,
+          payment_method: invoiceForm.payment_method,
+          discount_type: invoiceForm.discount_type,
+          discount_value: invoiceForm.discount_value ? parseFloat(invoiceForm.discount_value) : 0,
+          is_loyalty_sale: invoiceForm.is_loyalty_sale,
+          loyalty_customer_name: invoiceForm.loyalty_customer_name,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success("Invoice issued successfully! Check logs for details.")
+        setShowInvoiceDialog(false)
+        setInvoiceForm({
+          amount: "",
+          nozzle_id: "",
+          customer_pin: "",
+          payment_method: "cash",
+          discount_type: "fixed",
+          discount_value: "",
+          is_loyalty_sale: false,
+          loyalty_customer_id: "",
+          loyalty_customer_name: "",
+          loyalty_customer_pin: "",
+        })
+        fetchData()
+      } else {
+        toast.error(result.error || "Failed to issue invoice")
+      }
+    } catch (error) {
+      console.error("Error issuing invoice:", error)
+      toast.error("Failed to issue invoice")
+    } finally {
+      setInvoiceLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -579,6 +663,13 @@ export function SalesSummaryContent() {
           >
             <Plus className="h-4 w-4 mr-2" />
             Record Sale
+          </Button>
+          <Button 
+            onClick={() => setShowInvoiceDialog(true)}
+            variant="default"
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Issue Invoice
           </Button>
         </div>
       </div>
@@ -1224,6 +1315,171 @@ export function SalesSummaryContent() {
             </Button>
           </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showInvoiceDialog} onOpenChange={setShowInvoiceDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Issue Invoice</DialogTitle>
+            <DialogDescription>Create and submit invoice to KRA eTIMS</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="invoice-amount">Amount (KES)</Label>
+              <Input
+                id="invoice-amount"
+                type="number"
+                placeholder="Enter amount"
+                value={invoiceForm.amount}
+                onChange={(e) => setInvoiceForm({ ...invoiceForm, amount: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="invoice-nozzle">Nozzle</Label>
+              <Select
+                value={invoiceForm.nozzle_id}
+                onValueChange={(value) => setInvoiceForm({ ...invoiceForm, nozzle_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select nozzle" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dispensers.map((dispenser) => {
+                    const dispenserNozzles = nozzles.filter(n => n.dispenser_id === dispenser.id)
+                    if (dispenserNozzles.length === 0) return null
+                    return (
+                      <div key={dispenser.id}>
+                        <div className="px-2 py-1 text-xs font-semibold text-gray-500">
+                          Dispenser {dispenser.dispenser_number}
+                        </div>
+                        {dispenserNozzles.map((nozzle) => (
+                          <SelectItem key={nozzle.id} value={nozzle.id}>
+                            Nozzle {nozzle.nozzle_number} - {nozzle.fuel_type}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="invoice-payment">Payment Method</Label>
+              <Select
+                value={invoiceForm.payment_method}
+                onValueChange={(value) => setInvoiceForm({ ...invoiceForm, payment_method: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">Cash</SelectItem>
+                  <SelectItem value="mpesa">M-Pesa</SelectItem>
+                  <SelectItem value="card">Card</SelectItem>
+                  <SelectItem value="credit">Credit</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="invoice-discount-type">Discount Type</Label>
+                <Select
+                  value={invoiceForm.discount_type}
+                  onValueChange={(value: "fixed" | "percentage") => setInvoiceForm({ ...invoiceForm, discount_type: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fixed">Fixed (KES)</SelectItem>
+                    <SelectItem value="percentage">Percentage (%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="invoice-discount-value">Discount Value</Label>
+                <Input
+                  id="invoice-discount-value"
+                  type="number"
+                  placeholder="0"
+                  value={invoiceForm.discount_value}
+                  onChange={(e) => setInvoiceForm({ ...invoiceForm, discount_value: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="invoice-is-loyalty"
+                checked={invoiceForm.is_loyalty_sale}
+                onChange={(e) => setInvoiceForm({ ...invoiceForm, is_loyalty_sale: e.target.checked })}
+                className="h-4 w-4"
+              />
+              <Label htmlFor="invoice-is-loyalty">Loyalty Customer</Label>
+            </div>
+            {invoiceForm.is_loyalty_sale ? (
+              <div>
+                <Label>Select Loyalty Customer</Label>
+                <Popover open={invoiceCustomerSearchOpen} onOpenChange={setInvoiceCustomerSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" role="combobox" className="w-full justify-between">
+                      {invoiceForm.loyalty_customer_name || "Select customer..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput placeholder="Search customer..." />
+                      <CommandList>
+                        <CommandEmpty>No customer found.</CommandEmpty>
+                        <CommandGroup>
+                          {loyaltyCustomers.map((customer) => (
+                            <CommandItem
+                              key={customer.id}
+                              value={customer.name}
+                              onSelect={() => {
+                                setInvoiceForm({
+                                  ...invoiceForm,
+                                  loyalty_customer_id: customer.id,
+                                  loyalty_customer_name: customer.name,
+                                  loyalty_customer_pin: customer.pin,
+                                })
+                                setInvoiceCustomerSearchOpen(false)
+                              }}
+                            >
+                              <Check className={cn("mr-2 h-4 w-4", invoiceForm.loyalty_customer_name === customer.name ? "opacity-100" : "opacity-0")} />
+                              {customer.name} ({customer.pin})
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="invoice-customer-pin">Customer KRA PIN (Optional)</Label>
+                <Input
+                  id="invoice-customer-pin"
+                  placeholder="e.g., P0123456789A"
+                  value={invoiceForm.customer_pin}
+                  onChange={(e) => setInvoiceForm({ ...invoiceForm, customer_pin: e.target.value })}
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setShowInvoiceDialog(false)}>Cancel</Button>
+            <Button 
+              onClick={handleIssueInvoice}
+              disabled={invoiceLoading}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {invoiceLoading ? "Processing..." : "Submit Invoice"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
