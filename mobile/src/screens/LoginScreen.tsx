@@ -63,7 +63,7 @@ export default function LoginScreen() {
           <Text style={styles.label}>Attendant Code</Text>
           <TextInput
             style={styles.input}
-            placeholder="Enter 4-digit code"
+            placeholder=""
             value={attendantCode}
             onChangeText={(text) => setAttendantCode(text.replace(/\D/g, '').slice(0, 4))}
             keyboardType="number-pad"
