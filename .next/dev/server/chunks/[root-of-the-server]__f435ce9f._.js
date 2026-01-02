@@ -158,7 +158,7 @@ async function getShiftNozzleReport(shiftId, vendorId) {
       sr.closing_reading,
       n.nozzle_number,
       n.fuel_type,
-      COALESCE(d.name, 'Dispenser ' || COALESCE(n.nozzle_number::text, '')) as nozzle_name
+      'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
     FROM shift_readings sr
     JOIN nozzles n ON sr.nozzle_id = n.id
     LEFT JOIN dispensers d ON n.dispenser_id = d.id
@@ -297,14 +297,14 @@ async function getDailyNozzleReport(branchId, date, vendorId) {
       sr.nozzle_id,
       n.nozzle_number,
       n.fuel_type,
-      COALESCE(d.name, 'Nozzle ' || COALESCE(n.nozzle_number::text, '')) as nozzle_name,
+      'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name,
       MIN(sr.opening_reading) as day_opening,
       MAX(sr.closing_reading) as day_closing
     FROM shift_readings sr
     JOIN nozzles n ON sr.nozzle_id = n.id
     LEFT JOIN dispensers d ON n.dispenser_id = d.id
     WHERE sr.shift_id = ANY($1) AND sr.reading_type = 'nozzle'
-    GROUP BY sr.nozzle_id, n.nozzle_number, n.fuel_type, d.name
+    GROUP BY sr.nozzle_id, n.nozzle_number, n.fuel_type, d.dispenser_number
   `;
     const readingsResult = await pool.query(nozzleReadingsQuery, [
         shiftIds
