@@ -84,6 +84,7 @@ export function SalesSummaryContent() {
 
   const [showInvoiceDialog, setShowInvoiceDialog] = useState(false)
   const [invoiceLoading, setInvoiceLoading] = useState(false)
+  const [invoiceError, setInvoiceError] = useState<string | null>(null)
   const [invoiceCustomerSearchOpen, setInvoiceCustomerSearchOpen] = useState(false)
   const [invoiceForm, setInvoiceForm] = useState({
     amount: "",
@@ -579,6 +580,7 @@ export function SalesSummaryContent() {
     }
 
     setInvoiceLoading(true)
+    setInvoiceError(null)
     try {
       const response = await fetch("/api/kra/issue-invoice", {
         method: "POST",
@@ -602,6 +604,7 @@ export function SalesSummaryContent() {
       if (result.success) {
         toast.success("Invoice issued successfully! Check logs for details.")
         setShowInvoiceDialog(false)
+        setInvoiceError(null)
         setInvoiceForm({
           amount: "",
           nozzle_id: "",
@@ -616,11 +619,15 @@ export function SalesSummaryContent() {
         })
         fetchData()
       } else {
-        toast.error(result.error || "Failed to issue invoice")
+        const errorMsg = result.error || "Failed to issue invoice"
+        setInvoiceError(errorMsg)
+        toast.error(errorMsg)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error issuing invoice:", error)
-      toast.error("Failed to issue invoice")
+      const errorMsg = error?.message || "Failed to issue invoice"
+      setInvoiceError(errorMsg)
+      toast.error(errorMsg)
     } finally {
       setInvoiceLoading(false)
     }
@@ -665,7 +672,10 @@ export function SalesSummaryContent() {
             Record Sale
           </Button>
           <Button 
-            onClick={() => setShowInvoiceDialog(true)}
+            onClick={() => {
+              setInvoiceError(null)
+              setShowInvoiceDialog(true)
+            }}
             variant="default"
             className="bg-blue-600 hover:bg-blue-700"
           >
@@ -1324,6 +1334,12 @@ export function SalesSummaryContent() {
             <DialogTitle>Issue Invoice</DialogTitle>
             <DialogDescription>Create and submit invoice to KRA eTIMS</DialogDescription>
           </DialogHeader>
+          {invoiceError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{invoiceError}</AlertDescription>
+            </Alert>
+          )}
           <div className="space-y-4">
             <div>
               <Label htmlFor="invoice-amount">Amount (KES)</Label>

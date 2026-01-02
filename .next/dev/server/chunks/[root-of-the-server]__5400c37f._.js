@@ -383,10 +383,18 @@ async function POST(request) {
         }
         const nozzle = nozzleResult[0];
         const unitPrice = parseFloat(nozzle.sale_price) || 0;
+        if (!nozzle.item_id) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: `Nozzle "${nozzle.fuel_type}" is not mapped to an item. Please assign an item to this nozzle first.`
+            }, {
+                status: 400
+            });
+        }
         if (unitPrice <= 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
-                error: "No price configured for this fuel type"
+                error: `No price configured for "${nozzle.fuel_type}". Please set a price for this item.`
             }, {
                 status: 400
             });
