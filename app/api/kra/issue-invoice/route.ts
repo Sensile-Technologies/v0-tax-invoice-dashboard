@@ -303,18 +303,26 @@ export async function POST(request: NextRequest) {
     const newSarNo = branch.sr_number + 1
     await query(`UPDATE branches SET sr_number = $1 WHERE id = $2`, [newSarNo, branch_id])
 
+    const activeShiftResult = await query(`
+      SELECT id FROM shifts 
+      WHERE branch_id = $1 AND status = 'active' 
+      ORDER BY start_time DESC LIMIT 1
+    `, [branch_id])
+    const activeShiftId = activeShiftResult.length > 0 ? activeShiftResult[0].id : null
+
     const kraData = responses.saveSales?.data || {}
     await query(
       `INSERT INTO sales (
-        branch_id, nozzle_id, fuel_type, quantity, unit_price, 
+        branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, customer_pin,
         invoice_number, transmission_status, 
         is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, 
         sale_date, created_at,
         kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW(), $15, $16, $17, $18)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW(), $16, $17, $18, $19)`,
       [
         branch_id,
+        activeShiftId,
         nozzle_id,
         fuel_type || nozzle.fuel_type,
         quantity,
