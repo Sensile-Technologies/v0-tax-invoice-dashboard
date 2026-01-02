@@ -559,14 +559,13 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                 className="rounded-xl"
               />
             </div>
-            <p className="text-sm text-muted-foreground">This adjustment requires approval before taking effect.</p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAdjustDialog(false)} className="rounded-xl">
               Cancel
             </Button>
             <Button onClick={handleAdjustStock} className="rounded-xl">
-              Submit for Approval
+              Adjust Stock
             </Button>
           </DialogFooter>
         </DialogContent>
