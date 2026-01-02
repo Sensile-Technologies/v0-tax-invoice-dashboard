@@ -1,12 +1,53 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Download, Printer, Loader2, RefreshCw } from "lucide-react"
+
+interface Branch {
+  id: string
+  name: string
+}
+
+interface ReportData {
+  reportNumber: string
+  fiscalNumber: string
+  date: string
+  time: string
+  operator: string
+  shiftDuration: string
+  deviceSerial: string
+  branchName: string
+  vendorName: string
+  salesSummary: {
+    grossSales: number
+    returns: number
+    netSales: number
+  }
+  vatBreakdown: Array<{
+    category: string
+    taxableAmount: number
+    vatAmount: number
+    total: number
+  }>
+  paymentMethods: Array<{
+    method: string
+    amount: number
+    count: number
+  }>
+  transactionCount: number
+  voidedTransactions: number
+  counters: {
+    totalTransactions: number
+    voidedTransactions: number
+    cumulativeSales: number
+  }
+}
 
 export default function ZReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -15,47 +56,81 @@ export default function ZReportPage() {
   const [toDate, setToDate] = useState("")
   const [fromTime, setFromTime] = useState("")
   const [toTime, setToTime] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [reportData, setReportData] = useState<ReportData | null>(null)
+  const [branchId, setBranchId] = useState<string | null>(null)
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [isHqUser, setIsHqUser] = useState(false)
 
-  const zReportData = {
-    reportNumber: "Z-2025-001-001",
-    fiscalNumber: "FP-2024-12345-Z-001",
-    date: "January 15, 2025",
-    time: "23:59:45",
-    operator: "Manager - Jane Smith",
-    shiftDuration: "16:00 hours",
-    deviceSerial: "FP-2024-12345",
+  useEffect(() => {
+    const fetchSessionAndBranches = async () => {
+      try {
+        const res = await fetch('/api/auth/session')
+        const data = await res.json()
+        
+        if (data.branch_id) {
+          setBranchId(data.branch_id)
+          setIsHqUser(false)
+        } else if (data.vendor_id) {
+          setIsHqUser(true)
+          const branchRes = await fetch('/api/branches/list')
+          const branchData = await branchRes.json()
+          if (branchData.success && branchData.branches) {
+            setBranches(branchData.branches)
+            if (branchData.branches.length > 0) {
+              setBranchId(branchData.branches[0].id)
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch session:", error)
+      }
+    }
+    fetchSessionAndBranches()
+  }, [])
 
-    dailySales: {
-      grossSales: 1250000,
-      returns: 15000,
-      netSales: 1235000,
-    },
+  useEffect(() => {
+    if (branchId) {
+      fetchReport()
+    }
+  }, [branchId])
 
-    vatBreakdown: [
-      { category: "A - Exempt", taxableAmount: 150000, vatAmount: 0, total: 150000 },
-      { category: "B - 16% VAT", taxableAmount: 850000, vatAmount: 136000, total: 986000 },
-      { category: "C - Zero Rated", taxableAmount: 80000, vatAmount: 0, total: 80000 },
-      { category: "D - Non-VAT", taxableAmount: 19000, vatAmount: 0, total: 19000 },
-    ],
+  const fetchReport = async () => {
+    if (!branchId) return
+    
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      params.set('type', 'z')
+      params.set('branch_id', branchId)
+      if (fromDate) params.set('from_date', fromDate)
+      if (toDate) params.set('to_date', toDate)
+      if (fromTime) params.set('from_time', fromTime)
+      if (toTime) params.set('to_time', toTime)
 
-    paymentMethods: [
-      { method: "Cash", amount: 550000, count: 145 },
-      { method: "M-PESA", amount: 450000, count: 98 },
-      { method: "Card", amount: 200000, count: 52 },
-      { method: "Bank Transfer", amount: 35000, count: 8 },
-    ],
-
-    counters: {
-      totalTransactions: 303,
-      voidedTransactions: 5,
-      lastZNumber: "Z-2025-001-000",
-      cumulativeSales: 45678900,
-    },
+      const res = await fetch(`/api/reports/fiscal?${params.toString()}`)
+      const result = await res.json()
+      
+      if (result.success && result.data) {
+        setReportData(result.data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch report:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const totalVAT = zReportData.vatBreakdown.reduce((sum, item) => sum + item.vatAmount, 0)
-  const totalSales = zReportData.vatBreakdown.reduce((sum, item) => sum + item.total, 0)
-  const totalPayments = zReportData.paymentMethods.reduce((sum, item) => sum + item.amount, 0)
+  const handleGenerateReport = () => {
+    fetchReport()
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const totalVAT = reportData?.vatBreakdown?.reduce((sum, item) => sum + item.vatAmount, 0) || 0
+  const totalPayments = reportData?.paymentMethods?.reduce((sum, item) => sum + item.amount, 0) || 0
 
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
@@ -72,15 +147,32 @@ export default function ZReportPage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-4xl space-y-6">
-              <Card className="rounded-2xl shadow-lg">
-                <CardHeader className="border-b pb-4">
+              <Card className="rounded-2xl shadow-lg print:shadow-none">
+                <CardHeader className="border-b pb-4 print:hidden">
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-balance">Z Report</h1>
                     <p className="text-muted-foreground">End of Day Fiscal Report</p>
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 md:p-8 space-y-6">
-                  <div className="space-y-4 border-b pb-6">
+                  <div className="space-y-4 border-b pb-6 print:hidden">
+                    {isHqUser && branches.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Branch:</span>
+                        <Select value={branchId || ""} onValueChange={(value) => setBranchId(value)}>
+                          <SelectTrigger className="w-64">
+                            <SelectValue placeholder="Select branch" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {branches.map((branch) => (
+                              <SelectItem key={branch.id} value={branch.id}>
+                                {branch.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 flex-wrap">
                       <Input
                         type="date"
@@ -111,9 +203,13 @@ export default function ZReportPage() {
                         onChange={(e) => setToTime(e.target.value)}
                         className="w-32"
                       />
+                      <Button onClick={handleGenerateReport} disabled={loading || !branchId}>
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                        <span className="ml-2">Generate</span>
+                      </Button>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Button variant="outline" className="rounded-xl bg-transparent">
+                      <Button variant="outline" className="rounded-xl bg-transparent" onClick={handlePrint}>
                         <Printer className="h-4 w-4 mr-2" />
                         Print
                       </Button>
@@ -124,135 +220,147 @@ export default function ZReportPage() {
                     </div>
                   </div>
 
-                  <div className="text-center border-b pb-4">
-                    <h2 className="text-2xl font-bold">FLOW360</h2>
-                    <p className="text-sm text-muted-foreground">Tax Invoice Management System</p>
-                    <p className="text-xs text-muted-foreground mt-2">Device Serial: {zReportData.deviceSerial}</p>
-                    <p className="text-lg font-bold mt-2 text-red-600">*** FISCAL Z REPORT ***</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
-                    <div>
-                      <p className="text-muted-foreground">Z Report Number:</p>
-                      <p className="font-semibold">{zReportData.reportNumber}</p>
+                  {loading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+                      <span className="ml-2 text-slate-500">Loading report...</span>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Fiscal Number:</p>
-                      <p className="font-semibold">{zReportData.fiscalNumber}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Date & Time:</p>
-                      <p className="font-semibold">
-                        {zReportData.date} {zReportData.time}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Operator:</p>
-                      <p className="font-semibold">{zReportData.operator}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Shift Duration:</p>
-                      <p className="font-semibold">{zReportData.shiftDuration}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Previous Z:</p>
-                      <p className="font-semibold">{zReportData.counters.lastZNumber}</p>
-                    </div>
-                  </div>
-
-                  <div className="border-b pb-4">
-                    <h3 className="font-bold mb-3">DAILY SALES SUMMARY</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Gross Sales</span>
-                        <span className="font-semibold">KES {zReportData.dailySales.grossSales.toLocaleString()}</span>
+                  ) : reportData ? (
+                    <>
+                      <div className="text-center border-b pb-4">
+                        <h2 className="text-2xl font-bold">{reportData.vendorName || 'FLOW360'}</h2>
+                        <p className="text-sm text-muted-foreground">{reportData.branchName}</p>
+                        <p className="text-xs text-muted-foreground mt-2">Device Serial: {reportData.deviceSerial}</p>
+                        <p className="text-lg font-bold mt-2 text-red-600">*** FISCAL Z REPORT ***</p>
                       </div>
-                      <div className="flex justify-between text-red-600">
-                        <span>Returns/Voids</span>
-                        <span className="font-semibold">-KES {zReportData.dailySales.returns.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                        <span>Net Sales</span>
-                        <span>KES {zReportData.dailySales.netSales.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="border-b pb-4">
-                    <h3 className="font-bold mb-3">VAT SUMMARY BY CATEGORY</h3>
-                    <div className="space-y-3 text-sm">
-                      {zReportData.vatBreakdown.map((item, index) => (
-                        <div key={index} className="space-y-1 bg-slate-50 p-3 rounded-lg">
-                          <div className="font-semibold">{item.category}</div>
-                          <div className="grid grid-cols-3 gap-2 pl-2 text-xs">
-                            <div>
-                              <div className="text-muted-foreground">Taxable</div>
-                              <div className="font-semibold">KES {item.taxableAmount.toLocaleString()}</div>
-                            </div>
-                            <div>
-                              <div className="text-muted-foreground">VAT</div>
-                              <div className="font-semibold">KES {item.vatAmount.toLocaleString()}</div>
-                            </div>
-                            <div>
-                              <div className="text-muted-foreground">Total</div>
-                              <div className="font-semibold">KES {item.total.toLocaleString()}</div>
-                            </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
+                        <div>
+                          <p className="text-muted-foreground">Z Report Number:</p>
+                          <p className="font-semibold">{reportData.reportNumber}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Fiscal Number:</p>
+                          <p className="font-semibold">{reportData.fiscalNumber}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Date & Time:</p>
+                          <p className="font-semibold">
+                            {reportData.date} {reportData.time}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Operator:</p>
+                          <p className="font-semibold">{reportData.operator}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Shift Duration:</p>
+                          <p className="font-semibold">{reportData.shiftDuration}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Cumulative Sales:</p>
+                          <p className="font-semibold">KES {reportData.counters.cumulativeSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        </div>
+                      </div>
+
+                      <div className="border-b pb-4">
+                        <h3 className="font-bold mb-3">DAILY SALES SUMMARY</h3>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Gross Sales</span>
+                            <span className="font-semibold">KES {reportData.salesSummary.grossSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                          <div className="flex justify-between text-red-600">
+                            <span>Returns/Voids</span>
+                            <span className="font-semibold">-KES {reportData.salesSummary.returns.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                            <span>Net Sales</span>
+                            <span>KES {reportData.salesSummary.netSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </div>
                         </div>
-                      ))}
-                      <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                        <span>Total VAT Collected</span>
-                        <span>KES {totalVAT.toLocaleString()}</span>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="border-b pb-4">
-                    <h3 className="font-bold mb-3">PAYMENT SUMMARY</h3>
-                    <div className="space-y-2 text-sm">
-                      {zReportData.paymentMethods.map((item, index) => (
-                        <div key={index} className="flex justify-between">
-                          <span>
-                            {item.method} ({item.count} transactions)
-                          </span>
-                          <span className="font-semibold">KES {item.amount.toLocaleString()}</span>
+                      <div className="border-b pb-4">
+                        <h3 className="font-bold mb-3">VAT BREAKDOWN</h3>
+                        <div className="space-y-2 text-sm">
+                          {reportData.vatBreakdown.map((item, index) => (
+                            <div key={index} className="space-y-1">
+                              <div className="flex justify-between font-semibold">
+                                <span>{item.category}</span>
+                              </div>
+                              <div className="flex justify-between pl-4 text-muted-foreground">
+                                <span>Taxable Amount:</span>
+                                <span>KES {item.taxableAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                              <div className="flex justify-between pl-4 text-muted-foreground">
+                                <span>VAT Amount:</span>
+                                <span>KES {item.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                              <div className="flex justify-between pl-4 font-semibold">
+                                <span>Total:</span>
+                                <span>KES {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                            <span>Total VAT</span>
+                            <span>KES {totalVAT.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
                         </div>
-                      ))}
-                      <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                        <span>Total Payments</span>
-                        <span>KES {totalPayments.toLocaleString()}</span>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="border-b pb-4">
-                    <h3 className="font-bold mb-3">FISCAL COUNTERS</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Total Transactions Today:</span>
-                        <span className="font-semibold">{zReportData.counters.totalTransactions}</span>
+                      <div className="border-b pb-4">
+                        <h3 className="font-bold mb-3">PAYMENT METHODS</h3>
+                        <div className="space-y-2 text-sm">
+                          {reportData.paymentMethods.length > 0 ? (
+                            reportData.paymentMethods.map((item, index) => (
+                              <div key={index} className="flex justify-between">
+                                <span>
+                                  {item.method} ({item.count} trans.)
+                                </span>
+                                <span className="font-semibold">KES {item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-muted-foreground">No payments recorded</p>
+                          )}
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                            <span>Total Payments</span>
+                            <span>KES {totalPayments.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Voided Transactions:</span>
-                        <span className="font-semibold text-red-600">{zReportData.counters.voidedTransactions}</span>
-                      </div>
-                      <div className="flex justify-between font-bold">
-                        <span>Cumulative Grand Total:</span>
-                        <span>KES {zReportData.counters.cumulativeSales.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="text-center text-xs text-muted-foreground pt-4 border-t space-y-2">
-                    <p className="font-bold text-red-600">*** END OF Z REPORT ***</p>
-                    <p className="font-semibold">FISCAL MEMORY UPDATED - COUNTERS RESET</p>
-                    <p>This report has been recorded in fiscal memory</p>
-                    <p className="mt-4">Authorized Signature: _______________________</p>
-                  </div>
+                      <div className="border-b pb-4">
+                        <h3 className="font-bold mb-3">FISCAL COUNTERS</h3>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div className="flex justify-between">
+                            <span>Total Transactions:</span>
+                            <span className="font-semibold">{reportData.counters.totalTransactions}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Voided Transactions:</span>
+                            <span className="font-semibold text-red-600">{reportData.counters.voidedTransactions}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-center text-xs text-muted-foreground pt-4 border-t">
+                        <p className="font-bold text-red-600 text-lg">*** END OF Z REPORT ***</p>
+                        <p className="mt-2">This is an official fiscal report. Counters have been recorded.</p>
+                        <p className="mt-1">Document generated on {reportData.date} at {reportData.time}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-12 text-slate-500">
+                      <p>No data available. Select a date range and click Generate.</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
+              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground print:hidden">
                 Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
               </footer>
             </div>

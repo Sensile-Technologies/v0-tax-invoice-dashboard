@@ -8350,6 +8350,19 @@
     }
   }
 
+  @media print {
+    .print\:hidden {
+      display: none;
+    }
+  }
+
+  @media print {
+    .print\:shadow-none {
+      --tw-shadow: 0 0 #0000;
+      box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+    }
+  }
+
   .\[\&_\.recharts-cartesian-axis-tick_text\]\:fill-muted-foreground .recharts-cartesian-axis-tick text {
     fill: var(--muted-foreground);
   }

@@ -1,12 +1,48 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Download, Printer, Loader2, RefreshCw } from "lucide-react"
+
+interface Branch {
+  id: string
+  name: string
+}
+
+interface ReportData {
+  reportNumber: string
+  date: string
+  time: string
+  cashier: string
+  shiftStart: string
+  deviceSerial: string
+  branchName: string
+  vendorName: string
+  salesSummary: {
+    grossSales: number
+    returns: number
+    netSales: number
+  }
+  vatBreakdown: Array<{
+    category: string
+    taxableAmount: number
+    vatAmount: number
+    total: number
+  }>
+  paymentMethods: Array<{
+    method: string
+    amount: number
+    count: number
+  }>
+  transactionCount: number
+  voidedTransactions: number
+  voidedAmount: number
+}
 
 export default function XReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -15,43 +51,81 @@ export default function XReportPage() {
   const [toDate, setToDate] = useState("")
   const [fromTime, setFromTime] = useState("")
   const [toTime, setToTime] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [reportData, setReportData] = useState<ReportData | null>(null)
+  const [branchId, setBranchId] = useState<string | null>(null)
+  const [branches, setBranches] = useState<Branch[]>([])
+  const [isHqUser, setIsHqUser] = useState(false)
 
-  const xReportData = {
-    reportNumber: "X-2025-001-15",
-    date: "January 15, 2025",
-    time: "14:30:45",
-    cashier: "John Doe",
-    shiftStart: "08:00:00",
-    deviceSerial: "FP-2024-12345",
+  useEffect(() => {
+    const fetchSessionAndBranches = async () => {
+      try {
+        const res = await fetch('/api/auth/session')
+        const data = await res.json()
+        
+        if (data.branch_id) {
+          setBranchId(data.branch_id)
+          setIsHqUser(false)
+        } else if (data.vendor_id) {
+          setIsHqUser(true)
+          const branchRes = await fetch('/api/branches/list')
+          const branchData = await branchRes.json()
+          if (branchData.success && branchData.branches) {
+            setBranches(branchData.branches)
+            if (branchData.branches.length > 0) {
+              setBranchId(branchData.branches[0].id)
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch session:", error)
+      }
+    }
+    fetchSessionAndBranches()
+  }, [])
 
-    salesSummary: {
-      grossSales: 450000,
-      returns: 5000,
-      netSales: 445000,
-    },
+  useEffect(() => {
+    if (branchId) {
+      fetchReport()
+    }
+  }, [branchId])
 
-    vatBreakdown: [
-      { category: "A - Exempt", taxableAmount: 50000, vatAmount: 0, total: 50000 },
-      { category: "B - 16% VAT", taxableAmount: 300000, vatAmount: 48000, total: 348000 },
-      { category: "C - Zero Rated", taxableAmount: 30000, vatAmount: 0, total: 30000 },
-      { category: "D - Non-VAT", taxableAmount: 17000, vatAmount: 0, total: 17000 },
-    ],
+  const fetchReport = async () => {
+    if (!branchId) return
+    
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      params.set('type', 'x')
+      params.set('branch_id', branchId)
+      if (fromDate) params.set('from_date', fromDate)
+      if (toDate) params.set('to_date', toDate)
+      if (fromTime) params.set('from_time', fromTime)
+      if (toTime) params.set('to_time', toTime)
 
-    paymentMethods: [
-      { method: "Cash", amount: 200000, count: 45 },
-      { method: "M-PESA", amount: 150000, count: 32 },
-      { method: "Card", amount: 75000, count: 18 },
-      { method: "Bank Transfer", amount: 20000, count: 3 },
-    ],
-
-    transactionCount: 98,
-    voidedTransactions: 2,
-    voidedAmount: 5000,
+      const res = await fetch(`/api/reports/fiscal?${params.toString()}`)
+      const result = await res.json()
+      
+      if (result.success && result.data) {
+        setReportData(result.data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch report:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const totalVAT = xReportData.vatBreakdown.reduce((sum, item) => sum + item.vatAmount, 0)
-  const totalSales = xReportData.vatBreakdown.reduce((sum, item) => sum + item.total, 0)
-  const totalPayments = xReportData.paymentMethods.reduce((sum, item) => sum + item.amount, 0)
+  const handleGenerateReport = () => {
+    fetchReport()
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const totalVAT = reportData?.vatBreakdown?.reduce((sum, item) => sum + item.vatAmount, 0) || 0
+  const totalPayments = reportData?.paymentMethods?.reduce((sum, item) => sum + item.amount, 0) || 0
 
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
@@ -68,15 +142,32 @@ export default function XReportPage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-4xl space-y-6">
-              <Card className="rounded-2xl shadow-lg">
-                <CardHeader className="border-b pb-4">
+              <Card className="rounded-2xl shadow-lg print:shadow-none">
+                <CardHeader className="border-b pb-4 print:hidden">
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-balance">X Report</h1>
                     <p className="text-muted-foreground">Current Session Report (Non-Fiscal)</p>
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 md:p-8 space-y-6">
-                  <div className="space-y-4 border-b pb-6">
+                  <div className="space-y-4 border-b pb-6 print:hidden">
+                    {isHqUser && branches.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">Branch:</span>
+                        <Select value={branchId || ""} onValueChange={(value) => setBranchId(value)}>
+                          <SelectTrigger className="w-64">
+                            <SelectValue placeholder="Select branch" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {branches.map((branch) => (
+                              <SelectItem key={branch.id} value={branch.id}>
+                                {branch.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 flex-wrap">
                       <Input
                         type="date"
@@ -107,9 +198,13 @@ export default function XReportPage() {
                         onChange={(e) => setToTime(e.target.value)}
                         className="w-32"
                       />
+                      <Button onClick={handleGenerateReport} disabled={loading || !branchId}>
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                        <span className="ml-2">Generate</span>
+                      </Button>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Button variant="outline" className="rounded-xl bg-transparent">
+                      <Button variant="outline" className="rounded-xl bg-transparent" onClick={handlePrint}>
                         <Printer className="h-4 w-4 mr-2" />
                         Print
                       </Button>
@@ -120,120 +215,137 @@ export default function XReportPage() {
                     </div>
                   </div>
 
-                  <div className="text-center border-b pb-4">
-                    <h2 className="text-2xl font-bold">FLOW360</h2>
-                    <p className="text-sm text-muted-foreground">Tax Invoice Management System</p>
-                    <p className="text-xs text-muted-foreground mt-2">Device Serial: {xReportData.deviceSerial}</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
-                    <div>
-                      <p className="text-muted-foreground">Report Number:</p>
-                      <p className="font-semibold">{xReportData.reportNumber}</p>
+                  {loading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+                      <span className="ml-2 text-slate-500">Loading report...</span>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Date & Time:</p>
-                      <p className="font-semibold">
-                        {xReportData.date} {xReportData.time}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Cashier:</p>
-                      <p className="font-semibold">{xReportData.cashier}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Shift Start:</p>
-                      <p className="font-semibold">{xReportData.shiftStart}</p>
-                    </div>
-                  </div>
-
-                  <div className="border-b pb-4">
-                    <h3 className="font-bold mb-3">SALES SUMMARY</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Gross Sales</span>
-                        <span className="font-semibold">KES {xReportData.salesSummary.grossSales.toLocaleString()}</span>
+                  ) : reportData ? (
+                    <>
+                      <div className="text-center border-b pb-4">
+                        <h2 className="text-2xl font-bold">{reportData.vendorName || 'FLOW360'}</h2>
+                        <p className="text-sm text-muted-foreground">{reportData.branchName}</p>
+                        <p className="text-xs text-muted-foreground mt-2">Device Serial: {reportData.deviceSerial}</p>
                       </div>
-                      <div className="flex justify-between text-red-600">
-                        <span>Returns/Voids</span>
-                        <span className="font-semibold">-KES {xReportData.salesSummary.returns.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                        <span>Net Sales</span>
-                        <span>KES {xReportData.salesSummary.netSales.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="border-b pb-4">
-                    <h3 className="font-bold mb-3">VAT BREAKDOWN</h3>
-                    <div className="space-y-2 text-sm">
-                      {xReportData.vatBreakdown.map((item, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex justify-between font-semibold">
-                            <span>{item.category}</span>
+                      <div className="grid grid-cols-2 gap-4 text-sm border-b pb-4">
+                        <div>
+                          <p className="text-muted-foreground">Report Number:</p>
+                          <p className="font-semibold">{reportData.reportNumber}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Date & Time:</p>
+                          <p className="font-semibold">
+                            {reportData.date} {reportData.time}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Cashier:</p>
+                          <p className="font-semibold">{reportData.cashier}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Shift Start:</p>
+                          <p className="font-semibold">{reportData.shiftStart}</p>
+                        </div>
+                      </div>
+
+                      <div className="border-b pb-4">
+                        <h3 className="font-bold mb-3">SALES SUMMARY</h3>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Gross Sales</span>
+                            <span className="font-semibold">KES {reportData.salesSummary.grossSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </div>
-                          <div className="flex justify-between pl-4 text-muted-foreground">
-                            <span>Taxable Amount:</span>
-                            <span>KES {item.taxableAmount.toLocaleString()}</span>
+                          <div className="flex justify-between text-red-600">
+                            <span>Returns/Voids</span>
+                            <span className="font-semibold">-KES {reportData.salesSummary.returns.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </div>
-                          <div className="flex justify-between pl-4 text-muted-foreground">
-                            <span>VAT Amount:</span>
-                            <span>KES {item.vatAmount.toLocaleString()}</span>
-                          </div>
-                          <div className="flex justify-between pl-4 font-semibold">
-                            <span>Total:</span>
-                            <span>KES {item.total.toLocaleString()}</span>
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                            <span>Net Sales</span>
+                            <span>KES {reportData.salesSummary.netSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </div>
                         </div>
-                      ))}
-                      <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                        <span>Total VAT</span>
-                        <span>KES {totalVAT.toLocaleString()}</span>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="border-b pb-4">
-                    <h3 className="font-bold mb-3">PAYMENT METHODS</h3>
-                    <div className="space-y-2 text-sm">
-                      {xReportData.paymentMethods.map((item, index) => (
-                        <div key={index} className="flex justify-between">
-                          <span>
-                            {item.method} ({item.count} trans.)
-                          </span>
-                          <span className="font-semibold">KES {item.amount.toLocaleString()}</span>
+                      <div className="border-b pb-4">
+                        <h3 className="font-bold mb-3">VAT BREAKDOWN</h3>
+                        <div className="space-y-2 text-sm">
+                          {reportData.vatBreakdown.map((item, index) => (
+                            <div key={index} className="space-y-1">
+                              <div className="flex justify-between font-semibold">
+                                <span>{item.category}</span>
+                              </div>
+                              <div className="flex justify-between pl-4 text-muted-foreground">
+                                <span>Taxable Amount:</span>
+                                <span>KES {item.taxableAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                              <div className="flex justify-between pl-4 text-muted-foreground">
+                                <span>VAT Amount:</span>
+                                <span>KES {item.vatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                              <div className="flex justify-between pl-4 font-semibold">
+                                <span>Total:</span>
+                                <span>KES {item.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                            <span>Total VAT</span>
+                            <span>KES {totalVAT.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
                         </div>
-                      ))}
-                      <div className="flex justify-between text-lg font-bold pt-2 border-t">
-                        <span>Total Payments</span>
-                        <span>KES {totalPayments.toLocaleString()}</span>
                       </div>
-                    </div>
-                  </div>
 
-                  <div>
-                    <h3 className="font-bold mb-3">TRANSACTION STATISTICS</h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="flex justify-between">
-                        <span>Total Transactions:</span>
-                        <span className="font-semibold">{xReportData.transactionCount}</span>
+                      <div className="border-b pb-4">
+                        <h3 className="font-bold mb-3">PAYMENT METHODS</h3>
+                        <div className="space-y-2 text-sm">
+                          {reportData.paymentMethods.length > 0 ? (
+                            reportData.paymentMethods.map((item, index) => (
+                              <div key={index} className="flex justify-between">
+                                <span>
+                                  {item.method} ({item.count} trans.)
+                                </span>
+                                <span className="font-semibold">KES {item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-muted-foreground">No payments recorded</p>
+                          )}
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                            <span>Total Payments</span>
+                            <span>KES {totalPayments.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Voided Transactions:</span>
-                        <span className="font-semibold text-red-600">{xReportData.voidedTransactions}</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="text-center text-xs text-muted-foreground pt-4 border-t">
-                    <p className="font-semibold">*** END OF X REPORT ***</p>
-                    <p className="mt-2">This is an interim report and does not reset counters</p>
-                  </div>
+                      <div>
+                        <h3 className="font-bold mb-3">TRANSACTION STATISTICS</h3>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div className="flex justify-between">
+                            <span>Total Transactions:</span>
+                            <span className="font-semibold">{reportData.transactionCount}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Voided Transactions:</span>
+                            <span className="font-semibold text-red-600">{reportData.voidedTransactions}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-center text-xs text-muted-foreground pt-4 border-t">
+                        <p className="font-semibold">*** END OF X REPORT ***</p>
+                        <p className="mt-2">This is an interim report and does not reset counters</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-12 text-slate-500">
+                      <p>No data available. Select a date range and click Generate.</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
+              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground print:hidden">
                 Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
               </footer>
             </div>
