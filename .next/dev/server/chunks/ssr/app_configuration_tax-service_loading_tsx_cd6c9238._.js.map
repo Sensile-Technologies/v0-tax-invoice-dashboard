@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/configuration/tax-service/loading.tsx"],"sourcesContent":["export default function Loading() {\n  return (\n    <div className=\"p-6\">\n      <div className=\"animate-pulse space-y-4\">\n        <div className=\"h-8 w-64 bg-slate-200 rounded\" />\n        <div className=\"h-4 w-96 bg-slate-200 rounded\" />\n        <div className=\"grid md:grid-cols-2 gap-6 mt-6\">\n          <div className=\"h-64 bg-slate-200 rounded-lg\" />\n          <div className=\"h-64 bg-slate-200 rounded-lg\" />\n        </div>\n      </div>\n    </div>\n  )\n}\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAI,WAAU;;8BACb,8OAAC;oBAAI,WAAU;;;;;;8BACf,8OAAC;oBAAI,WAAU;;;;;;8BACf,8OAAC;oBAAI,WAAU;;sCACb,8OAAC;4BAAI,WAAU;;;;;;sCACf,8OAAC;4BAAI,WAAU;;;;;;;;;;;;;;;;;;;;;;;AAKzB"}}]
-}
