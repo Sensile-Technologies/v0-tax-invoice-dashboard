@@ -59,6 +59,8 @@ return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, _
 __turbopack_context__.s([
     "execute",
     ()=>execute,
+    "getClient",
+    ()=>getClient,
     "pool",
     ()=>pool,
     "query",
@@ -97,6 +99,9 @@ async function execute(text, params) {
     } finally{
         client.release();
     }
+}
+async function getClient() {
+    return await pool.connect();
 }
 ;
 __turbopack_async_result__();

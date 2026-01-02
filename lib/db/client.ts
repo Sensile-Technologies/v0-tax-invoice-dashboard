@@ -30,4 +30,8 @@ export async function execute(text: string, params?: any[]): Promise<number> {
   }
 }
 
+export async function getClient() {
+  return await pool.connect();
+}
+
 export { pool };
