@@ -17,25 +17,30 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
 
     let vendorId: string | null = null
+    let userBranchId: string | null = null
+    let userRole: string | null = null
     
     if (userId) {
       const userVendorResult = await pool.query(
-        `SELECT v.id as vendor_id FROM users u 
+        `SELECT v.id as vendor_id, 'vendor' as role FROM users u 
          JOIN vendors v ON v.email = u.email 
          WHERE u.id = $1`,
         [userId]
       )
       if (userVendorResult.rows.length > 0) {
         vendorId = userVendorResult.rows[0].vendor_id
+        userRole = 'vendor'
       } else {
         const staffResult = await pool.query(
-          `SELECT DISTINCT b.vendor_id FROM staff s
+          `SELECT s.branch_id, s.role, b.vendor_id FROM staff s
            JOIN branches b ON s.branch_id = b.id
            WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
           [userId]
         )
         if (staffResult.rows.length > 0) {
           vendorId = staffResult.rows[0].vendor_id
+          userBranchId = staffResult.rows[0].branch_id
+          userRole = staffResult.rows[0].role
         }
       }
     }
@@ -83,7 +88,12 @@ export async function GET(request: NextRequest) {
       query += ` AND b.vendor_id = $${params.length}`
     }
 
-    if (branchId) {
+    // Supervisors and managers can only see their own branch
+    if (userRole && ['supervisor', 'manager'].includes(userRole) && userBranchId) {
+      params.push(userBranchId)
+      query += ` AND s.branch_id = $${params.length}`
+    } else if (branchId) {
+      // Directors/vendors can filter by specific branch if requested
       params.push(branchId)
       query += ` AND s.branch_id = $${params.length}`
     }
