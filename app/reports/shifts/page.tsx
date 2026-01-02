@@ -112,6 +112,10 @@ export default function ShiftsReportPage() {
     
     const params = new URLSearchParams()
     params.append('user_id', user.id)
+    // Pass current branch_id to filter shifts to selected branch
+    if (user.branch_id) {
+      params.append('branch_id', user.branch_id)
+    }
     
     fetch(`/api/shifts/list?${params.toString()}`)
       .then(response => response.json())
@@ -144,8 +148,15 @@ export default function ShiftsReportPage() {
   async function fetchShifts(uid: string, fromDate?: string, toDate?: string) {
     setLoading(true)
     try {
+      const userStr = localStorage.getItem("user")
+      const user = userStr ? JSON.parse(userStr) : null
+      
       const params = new URLSearchParams()
       params.append('user_id', uid)
+      // Pass current branch_id to filter shifts to selected branch
+      if (user?.branch_id) {
+        params.append('branch_id', user.branch_id)
+      }
       if (fromDate) params.append('date_from', fromDate)
       if (toDate) params.append('date_to', toDate)
 

@@ -88,12 +88,12 @@ export async function GET(request: NextRequest) {
       query += ` AND b.vendor_id = $${params.length}`
     }
 
-    // Supervisors and managers can only see their own branch
+    // Supervisors and managers can only see their own branch (overrides any branchId param)
     if (userRole && ['supervisor', 'manager'].includes(userRole) && userBranchId) {
       params.push(userBranchId)
       query += ` AND s.branch_id = $${params.length}`
     } else if (branchId) {
-      // Directors/vendors can filter by specific branch if requested
+      // Filter by specific branch when provided (for all users viewing a specific branch)
       params.push(branchId)
       query += ` AND s.branch_id = $${params.length}`
     }
