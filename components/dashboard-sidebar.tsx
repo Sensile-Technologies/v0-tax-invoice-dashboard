@@ -228,9 +228,6 @@ export function DashboardSidebar({
                       <Link href="/reports/shifts" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         Shift Reports
                       </Link>
-                      <Link href="/reports/nozzle-sales" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Nozzle Sales Report
-                      </Link>
                       <Link href="/reports/x-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
                         X Report
                       </Link>
