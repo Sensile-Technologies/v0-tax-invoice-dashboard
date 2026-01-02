@@ -658,21 +658,6 @@ export function SalesSummaryContent() {
           </DropdownMenu>
           <Button 
             onClick={() => {
-              console.log("[Record Sale] Button clicked, currentShift:", currentShift)
-              if (currentShift) {
-                setShowSaleDialog(true)
-              } else {
-                toast.error("Please start a shift before recording sales")
-              }
-            }} 
-            disabled={!currentShift}
-            className={!currentShift ? "opacity-50 cursor-not-allowed" : ""}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Record Sale
-          </Button>
-          <Button 
-            onClick={() => {
               setInvoiceError(null)
               setShowInvoiceDialog(true)
             }}
