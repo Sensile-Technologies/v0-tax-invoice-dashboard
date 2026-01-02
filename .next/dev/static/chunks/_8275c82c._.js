@@ -1234,7 +1234,7 @@ function ShiftsReportPage() {
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                    className: "text-2xl font-bold font-mono text-blue-600",
+                                                                    className: "text-2xl font-bold",
                                                                     children: summary.totalMeterDiff.toLocaleString(undefined, {
                                                                         minimumFractionDigits: 2,
                                                                         maximumFractionDigits: 2
@@ -1514,7 +1514,7 @@ function ShiftsReportPage() {
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                                className: "py-3 px-4 text-right font-mono font-semibold text-blue-600",
+                                                                                className: "py-3 px-4 text-right font-mono",
                                                                                 children: ((shift.total_closing_reading || 0) - (shift.total_opening_reading || 0)).toLocaleString(undefined, {
                                                                                     minimumFractionDigits: 2,
                                                                                     maximumFractionDigits: 2

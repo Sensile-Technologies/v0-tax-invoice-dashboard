@@ -179,11 +179,12 @@ async function getDailyNozzleReport(branchId: string, date: string, vendorId: st
 
   if (shiftIds.length === 0) {
     const nozzlesQuery = `
-      SELECT id, nozzle_number, fuel_type, initial_meter_reading,
-        COALESCE((SELECT name FROM dispensers WHERE id = nozzles.dispenser_id), 'Nozzle ' || nozzle_number) as nozzle_name
-      FROM nozzles
-      WHERE branch_id = $1 AND status = 'active'
-      ORDER BY nozzle_number
+      SELECT n.id, n.nozzle_number, n.fuel_type, n.initial_meter_reading,
+        'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
+      FROM nozzles n
+      LEFT JOIN dispensers d ON n.dispenser_id = d.id
+      WHERE n.branch_id = $1 AND n.status = 'active'
+      ORDER BY n.nozzle_number
     `
     const nozzlesResult = await pool.query(nozzlesQuery, [branchId])
     

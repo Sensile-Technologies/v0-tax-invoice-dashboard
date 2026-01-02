@@ -419,7 +419,7 @@ export default function ShiftsReportPage() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-600">Total Volume (L)</p>
-                      <p className="text-2xl font-bold font-mono text-blue-600">
+                      <p className="text-2xl font-bold">
                         {summary.totalMeterDiff.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
                     </div>
@@ -490,7 +490,7 @@ export default function ShiftsReportPage() {
                               <td className="py-3 px-4">{shift.cashier}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.end_time)}</td>
-                              <td className="py-3 px-4 text-right font-mono font-semibold text-blue-600">
+                              <td className="py-3 px-4 text-right font-mono">
                                 {((shift.total_closing_reading || 0) - (shift.total_opening_reading || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                               </td>
                               <td className="py-3 px-4 text-right font-semibold">{formatCurrency(shift.total_sales)}</td>
