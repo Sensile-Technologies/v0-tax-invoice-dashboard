@@ -247,16 +247,18 @@ export async function POST(request: Request) {
       console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
       
       // For loyalty customers, look up their KRA PIN from the customers table if not provided
-      let effectiveCustomerPin = kra_pin || ''
-      let effectiveCustomerName = customer_name || 'Walk-in Customer'
+      // Priority: kra_pin (from request) -> loyalty_customer_pin (explicit field) -> DB lookup
+      let effectiveCustomerPin = kra_pin || loyalty_customer_pin || ''
+      let effectiveCustomerName = loyalty_customer_name || customer_name || 'Walk-in Customer'
       
-      if (is_loyalty_customer && !effectiveCustomerPin && customer_name) {
+      if (is_loyalty_customer && !effectiveCustomerPin && (loyalty_customer_name || customer_name)) {
+        const lookupName = loyalty_customer_name || customer_name
         const loyaltyCustomerLookup = await client.query(
           `SELECT c.cust_tin, c.cust_nm FROM customers c
            INNER JOIN customer_branches cb ON c.id = cb.customer_id
            WHERE cb.branch_id = $1 AND cb.status = 'active' AND c.cust_nm = $2
            LIMIT 1`,
-          [branch_id, customer_name]
+          [branch_id, lookupName]
         )
         if (loyaltyCustomerLookup.rows.length > 0) {
           effectiveCustomerPin = loyaltyCustomerLookup.rows[0].cust_tin || ''
