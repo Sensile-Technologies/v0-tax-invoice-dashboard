@@ -85,7 +85,9 @@ export default function DailySalesReportPage() {
         const categoryMap = new Map<string, SaleCategory>()
         
         result.sales.forEach((sale: any) => {
-          const category = sale.fuel_type || sale.item_name || "Other"
+          const baseFuelType = sale.fuel_type || sale.item_name || "Other"
+          const isBulkSale = sale.is_automated === true || sale.source_system === 'meter_diff_bulk' || sale.source_system === 'PTS'
+          const category = isBulkSale ? `${baseFuelType} (Bulk)` : `${baseFuelType} (Invoiced)`
           const existing = categoryMap.get(category) || { category, quantity: 0, amount: 0, tax: 0 }
           
           existing.quantity += parseFloat(sale.quantity) || 1

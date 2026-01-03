@@ -1346,7 +1346,7 @@ async function GET(request) {
 async function POST(request) {
     try {
         const body = await request.json();
-        const { branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, total_amount, payment_method, customer_name, vehicle_number, customer_pin, invoice_number, meter_reading_after, transmission_status, receipt_number, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, sync_to_kra = true, deduct_from_tank = true } = body;
+        const { branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, total_amount, payment_method, customer_name, vehicle_number, customer_pin, invoice_number, meter_reading_after, transmission_status, receipt_number, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, staff_id, sync_to_kra = true, deduct_from_tank = true } = body;
         if (!branch_id || !nozzle_id || !fuel_type) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Missing required fields"
@@ -1358,8 +1358,8 @@ async function POST(request) {
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, vehicle_number, customer_pin,
         invoice_number, meter_reading_after, transmission_status, receipt_number,
-        is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, sale_date, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW(), NOW())
+        is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, staff_id, sale_date, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW(), NOW())
       RETURNING *`, [
             branch_id,
             shift_id,
@@ -1378,7 +1378,8 @@ async function POST(request) {
             receipt_number,
             is_loyalty_sale || false,
             loyalty_customer_name,
-            loyalty_customer_pin
+            loyalty_customer_pin,
+            staff_id || null
         ]);
         const sale = result[0];
         let kraResult = null;
