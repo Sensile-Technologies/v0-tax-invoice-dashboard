@@ -23,16 +23,13 @@ export async function POST(request: Request) {
                 b.phone as branch_phone,
                 n.nozzle_number, d.dispenser_number,
                 i.item_name, i.item_code,
-                c.name as loyalty_customer_name, c.pin as loyalty_customer_pin,
-                COALESCE(u.full_name, st.full_name) as served_by_name
+                st.full_name as served_by_name
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
          LEFT JOIN items i ON UPPER(s.fuel_type) = UPPER(i.item_name) AND i.branch_id = s.branch_id
-         LEFT JOIN customers c ON s.customer_id = c.id
-         LEFT JOIN users u ON s.user_id = u.id
-         LEFT JOIN staff st ON s.user_id = st.user_id
+         LEFT JOIN staff st ON s.staff_id = st.id
          WHERE s.id = $1`,
         [sale_id]
       )
@@ -111,13 +108,14 @@ export async function POST(request: Request) {
 
       doc.setFontSize(7)
       doc.setFont("helvetica", "normal")
+      // Use loyalty customer fields first (stored directly in sales table), then fall back to customer_pin/name
       const buyerPin = sale.loyalty_customer_pin || sale.customer_pin || "NOT PROVIDED"
       const buyerName = sale.loyalty_customer_name || sale.customer_name || "Walk-in Customer"
       doc.text(`Buyer PIN:`, leftMargin, y)
-      doc.text(buyerPin, leftMargin + 22, y)
+      doc.text(String(buyerPin), leftMargin + 22, y)
       y += 3
       doc.text(`Buyer Name:`, leftMargin, y)
-      doc.text(buyerName, leftMargin + 22, y)
+      doc.text(String(buyerName), leftMargin + 22, y)
       y += 4
 
       drawLine()
