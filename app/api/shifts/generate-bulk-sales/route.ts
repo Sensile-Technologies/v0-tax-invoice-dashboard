@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { Pool } from "pg"
+import { callKraSaveSales } from "@/lib/kra-sales-api"
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
@@ -173,17 +174,83 @@ export async function POST(request: NextRequest) {
         salesCreated.push({
           id: insertResult.rows[0].id,
           invoice_number: insertResult.rows[0].invoice_number,
+          receipt_number: receiptNumber,
           fuel_type: reading.fuel_type,
           quantity: quantity,
           unit_price: unitPrice,
-          total_amount: invoiceAmount
+          total_amount: invoiceAmount,
+          branch_id: shift.branch_id
         })
 
         invoiceIndex++
       }
     }
 
+    // Commit the transaction FIRST before submitting to KRA
+    // This ensures database records exist before external API calls
     await client.query('COMMIT')
+
+    // Now submit to KRA outside the transaction
+    for (const sale of salesCreated) {
+      try {
+        const kraResult = await callKraSaveSales({
+          branch_id: sale.branch_id,
+          invoice_number: sale.invoice_number,
+          receipt_number: sale.receipt_number,
+          fuel_type: sale.fuel_type,
+          quantity: sale.quantity,
+          unit_price: sale.unit_price,
+          total_amount: sale.total_amount,
+          payment_method: 'cash',
+          customer_name: 'Walk-in Customer',
+          customer_pin: '',
+          sale_date: new Date().toISOString()
+        })
+
+        const kraData = kraResult.kraResponse?.data || {}
+        const kraStatus = kraResult.success ? 'success' : 'failed'
+        const transmissionStatus = kraResult.success ? 'transmitted' : 'failed'
+
+        await pool.query(
+          `UPDATE sales SET 
+            kra_status = $1,
+            kra_rcpt_sign = $2,
+            kra_scu_id = $3,
+            kra_cu_inv = $4,
+            kra_internal_data = $5,
+            transmission_status = $6,
+            updated_at = NOW()
+          WHERE id = $7`,
+          [
+            kraStatus,
+            kraData.rcptSign || null,
+            kraData.sdcId || null,
+            kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
+            kraData.intrlData || null,
+            transmissionStatus,
+            sale.id
+          ]
+        )
+
+        sale.kra_status = kraStatus
+        sale.transmission_status = transmissionStatus
+
+        console.log(`[BULK SALES] Invoice ${sale.invoice_number} - KRA ${kraResult.success ? 'SUCCESS' : 'FAILED'}`)
+      } catch (kraError: any) {
+        console.error(`[BULK SALES] KRA submission error for ${sale.invoice_number}:`, kraError.message)
+        await pool.query(
+          `UPDATE sales SET 
+            kra_status = 'failed',
+            kra_error = $1,
+            transmission_status = 'failed',
+            updated_at = NOW()
+          WHERE id = $2`,
+          [kraError.message || 'KRA submission error', sale.id]
+        )
+        sale.kra_status = 'failed'
+        sale.transmission_status = 'failed'
+      }
+    }
 
     const totalQuantity = salesCreated.reduce((sum, s) => sum + s.quantity, 0)
     const totalAmount = salesCreated.reduce((sum, s) => sum + s.total_amount, 0)

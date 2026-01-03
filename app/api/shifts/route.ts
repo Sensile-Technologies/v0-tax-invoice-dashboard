@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool, PoolClient } from "pg"
+import { callKraSaveSales } from "@/lib/kra-sales-api"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -29,6 +30,17 @@ function splitIntoAmountDenominations(totalAmount: number): number[] {
   return denominations
 }
 
+interface SaleForKra {
+  id: string
+  branch_id: string
+  invoice_number: string
+  receipt_number: string
+  fuel_type: string
+  quantity: number
+  unit_price: number
+  total_amount: number
+}
+
 async function generateBulkSalesFromMeterDiff(
   client: PoolClient,
   shiftId: string,
@@ -36,13 +48,14 @@ async function generateBulkSalesFromMeterDiff(
   staffId: string | null,
   branchName: string,
   nozzleReadings: Array<{ nozzle_id: string; opening_reading: number; closing_reading: number }>
-): Promise<{ invoicesCreated: number; totalVolume: number; totalAmount: number }> {
+): Promise<{ invoicesCreated: number; totalVolume: number; totalAmount: number; salesForKra: SaleForKra[] }> {
   
   const branchCode = branchName.substring(0, 3).toUpperCase().replace(/\s/g, '')
   let invoicesCreated = 0
   let totalVolume = 0
   let totalAmount = 0
   let invoiceIndex = 1
+  const salesForKra: SaleForKra[] = []
 
   for (const reading of nozzleReadings) {
     const openingReading = parseFloat(String(reading.opening_reading)) || 0
@@ -79,7 +92,7 @@ async function generateBulkSalesFromMeterDiff(
       const invoiceNumber = `BLK-${branchCode}-${timestamp}-${String(invoiceIndex).padStart(4, '0')}`
       const receiptNumber = `RCP-${timestamp}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
 
-      await client.query(
+      const saleResult = await client.query(
         `INSERT INTO sales (
           branch_id, shift_id, staff_id, nozzle_id,
           invoice_number, receipt_number, sale_date,
@@ -91,10 +104,21 @@ async function generateBulkSalesFromMeterDiff(
           $7, $8, $9, $10,
           'cash', true, 'meter_diff_bulk',
           'pending', NOW()
-        )`,
+        ) RETURNING id`,
         [branchId, shiftId, staffId, reading.nozzle_id, invoiceNumber, receiptNumber,
          fuel_type, parseFloat(quantity.toFixed(2)), unitPrice, invoiceAmount]
       )
+
+      salesForKra.push({
+        id: saleResult.rows[0]?.id,
+        branch_id: branchId,
+        invoice_number: invoiceNumber,
+        receipt_number: receiptNumber,
+        fuel_type,
+        quantity: parseFloat(quantity.toFixed(2)),
+        unit_price: unitPrice,
+        total_amount: invoiceAmount
+      })
 
       invoicesCreated++
       totalVolume += quantity
@@ -104,7 +128,7 @@ async function generateBulkSalesFromMeterDiff(
   }
 
   console.log(`[BULK SALES] Generated ${invoicesCreated} invoices, ${totalVolume.toFixed(2)}L, KES ${totalAmount}`)
-  return { invoicesCreated, totalVolume, totalAmount }
+  return { invoicesCreated, totalVolume, totalAmount, salesForKra }
 }
 
 export async function POST(request: NextRequest) {
@@ -308,7 +332,7 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
-    let bulkSalesResult = { invoicesCreated: 0, totalVolume: 0, totalAmount: 0 }
+    let bulkSalesResult = { invoicesCreated: 0, totalVolume: 0, totalAmount: 0, salesForKra: [] as SaleForKra[] }
     if (savedNozzleReadings.length > 0) {
       bulkSalesResult = await generateBulkSalesFromMeterDiff(
         client, id, branchId, staffId, branchName, savedNozzleReadings
@@ -351,6 +375,67 @@ export async function PATCH(request: NextRequest) {
     const newShift = newShiftResult.rows[0]
 
     await client.query('COMMIT')
+
+    // Submit bulk sales to KRA AFTER the transaction is committed
+    // This ensures database records exist before external API calls
+    if (bulkSalesResult.salesForKra.length > 0) {
+      console.log(`[BULK SALES] Submitting ${bulkSalesResult.salesForKra.length} sales to KRA...`)
+      for (const sale of bulkSalesResult.salesForKra) {
+        try {
+          const kraResult = await callKraSaveSales({
+            branch_id: sale.branch_id,
+            invoice_number: sale.invoice_number,
+            receipt_number: sale.receipt_number,
+            fuel_type: sale.fuel_type,
+            quantity: sale.quantity,
+            unit_price: sale.unit_price,
+            total_amount: sale.total_amount,
+            payment_method: 'cash',
+            customer_name: 'Walk-in Customer',
+            customer_pin: '',
+            sale_date: new Date().toISOString()
+          })
+
+          const kraData = kraResult.kraResponse?.data || {}
+          const kraStatus = kraResult.success ? 'success' : 'failed'
+          const transmissionStatus = kraResult.success ? 'transmitted' : 'failed'
+
+          await pool.query(
+            `UPDATE sales SET 
+              kra_status = $1,
+              kra_rcpt_sign = $2,
+              kra_scu_id = $3,
+              kra_cu_inv = $4,
+              kra_internal_data = $5,
+              transmission_status = $6,
+              updated_at = NOW()
+            WHERE id = $7`,
+            [
+              kraStatus,
+              kraData.rcptSign || null,
+              kraData.sdcId || null,
+              kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
+              kraData.intrlData || null,
+              transmissionStatus,
+              sale.id
+            ]
+          )
+
+          console.log(`[BULK SALES] Invoice ${sale.invoice_number} - KRA ${kraResult.success ? 'SUCCESS' : 'FAILED'}`)
+        } catch (kraError: any) {
+          console.error(`[BULK SALES] KRA submission error for ${sale.invoice_number}:`, kraError.message)
+          await pool.query(
+            `UPDATE sales SET 
+              kra_status = 'failed',
+              kra_error = $1,
+              transmission_status = 'failed',
+              updated_at = NOW()
+            WHERE id = $2`,
+            [kraError.message || 'KRA submission error', sale.id]
+          )
+        }
+      }
+    }
 
     return NextResponse.json({
       success: true,
