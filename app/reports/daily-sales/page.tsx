@@ -67,57 +67,103 @@ export default function DailySalesReportPage() {
     try {
       setLoading(true)
       const storedBranch = localStorage.getItem("selectedBranch")
+      const userStr = localStorage.getItem("user")
       let branchId = ""
+      let userId = ""
       
       if (storedBranch) {
         const branch = JSON.parse(storedBranch)
         branchId = branch.id
+      }
+      if (userStr) {
+        const user = JSON.parse(userStr)
+        userId = user.id
       }
 
       const params = new URLSearchParams()
       if (branchId) params.append("branch_id", branchId)
       params.append("date", selectedDate)
 
-      const response = await fetch(`/api/sales?${params.toString()}`)
-      const result = await response.json()
+      const nozzleParams = new URLSearchParams()
+      if (branchId) nozzleParams.append("branch_id", branchId)
+      nozzleParams.append("date", selectedDate)
+      if (userId) nozzleParams.append("user_id", userId)
 
-      if (result.success && result.sales) {
-        const categoryMap = new Map<string, SaleCategory>()
-        
-        result.sales.forEach((sale: any) => {
+      const [salesResponse, nozzleResponse] = await Promise.all([
+        fetch(`/api/sales?${params.toString()}`),
+        fetch(`/api/shifts/nozzle-report?${nozzleParams.toString()}`)
+      ])
+
+      const salesResult = await salesResponse.json()
+      const nozzleResult = await nozzleResponse.json()
+
+      const categoryMap = new Map<string, SaleCategory>()
+
+      if (salesResult.success && salesResult.sales) {
+        salesResult.sales.forEach((sale: any) => {
           const rawFuelType = sale.fuel_type || sale.item_name || "Other"
           const baseFuelType = rawFuelType.charAt(0).toUpperCase() + rawFuelType.slice(1).toLowerCase()
-          const isBulkSale = sale.is_automated === true || sale.source_system === 'meter_diff_bulk' || sale.source_system === 'PTS'
-          const category = isBulkSale ? `${baseFuelType} (Bulk)` : `${baseFuelType} (Invoiced)`
+          const category = `${baseFuelType} (Invoiced)`
           const existing = categoryMap.get(category) || { category, quantity: 0, amount: 0, tax: 0 }
           
-          existing.quantity += parseFloat(sale.quantity) || 1
+          existing.quantity += parseFloat(sale.quantity) || 0
           existing.amount += parseFloat(sale.total_amount) || 0
           existing.tax += parseFloat(sale.tax_amount) || (parseFloat(sale.total_amount) * 0.16) || 0
           
           categoryMap.set(category, existing)
         })
-
-        const categories = Array.from(categoryMap.values())
-        setSalesData(categories)
-
-        const totalAmount = categories.reduce((sum, item) => sum + item.amount, 0)
-        const totalTax = categories.reduce((sum, item) => sum + item.tax, 0)
-        const totalQuantity = categories.reduce((sum, item) => sum + item.quantity, 0)
-
-        setTotals({
-          total_sales: totalAmount,
-          total_tax: totalTax,
-          total_quantity: totalQuantity,
-          net_sales: totalAmount - totalTax,
-        })
-      } else {
-        setSalesData([])
-        setTotals({ total_sales: 0, total_tax: 0, total_quantity: 0, net_sales: 0 })
       }
+
+      if (nozzleResult.success && nozzleResult.data?.nozzles) {
+        const bulkByFuelType = new Map<string, { quantity: number, amount: number }>()
+        
+        nozzleResult.data.nozzles.forEach((nozzle: any) => {
+          const rawFuelType = nozzle.fuel_type || "Other"
+          const baseFuelType = rawFuelType.charAt(0).toUpperCase() + rawFuelType.slice(1).toLowerCase()
+          const meterDiff = parseFloat(nozzle.meter_difference) || 0
+          const invoicedQty = parseFloat(nozzle.invoiced_quantity) || 0
+          const bulkQty = Math.max(0, meterDiff - invoicedQty)
+          
+          if (bulkQty > 0) {
+            const existing = bulkByFuelType.get(baseFuelType) || { quantity: 0, amount: 0 }
+            const unitPrice = invoicedQty > 0 && nozzle.invoiced_amount > 0 
+              ? parseFloat(nozzle.invoiced_amount) / invoicedQty 
+              : 180
+            existing.quantity += bulkQty
+            existing.amount += bulkQty * unitPrice
+            bulkByFuelType.set(baseFuelType, existing)
+          }
+        })
+
+        bulkByFuelType.forEach((data, fuelType) => {
+          const category = `${fuelType} (Bulk)`
+          const tax = data.amount * 0.16
+          categoryMap.set(category, {
+            category,
+            quantity: data.quantity,
+            amount: data.amount,
+            tax: tax
+          })
+        })
+      }
+
+      const categories = Array.from(categoryMap.values())
+      setSalesData(categories)
+
+      const totalAmount = categories.reduce((sum, item) => sum + item.amount, 0)
+      const totalTax = categories.reduce((sum, item) => sum + item.tax, 0)
+      const totalQuantity = categories.reduce((sum, item) => sum + item.quantity, 0)
+
+      setTotals({
+        total_sales: totalAmount,
+        total_tax: totalTax,
+        total_quantity: totalQuantity,
+        net_sales: totalAmount - totalTax,
+      })
     } catch (error) {
       console.error("Error fetching daily sales:", error)
       setSalesData([])
+      setTotals({ total_sales: 0, total_tax: 0, total_quantity: 0, net_sales: 0 })
     } finally {
       setLoading(false)
     }

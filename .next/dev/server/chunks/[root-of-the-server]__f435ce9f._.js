@@ -174,6 +174,7 @@ async function getShiftNozzleReport(shiftId, vendorId) {
       SUM(total_amount) as invoiced_amount
     FROM sales
     WHERE shift_id = $1 AND nozzle_id IS NOT NULL
+      AND (source_system IS NULL OR source_system NOT IN ('meter_diff_bulk', 'PTS'))
     GROUP BY nozzle_id
   `;
     const invoicedResult = await pool.query(invoicedSalesQuery, [
@@ -317,6 +318,7 @@ async function getDailyNozzleReport(branchId, date, vendorId) {
       SUM(total_amount) as invoiced_amount
     FROM sales
     WHERE shift_id = ANY($1) AND nozzle_id IS NOT NULL
+      AND (source_system IS NULL OR source_system NOT IN ('meter_diff_bulk', 'PTS'))
     GROUP BY nozzle_id
   `;
     const invoicedResult = await pool.query(invoicedSalesQuery, [
