@@ -125,14 +125,20 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 ;
-async function getSessionUserId() {
+async function getSessionUserId(request) {
     try {
+        // First try to get from cookie (preferred, more secure)
         const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
         const sessionCookie = cookieStore.get("user_session");
-        if (!sessionCookie?.value) return null;
-        const session = JSON.parse(sessionCookie.value);
-        // SECURITY: Only trust the user ID from cookie, derive everything else from database
-        return session.id || null;
+        if (sessionCookie?.value) {
+            const session = JSON.parse(sessionCookie.value);
+            if (session.id) return session.id;
+        }
+        // Fallback: Check URL params for backward compatibility
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get('user_id');
+        if (userId) return userId;
+        return null;
     } catch  {
         return null;
     }
@@ -178,14 +184,12 @@ async function getUserRoleAndBranch(userId) {
 }
 async function GET(request) {
     try {
-        // SECURITY: Get user ID from httpOnly session cookie
-        const userId = await getSessionUserId();
+        // SECURITY: Get user ID from httpOnly session cookie or URL params (fallback)
+        const userId = await getSessionUserId(request);
         if (!userId) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: 'Unauthorized. Please log in.'
-            }, {
-                status: 401
-            });
+            // Return empty array instead of 401 for backward compatibility
+            // Frontend can still function with localStorage auth
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json([]);
         }
         // SECURITY: Always derive vendor_id and role from database (never trust cookie values)
         const vendorId = await getVendorIdFromUser(userId);

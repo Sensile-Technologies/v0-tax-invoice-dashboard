@@ -12,18 +12,19 @@ export async function GET() {
     const sessionCookie = cookieStore.get("user_session")
 
     if (!sessionCookie) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
+      // Return 200 with success: false for graceful handling by frontend
+      return NextResponse.json({ success: false, authenticated: false })
     }
 
     let sessionData
     try {
       sessionData = JSON.parse(sessionCookie.value)
     } catch {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 })
+      return NextResponse.json({ success: false, authenticated: false })
     }
 
     if (!sessionData.id) {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 })
+      return NextResponse.json({ success: false, authenticated: false })
     }
 
     // SECURITY: Fetch role and details from database (don't trust cookie values)

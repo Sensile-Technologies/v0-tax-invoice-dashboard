@@ -78,10 +78,10 @@ async function GET() {
         const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
         const sessionCookie = cookieStore.get("user_session");
         if (!sessionCookie) {
+            // Return 200 with success: false for graceful handling by frontend
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Not authenticated"
-            }, {
-                status: 401
+                success: false,
+                authenticated: false
             });
         }
         let sessionData;
@@ -89,16 +89,14 @@ async function GET() {
             sessionData = JSON.parse(sessionCookie.value);
         } catch  {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Invalid session"
-            }, {
-                status: 401
+                success: false,
+                authenticated: false
             });
         }
         if (!sessionData.id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Invalid session"
-            }, {
-                status: 401
+                success: false,
+                authenticated: false
             });
         }
         // SECURITY: Fetch role and details from database (don't trust cookie values)

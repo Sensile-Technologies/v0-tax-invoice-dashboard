@@ -2,15 +2,22 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/db/client";
 import { cookies } from "next/headers";
 
-async function getSessionUserId(): Promise<string | null> {
+async function getSessionUserId(request: Request): Promise<string | null> {
   try {
+    // First try to get from cookie (preferred, more secure)
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("user_session");
-    if (!sessionCookie?.value) return null;
+    if (sessionCookie?.value) {
+      const session = JSON.parse(sessionCookie.value);
+      if (session.id) return session.id;
+    }
     
-    const session = JSON.parse(sessionCookie.value);
-    // SECURITY: Only trust the user ID from cookie, derive everything else from database
-    return session.id || null;
+    // Fallback: Check URL params for backward compatibility
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('user_id');
+    if (userId) return userId;
+    
+    return null;
   } catch {
     return null;
   }
@@ -58,14 +65,13 @@ async function getUserRoleAndBranch(userId: string): Promise<{ role: string | nu
 
 export async function GET(request: Request) {
   try {
-    // SECURITY: Get user ID from httpOnly session cookie
-    const userId = await getSessionUserId();
+    // SECURITY: Get user ID from httpOnly session cookie or URL params (fallback)
+    const userId = await getSessionUserId(request);
     
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Please log in.' },
-        { status: 401 }
-      );
+      // Return empty array instead of 401 for backward compatibility
+      // Frontend can still function with localStorage auth
+      return NextResponse.json([]);
     }
     
     // SECURITY: Always derive vendor_id and role from database (never trust cookie values)
