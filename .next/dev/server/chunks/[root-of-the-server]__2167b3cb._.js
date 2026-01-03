@@ -148,15 +148,21 @@ async function GET(request) {
             query += ` AND b.vendor_id = $${params.length}`;
         }
         // Supervisors and managers can only see their own branch (overrides any branchId param)
-        if (userRole && [
+        const roleLower = userRole?.toLowerCase() || '';
+        if ([
             'supervisor',
             'manager'
-        ].includes(userRole) && userBranchId) {
+        ].includes(roleLower) && userBranchId) {
+            // For restricted roles, ALWAYS use their assigned branch, ignore client-provided branch_id
             params.push(userBranchId);
             query += ` AND s.branch_id = $${params.length}`;
         } else if (branchId) {
-            // Filter by specific branch when provided (for all users viewing a specific branch)
+            // For directors/vendors, allow filtering by specific branch
             params.push(branchId);
+            query += ` AND s.branch_id = $${params.length}`;
+        } else if (userBranchId) {
+            // Fallback: use user's assigned branch if no branch_id provided
+            params.push(userBranchId);
             query += ` AND s.branch_id = $${params.length}`;
         }
         if (dateFrom) {

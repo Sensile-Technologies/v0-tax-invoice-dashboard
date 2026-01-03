@@ -106,18 +106,40 @@ export default function ShiftsReportPage() {
 
 
   useEffect(() => {
-    const userStr = localStorage.getItem("user")
-    
-    if (!userStr) {
+    async function loadUserAndShifts() {
+      // Try localStorage first (backward compatibility)
+      const userStr = localStorage.getItem("user")
+      
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr)
+          setUserId(user.id)
+          fetchShifts(user.id, '', '', 0)
+          return
+        } catch (e) {
+          console.error('[ShiftsReport] Error parsing localStorage user:', e)
+        }
+      }
+      
+      // Fall back to cookie-based session
+      try {
+        const sessionRes = await fetch('/api/auth/session')
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json()
+          if (sessionData.user?.id) {
+            setUserId(sessionData.user.id)
+            fetchShifts(sessionData.user.id, '', '', 0)
+            return
+          }
+        }
+      } catch (e) {
+        console.error('[ShiftsReport] Error fetching session:', e)
+      }
+      
       setLoading(false)
-      return
     }
     
-    const user = JSON.parse(userStr)
-    setUserId(user.id)
-    
-    // Load latest shifts by default (no date filter required)
-    fetchShifts(user.id, '', '', 0)
+    loadUserAndShifts()
   }, [])
 
   useEffect(() => {
@@ -131,17 +153,33 @@ export default function ShiftsReportPage() {
   async function fetchShifts(uid: string, fromDate?: string, toDate?: string, page: number = 0) {
     setLoading(true)
     try {
-      const userStr = localStorage.getItem("user")
-      const user = userStr ? JSON.parse(userStr) : null
-      
       const params = new URLSearchParams()
       params.append('user_id', uid)
       params.append('limit', PAGE_SIZE.toString())
       params.append('offset', (page * PAGE_SIZE).toString())
       
-      // Pass current branch_id to filter shifts to selected branch
-      if (user?.branch_id) {
-        params.append('branch_id', user.branch_id)
+      // Try to get branch_id from localStorage first, then from session
+      let branchId: string | null = null
+      const userStr = localStorage.getItem("user")
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr)
+          branchId = user.branch_id
+        } catch (e) {}
+      }
+      
+      if (!branchId) {
+        try {
+          const sessionRes = await fetch('/api/auth/session')
+          if (sessionRes.ok) {
+            const sessionData = await sessionRes.json()
+            branchId = sessionData.user?.branch_id
+          }
+        } catch (e) {}
+      }
+      
+      if (branchId) {
+        params.append('branch_id', branchId)
       }
       if (fromDate) params.append('date_from', fromDate)
       if (toDate) params.append('date_to', toDate)
