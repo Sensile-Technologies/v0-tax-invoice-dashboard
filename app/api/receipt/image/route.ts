@@ -52,7 +52,7 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
     : (sanitizeText(sale.loyalty_customer_name) || sanitizeText(sale.customer_name) || 'Walk-in Customer');
   const itemCode = sanitizeText(sale.item_code) || sanitizeText(sale.fuel_type) || 'N/A';
   const itemName = sanitizeText(sale.item_name) || sanitizeText(sale.fuel_type) || 'Fuel';
-  const cashierName = sanitizeText(sale.cashier_name) || 'System';
+  const cashierName = sanitizeText(sale.cashier_name) || sanitizeText(sale.served_by_name) || 'Attendant';
   const paymentMethod = sanitizeText(sale.payment_method) || 'Cash';
   const kraSscuId = sanitizeText(sale.kra_scu_id) || 'N/A';
   const kraCuInv = sanitizeText(sale.kra_cu_inv) || 'N/A';
