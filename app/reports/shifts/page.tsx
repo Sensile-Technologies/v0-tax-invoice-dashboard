@@ -9,7 +9,7 @@ const DashboardHeader = dynamic(() => import("@/components/dashboard-header"), {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, RefreshCw, Clock, AlertCircle, StopCircle, Loader2, Fuel, ChevronDown, ChevronUp, Eye } from "lucide-react"
+import { Download, Printer, RefreshCw, Clock, AlertCircle, StopCircle, Loader2, Fuel, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Eye } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
@@ -86,6 +86,12 @@ export default function ShiftsReportPage() {
     averagePerShift: 0,
     totalMeterDiff: 0
   })
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalShiftsCount, setTotalShiftsCount] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
+  const PAGE_SIZE = 20
 
   const [endShiftDialogOpen, setEndShiftDialogOpen] = useState(false)
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null)
@@ -110,42 +116,19 @@ export default function ShiftsReportPage() {
     const user = JSON.parse(userStr)
     setUserId(user.id)
     
-    const params = new URLSearchParams()
-    params.append('user_id', user.id)
-    // Pass current branch_id to filter shifts to selected branch
-    if (user.branch_id) {
-      params.append('branch_id', user.branch_id)
-    }
-    
-    fetch(`/api/shifts/list?${params.toString()}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          setShifts(data.data || [])
-          const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
-          const totalMeterDiff = data.data.reduce((sum: number, s: Shift) => sum + ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)), 0)
-          setSummary({
-            totalShifts: data.data.length,
-            totalSales,
-            averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
-            totalMeterDiff
-          })
-        }
-        setLoading(false)
-      })
-      .catch(e => {
-        console.error('[ShiftsReport] Error loading shifts:', e)
-        setLoading(false)
-      })
+    // Load latest shifts by default (no date filter required)
+    fetchShifts(user.id, '', '', 0)
   }, [])
 
   useEffect(() => {
-    if (userId && (dateFrom || dateTo)) {
-      fetchShifts(userId, dateFrom, dateTo)
+    // Re-fetch when date filters change
+    if (userId) {
+      setCurrentPage(0)
+      fetchShifts(userId, dateFrom, dateTo, 0)
     }
-  }, [userId, dateFrom, dateTo])
+  }, [dateFrom, dateTo])
 
-  async function fetchShifts(uid: string, fromDate?: string, toDate?: string) {
+  async function fetchShifts(uid: string, fromDate?: string, toDate?: string, page: number = 0) {
     setLoading(true)
     try {
       const userStr = localStorage.getItem("user")
@@ -153,6 +136,9 @@ export default function ShiftsReportPage() {
       
       const params = new URLSearchParams()
       params.append('user_id', uid)
+      params.append('limit', PAGE_SIZE.toString())
+      params.append('offset', (page * PAGE_SIZE).toString())
+      
       // Pass current branch_id to filter shifts to selected branch
       if (user?.branch_id) {
         params.append('branch_id', user.branch_id)
@@ -165,11 +151,13 @@ export default function ShiftsReportPage() {
       
       if (data.success) {
         setShifts(data.data || [])
+        setTotalShiftsCount(data.pagination?.total || 0)
+        setHasMore(data.pagination?.hasMore || false)
         
         const totalSales = data.data.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
         const totalMeterDiff = data.data.reduce((sum: number, s: Shift) => sum + ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)), 0)
         setSummary({
-          totalShifts: data.data.length,
+          totalShifts: data.pagination?.total || data.data.length,
           totalSales,
           averagePerShift: data.data.length > 0 ? totalSales / data.data.length : 0,
           totalMeterDiff
@@ -182,6 +170,22 @@ export default function ShiftsReportPage() {
       toast.error('Failed to fetch shifts')
     } finally {
       setLoading(false)
+    }
+  }
+  
+  function handlePreviousPage() {
+    if (currentPage > 0 && userId) {
+      const newPage = currentPage - 1
+      setCurrentPage(newPage)
+      fetchShifts(userId, dateFrom, dateTo, newPage)
+    }
+  }
+  
+  function handleNextPage() {
+    if (hasMore && userId) {
+      const newPage = currentPage + 1
+      setCurrentPage(newPage)
+      fetchShifts(userId, dateFrom, dateTo, newPage)
     }
   }
 
@@ -381,31 +385,38 @@ export default function ShiftsReportPage() {
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span className="text-slate-600 font-medium">Filter by date:</span>
-                    <Input
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                      className="w-40 rounded-xl"
-                      placeholder="From"
-                    />
-                    <span className="text-slate-600">to</span>
-                    <Input
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                      className="w-40 rounded-xl"
-                      placeholder="To"
-                    />
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => { setDateFrom(''); setDateTo(''); if (userId) fetchShifts(userId, '', ''); }}
-                      className="rounded-xl"
-                    >
-                      Clear
-                    </Button>
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span className="text-slate-500 text-sm">Filter (optional):</span>
+                      <Input
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        className="w-36 rounded-xl text-sm"
+                        placeholder="From"
+                      />
+                      <span className="text-slate-400">to</span>
+                      <Input
+                        type="date"
+                        value={dateTo}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        className="w-36 rounded-xl text-sm"
+                        placeholder="To"
+                      />
+                      {(dateFrom || dateTo) && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => { setDateFrom(''); setDateTo(''); }}
+                          className="rounded-xl text-slate-500"
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                    <div className="text-sm text-slate-500">
+                      Showing {shifts.length} of {totalShiftsCount} shifts
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -417,8 +428,8 @@ export default function ShiftsReportPage() {
                   ) : shifts.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                       <Clock className="h-12 w-12 mb-4 text-slate-300" />
-                      <p className="text-lg font-medium">No shifts found</p>
-                      <p className="text-sm">Try adjusting your filters or date range</p>
+                      <p className="text-lg font-medium">No shifts recorded yet</p>
+                      <p className="text-sm">Shifts will appear here when cashiers start and end their shifts via the mobile app</p>
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
@@ -475,6 +486,33 @@ export default function ShiftsReportPage() {
                           ))}
                         </tbody>
                       </table>
+                      
+                      {/* Pagination Controls */}
+                      <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handlePreviousPage}
+                          disabled={currentPage === 0 || loading}
+                          className="rounded-xl"
+                        >
+                          <ChevronLeft className="h-4 w-4 mr-1" />
+                          Previous
+                        </Button>
+                        <span className="text-sm text-slate-500">
+                          Page {currentPage + 1} of {Math.max(1, Math.ceil(totalShiftsCount / PAGE_SIZE))}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleNextPage}
+                          disabled={!hasMore || loading}
+                          className="rounded-xl"
+                        >
+                          Next
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </CardContent>

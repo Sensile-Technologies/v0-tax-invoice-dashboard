@@ -2,17 +2,17 @@
   "[project]/components/dashboard-header.tsx [app-client] (ecmascript, next/dynamic entry)": {
     "id": "[project]/components/dashboard-header.tsx [app-client] (ecmascript, next/dynamic entry)",
     "files": [
-      "static/chunks/node_modules_daf3b006._.js",
+      "static/chunks/node_modules_ef8e29f0._.js",
       "static/chunks/_f0e6a39d._.js",
-      "static/chunks/components_dashboard-header_tsx_3a8c49d5._.js"
+      "static/chunks/components_dashboard-header_tsx_0c894515._.js"
     ]
   },
   "[project]/components/dashboard-sidebar.tsx [app-client] (ecmascript, next/dynamic entry)": {
     "id": "[project]/components/dashboard-sidebar.tsx [app-client] (ecmascript, next/dynamic entry)",
     "files": [
-      "static/chunks/node_modules_eac54360._.js",
+      "static/chunks/node_modules_23c3e8c1._.js",
       "static/chunks/components_e95276fb._.js",
-      "static/chunks/components_dashboard-sidebar_tsx_3a8c49d5._.js"
+      "static/chunks/components_dashboard-sidebar_tsx_0c894515._.js"
     ]
   }
 }
