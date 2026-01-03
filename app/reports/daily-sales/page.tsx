@@ -6,24 +6,30 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle } from "lucide-react"
+import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle, Clock, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 
-interface SaleCategory {
-  category: string
-  quantity: number
-  amount: number
-  tax: number
+interface ShiftSaleItem {
+  fuel_type: string
+  claimed_quantity: number
+  claimed_amount: number
+  unclaimed_quantity: number
+  unclaimed_amount: number
 }
 
-interface DailySalesData {
-  categories: SaleCategory[]
+interface ShiftSummary {
+  shift_id: string
+  cashier_name: string
+  start_time: string
+  end_time: string | null
+  status: string
+  items: ShiftSaleItem[]
   totals: {
-    total_sales: number
-    total_tax: number
-    total_quantity: number
-    net_sales: number
+    claimed_quantity: number
+    claimed_amount: number
+    unclaimed_quantity: number
+    unclaimed_amount: number
   }
 }
 
@@ -51,12 +57,12 @@ export default function DailySalesReportPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0])
   const [loading, setLoading] = useState(true)
-  const [salesData, setSalesData] = useState<SaleCategory[]>([])
-  const [totals, setTotals] = useState({
-    total_sales: 0,
-    total_tax: 0,
-    total_quantity: 0,
-    net_sales: 0,
+  const [shiftSummaries, setShiftSummaries] = useState<ShiftSummary[]>([])
+  const [grandTotals, setGrandTotals] = useState({
+    claimed_quantity: 0,
+    claimed_amount: 0,
+    unclaimed_quantity: 0,
+    unclaimed_amount: 0,
   })
   const { formatCurrency } = useCurrency()
   const [nozzleData, setNozzleData] = useState<NozzleData[]>([])
@@ -67,103 +73,37 @@ export default function DailySalesReportPage() {
     try {
       setLoading(true)
       const storedBranch = localStorage.getItem("selectedBranch")
-      const userStr = localStorage.getItem("user")
       let branchId = ""
-      let userId = ""
       
       if (storedBranch) {
         const branch = JSON.parse(storedBranch)
         branchId = branch.id
       }
-      if (userStr) {
-        const user = JSON.parse(userStr)
-        userId = user.id
+
+      if (!branchId) {
+        setShiftSummaries([])
+        setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
+        return
       }
 
       const params = new URLSearchParams()
-      if (branchId) params.append("branch_id", branchId)
+      params.append("branch_id", branchId)
       params.append("date", selectedDate)
 
-      const nozzleParams = new URLSearchParams()
-      if (branchId) nozzleParams.append("branch_id", branchId)
-      nozzleParams.append("date", selectedDate)
-      if (userId) nozzleParams.append("user_id", userId)
+      const response = await fetch(`/api/shifts/daily-summary?${params.toString()}`)
+      const result = await response.json()
 
-      const [salesResponse, nozzleResponse] = await Promise.all([
-        fetch(`/api/sales?${params.toString()}`),
-        fetch(`/api/shifts/nozzle-report?${nozzleParams.toString()}`)
-      ])
-
-      const salesResult = await salesResponse.json()
-      const nozzleResult = await nozzleResponse.json()
-
-      const categoryMap = new Map<string, SaleCategory>()
-
-      if (salesResult.success && salesResult.sales) {
-        salesResult.sales.forEach((sale: any) => {
-          const rawFuelType = sale.fuel_type || sale.item_name || "Other"
-          const baseFuelType = rawFuelType.charAt(0).toUpperCase() + rawFuelType.slice(1).toLowerCase()
-          const category = `${baseFuelType} (Invoiced)`
-          const existing = categoryMap.get(category) || { category, quantity: 0, amount: 0, tax: 0 }
-          
-          existing.quantity += parseFloat(sale.quantity) || 0
-          existing.amount += parseFloat(sale.total_amount) || 0
-          existing.tax += parseFloat(sale.tax_amount) || (parseFloat(sale.total_amount) * 0.16) || 0
-          
-          categoryMap.set(category, existing)
-        })
+      if (result.success && result.data) {
+        setShiftSummaries(result.data.shifts || [])
+        setGrandTotals(result.data.grandTotals || { claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
+      } else {
+        setShiftSummaries([])
+        setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
       }
-
-      if (nozzleResult.success && nozzleResult.data?.nozzles) {
-        const bulkByFuelType = new Map<string, { quantity: number, amount: number }>()
-        
-        nozzleResult.data.nozzles.forEach((nozzle: any) => {
-          const rawFuelType = nozzle.fuel_type || "Other"
-          const baseFuelType = rawFuelType.charAt(0).toUpperCase() + rawFuelType.slice(1).toLowerCase()
-          const meterDiff = parseFloat(nozzle.meter_difference) || 0
-          const invoicedQty = parseFloat(nozzle.invoiced_quantity) || 0
-          const bulkQty = Math.max(0, meterDiff - invoicedQty)
-          
-          if (bulkQty > 0) {
-            const existing = bulkByFuelType.get(baseFuelType) || { quantity: 0, amount: 0 }
-            const unitPrice = invoicedQty > 0 && nozzle.invoiced_amount > 0 
-              ? parseFloat(nozzle.invoiced_amount) / invoicedQty 
-              : 180
-            existing.quantity += bulkQty
-            existing.amount += bulkQty * unitPrice
-            bulkByFuelType.set(baseFuelType, existing)
-          }
-        })
-
-        bulkByFuelType.forEach((data, fuelType) => {
-          const category = `${fuelType} (Bulk)`
-          const tax = data.amount * 0.16
-          categoryMap.set(category, {
-            category,
-            quantity: data.quantity,
-            amount: data.amount,
-            tax: tax
-          })
-        })
-      }
-
-      const categories = Array.from(categoryMap.values())
-      setSalesData(categories)
-
-      const totalAmount = categories.reduce((sum, item) => sum + item.amount, 0)
-      const totalTax = categories.reduce((sum, item) => sum + item.tax, 0)
-      const totalQuantity = categories.reduce((sum, item) => sum + item.quantity, 0)
-
-      setTotals({
-        total_sales: totalAmount,
-        total_tax: totalTax,
-        total_quantity: totalQuantity,
-        net_sales: totalAmount - totalTax,
-      })
     } catch (error) {
       console.error("Error fetching daily sales:", error)
-      setSalesData([])
-      setTotals({ total_sales: 0, total_tax: 0, total_quantity: 0, net_sales: 0 })
+      setShiftSummaries([])
+      setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
     } finally {
       setLoading(false)
     }
@@ -229,18 +169,34 @@ export default function DailySalesReportPage() {
   }
 
   const handleExport = () => {
-    const csvContent = [
-      ["Category", "Quantity", "Sales Amount", "Tax", "Net Amount"],
-      ...salesData.map(item => [
-        item.category,
-        item.quantity.toString(),
-        item.amount.toString(),
-        item.tax.toString(),
-        (item.amount - item.tax).toString()
-      ]),
-      ["TOTAL", totals.total_quantity.toString(), totals.total_sales.toString(), totals.total_tax.toString(), totals.net_sales.toString()]
-    ].map(row => row.join(",")).join("\n")
+    const rows: string[][] = [
+      ["Shift", "Cashier", "Fuel Type", "Claimed (L)", "Claimed Amount", "Unclaimed (L)", "Unclaimed Amount"]
+    ]
+    
+    shiftSummaries.forEach(shift => {
+      const time = new Date(shift.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      shift.items.forEach(item => {
+        rows.push([
+          time,
+          shift.cashier_name,
+          item.fuel_type,
+          item.claimed_quantity.toFixed(2),
+          item.claimed_amount.toFixed(2),
+          item.unclaimed_quantity.toFixed(2),
+          item.unclaimed_amount.toFixed(2)
+        ])
+      })
+    })
+    
+    rows.push([
+      "TOTAL", "", "",
+      grandTotals.claimed_quantity.toFixed(2),
+      grandTotals.claimed_amount.toFixed(2),
+      grandTotals.unclaimed_quantity.toFixed(2),
+      grandTotals.unclaimed_amount.toFixed(2)
+    ])
 
+    const csvContent = rows.map(row => row.join(",")).join("\n")
     const blob = new Blob([csvContent], { type: "text/csv" })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -249,6 +205,17 @@ export default function DailySalesReportPage() {
     a.click()
     window.URL.revokeObjectURL(url)
   }
+
+  const formatTime = (dateStr: string) => {
+    return new Date(dateStr).toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    })
+  }
+
+  const totalSales = grandTotals.claimed_amount + grandTotals.unclaimed_amount
+  const totalQuantity = grandTotals.claimed_quantity + grandTotals.unclaimed_quantity
 
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
@@ -268,7 +235,7 @@ export default function DailySalesReportPage() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Daily Sales Report</h1>
-                  <p className="text-sm text-slate-600 mt-1">Comprehensive daily sales breakdown</p>
+                  <p className="text-sm text-slate-600 mt-1">Comprehensive daily sales breakdown by shift</p>
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={handlePrint}>
@@ -287,31 +254,31 @@ export default function DailySalesReportPage() {
                   <CardContent className="pt-4 md:pt-6">
                     <p className="text-xs md:text-sm text-slate-600">Total Sales</p>
                     <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(totals.total_sales)}
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(totalSales)}
                     </p>
                   </CardContent>
                 </Card>
                 <Card className="rounded-2xl">
                   <CardContent className="pt-4 md:pt-6">
-                    <p className="text-xs md:text-sm text-slate-600">Total Tax</p>
-                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(totals.total_tax)}
+                    <p className="text-xs md:text-sm text-slate-600">Claimed Sales</p>
+                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2 text-green-600">
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(grandTotals.claimed_amount)}
                     </p>
                   </CardContent>
                 </Card>
                 <Card className="rounded-2xl">
                   <CardContent className="pt-4 md:pt-6">
-                    <p className="text-xs md:text-sm text-slate-600">Net Sales</p>
-                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(totals.net_sales)}
+                    <p className="text-xs md:text-sm text-slate-600">Unclaimed Sales</p>
+                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2 text-amber-600">
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(grandTotals.unclaimed_amount)}
                     </p>
                   </CardContent>
                 </Card>
                 <Card className="rounded-2xl">
                   <CardContent className="pt-4 md:pt-6">
-                    <p className="text-xs md:text-sm text-slate-600">Items Sold</p>
+                    <p className="text-xs md:text-sm text-slate-600">Total Volume (L)</p>
                     <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : Math.round(totals.total_quantity)}
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : totalQuantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </CardContent>
                 </Card>
@@ -320,7 +287,7 @@ export default function DailySalesReportPage() {
               <Card className="rounded-2xl">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <CardTitle className="text-lg md:text-xl">Sales by Category</CardTitle>
+                    <CardTitle className="text-lg md:text-xl">Sales by Shift</CardTitle>
                     <div className="flex items-center gap-2">
                       <Input
                         type="date"
@@ -337,45 +304,123 @@ export default function DailySalesReportPage() {
                       <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
                       <span className="ml-2 text-muted-foreground">Loading sales data...</span>
                     </div>
-                  ) : salesData.length === 0 ? (
+                  ) : shiftSummaries.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12">
                       <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No sales data for this date</p>
+                      <p className="text-muted-foreground">No shifts recorded for this date</p>
                       <p className="text-sm text-muted-foreground mt-1">Try selecting a different date</p>
                     </div>
                   ) : (
-                    <div className="overflow-x-auto -mx-3 md:mx-0">
-                      <table className="w-full min-w-[500px]">
-                        <thead>
-                          <tr className="border-b text-xs md:text-sm">
-                            <th className="text-left py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Category</th>
-                            <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Quantity</th>
-                            <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Sales Amount</th>
-                            <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Tax</th>
-                            <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Net Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {salesData.map((item, index) => (
-                            <tr key={index} className="border-b hover:bg-slate-50 text-xs md:text-sm">
-                              <td className="py-2 md:py-3 px-3 md:px-4">{item.category}</td>
-                              <td className="py-2 md:py-3 px-3 md:px-4 text-right">{Math.round(item.quantity)}</td>
-                              <td className="py-2 md:py-3 px-3 md:px-4 text-right">{formatCurrency(item.amount)}</td>
-                              <td className="py-2 md:py-3 px-3 md:px-4 text-right">{formatCurrency(item.tax)}</td>
-                              <td className="py-2 md:py-3 px-3 md:px-4 text-right font-semibold">
-                                {formatCurrency(item.amount - item.tax)}
-                              </td>
-                            </tr>
-                          ))}
-                          <tr className="font-bold bg-slate-50 text-xs md:text-sm">
-                            <td className="py-2 md:py-3 px-3 md:px-4">TOTAL</td>
-                            <td className="py-2 md:py-3 px-3 md:px-4 text-right">{Math.round(totals.total_quantity)}</td>
-                            <td className="py-2 md:py-3 px-3 md:px-4 text-right">{formatCurrency(totals.total_sales)}</td>
-                            <td className="py-2 md:py-3 px-3 md:px-4 text-right">{formatCurrency(totals.total_tax)}</td>
-                            <td className="py-2 md:py-3 px-3 md:px-4 text-right">{formatCurrency(totals.net_sales)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <div className="space-y-6">
+                      {shiftSummaries.map((shift) => (
+                        <div key={shift.shift_id} className="border rounded-xl overflow-hidden">
+                          <div className="bg-slate-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1.5 text-sm">
+                                <Clock className="h-4 w-4 text-slate-500" />
+                                <span className="font-medium">{formatTime(shift.start_time)}</span>
+                                {shift.end_time && (
+                                  <>
+                                    <span className="text-slate-400">-</span>
+                                    <span className="font-medium">{formatTime(shift.end_time)}</span>
+                                  </>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1.5 text-sm">
+                                <User className="h-4 w-4 text-slate-500" />
+                                <span>{shift.cashier_name}</span>
+                              </div>
+                            </div>
+                            <Badge variant={shift.status === 'closed' ? 'secondary' : 'default'}>
+                              {shift.status === 'closed' ? 'Closed' : 'Open'}
+                            </Badge>
+                          </div>
+                          
+                          {shift.items.length === 0 ? (
+                            <div className="p-4 text-center text-muted-foreground text-sm">
+                              No fuel sales recorded in this shift
+                            </div>
+                          ) : (
+                            <div className="overflow-x-auto">
+                              <table className="w-full min-w-[600px]">
+                                <thead>
+                                  <tr className="border-b text-xs md:text-sm bg-slate-50">
+                                    <th className="text-left py-2 px-4 font-semibold text-slate-700">Fuel Type</th>
+                                    <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed (L)</th>
+                                    <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed Amount</th>
+                                    <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed (L)</th>
+                                    <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed Amount</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {shift.items.map((item, idx) => (
+                                    <tr key={idx} className="border-b hover:bg-slate-50 text-xs md:text-sm">
+                                      <td className="py-2 px-4 font-medium">{item.fuel_type}</td>
+                                      <td className="py-2 px-4 text-right text-green-700 font-mono">
+                                        {item.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                      </td>
+                                      <td className="py-2 px-4 text-right text-green-700 font-mono">
+                                        {formatCurrency(item.claimed_amount)}
+                                      </td>
+                                      <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                                        {item.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                      </td>
+                                      <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                                        {formatCurrency(item.unclaimed_amount)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                  <tr className="font-bold bg-slate-50 text-xs md:text-sm">
+                                    <td className="py-2 px-4">Shift Total</td>
+                                    <td className="py-2 px-4 text-right text-green-700 font-mono">
+                                      {shift.totals.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="py-2 px-4 text-right text-green-700 font-mono">
+                                      {formatCurrency(shift.totals.claimed_amount)}
+                                    </td>
+                                    <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                                      {shift.totals.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </td>
+                                    <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                                      {formatCurrency(shift.totals.unclaimed_amount)}
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+
+                      <div className="bg-blue-50 rounded-xl p-4 mt-4">
+                        <h4 className="font-semibold text-blue-900 mb-3">Daily Grand Total</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <p className="text-blue-700">Claimed Volume</p>
+                            <p className="font-bold text-green-700">{grandTotals.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L</p>
+                          </div>
+                          <div>
+                            <p className="text-blue-700">Claimed Amount</p>
+                            <p className="font-bold text-green-700">{formatCurrency(grandTotals.claimed_amount)}</p>
+                          </div>
+                          <div>
+                            <p className="text-blue-700">Unclaimed Volume</p>
+                            <p className="font-bold text-amber-700">{grandTotals.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L</p>
+                          </div>
+                          <div>
+                            <p className="text-blue-700">Unclaimed Amount</p>
+                            <p className="font-bold text-amber-700">{formatCurrency(grandTotals.unclaimed_amount)}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-100 rounded-lg p-3 md:p-4 text-xs">
+                        <h4 className="font-semibold text-slate-800 mb-2">Understanding this report:</h4>
+                        <ul className="text-slate-600 space-y-1">
+                          <li><span className="text-green-700 font-semibold">Claimed</span> = Sales invoiced through the APK (with receipt)</li>
+                          <li><span className="text-amber-700 font-semibold">Unclaimed</span> = Bulk sales from meter difference (dispensed but no invoice)</li>
+                        </ul>
+                      </div>
                     </div>
                   )}
                 </CardContent>
