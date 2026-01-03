@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
 
       let tanks: any[] = []
       let dispensers: any[] = []
+      let nozzles: any[] = []
 
       if (itemIds.length > 0) {
         tanks = await query(
@@ -108,10 +109,32 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // Fetch all nozzles for this branch (for multi-nozzle pump readings)
+      nozzles = await query(
+        `SELECT n.*, d.dispenser_number, i.item_name as fuel_name,
+         COALESCE(
+           (SELECT meter_reading_after 
+            FROM po_acceptance_nozzle_readings pnr
+            JOIN purchase_order_acceptances poa ON pnr.acceptance_id = poa.id
+            WHERE pnr.nozzle_id = n.id 
+            ORDER BY poa.acceptance_timestamp DESC 
+            LIMIT 1),
+           n.initial_meter_reading,
+           0
+         ) as last_meter_reading
+         FROM nozzles n
+         LEFT JOIN dispensers d ON n.dispenser_id = d.id
+         LEFT JOIN items i ON n.item_id = i.id
+         WHERE n.branch_id = $1 AND n.status = 'active'
+         ORDER BY d.dispenser_number, n.nozzle_number`,
+        [branchId]
+      )
+
       return NextResponse.json({ 
         success: true, 
         tanks,
         dispensers,
+        nozzles,
         items: poItems
       })
     }
@@ -160,6 +183,7 @@ export async function POST(request: NextRequest) {
       acceptance_timestamp,
       tank_readings,
       dispenser_readings,
+      nozzle_readings,
       remarks 
     } = body
 
@@ -207,6 +231,7 @@ export async function POST(request: NextRequest) {
 
     let totalTankVariance = 0
     let totalDispenserVariance = 0
+    let totalNozzleVariance = 0
 
     if (tank_readings && Array.isArray(tank_readings)) {
       for (const reading of tank_readings) {
@@ -222,8 +247,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (nozzle_readings && Array.isArray(nozzle_readings)) {
+      for (const reading of nozzle_readings) {
+        const nozzleDiff = (parseFloat(reading.meter_reading_after) || 0) - (parseFloat(reading.meter_reading_before) || 0)
+        totalNozzleVariance += nozzleDiff
+      }
+    }
+
     const bowserVol = parseFloat(bowser_volume) || 0
-    const totalVariance = (totalTankVariance + totalDispenserVariance) - bowserVol
+    // Nozzle readings replace dispenser readings in variance calculation if provided
+    const meterVariance = nozzle_readings && nozzle_readings.length > 0 ? totalNozzleVariance : totalDispenserVariance
+    const totalVariance = (totalTankVariance + meterVariance) - bowserVol
 
     const client = await pool.connect()
     try {
@@ -277,6 +311,18 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Save nozzle-level readings (for multi-nozzle pumps)
+      if (nozzle_readings && Array.isArray(nozzle_readings)) {
+        for (const reading of nozzle_readings) {
+          await client.query(
+            `INSERT INTO po_acceptance_nozzle_readings 
+             (acceptance_id, nozzle_id, meter_reading_before, meter_reading_after)
+             VALUES ($1, $2, $3, $4)`,
+            [acceptanceId, reading.nozzle_id, reading.meter_reading_before, reading.meter_reading_after]
+          )
+        }
+      }
+
       await client.query(
         `UPDATE purchase_orders SET status = 'accepted', accepted_at = NOW(), updated_at = NOW() WHERE id = $1`,
         [purchase_order_id]
@@ -290,7 +336,8 @@ export async function POST(request: NextRequest) {
           acceptance: acceptanceResult.rows[0],
           variance: totalVariance,
           tank_variance: totalTankVariance,
-          dispenser_variance: totalDispenserVariance
+          dispenser_variance: totalDispenserVariance,
+          nozzle_variance: totalNozzleVariance
         },
         message: "Purchase order accepted successfully" 
       })

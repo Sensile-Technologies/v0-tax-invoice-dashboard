@@ -74,6 +74,15 @@ interface DispenserReading {
   meter_reading_after: number
 }
 
+interface NozzleReading {
+  nozzle_id: string
+  nozzle_name: string
+  fuel_type: string
+  dispenser_number: number
+  meter_reading_before: number
+  meter_reading_after: number
+}
+
 export function PurchasesContent() {
   const [activeTab, setActiveTab] = useState("all")
   const { formatCurrency } = useCurrency()
@@ -100,6 +109,7 @@ export function PurchasesContent() {
   })
   const [tankReadings, setTankReadings] = useState<TankReading[]>([])
   const [dispenserReadings, setDispenserReadings] = useState<DispenserReading[]>([])
+  const [nozzleReadings, setNozzleReadings] = useState<NozzleReading[]>([])
 
   const fetchPurchases = useCallback(async () => {
     try {
@@ -215,8 +225,14 @@ export function PurchasesContent() {
       return sum + ((parseFloat(String(d.meter_reading_after)) || 0) - (parseFloat(String(d.meter_reading_before)) || 0))
     }, 0)
 
-    return (tankVariance + dispenserVariance) - bowserVol
-  }, [acceptanceForm.bowserVolume, tankReadings, dispenserReadings])
+    const nozzleVariance = nozzleReadings.reduce((sum, n) => {
+      return sum + ((parseFloat(String(n.meter_reading_after)) || 0) - (parseFloat(String(n.meter_reading_before)) || 0))
+    }, 0)
+
+    // Use nozzle readings if available, otherwise fall back to dispenser readings
+    const meterVariance = nozzleReadings.length > 0 ? nozzleVariance : dispenserVariance
+    return (tankVariance + meterVariance) - bowserVol
+  }, [acceptanceForm.bowserVolume, tankReadings, dispenserReadings, nozzleReadings])
 
   const handleSelectPO = async (po: PendingPO) => {
     setSelectedPO(po)
@@ -248,6 +264,16 @@ export function PurchasesContent() {
           dispenser_id: d.id,
           dispenser_name: `Dispenser ${d.dispenser_number}`,
           meter_reading_before: parseFloat(d.last_meter_reading) || 0,
+          meter_reading_after: 0
+        })))
+        
+        // Populate nozzle readings for multi-nozzle pumps
+        setNozzleReadings((result.nozzles || []).map((n: any) => ({
+          nozzle_id: n.id,
+          nozzle_name: `P${n.dispenser_number || '?'} - N${n.nozzle_number}`,
+          fuel_type: n.fuel_name || n.fuel_type || 'Unknown',
+          dispenser_number: n.dispenser_number || 0,
+          meter_reading_before: parseFloat(n.last_meter_reading) || 0,
           meter_reading_after: 0
         })))
       }
@@ -294,6 +320,11 @@ export function PurchasesContent() {
             dispenser_id: d.dispenser_id,
             meter_reading_before: parseFloat(String(d.meter_reading_before)) || 0,
             meter_reading_after: parseFloat(String(d.meter_reading_after)) || 0
+          })),
+          nozzle_readings: nozzleReadings.map(n => ({
+            nozzle_id: n.nozzle_id,
+            meter_reading_before: parseFloat(String(n.meter_reading_before)) || 0,
+            meter_reading_after: parseFloat(String(n.meter_reading_after)) || 0
           }))
         })
       })
@@ -327,6 +358,12 @@ export function PurchasesContent() {
     const updated = [...dispenserReadings]
     updated[index] = { ...updated[index], [field]: value }
     setDispenserReadings(updated)
+  }
+
+  const updateNozzleReading = (index: number, field: keyof NozzleReading, value: number) => {
+    const updated = [...nozzleReadings]
+    updated[index] = { ...updated[index], [field]: value }
+    setNozzleReadings(updated)
   }
 
   const renderPurchaseTable = (purchaseList: Purchase[]) => (
@@ -659,6 +696,55 @@ export function PurchasesContent() {
 
             <Separator />
 
+            {/* Nozzle Meter Readings - for multi-nozzle pumps */}
+            <div>
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <Gauge className="h-5 w-5" />
+                Nozzle Meter Readings
+              </h3>
+              {nozzleReadings.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">No nozzles configured for this branch</p>
+              ) : (
+                <div className="space-y-3">
+                  {nozzleReadings.map((nozzle, index) => (
+                    <div key={nozzle.nozzle_id} className="grid grid-cols-4 gap-3 p-3 border rounded-xl">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Nozzle</Label>
+                        <p className="font-medium">{nozzle.nozzle_name}</p>
+                        <p className="text-xs text-muted-foreground">{nozzle.fuel_type}</p>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Meter Before</Label>
+                        <Input
+                          type="number"
+                          value={nozzle.meter_reading_before || ""}
+                          onChange={(e) => updateNozzleReading(index, "meter_reading_before", parseFloat(e.target.value) || 0)}
+                          className="rounded-xl h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Meter After</Label>
+                        <Input
+                          type="number"
+                          value={nozzle.meter_reading_after || ""}
+                          onChange={(e) => updateNozzleReading(index, "meter_reading_after", parseFloat(e.target.value) || 0)}
+                          className="rounded-xl h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Difference</Label>
+                        <p className="font-medium text-sm pt-2">
+                          {((parseFloat(String(nozzle.meter_reading_after)) || 0) - (parseFloat(String(nozzle.meter_reading_before)) || 0)).toFixed(2)} L
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
             <div className={`p-4 rounded-xl ${Math.abs(variance) > 100 ? 'bg-red-50 border-red-200' : variance === 0 ? 'bg-gray-50' : 'bg-yellow-50 border-yellow-200'} border`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -674,7 +760,7 @@ export function PurchasesContent() {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Formula: (Tank After - Tank Before) + (Dispenser After - Dispenser Before) - Bowser Volume
+                Formula: (Tank After - Tank Before) + (Nozzle/Dispenser After - Before) - Bowser Volume
               </p>
             </div>
 
