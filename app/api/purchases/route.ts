@@ -1,19 +1,73 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { cookies } from "next/headers"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 })
 
+async function getVendorIdFromBranch(branchId: string): Promise<string | null> {
+  const result = await pool.query(
+    `SELECT vendor_id FROM branches WHERE id = $1`,
+    [branchId]
+  )
+  return result.rows[0]?.vendor_id || null
+}
+
+async function getVendorIdFromSession(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get("user_session")
+    if (!sessionCookie?.value) return null
+    
+    const session = JSON.parse(sessionCookie.value)
+    const userId = session.id
+    if (!userId) return null
+
+    const userVendor = await pool.query(
+      `SELECT v.id FROM users u 
+       JOIN vendors v ON v.email = u.email 
+       WHERE u.id = $1`,
+      [userId]
+    )
+    if (userVendor.rows.length > 0) {
+      return userVendor.rows[0].id
+    }
+
+    const staffVendor = await pool.query(
+      `SELECT DISTINCT b.vendor_id FROM staff s
+       JOIN branches b ON s.branch_id = b.id
+       WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
+      [userId]
+    )
+    if (staffVendor.rows.length > 0) {
+      return staffVendor.rows[0].vendor_id
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const branchId = searchParams.get("branch_id")
+    const vendorIdParam = searchParams.get("vendor_id")
     const status = searchParams.get("status")
     const dateFrom = searchParams.get("date_from")
     const dateTo = searchParams.get("date_to")
     const search = searchParams.get("search")
     const limit = parseInt(searchParams.get("limit") || "100")
+
+    let vendorId = vendorIdParam
+    if (!vendorId && branchId) {
+      vendorId = await getVendorIdFromBranch(branchId)
+    }
+    if (!vendorId) {
+      vendorId = await getVendorIdFromSession()
+    }
 
     let query = `
       SELECT 
@@ -109,6 +163,8 @@ export async function GET(request: NextRequest) {
         po.accepted_at,
         po.notes,
         po.created_at,
+        po.branch_id,
+        b.name as branch_name,
         vp.name as supplier_name,
         vp.tin as supplier_tin,
         (SELECT COUNT(*) FROM purchase_order_items WHERE purchase_order_id = po.id) as item_count,
@@ -116,10 +172,17 @@ export async function GET(request: NextRequest) {
         (SELECT COALESCE(SUM(quantity), 0) FROM purchase_order_items WHERE purchase_order_id = po.id) as total_volume
       FROM purchase_orders po
       LEFT JOIN vendor_partners vp ON po.supplier_id = vp.id
+      LEFT JOIN branches b ON po.branch_id = b.id
       WHERE po.status = 'accepted'
     `
     const poParams: any[] = []
     let poParamIndex = 1
+
+    if (vendorId) {
+      poQuery += ` AND po.vendor_id = $${poParamIndex}`
+      poParams.push(vendorId)
+      poParamIndex++
+    }
 
     if (branchId) {
       poQuery += ` AND po.branch_id = $${poParamIndex}`
@@ -142,6 +205,8 @@ export async function GET(request: NextRequest) {
       po_number: row.po_number,
       supplier: row.supplier_name || 'Unknown Supplier',
       supplier_tin: row.supplier_tin,
+      branch_id: row.branch_id,
+      branch_name: row.branch_name,
       date: row.accepted_at ? new Date(row.accepted_at).toISOString().split('T')[0] : 
             row.issued_at ? new Date(row.issued_at).toISOString().split('T')[0] : null,
       items: parseInt(row.item_count) || 0,
