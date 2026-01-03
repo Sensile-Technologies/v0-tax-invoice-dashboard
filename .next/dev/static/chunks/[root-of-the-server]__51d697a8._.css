@@ -2271,6 +2271,10 @@
     width: 50px;
   }
 
+  .w-\[140px\] {
+    width: 140px;
+  }
+
   .w-\[150px\] {
     width: 150px;
   }
@@ -6854,6 +6858,12 @@
   @media (hover: hover) {
     .hover\:bg-slate-50:hover {
       background-color: var(--color-slate-50);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-slate-100:hover {
+      background-color: var(--color-slate-100);
     }
   }
 

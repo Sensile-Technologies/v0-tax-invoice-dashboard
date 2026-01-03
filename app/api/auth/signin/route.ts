@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { Pool } from "pg"
 import bcrypt from "bcryptjs"
+import { logActivity, getClientInfo } from "@/lib/activity-logger"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -195,6 +196,20 @@ export async function POST(request: Request) {
         sameSite: 'none',
         secure: true,
         httpOnly: true
+      })
+      
+      const clientInfo = getClientInfo(request)
+      logActivity({
+        userId: user.id,
+        userEmail: user.email,
+        userName: user.username,
+        branchId: user.branch_id,
+        branchName: user.branch_name,
+        vendorId: user.vendor_id,
+        action: 'LOGIN',
+        resourceType: 'auth',
+        details: { role: user.role || 'vendor' },
+        ...clientInfo
       })
       
       return response

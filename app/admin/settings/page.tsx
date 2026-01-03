@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Settings, Server, CreditCard, Bell, Shield, Store, Building2 } from "lucide-react"
+import { Settings, Server, CreditCard, Bell, Shield, Store, Building2, Activity, RefreshCw, ChevronLeft, ChevronRight, Clock, Filter, User } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 
 interface ConnectedBranch {
@@ -18,6 +19,23 @@ interface ConnectedBranch {
   vendor_name: string
   vendor_id: string
   status: string
+}
+
+interface ActivityLog {
+  id: number
+  user_id: string
+  user_email: string
+  user_name: string
+  branch_id: string
+  branch_name: string
+  vendor_id: string
+  action: string
+  resource_type: string
+  resource_id: string
+  details: Record<string, any>
+  ip_address: string
+  user_agent: string
+  created_at: string
 }
 
 export default function SettingsPage() {
@@ -37,6 +55,17 @@ export default function SettingsPage() {
   })
   const [connectedBranches, setConnectedBranches] = useState<ConnectedBranch[]>([])
   const [loadingBranches, setLoadingBranches] = useState(true)
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
+  const [loadingLogs, setLoadingLogs] = useState(false)
+  const [logsTotal, setLogsTotal] = useState(0)
+  const [logsPage, setLogsPage] = useState(0)
+  const [logsHasMore, setLogsHasMore] = useState(false)
+  const [logsFilter, setLogsFilter] = useState({
+    action: '',
+    dateFrom: '',
+    dateTo: ''
+  })
+  const PAGE_SIZE = 25
 
   useEffect(() => {
     const savedConfig = localStorage.getItem("backendConfig")
@@ -58,6 +87,61 @@ export default function SettingsPage() {
       setConnectedBranches([])
     } finally {
       setLoadingBranches(false)
+    }
+  }
+
+  const fetchActivityLogs = async (page: number = 0) => {
+    setLoadingLogs(true)
+    try {
+      const params = new URLSearchParams()
+      params.append('limit', PAGE_SIZE.toString())
+      params.append('offset', (page * PAGE_SIZE).toString())
+      if (logsFilter.action) params.append('action', logsFilter.action)
+      if (logsFilter.dateFrom) params.append('date_from', logsFilter.dateFrom)
+      if (logsFilter.dateTo) params.append('date_to', logsFilter.dateTo)
+      
+      const response = await fetch(`/api/activity-logs?${params.toString()}`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setActivityLogs(data.data || [])
+        setLogsTotal(data.pagination?.total || 0)
+        setLogsHasMore(data.pagination?.hasMore || false)
+      } else {
+        toast.error(data.error || 'Failed to load activity logs')
+      }
+    } catch (error) {
+      console.error("Error fetching activity logs:", error)
+      toast.error('Failed to load activity logs')
+    } finally {
+      setLoadingLogs(false)
+    }
+  }
+
+  const handleLogsPageChange = (newPage: number) => {
+    setLogsPage(newPage)
+    fetchActivityLogs(newPage)
+  }
+
+  const formatLogTime = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const getActionColor = (action: string) => {
+    switch (action) {
+      case 'LOGIN': return 'bg-green-100 text-green-800'
+      case 'LOGOUT': return 'bg-slate-100 text-slate-800'
+      case 'CREATE': return 'bg-blue-100 text-blue-800'
+      case 'UPDATE': return 'bg-yellow-100 text-yellow-800'
+      case 'DELETE': return 'bg-red-100 text-red-800'
+      default: return 'bg-slate-100 text-slate-800'
     }
   }
 
@@ -111,6 +195,10 @@ export default function SettingsPage() {
           <TabsTrigger value="security" className="gap-2">
             <Shield className="h-4 w-4" />
             Security
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="gap-2" onClick={() => { if (activityLogs.length === 0) fetchActivityLogs(0) }}>
+            <Activity className="h-4 w-4" />
+            Activity Logs
           </TabsTrigger>
         </TabsList>
 
@@ -323,6 +411,168 @@ export default function SettingsPage() {
                   Coming Soon
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activity">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Activity Logs</span>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-sm px-3 py-1">
+                    {logsTotal} Total
+                  </Badge>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => fetchActivityLogs(logsPage)}
+                    disabled={loadingLogs}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loadingLogs ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
+              </CardTitle>
+              <CardDescription>Track all user actions across the platform</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4 mb-6 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-slate-400" />
+                  <span className="text-sm text-slate-500">Filter:</span>
+                </div>
+                <Select
+                  value={logsFilter.action}
+                  onValueChange={(value) => setLogsFilter({ ...logsFilter, action: value === 'all' ? '' : value })}
+                >
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="All Actions" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Actions</SelectItem>
+                    <SelectItem value="LOGIN">Login</SelectItem>
+                    <SelectItem value="LOGOUT">Logout</SelectItem>
+                    <SelectItem value="CREATE">Create</SelectItem>
+                    <SelectItem value="UPDATE">Update</SelectItem>
+                    <SelectItem value="DELETE">Delete</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="date"
+                  value={logsFilter.dateFrom}
+                  onChange={(e) => setLogsFilter({ ...logsFilter, dateFrom: e.target.value })}
+                  className="w-36"
+                  placeholder="From"
+                />
+                <span className="text-slate-400">to</span>
+                <Input
+                  type="date"
+                  value={logsFilter.dateTo}
+                  onChange={(e) => setLogsFilter({ ...logsFilter, dateTo: e.target.value })}
+                  className="w-36"
+                  placeholder="To"
+                />
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={() => { setLogsPage(0); fetchActivityLogs(0); }}
+                >
+                  Apply
+                </Button>
+                {(logsFilter.action || logsFilter.dateFrom || logsFilter.dateTo) && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => { 
+                      setLogsFilter({ action: '', dateFrom: '', dateTo: '' }); 
+                      setLogsPage(0);
+                      fetchActivityLogs(0);
+                    }}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+
+              {loadingLogs ? (
+                <div className="flex items-center justify-center py-12">
+                  <RefreshCw className="h-8 w-8 animate-spin text-slate-400" />
+                  <span className="ml-2 text-slate-500">Loading activity logs...</span>
+                </div>
+              ) : activityLogs.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">No activity logs found</p>
+                  <p className="text-sm mt-1">User activities will appear here as they occur</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {activityLogs.map((log) => (
+                    <div
+                      key={log.id}
+                      className="flex items-start justify-between p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                          <User className="h-5 w-5 text-slate-500" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{log.user_name || log.user_email || 'Unknown User'}</span>
+                            <Badge className={getActionColor(log.action)}>
+                              {log.action}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-slate-600 mt-1">
+                            {log.resource_type && <span className="capitalize">{log.resource_type}</span>}
+                            {log.resource_id && <span className="text-slate-400"> #{log.resource_id.slice(0, 8)}</span>}
+                          </p>
+                          {log.branch_name && (
+                            <p className="text-xs text-slate-400 mt-1">
+                              <Store className="h-3 w-3 inline mr-1" />
+                              {log.branch_name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="flex items-center gap-1 text-sm text-slate-500">
+                          <Clock className="h-3 w-3" />
+                          {formatLogTime(log.created_at)}
+                        </div>
+                        {log.ip_address && log.ip_address !== 'unknown' && (
+                          <p className="text-xs text-slate-400 mt-1">{log.ip_address}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleLogsPageChange(logsPage - 1)}
+                      disabled={logsPage === 0 || loadingLogs}
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
+                    <span className="text-sm text-slate-500">
+                      Page {logsPage + 1} of {Math.max(1, Math.ceil(logsTotal / PAGE_SIZE))}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleLogsPageChange(logsPage + 1)}
+                      disabled={!logsHasMore || loadingLogs}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
