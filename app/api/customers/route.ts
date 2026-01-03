@@ -84,11 +84,15 @@ export async function POST(request: NextRequest) {
     if (existingCustomer) {
       customerId = existingCustomer.id
     } else {
+      // tin and bhf_id are NOT NULL - use provided values or defaults
+      const effectiveTin = tin || cust_tin || ''
+      const effectiveBhfId = bhf_id || '00'
+      
       const insertResult = await client.query(
         `INSERT INTO customers (cust_nm, cust_tin, cust_no, tel_no, email, tin, bhf_id, use_yn)
          VALUES ($1, $2, $3, $4, $5, $6, $7, 'Y')
          RETURNING id`,
-        [cust_nm, cust_tin || null, cust_no || null, tel_no || null, email || null, tin || null, bhf_id || null]
+        [cust_nm, cust_tin || '', cust_no || null, tel_no || null, email || null, effectiveTin, effectiveBhfId]
       )
       customerId = insertResult.rows[0].id
     }

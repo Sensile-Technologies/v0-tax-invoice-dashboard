@@ -207,12 +207,20 @@ export async function POST(request: Request) {
         )
 
         if (existingCustomer.rows.length === 0) {
+          // Get branch info for tin and bhf_id (required NOT NULL columns)
+          const branchForCustomer = await client.query(
+            `SELECT kra_pin, bhf_id FROM branches WHERE id = $1`,
+            [branch_id]
+          )
+          const branchTin = branchForCustomer.rows[0]?.kra_pin || ''
+          const branchBhfId = branchForCustomer.rows[0]?.bhf_id || '00'
+          
           const custNo = `CUST-${Date.now().toString(36).toUpperCase()}`
           await client.query(
-            `INSERT INTO customers (branch_id, cust_nm, cust_tin, cust_no, use_yn)
-             VALUES ($1, $2, $3, $4, 'Y')
+            `INSERT INTO customers (branch_id, tin, bhf_id, cust_nm, cust_tin, cust_no, use_yn)
+             VALUES ($1, $2, $3, $4, $5, $6, 'Y')
              ON CONFLICT DO NOTHING`,
-            [branch_id, customer_name, kra_pin || null, custNo]
+            [branch_id, branchTin, branchBhfId, customer_name, kra_pin || '', custNo]
           )
         }
       }
