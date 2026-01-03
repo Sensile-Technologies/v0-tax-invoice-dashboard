@@ -83,6 +83,14 @@ interface NozzleReading {
   meter_reading_after: number
 }
 
+interface POItemEntry {
+  item_id: string
+  item_name: string
+  ordered_quantity: number
+  unit_price: number
+  bowser_volume: string
+}
+
 export function PurchasesContent() {
   const [activeTab, setActiveTab] = useState("all")
   const { formatCurrency } = useCurrency()
@@ -102,11 +110,10 @@ export function PurchasesContent() {
   const [selectedPO, setSelectedPO] = useState<PendingPO | null>(null)
   
   const [acceptanceForm, setAcceptanceForm] = useState({
-    bowserVolume: "",
-    dipsMM: "",
     acceptanceTimestamp: new Date().toISOString().slice(0, 16),
     remarks: ""
   })
+  const [poItemEntries, setPoItemEntries] = useState<POItemEntry[]>([])
   const [tankReadings, setTankReadings] = useState<TankReading[]>([])
   const [dispenserReadings, setDispenserReadings] = useState<DispenserReading[]>([])
   const [nozzleReadings, setNozzleReadings] = useState<NozzleReading[]>([])
@@ -214,9 +221,11 @@ export function PurchasesContent() {
   const approvedPurchases = purchases.filter((purchase) => purchase.status === "approved")
   const rejectedPurchases = purchases.filter((purchase) => purchase.status === "rejected")
 
+  const totalBowserVolume = useMemo(() => {
+    return poItemEntries.reduce((sum, item) => sum + (parseFloat(item.bowser_volume) || 0), 0)
+  }, [poItemEntries])
+
   const variance = useMemo(() => {
-    const bowserVol = parseFloat(acceptanceForm.bowserVolume) || 0
-    
     const tankVariance = tankReadings.reduce((sum, t) => {
       return sum + ((parseFloat(String(t.volume_after)) || 0) - (parseFloat(String(t.volume_before)) || 0))
     }, 0)
@@ -225,19 +234,24 @@ export function PurchasesContent() {
       return sum + ((parseFloat(String(n.meter_reading_after)) || 0) - (parseFloat(String(n.meter_reading_before)) || 0))
     }, 0)
 
-    return (tankVariance + nozzleVariance) - bowserVol
-  }, [acceptanceForm.bowserVolume, tankReadings, nozzleReadings])
+    return (tankVariance + nozzleVariance) - totalBowserVolume
+  }, [totalBowserVolume, tankReadings, nozzleReadings])
+
+  const updatePoItemBowserVolume = (index: number, value: string) => {
+    const updated = [...poItemEntries]
+    updated[index].bowser_volume = value
+    setPoItemEntries(updated)
+  }
 
   const handleSelectPO = async (po: PendingPO) => {
     setSelectedPO(po)
     setIsPendingListOpen(false)
     setIsAcceptDialogOpen(true)
     setAcceptanceForm({
-      bowserVolume: "",
-      dipsMM: "",
       acceptanceTimestamp: new Date().toISOString().slice(0, 16),
       remarks: ""
     })
+    setPoItemEntries([])
     
     try {
       const response = await fetch(`/api/purchases/accept?purchase_order_id=${po.id}`)
@@ -270,6 +284,15 @@ export function PurchasesContent() {
           meter_reading_before: parseFloat(n.last_meter_reading) || 0,
           meter_reading_after: 0
         })))
+        
+        // Populate item entries for bowser volume input per product
+        setPoItemEntries((result.items || []).map((item: any) => ({
+          item_id: item.item_id,
+          item_name: item.item_name,
+          ordered_quantity: parseFloat(item.quantity) || 0,
+          unit_price: parseFloat(item.unit_price) || 0,
+          bowser_volume: ""
+        })))
       }
     } catch (error) {
       console.error("Error fetching PO-specific tanks/dispensers:", error)
@@ -279,8 +302,10 @@ export function PurchasesContent() {
   const handleSubmitAcceptance = async () => {
     if (!selectedPO) return
 
-    if (!acceptanceForm.bowserVolume) {
-      toast.error("Please enter the bowser volume")
+    // Check if at least one bowser volume is entered
+    const hasAnyBowserVolume = poItemEntries.some(item => parseFloat(item.bowser_volume) > 0)
+    if (!hasAnyBowserVolume) {
+      toast.error("Please enter bowser volume for at least one product")
       return
     }
 
@@ -301,8 +326,11 @@ export function PurchasesContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           purchase_order_id: selectedPO.id,
-          bowser_volume: parseFloat(acceptanceForm.bowserVolume),
-          dips_mm: acceptanceForm.dipsMM ? parseFloat(acceptanceForm.dipsMM) : null,
+          bowser_volume: totalBowserVolume,
+          item_bowser_volumes: poItemEntries.map(item => ({
+            item_id: item.item_id,
+            bowser_volume: parseFloat(item.bowser_volume) || 0
+          })),
           acceptance_timestamp: acceptanceForm.acceptanceTimestamp,
           remarks: acceptanceForm.remarks,
           tank_readings: tankReadings.map(t => ({
@@ -561,33 +589,68 @@ export function PurchasesContent() {
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Bowser Volume (Litres) *</Label>
-                <Input
-                  type="number"
-                  placeholder="e.g., 33000"
-                  value={acceptanceForm.bowserVolume}
-                  onChange={(e) => setAcceptanceForm({ ...acceptanceForm, bowserVolume: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Dips (mm)</Label>
-                <Input
-                  type="number"
-                  placeholder="e.g., 1500"
-                  value={acceptanceForm.dipsMM}
-                  onChange={(e) => setAcceptanceForm({ ...acceptanceForm, dipsMM: e.target.value })}
-                  className="rounded-xl"
-                />
-              </div>
+            {/* Bowser Volume per Product */}
+            <div>
+              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <Package className="h-5 w-5" />
+                Bowser Volume by Product *
+              </h3>
+              {poItemEntries.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">Loading products...</p>
+              ) : (
+                <div className="space-y-3">
+                  {poItemEntries.map((item, index) => (
+                    <div key={item.item_id} className="grid grid-cols-3 gap-3 p-3 border rounded-xl">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Product</Label>
+                        <p className="font-medium">{item.item_name}</p>
+                        <p className="text-xs text-muted-foreground">Ordered: {item.ordered_quantity?.toLocaleString()}L</p>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Bowser Volume (L) *</Label>
+                        <Input
+                          type="number"
+                          placeholder="e.g., 15000"
+                          value={item.bowser_volume}
+                          onChange={(e) => updatePoItemBowserVolume(index, e.target.value)}
+                          className="rounded-xl h-9"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Variance from Order</Label>
+                        <p className={`font-medium text-sm pt-2 ${
+                          (parseFloat(item.bowser_volume) || 0) - item.ordered_quantity < 0 ? 'text-red-600' : 'text-green-600'
+                        }`}>
+                          {((parseFloat(item.bowser_volume) || 0) - item.ordered_quantity).toFixed(0)} L
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="flex justify-end p-2 bg-muted rounded-xl">
+                    <p className="font-semibold">Total Bowser Volume: {totalBowserVolume.toLocaleString()} L</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Acceptance Timestamp *</Label>
                 <Input
                   type="datetime-local"
                   value={acceptanceForm.acceptanceTimestamp}
                   onChange={(e) => setAcceptanceForm({ ...acceptanceForm, acceptanceTimestamp: e.target.value })}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Remarks</Label>
+                <Input
+                  placeholder="Any notes about this delivery"
+                  value={acceptanceForm.remarks}
+                  onChange={(e) => setAcceptanceForm({ ...acceptanceForm, remarks: e.target.value })}
                   className="rounded-xl"
                 />
               </div>
@@ -711,15 +774,6 @@ export function PurchasesContent() {
               </p>
             </div>
 
-            <div className="space-y-2">
-              <Label>Remarks</Label>
-              <Textarea
-                placeholder="Any observations or notes about the delivery..."
-                value={acceptanceForm.remarks}
-                onChange={(e) => setAcceptanceForm({ ...acceptanceForm, remarks: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
           </div>
 
           <DialogFooter>
@@ -728,7 +782,7 @@ export function PurchasesContent() {
             </Button>
             <Button 
               onClick={handleSubmitAcceptance} 
-              disabled={submitting || !acceptanceForm.bowserVolume}
+              disabled={submitting || totalBowserVolume <= 0}
               className="rounded-xl bg-green-600 hover:bg-green-700"
             >
               {submitting ? (

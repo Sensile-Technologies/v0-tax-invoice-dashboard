@@ -61,7 +61,8 @@ export async function GET(request: NextRequest) {
       }
 
       const poItems = await query(
-        `SELECT poi.item_id, i.item_name 
+        `SELECT poi.item_id, poi.quantity, poi.unit_price, poi.total_amount,
+                i.item_name, i.quantity_unit
          FROM purchase_order_items poi 
          JOIN items i ON poi.item_id = i.id 
          WHERE poi.purchase_order_id = $1`,

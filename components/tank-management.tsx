@@ -68,6 +68,8 @@ export default function TankManagement({ branchId }: { branchId: string | null }
   const [showAddTankDialog, setShowAddTankDialog] = useState(false)
   const [selectedTank, setSelectedTank] = useState<Tank | null>(null)
   const [acceptingTransferId, setAcceptingTransferId] = useState<string | null>(null)
+  const [destinationTanks, setDestinationTanks] = useState<Tank[]>([])
+  const [loadingDestinationTanks, setLoadingDestinationTanks] = useState(false)
 
   const [adjustForm, setAdjustForm] = useState({
     quantity: "",
@@ -105,6 +107,32 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       fetchPendingTransfers()
     }
   }, [branchId])
+
+  useEffect(() => {
+    if (transferForm.toBranchId && transferForm.toBranchId !== branchId) {
+      fetchDestinationTanks(transferForm.toBranchId)
+    } else if (transferForm.toBranchId === branchId) {
+      setDestinationTanks(tanks)
+    }
+  }, [transferForm.toBranchId, branchId, tanks])
+
+  const fetchDestinationTanks = async (destBranchId: string) => {
+    setLoadingDestinationTanks(true)
+    try {
+      const res = await fetch(`/api/tanks?branch_id=${destBranchId}`)
+      const result = await res.json()
+      if (result.success) {
+        setDestinationTanks(result.data || [])
+      } else {
+        setDestinationTanks([])
+      }
+    } catch (error) {
+      console.error("Error fetching destination tanks:", error)
+      setDestinationTanks([])
+    } finally {
+      setLoadingDestinationTanks(false)
+    }
+  }
 
   const fetchTanks = async () => {
     setLoading(true)
@@ -806,18 +834,22 @@ export default function TankManagement({ branchId }: { branchId: string | null }
               <Select
                 value={transferForm.toTankId}
                 onValueChange={(value) => setTransferForm({ ...transferForm, toTankId: value })}
+                disabled={loadingDestinationTanks}
               >
                 <SelectTrigger className="rounded-xl">
-                  <SelectValue placeholder="Select tank" />
+                  <SelectValue placeholder={loadingDestinationTanks ? "Loading tanks..." : "Select tank"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {tanks
+                  {destinationTanks
                     .filter((t) => t.id !== selectedTank?.id && t.fuel_type === selectedTank?.fuel_type)
                     .map((tank) => (
                       <SelectItem key={tank.id} value={tank.id}>
-                        {tank.tank_name}
+                        {tank.tank_name} ({tank.fuel_type})
                       </SelectItem>
                     ))}
+                  {destinationTanks.filter((t) => t.id !== selectedTank?.id && t.fuel_type === selectedTank?.fuel_type).length === 0 && !loadingDestinationTanks && (
+                    <div className="px-2 py-1 text-sm text-muted-foreground">No matching tanks found</div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
