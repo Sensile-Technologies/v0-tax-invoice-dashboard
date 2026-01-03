@@ -140,6 +140,7 @@ export async function POST(request: NextRequest) {
       is_loyalty_sale,
       loyalty_customer_name,
       loyalty_customer_pin,
+      staff_id,
       sync_to_kra = true,
       deduct_from_tank = true
     } = body
@@ -156,14 +157,14 @@ export async function POST(request: NextRequest) {
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, vehicle_number, customer_pin,
         invoice_number, meter_reading_after, transmission_status, receipt_number,
-        is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, sale_date, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW(), NOW())
+        is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, staff_id, sale_date, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW(), NOW())
       RETURNING *`,
       [
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price,
         total_amount, payment_method, customer_name, vehicle_number, customer_pin,
         invoice_number, meter_reading_after, transmission_status || 'pending', receipt_number,
-        is_loyalty_sale || false, loyalty_customer_name, loyalty_customer_pin
+        is_loyalty_sale || false, loyalty_customer_name, loyalty_customer_pin, staff_id || null
       ]
     )
 

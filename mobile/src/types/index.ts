@@ -9,6 +9,7 @@ export interface User {
   bhf_id?: string
   vendor_id?: string
   vendor_name?: string
+  staff_id?: string
 }
 
 export interface AuthResponse {

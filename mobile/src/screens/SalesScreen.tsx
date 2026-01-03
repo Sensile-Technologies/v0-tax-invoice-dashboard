@@ -170,6 +170,7 @@ export default function SalesScreen() {
         payment_method: saleForm.payment_method,
         customer_name: saleForm.customer_name || null,
         vehicle_number: saleForm.vehicle_number || null,
+        staff_id: user?.staff_id || null,
       })
       
       setShowSaleModal(false)

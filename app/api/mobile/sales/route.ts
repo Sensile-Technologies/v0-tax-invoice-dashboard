@@ -78,6 +78,7 @@ export async function POST(request: Request) {
       payment_method,
       customer_name,
       vehicle_number,
+      staff_id,
     } = body
 
     if (!branch_id || !fuel_type || !amount) {
@@ -175,8 +176,8 @@ export async function POST(request: Request) {
         `INSERT INTO sales (
           branch_id, shift_id, nozzle_id, fuel_type, quantity, 
           unit_price, total_amount, payment_method, customer_name, 
-          vehicle_number, invoice_number, receipt_number, sale_date
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+          vehicle_number, invoice_number, receipt_number, sale_date, staff_id
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), $13)
         RETURNING *`,
         [
           branch_id,
@@ -191,6 +192,7 @@ export async function POST(request: Request) {
           vehicle_number || null,
           invoiceNumber,
           receiptNumber,
+          staff_id || null,
         ]
       )
 
