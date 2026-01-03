@@ -62,3 +62,97 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Failed to create stock transfer" }, { status: 500 })
   }
 }
+
+export async function PUT(request: NextRequest) {
+  const client = await pool.connect()
+  try {
+    const body = await request.json()
+    const { transfer_id, action, approved_by, to_previous_stock, to_new_stock } = body
+
+    if (!transfer_id || !action) {
+      return NextResponse.json({ success: false, error: "transfer_id and action are required" }, { status: 400 })
+    }
+
+    const transferResult = await client.query(
+      "SELECT * FROM stock_transfers WHERE id = $1",
+      [transfer_id]
+    )
+
+    if (transferResult.rows.length === 0) {
+      return NextResponse.json({ success: false, error: "Transfer not found" }, { status: 404 })
+    }
+
+    const transfer = transferResult.rows[0]
+
+    if (transfer.status === 'completed') {
+      return NextResponse.json({ success: false, error: "Transfer already completed" }, { status: 400 })
+    }
+
+    await client.query('BEGIN')
+
+    if (action === 'accept') {
+      const toTank = await client.query("SELECT * FROM tanks WHERE id = $1", [transfer.to_tank_id])
+      if (toTank.rows.length === 0) {
+        await client.query('ROLLBACK')
+        return NextResponse.json({ success: false, error: "Destination tank not found" }, { status: 404 })
+      }
+
+      const previousStock = parseFloat(toTank.rows[0].current_stock) || 0
+      const newStock = previousStock + parseFloat(transfer.quantity)
+
+      await client.query(
+        "UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2",
+        [newStock, transfer.to_tank_id]
+      )
+
+      await client.query(
+        `UPDATE stock_transfers 
+         SET status = 'completed', 
+             approval_status = 'approved',
+             approved_by = $1, 
+             approved_at = NOW(),
+             to_previous_stock = $2,
+             to_new_stock = $3,
+             updated_at = NOW()
+         WHERE id = $4`,
+        [approved_by, previousStock, newStock, transfer_id]
+      )
+
+      await client.query('COMMIT')
+
+      return NextResponse.json({ 
+        success: true, 
+        data: { 
+          transfer_id, 
+          previousStock, 
+          newStock, 
+          quantity: transfer.quantity 
+        } 
+      })
+    } else if (action === 'reject') {
+      await client.query(
+        `UPDATE stock_transfers 
+         SET status = 'rejected', 
+             approval_status = 'rejected',
+             approved_by = $1, 
+             approved_at = NOW(),
+             updated_at = NOW()
+         WHERE id = $2`,
+        [approved_by, transfer_id]
+      )
+
+      await client.query('COMMIT')
+
+      return NextResponse.json({ success: true, message: "Transfer rejected" })
+    } else {
+      await client.query('ROLLBACK')
+      return NextResponse.json({ success: false, error: "Invalid action. Use 'accept' or 'reject'" }, { status: 400 })
+    }
+  } catch (error) {
+    await client.query('ROLLBACK')
+    console.error("Error updating stock transfer:", error)
+    return NextResponse.json({ success: false, error: "Failed to update stock transfer" }, { status: 500 })
+  } finally {
+    client.release()
+  }
+}

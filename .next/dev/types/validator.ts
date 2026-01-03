@@ -47,6 +47,33 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 }
 
 
+// Validate ../../../app/accounting/collections/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/accounting/collections">> = Specific
+  const handler = {} as typeof import("../../../app/accounting/collections/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/accounting/credit/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/accounting/credit">> = Specific
+  const handler = {} as typeof import("../../../app/accounting/credit/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/accounting/stock-takes/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/accounting/stock-takes">> = Specific
+  const handler = {} as typeof import("../../../app/accounting/stock-takes/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/add-import/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/add-import">> = Specific

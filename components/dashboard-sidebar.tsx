@@ -50,7 +50,7 @@ const regularNavigationItems: NavigationItem[] = [
   { icon: ShoppingCart, label: "Sales", href: "/sales/summary", hasDropdown: true },
   { icon: ShoppingBag, label: "Purchases", href: "/purchases" },
   { icon: Package, label: "Inventory", href: "/inventory" },
-  { icon: CreditCard, label: "Payments", href: "/payments" },
+  { icon: CreditCard, label: "Accounting", href: "/accounting", hasDropdown: true },
   { icon: Users, label: "Customers", href: "/customers", hasDropdown: true },
   { icon: Box, label: "Items", href: "/items", hasDropdown: true },
   { icon: Upload, label: "Imports", href: "/imports", hasDropdown: true },
@@ -202,6 +202,38 @@ export function DashboardSidebar({
                       </Link>
                     </>
                   )}
+                  {item.label === "Accounting" && (
+                    <>
+                      <Link
+                        href="/accounting/collections"
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
+                      >
+                        Collections
+                      </Link>
+                      <Link
+                        href="/payments"
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
+                      >
+                        Payments
+                      </Link>
+                      <Link
+                        href="/accounting/credit"
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
+                      >
+                        Credit
+                      </Link>
+                      <Link
+                        href="/accounting/stock-takes"
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20"
+                        onClick={handleLinkClick}
+                      >
+                        Stock Takes
+                      </Link>
+                    </>
+                  )}
                   {item.label === "Imports" && (
                     <>
                       <Link
@@ -293,6 +325,7 @@ export function DashboardSidebar({
             (item.label === "Sales" ||
               item.label === "Customers" ||
               item.label === "Items" ||
+              item.label === "Accounting" ||
               item.label === "Imports" ||
               item.label === "Reports") &&
             !collapsed

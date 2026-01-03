@@ -43,16 +43,31 @@ interface Item {
   item_type?: string
 }
 
+interface PendingTransfer {
+  id: string
+  from_branch_id: string
+  from_branch_name?: string
+  from_tank_id: string
+  from_tank_name?: string
+  to_tank_id: string
+  quantity: number
+  requested_by: string
+  notes: string
+  created_at: string
+}
+
 export default function TankManagement({ branchId }: { branchId: string | null }) {
   const [tanks, setTanks] = useState<Tank[]>([])
   const [branches, setBranches] = useState<Branch[]>([])
   const [items, setItems] = useState<Item[]>([])
+  const [pendingTransfers, setPendingTransfers] = useState<PendingTransfer[]>([])
   const [loading, setLoading] = useState(true)
   const [showAdjustDialog, setShowAdjustDialog] = useState(false)
   const [showReceiveDialog, setShowReceiveDialog] = useState(false)
   const [showTransferDialog, setShowTransferDialog] = useState(false)
   const [showAddTankDialog, setShowAddTankDialog] = useState(false)
   const [selectedTank, setSelectedTank] = useState<Tank | null>(null)
+  const [acceptingTransferId, setAcceptingTransferId] = useState<string | null>(null)
 
   const [adjustForm, setAdjustForm] = useState({
     quantity: "",
@@ -87,6 +102,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       fetchTanks()
       fetchBranches()
       fetchItems()
+      fetchPendingTransfers()
     }
   }, [branchId])
 
@@ -160,6 +176,110 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       }
     } catch (error) {
       console.error("Error fetching items:", error)
+    }
+  }
+
+  const fetchPendingTransfers = async () => {
+    try {
+      const response = await fetch(`/api/stock-transfers?branch_id=${branchId}`)
+      const result = await response.json()
+      if (result.success) {
+        // Filter to only pending incoming transfers for this branch
+        const incoming = (result.data || []).filter((t: any) => 
+          t.to_branch_id === branchId && 
+          (t.status === 'pending' || (!t.status && t.approval_status === 'pending'))
+        )
+        
+        // Enrich with branch and tank names
+        const enrichedTransfers = await Promise.all(incoming.map(async (transfer: any) => {
+          // Get source branch name
+          let fromBranchName = "Unknown Branch"
+          let fromTankName = "Unknown Tank"
+          
+          const branchRes = await fetch(`/api/branches?id=${transfer.from_branch_id}`)
+          const branchData = await branchRes.json()
+          if (branchData.success && branchData.data?.length > 0) {
+            fromBranchName = branchData.data[0].name
+          }
+          
+          // Get source tank name
+          const tankRes = await fetch(`/api/tanks?branch_id=${transfer.from_branch_id}`)
+          const tankData = await tankRes.json()
+          if (tankData.success) {
+            const sourceTank = tankData.data.find((t: any) => t.id === transfer.from_tank_id)
+            if (sourceTank) {
+              fromTankName = sourceTank.tank_name
+            }
+          }
+          
+          return {
+            ...transfer,
+            from_branch_name: fromBranchName,
+            from_tank_name: fromTankName,
+          }
+        }))
+        
+        setPendingTransfers(enrichedTransfers)
+      }
+    } catch (error) {
+      console.error("Error fetching pending transfers:", error)
+    }
+  }
+
+  const handleAcceptTransfer = async (transferId: string) => {
+    setAcceptingTransferId(transferId)
+    try {
+      const response = await fetch('/api/stock-transfers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transfer_id: transferId,
+          action: 'accept',
+          approved_by: 'Branch User'
+        })
+      })
+
+      const result = await response.json()
+      
+      if (response.ok && result.success) {
+        toast.success(`Transfer accepted. New stock: ${result.data.newStock} litres`)
+        fetchTanks()
+        fetchPendingTransfers()
+        setShowReceiveDialog(false)
+      } else {
+        toast.error(result.error || "Error accepting transfer")
+      }
+    } catch (error) {
+      console.error("Error accepting transfer:", error)
+      toast.error("Error accepting transfer")
+    } finally {
+      setAcceptingTransferId(null)
+    }
+  }
+
+  const handleRejectTransfer = async (transferId: string) => {
+    try {
+      const response = await fetch('/api/stock-transfers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transfer_id: transferId,
+          action: 'reject',
+          approved_by: 'Branch User'
+        })
+      })
+
+      const result = await response.json()
+      
+      if (response.ok && result.success) {
+        toast.info("Transfer rejected")
+        fetchPendingTransfers()
+      } else {
+        toast.error(result.error || "Error rejecting transfer")
+      }
+    } catch (error) {
+      console.error("Error rejecting transfer:", error)
+      toast.error("Error rejecting transfer")
     }
   }
 
@@ -468,18 +588,30 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedTank(tank)
-                      setShowReceiveDialog(true)
-                    }}
-                    className="rounded-xl"
-                  >
-                    <Package className="h-4 w-4 mr-2" />
-                    Receive Stock
-                  </Button>
+                  {(() => {
+                    const tankTransfers = pendingTransfers.filter(t => t.to_tank_id === tank.id)
+                    return (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedTank(tank)
+                          setShowReceiveDialog(true)
+                        }}
+                        className="rounded-xl relative"
+                        disabled={tankTransfers.length === 0}
+                        title={tankTransfers.length === 0 ? "No pending transfers to accept" : `${tankTransfers.length} pending transfer(s)`}
+                      >
+                        <Package className="h-4 w-4 mr-2" />
+                        Accept Transfer
+                        {tankTransfers.length > 0 && (
+                          <Badge className="ml-2 h-5 min-w-5 bg-orange-500 text-white text-xs">
+                            {tankTransfers.length}
+                          </Badge>
+                        )}
+                      </Button>
+                    )
+                  })()}
                   <Button
                     variant="outline"
                     size="sm"
@@ -571,49 +703,73 @@ export default function TankManagement({ branchId }: { branchId: string | null }
         </DialogContent>
       </Dialog>
 
-      {/* Receive Stock Dialog */}
+      {/* Accept Transfer Dialog */}
       <Dialog open={showReceiveDialog} onOpenChange={setShowReceiveDialog}>
-        <DialogContent className="rounded-2xl">
+        <DialogContent className="rounded-2xl max-w-lg">
           <DialogHeader>
-            <DialogTitle>Receive Stock</DialogTitle>
-            <DialogDescription>Record stock received into {selectedTank?.tank_name}</DialogDescription>
+            <DialogTitle>Accept Stock Transfer</DialogTitle>
+            <DialogDescription>
+              Accept incoming stock transfers for {selectedTank?.tank_name}. Stock can only be received via approved transfers from other branches.
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Quantity Received (Litres)</Label>
-              <Input
-                type="number"
-                placeholder="e.g., 5000"
-                value={receiveForm.quantity}
-                onChange={(e) => setReceiveForm({ ...receiveForm, quantity: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
-            <div>
-              <Label>Delivery Note / Reference</Label>
-              <Input
-                placeholder="e.g., DN-12345"
-                value={receiveForm.reason}
-                onChange={(e) => setReceiveForm({ ...receiveForm, reason: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
-            <div>
-              <Label>Received By</Label>
-              <Input
-                placeholder="Your name"
-                value={receiveForm.requestedBy}
-                onChange={(e) => setReceiveForm({ ...receiveForm, requestedBy: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
+          <div className="space-y-4 max-h-80 overflow-y-auto">
+            {selectedTank && pendingTransfers.filter(t => t.to_tank_id === selectedTank.id).length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Package className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No pending transfers for this tank</p>
+                <p className="text-sm mt-1">Transfers must be initiated from another branch</p>
+              </div>
+            ) : (
+              selectedTank && pendingTransfers.filter(t => t.to_tank_id === selectedTank.id).map((transfer) => (
+                <Card key={transfer.id} className="rounded-xl">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <p className="font-medium">
+                          {Number(transfer.quantity).toLocaleString()} litres
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          From: {transfer.from_branch_name} - {transfer.from_tank_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Requested by: {transfer.requested_by || 'Unknown'}
+                        </p>
+                        {transfer.notes && (
+                          <p className="text-xs text-muted-foreground">
+                            Notes: {transfer.notes}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(transfer.created_at).toLocaleDateString()} {new Date(transfer.created_at).toLocaleTimeString()}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRejectTransfer(transfer.id)}
+                          className="rounded-lg text-red-600 hover:bg-red-50"
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleAcceptTransfer(transfer.id)}
+                          disabled={acceptingTransferId === transfer.id}
+                          className="rounded-lg"
+                        >
+                          {acceptingTransferId === transfer.id ? "Accepting..." : "Accept"}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowReceiveDialog(false)} className="rounded-xl">
-              Cancel
-            </Button>
-            <Button onClick={handleReceiveStock} className="rounded-xl">
-              Receive Stock
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
