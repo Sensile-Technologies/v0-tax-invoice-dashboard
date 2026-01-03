@@ -1,4 +1,6 @@
 {
+  "/api/headquarters/purchase-orders/route": "app/api/headquarters/purchase-orders/route.js",
+  "/api/purchases/route": "app/api/purchases/route.js",
   "/auth/login/page": "app/auth/login/page.js",
   "/page": "app/page.js"
 }
