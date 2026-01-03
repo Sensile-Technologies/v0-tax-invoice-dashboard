@@ -229,6 +229,36 @@ export async function PATCH(request: NextRequest) {
 
     await client.query('BEGIN')
 
+    // Check if this is an active shift being ended
+    const shiftStatusCheck = await client.query(
+      `SELECT status FROM shifts WHERE id = $1`,
+      [id]
+    )
+    
+    if (shiftStatusCheck.rows.length === 0) {
+      await client.query('ROLLBACK')
+      client.release()
+      return NextResponse.json(
+        { error: "Shift not found" },
+        { status: 404 }
+      )
+    }
+
+    const currentStatus = shiftStatusCheck.rows[0].status
+    const targetStatus = status || 'completed'
+    
+    // Require nozzle readings when ending an active shift (transitioning to completed)
+    if (currentStatus === 'active' && targetStatus === 'completed') {
+      if (!nozzle_readings || !Array.isArray(nozzle_readings) || nozzle_readings.length === 0) {
+        await client.query('ROLLBACK')
+        client.release()
+        return NextResponse.json(
+          { error: "Nozzle meter readings are required to end a shift. Please enter closing readings for all nozzles." },
+          { status: 400 }
+        )
+      }
+    }
+
     const shiftCheck = await client.query(
       `SELECT s.*, b.name as branch_name FROM shifts s
        JOIN branches b ON s.branch_id = b.id

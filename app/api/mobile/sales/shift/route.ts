@@ -41,22 +41,10 @@ export async function POST(request: Request) {
           shift: result.rows[0],
         })
       } else if (action === "end") {
-        if (!shift_id) {
-          return NextResponse.json({ error: "Shift ID required" }, { status: 400 })
-        }
-
-        const result = await client.query(
-          `UPDATE shifts 
-           SET status = 'completed', end_time = NOW(), closing_cash = $2
-           WHERE id = $1
-           RETURNING *`,
-          [shift_id, closing_cash || 0]
-        )
-
-        return NextResponse.json({
-          success: true,
-          shift: result.rows[0],
-        })
+        // Shift ending is disabled on mobile APK - must be done via web dashboard with meter readings
+        return NextResponse.json({ 
+          error: "Shifts can only be ended from the web dashboard. Please use the Shift Management page to enter closing meter readings and end the shift." 
+        }, { status: 403 })
       } else {
         return NextResponse.json({ error: "Invalid action" }, { status: 400 })
       }

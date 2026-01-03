@@ -145,31 +145,8 @@ export default function SalesScreen() {
     }
   }
 
-  async function handleEndShift() {
-    Alert.alert(
-      'End Shift',
-      'Are you sure you want to end your current shift?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'End Shift',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await api.post('/api/mobile/sales/shift', {
-                action: 'end',
-                shift_id: currentShift?.id,
-              })
-              Alert.alert('Success', 'Shift ended successfully')
-              fetchData()
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to end shift')
-            }
-          },
-        },
-      ]
-    )
-  }
+  // End shift functionality removed from mobile APK
+  // Shifts must be ended from the web dashboard with meter readings
 
   async function handleRecordSale() {
     if (!saleForm.fuel_type || !saleForm.amount) {
@@ -311,10 +288,10 @@ export default function SalesScreen() {
         <Text style={styles.title}>Sales</Text>
         <View style={styles.shiftStatus}>
           {currentShift ? (
-            <TouchableOpacity style={styles.shiftBadgeActive} onPress={handleEndShift}>
+            <View style={styles.shiftBadgeActive}>
               <Ionicons name="time" size={16} color="#16a34a" />
               <Text style={styles.shiftTextActive}>Shift Active</Text>
-            </TouchableOpacity>
+            </View>
           ) : (
             <TouchableOpacity style={styles.shiftBadgeInactive} onPress={() => setShowShiftModal(true)}>
               <Ionicons name="play-circle" size={16} color="#dc2626" />
