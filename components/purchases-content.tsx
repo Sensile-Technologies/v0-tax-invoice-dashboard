@@ -221,18 +221,12 @@ export function PurchasesContent() {
       return sum + ((parseFloat(String(t.volume_after)) || 0) - (parseFloat(String(t.volume_before)) || 0))
     }, 0)
 
-    const dispenserVariance = dispenserReadings.reduce((sum, d) => {
-      return sum + ((parseFloat(String(d.meter_reading_after)) || 0) - (parseFloat(String(d.meter_reading_before)) || 0))
-    }, 0)
-
     const nozzleVariance = nozzleReadings.reduce((sum, n) => {
       return sum + ((parseFloat(String(n.meter_reading_after)) || 0) - (parseFloat(String(n.meter_reading_before)) || 0))
     }, 0)
 
-    // Use nozzle readings if available, otherwise fall back to dispenser readings
-    const meterVariance = nozzleReadings.length > 0 ? nozzleVariance : dispenserVariance
-    return (tankVariance + meterVariance) - bowserVol
-  }, [acceptanceForm.bowserVolume, tankReadings, dispenserReadings, nozzleReadings])
+    return (tankVariance + nozzleVariance) - bowserVol
+  }, [acceptanceForm.bowserVolume, tankReadings, nozzleReadings])
 
   const handleSelectPO = async (po: PendingPO) => {
     setSelectedPO(po)
@@ -352,12 +346,6 @@ export function PurchasesContent() {
     const updated = [...tankReadings]
     updated[index] = { ...updated[index], [field]: value }
     setTankReadings(updated)
-  }
-
-  const updateDispenserReading = (index: number, field: keyof DispenserReading, value: number) => {
-    const updated = [...dispenserReadings]
-    updated[index] = { ...updated[index], [field]: value }
-    setDispenserReadings(updated)
   }
 
   const updateNozzleReading = (index: number, field: keyof NozzleReading, value: number) => {
@@ -655,48 +643,7 @@ export function PurchasesContent() {
 
             <Separator />
 
-            <div>
-              <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-                <Gauge className="h-5 w-5" />
-                Dispenser Meter Readings
-              </h3>
-              {dispenserReadings.length === 0 ? (
-                <p className="text-muted-foreground text-center py-4">No dispensers configured for this branch</p>
-              ) : (
-                <div className="space-y-3">
-                  {dispenserReadings.map((dispenser, index) => (
-                    <div key={dispenser.dispenser_id} className="grid grid-cols-3 gap-3 p-3 border rounded-xl">
-                      <div>
-                        <Label className="text-xs text-muted-foreground">Dispenser</Label>
-                        <p className="font-medium">{dispenser.dispenser_name}</p>
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Meter Before</Label>
-                        <Input
-                          type="number"
-                          value={dispenser.meter_reading_before || ""}
-                          onChange={(e) => updateDispenserReading(index, "meter_reading_before", parseFloat(e.target.value) || 0)}
-                          className="rounded-xl h-9"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label className="text-xs">Meter After</Label>
-                        <Input
-                          type="number"
-                          value={dispenser.meter_reading_after || ""}
-                          onChange={(e) => updateDispenserReading(index, "meter_reading_after", parseFloat(e.target.value) || 0)}
-                          className="rounded-xl h-9"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Nozzle Meter Readings - for multi-nozzle pumps */}
+            {/* Nozzle Meter Readings */}
             <div>
               <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
                 <Gauge className="h-5 w-5" />
