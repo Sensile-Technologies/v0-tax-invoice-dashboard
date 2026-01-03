@@ -348,24 +348,20 @@ export function DashboardSidebar({
             </Link>
           )
         })}
-      </nav>
-
-      <div className="p-3 pb-6">
         <Link
           href="/loyalty"
-          className="flex items-center gap-3 px-3 py-2.5 hover:opacity-80 transition-opacity cursor-pointer"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md transition-all cursor-pointer"
+          title={collapsed ? "Explore Tuzwa" : undefined}
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-700/10">
-            <Leaf className="h-5 w-5 text-green-700" />
-          </div>
+          <Leaf className="h-5 w-5 flex-shrink-0 text-white" />
           {!collapsed && (
-            <div className="text-green-700">
+            <div className="text-white">
               <p className="text-sm font-semibold">Explore Tuzwa</p>
               <p className="text-xs opacity-80">Loyalty Rewards</p>
             </div>
           )}
         </Link>
-      </div>
+      </nav>
 
       <Button
         variant="ghost"

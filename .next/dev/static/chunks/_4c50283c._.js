@@ -363,502 +363,491 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
                         className: "flex-1 space-y-1 overflow-y-auto p-3",
-                        children: navigationItems.map((item)=>{
-                            if (item.hasDropdown && !collapsed) {
-                                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Collapsible"], {
-                                    open: openSections[item.label] || false,
-                                    onOpenChange: ()=>toggleSection(item.label),
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CollapsibleTrigger"], {
-                                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all", "hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md"),
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "flex items-center gap-3",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(item.icon, {
-                                                            className: "h-5 w-5 flex-shrink-0"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 143,
-                                                            columnNumber: 21
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                            children: item.label
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 144,
-                                                            columnNumber: 21
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                    lineNumber: 142,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
-                                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("h-4 w-4 transition-transform", openSections[item.label] && "rotate-180")
-                                                }, void 0, false, {
-                                                    fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                    lineNumber: 146,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 136,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CollapsibleContent"], {
-                                            className: "pl-8 pt-1 space-y-1",
-                                            children: [
-                                                item.label === "Sales" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/sales/summary",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Sales Summary"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 153,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/sales/reports",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Sales Reports"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 160,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/sales/automated",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Automated Sales"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 167,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true),
-                                                item.label === "Customers" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/register-customer",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Register Customer"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 178,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/customers",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Customer List"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 185,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true),
-                                                item.label === "Items" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                        href: "/items",
-                                                        className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                        onClick: handleLinkClick,
-                                                        children: "Items List"
+                        children: [
+                            navigationItems.map((item)=>{
+                                if (item.hasDropdown && !collapsed) {
+                                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Collapsible"], {
+                                        open: openSections[item.label] || false,
+                                        onOpenChange: ()=>toggleSection(item.label),
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CollapsibleTrigger"], {
+                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all", "hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md"),
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex items-center gap-3",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(item.icon, {
+                                                                className: "h-5 w-5 flex-shrink-0"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 143,
+                                                                columnNumber: 21
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                children: item.label
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 144,
+                                                                columnNumber: 21
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                        lineNumber: 142,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$down$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDown$3e$__["ChevronDown"], {
+                                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("h-4 w-4 transition-transform", openSections[item.label] && "rotate-180")
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                        lineNumber: 196,
-                                                        columnNumber: 23
+                                                        lineNumber: 146,
+                                                        columnNumber: 19
                                                     }, this)
-                                                }, void 0, false),
-                                                item.label === "Accounting" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/accounting/collections",
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                lineNumber: 136,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$collapsible$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CollapsibleContent"], {
+                                                className: "pl-8 pt-1 space-y-1",
+                                                children: [
+                                                    item.label === "Sales" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/sales/summary",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Sales Summary"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 153,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/sales/reports",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Sales Reports"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 160,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/sales/automated",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Automated Sales"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 167,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true),
+                                                    item.label === "Customers" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/register-customer",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Register Customer"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 178,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/customers",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Customer List"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 185,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true),
+                                                    item.label === "Items" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                            href: "/items",
                                                             className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
                                                             onClick: handleLinkClick,
-                                                            children: "Collections"
+                                                            children: "Items List"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 207,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/payments",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Payments"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 214,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/accounting/credit",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Credit"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 221,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/accounting/stock-takes",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Stock Takes"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 228,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true),
-                                                item.label === "Imports" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/add-import",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Add Import"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 239,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/imports",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Import List"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 246,
-                                                            columnNumber: 23
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true),
-                                                item.label === "Reports" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "max-h-96 overflow-y-auto pr-2 space-y-1 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/daily-sales",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Daily Sales Report"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 257,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/shifts",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Shift Reports"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 260,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/x-report",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "X Report"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 263,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/z-report",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Z Report"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 266,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/sales-summary",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Sales Summary"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 269,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/purchase-report",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Purchase Report"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 272,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/inventory-valuation",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Inventory Valuation"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 275,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/profit-loss",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Profit & Loss"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 278,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/balance-sheet",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Balance Sheet"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 281,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/cash-flow",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Cash Flow"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 284,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/trial-balance",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Trial Balance"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 287,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/general-ledger",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "General Ledger"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 290,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/aged-receivables",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Aged Receivables"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 293,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/aged-payables",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Aged Payables"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 296,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/customer-statement",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Customer Statement"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 299,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/supplier-statement",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Supplier Statement"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 302,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/vat-report",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "VAT Report"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 305,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/excise-duty",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Excise Duty Report"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 308,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/withholding-tax",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Withholding Tax"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 311,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                                            href: "/reports/expense-report",
-                                                            className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
-                                                            onClick: handleLinkClick,
-                                                            children: "Expense Report"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                            lineNumber: 314,
+                                                            lineNumber: 196,
                                                             columnNumber: 23
                                                         }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                    lineNumber: 256,
-                                                    columnNumber: 21
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
+                                                    }, void 0, false),
+                                                    item.label === "Accounting" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/accounting/collections",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Collections"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 207,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/payments",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Payments"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 214,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/accounting/credit",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Credit"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 221,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/accounting/stock-takes",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Stock Takes"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 228,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true),
+                                                    item.label === "Imports" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/add-import",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Add Import"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 239,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/imports",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Import List"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 246,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true),
+                                                    item.label === "Reports" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "max-h-96 overflow-y-auto pr-2 space-y-1 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/daily-sales",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Daily Sales Report"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 257,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/shifts",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Shift Reports"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 260,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/x-report",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "X Report"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 263,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/z-report",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Z Report"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 266,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/sales-summary",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Sales Summary"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 269,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/purchase-report",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Purchase Report"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 272,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/inventory-valuation",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Inventory Valuation"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 275,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/profit-loss",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Profit & Loss"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 278,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/balance-sheet",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Balance Sheet"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 281,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/cash-flow",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Cash Flow"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 284,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/trial-balance",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Trial Balance"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 287,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/general-ledger",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "General Ledger"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 290,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/aged-receivables",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Aged Receivables"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 293,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/aged-payables",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Aged Payables"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 296,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/customer-statement",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Customer Statement"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 299,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/supplier-statement",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Supplier Statement"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 302,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/vat-report",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "VAT Report"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 305,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/excise-duty",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Excise Duty Report"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 308,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/withholding-tax",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Withholding Tax"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 311,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                                                href: "/reports/expense-report",
+                                                                className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
+                                                                onClick: handleLinkClick,
+                                                                children: "Expense Report"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                                lineNumber: 314,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                        lineNumber: 256,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                lineNumber: 150,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, item.href, true, {
+                                        fileName: "[project]/components/dashboard-sidebar.tsx",
+                                        lineNumber: 131,
+                                        columnNumber: 15
+                                    }, this);
+                                }
+                                if ((item.label === "Sales" || item.label === "Customers" || item.label === "Items" || item.label === "Accounting" || item.label === "Imports" || item.label === "Reports") && !collapsed) {
+                                    return null;
+                                }
+                                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                    href: item.href,
+                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all", "hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md"),
+                                    title: collapsed ? item.label : undefined,
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(item.icon, {
+                                            className: "h-5 w-5 flex-shrink-0"
+                                        }, void 0, false, {
                                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 150,
-                                            columnNumber: 17
+                                            lineNumber: 346,
+                                            columnNumber: 15
+                                        }, this),
+                                        !collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            children: item.label
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/dashboard-sidebar.tsx",
+                                            lineNumber: 347,
+                                            columnNumber: 30
                                         }, this)
                                     ]
                                 }, item.href, true, {
                                     fileName: "[project]/components/dashboard-sidebar.tsx",
-                                    lineNumber: 131,
-                                    columnNumber: 15
+                                    lineNumber: 337,
+                                    columnNumber: 13
                                 }, this);
-                            }
-                            if ((item.label === "Sales" || item.label === "Customers" || item.label === "Items" || item.label === "Accounting" || item.label === "Imports" || item.label === "Reports") && !collapsed) {
-                                return null;
-                            }
-                            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                                href: item.href,
-                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all", "hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md"),
-                                title: collapsed ? item.label : undefined,
+                            }),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+                                href: "/loyalty",
+                                className: "flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md transition-all cursor-pointer",
+                                title: collapsed ? "Explore Tuzwa" : undefined,
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(item.icon, {
-                                        className: "h-5 w-5 flex-shrink-0"
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$leaf$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Leaf$3e$__["Leaf"], {
+                                        className: "h-5 w-5 flex-shrink-0 text-white"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 346,
-                                        columnNumber: 15
+                                        lineNumber: 356,
+                                        columnNumber: 11
                                     }, this),
-                                    !collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        children: item.label
-                                    }, void 0, false, {
+                                    !collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "text-white",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-sm font-semibold",
+                                                children: "Explore Tuzwa"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                lineNumber: 359,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-xs opacity-80",
+                                                children: "Loyalty Rewards"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                lineNumber: 360,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 347,
-                                        columnNumber: 30
-                                    }, this)
-                                ]
-                            }, item.href, true, {
-                                fileName: "[project]/components/dashboard-sidebar.tsx",
-                                lineNumber: 337,
-                                columnNumber: 13
-                            }, this);
-                        })
-                    }, void 0, false, {
-                        fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 127,
-                        columnNumber: 7
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "p-3 pb-6",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                            href: "/loyalty",
-                            className: "flex items-center gap-3 px-3 py-2.5 hover:opacity-80 transition-opacity cursor-pointer",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex h-10 w-10 items-center justify-center rounded-xl bg-green-700/10",
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$leaf$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Leaf$3e$__["Leaf"], {
-                                        className: "h-5 w-5 text-green-700"
-                                    }, void 0, false, {
-                                        fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 359,
+                                        lineNumber: 358,
                                         columnNumber: 13
                                     }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/components/dashboard-sidebar.tsx",
-                                    lineNumber: 358,
-                                    columnNumber: 11
-                                }, this),
-                                !collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "text-green-700",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-sm font-semibold",
-                                            children: "Explore Tuzwa"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 363,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                            className: "text-xs opacity-80",
-                                            children: "Loyalty Rewards"
-                                        }, void 0, false, {
-                                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                                            lineNumber: 364,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/components/dashboard-sidebar.tsx",
-                                    lineNumber: 362,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 354,
-                            columnNumber: 9
-                        }, this)
-                    }, void 0, false, {
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                lineNumber: 351,
+                                columnNumber: 9
+                            }, this)
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 353,
+                        lineNumber: 127,
                         columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -870,18 +859,18 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 376,
+                            lineNumber: 372,
                             columnNumber: 22
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$left$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronLeft$3e$__["ChevronLeft"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 376,
+                            lineNumber: 372,
                             columnNumber: 61
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 370,
+                        lineNumber: 366,
                         columnNumber: 7
                     }, this),
                     mobileOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -893,12 +882,12 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                             className: "h-5 w-5"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 386,
+                            lineNumber: 382,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 380,
+                        lineNumber: 376,
                         columnNumber: 9
                     }, this)
                 ]
