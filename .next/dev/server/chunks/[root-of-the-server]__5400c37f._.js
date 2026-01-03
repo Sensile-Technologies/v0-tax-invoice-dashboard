@@ -59,6 +59,8 @@ return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, _
 __turbopack_context__.s([
     "execute",
     ()=>execute,
+    "getClient",
+    ()=>getClient,
     "pool",
     ()=>pool,
     "query",
@@ -97,6 +99,9 @@ async function execute(text, params) {
     } finally{
         client.release();
     }
+}
+async function getClient() {
+    return await pool.connect();
 }
 ;
 __turbopack_async_result__();
@@ -381,8 +386,40 @@ async function POST(request) {
                 status: 404
             });
         }
-        const nozzle = nozzleResult[0];
-        const unitPrice = parseFloat(nozzle.sale_price) || 0;
+        let nozzle = nozzleResult[0];
+        let unitPrice = parseFloat(nozzle.sale_price) || 0;
+        // Fallback: If nozzle doesn't have item_id, try to find item by fuel type name (like mobile app does)
+        if (!nozzle.item_id && nozzle.fuel_type) {
+            const itemByNameResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+        SELECT i.id as item_id, i.item_code, i.class_code, i.item_name, 
+               i.package_unit, i.quantity_unit, i.tax_type,
+               COALESCE(bi.sale_price, i.sale_price, 0) as sale_price
+        FROM items i
+        LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+        WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
+        AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
+        ORDER BY i.created_at DESC LIMIT 1
+      `, [
+                branch_id,
+                nozzle.fuel_type,
+                `%${nozzle.fuel_type}%`
+            ]);
+            if (itemByNameResult.length > 0) {
+                const foundItem = itemByNameResult[0];
+                nozzle = {
+                    ...nozzle,
+                    item_id: foundItem.item_id,
+                    item_code: foundItem.item_code,
+                    class_code: foundItem.class_code,
+                    item_name: foundItem.item_name,
+                    package_unit: foundItem.package_unit,
+                    quantity_unit: foundItem.quantity_unit,
+                    tax_type: foundItem.tax_type,
+                    sale_price: foundItem.sale_price
+                };
+                unitPrice = parseFloat(foundItem.sale_price) || 0;
+            }
+        }
         if (!nozzle.item_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
