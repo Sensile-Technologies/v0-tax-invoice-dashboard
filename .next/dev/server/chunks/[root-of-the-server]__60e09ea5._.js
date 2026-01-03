@@ -195,12 +195,57 @@ async function GET(request) {
             'manager'
         ];
         const isRestricted = role && restrictedRoles.includes(role.toLowerCase());
-        // For managers/supervisors, only return their assigned branch
+        // For managers/supervisors, only return their assigned branch with stats
         if (isRestricted && branchId) {
-            const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM branches WHERE id = $1 AND status IN ('active', 'pending_onboarding')`, [
-                branchId
+            const today = new Date();
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+            const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT b.*,
+          COALESCE((
+            SELECT SUM(s.total_amount) 
+            FROM sales s 
+            WHERE s.branch_id = b.id 
+              AND s.created_at >= $2
+          ), 0) as mtd_revenue,
+          COALESCE((
+            SELECT SUM(s.total_amount) 
+            FROM sales s 
+            WHERE s.branch_id = b.id 
+              AND s.created_at >= $3 
+              AND s.created_at <= $4
+          ), 0) as last_month_revenue,
+          COALESCE((
+            SELECT SUM(s.total_amount) 
+            FROM sales s 
+            JOIN shifts sh ON s.shift_id = sh.id 
+            WHERE s.branch_id = b.id 
+              AND sh.status = 'active'
+          ), 0) as current_shift_revenue
+        FROM branches b 
+        WHERE b.id = $1 AND b.status IN ('active', 'pending_onboarding')`, [
+                branchId,
+                startOfMonth.toISOString(),
+                startOfLastMonth.toISOString(),
+                endOfLastMonth.toISOString()
             ]);
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches || []);
+            const branchesWithStats = (branches || []).map((branch)=>{
+                const mtdRevenue = parseFloat(branch.mtd_revenue) || 0;
+                const lastMonthRevenue = parseFloat(branch.last_month_revenue) || 0;
+                let growth = 0;
+                if (lastMonthRevenue > 0) {
+                    growth = Math.round((mtdRevenue - lastMonthRevenue) / lastMonthRevenue * 100);
+                } else if (mtdRevenue > 0) {
+                    growth = 100;
+                }
+                return {
+                    ...branch,
+                    monthToDateRevenue: mtdRevenue,
+                    currentShiftRevenue: parseFloat(branch.current_shift_revenue) || 0,
+                    performance: `${growth >= 0 ? '+' : ''}${growth}%`
+                };
+            });
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branchesWithStats);
         }
         // SECURITY: Must have vendor_id to list branches
         if (!vendorId) {
@@ -208,20 +253,67 @@ async function GET(request) {
         }
         const { searchParams } = new URL(request.url);
         const name = searchParams.get("name");
-        // Build query with vendor filter
-        let sql = "SELECT * FROM branches WHERE status IN ('active', 'pending_onboarding') AND vendor_id = $1";
+        // Build query with vendor filter and per-branch stats
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        let sql = `
+      SELECT b.*,
+        COALESCE((
+          SELECT SUM(s.total_amount) 
+          FROM sales s 
+          WHERE s.branch_id = b.id 
+            AND s.created_at >= $2
+        ), 0) as mtd_revenue,
+        COALESCE((
+          SELECT SUM(s.total_amount) 
+          FROM sales s 
+          WHERE s.branch_id = b.id 
+            AND s.created_at >= $3 
+            AND s.created_at <= $4
+        ), 0) as last_month_revenue,
+        COALESCE((
+          SELECT SUM(s.total_amount) 
+          FROM sales s 
+          JOIN shifts sh ON s.shift_id = sh.id 
+          WHERE s.branch_id = b.id 
+            AND sh.status = 'active'
+        ), 0) as current_shift_revenue
+      FROM branches b 
+      WHERE b.status IN ('active', 'pending_onboarding') AND b.vendor_id = $1`;
         const params = [
-            vendorId
+            vendorId,
+            startOfMonth.toISOString(),
+            startOfLastMonth.toISOString(),
+            endOfLastMonth.toISOString()
         ];
-        let paramIndex = 2;
+        let paramIndex = 5;
         if (name) {
-            sql += ` AND LOWER(name) LIKE LOWER($${paramIndex})`;
+            sql += ` AND LOWER(b.name) LIKE LOWER($${paramIndex})`;
             params.push(`%${name}%`);
             paramIndex++;
         }
-        sql += " ORDER BY name";
+        sql += " ORDER BY b.name";
         const branches = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(sql, params);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branches || []);
+        // Calculate growth percentage for each branch
+        const branchesWithStats = (branches || []).map((branch)=>{
+            const mtdRevenue = parseFloat(branch.mtd_revenue) || 0;
+            const lastMonthRevenue = parseFloat(branch.last_month_revenue) || 0;
+            let growth = 0;
+            if (lastMonthRevenue > 0) {
+                growth = Math.round((mtdRevenue - lastMonthRevenue) / lastMonthRevenue * 100);
+            } else if (mtdRevenue > 0) {
+                growth = 100;
+            }
+            return {
+                ...branch,
+                monthToDateRevenue: mtdRevenue,
+                currentShiftRevenue: parseFloat(branch.current_shift_revenue) || 0,
+                performance: `${growth >= 0 ? '+' : ''}${growth}%`
+            };
+        });
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(branchesWithStats);
     } catch (error) {
         console.error("Error fetching branches:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
