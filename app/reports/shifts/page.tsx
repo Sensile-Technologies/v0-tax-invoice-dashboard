@@ -423,35 +423,7 @@ export default function ShiftsReportPage() {
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <span className="text-slate-500 text-sm">Filter (optional):</span>
-                      <Input
-                        type="date"
-                        value={dateFrom}
-                        onChange={(e) => setDateFrom(e.target.value)}
-                        className="w-36 rounded-xl text-sm"
-                        placeholder="From"
-                      />
-                      <span className="text-slate-400">to</span>
-                      <Input
-                        type="date"
-                        value={dateTo}
-                        onChange={(e) => setDateTo(e.target.value)}
-                        className="w-36 rounded-xl text-sm"
-                        placeholder="To"
-                      />
-                      {(dateFrom || dateTo) && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => { setDateFrom(''); setDateTo(''); }}
-                          className="rounded-xl text-slate-500"
-                        >
-                          Clear
-                        </Button>
-                      )}
-                    </div>
+                  <div className="flex items-center justify-end">
                     <div className="text-sm text-slate-500">
                       Showing {shifts.length} of {totalShiftsCount} shifts
                     </div>
