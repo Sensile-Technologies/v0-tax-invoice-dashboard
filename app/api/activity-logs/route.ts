@@ -20,10 +20,14 @@ async function getSessionUser() {
 export async function GET(request: NextRequest) {
   try {
     const session = await getSessionUser()
+    
+    if (!session?.id) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+    }
+    
     const { searchParams } = new URL(request.url)
     
     const branchId = searchParams.get('branch_id')
-    const vendorId = searchParams.get('vendor_id')
     const userId = searchParams.get('user_id')
     const action = searchParams.get('action')
     const dateFrom = searchParams.get('date_from')
@@ -31,35 +35,37 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
     
-    let userVendorId = vendorId
+    let userVendorId: string | null = null
     let userRole = 'vendor'
     
-    if (session?.id) {
-      const vendorResult = await pool.query(
-        `SELECT v.id as vendor_id FROM users u 
-         JOIN vendors v ON v.email = u.email 
-         WHERE u.id = $1`,
+    const vendorResult = await pool.query(
+      `SELECT v.id as vendor_id FROM users u 
+       JOIN vendors v ON v.email = u.email 
+       WHERE u.id = $1`,
+      [session.id]
+    )
+    if (vendorResult.rows.length > 0) {
+      userVendorId = vendorResult.rows[0].vendor_id
+    } else {
+      const staffResult = await pool.query(
+        `SELECT s.role, b.vendor_id FROM staff s
+         JOIN branches b ON s.branch_id = b.id
+         WHERE s.user_id = $1`,
         [session.id]
       )
-      if (vendorResult.rows.length > 0) {
-        userVendorId = vendorResult.rows[0].vendor_id
-      } else {
-        const staffResult = await pool.query(
-          `SELECT s.role, b.vendor_id FROM staff s
-           JOIN branches b ON s.branch_id = b.id
-           WHERE s.user_id = $1`,
-          [session.id]
-        )
-        if (staffResult.rows.length > 0) {
-          userVendorId = staffResult.rows[0].vendor_id
-          userRole = staffResult.rows[0].role
-        }
+      if (staffResult.rows.length > 0) {
+        userVendorId = staffResult.rows[0].vendor_id
+        userRole = staffResult.rows[0].role
       }
     }
     
     const restrictedRoles = ['cashier', 'supervisor', 'manager']
     if (restrictedRoles.includes(userRole?.toLowerCase() || '')) {
-      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+      return NextResponse.json({ error: 'Access denied. Only directors and vendors can view activity logs.' }, { status: 403 })
+    }
+    
+    if (!userVendorId) {
+      return NextResponse.json({ error: 'Unable to determine vendor access' }, { status: 403 })
     }
     
     let query = `
