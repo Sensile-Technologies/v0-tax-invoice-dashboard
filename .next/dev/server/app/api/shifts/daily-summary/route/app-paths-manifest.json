@@ -1,0 +1,3 @@
+{
+  "/api/shifts/daily-summary/route": "app/api/shifts/daily-summary/route.js"
+}

@@ -6,9 +6,10 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle, Clock, User } from "lucide-react"
+import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle, Clock, User, Calendar } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
+import { Label } from "@/components/ui/label"
 
 interface ShiftSaleItem {
   fuel_type: string
@@ -55,9 +56,12 @@ interface NozzleTotals {
 export default function DailySalesReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0])
+  const today = new Date().toISOString().split("T")[0]
+  const [startDate, setStartDate] = useState(today)
+  const [endDate, setEndDate] = useState(today)
   const [loading, setLoading] = useState(true)
   const [shiftSummaries, setShiftSummaries] = useState<ShiftSummary[]>([])
+  const [productTotals, setProductTotals] = useState<ShiftSaleItem[]>([])
   const [grandTotals, setGrandTotals] = useState({
     claimed_quantity: 0,
     claimed_amount: 0,
@@ -82,32 +86,37 @@ export default function DailySalesReportPage() {
 
       if (!branchId) {
         setShiftSummaries([])
+        setProductTotals([])
         setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
         return
       }
 
       const params = new URLSearchParams()
       params.append("branch_id", branchId)
-      params.append("date", selectedDate)
+      params.append("start_date", startDate)
+      params.append("end_date", endDate)
 
       const response = await fetch(`/api/shifts/daily-summary?${params.toString()}`)
       const result = await response.json()
 
       if (result.success && result.data) {
         setShiftSummaries(result.data.shifts || [])
+        setProductTotals(result.data.productTotals || [])
         setGrandTotals(result.data.grandTotals || { claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
       } else {
         setShiftSummaries([])
+        setProductTotals([])
         setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
       }
     } catch (error) {
       console.error("Error fetching daily sales:", error)
       setShiftSummaries([])
+      setProductTotals([])
       setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
     } finally {
       setLoading(false)
     }
-  }, [selectedDate])
+  }, [startDate, endDate])
 
   useEffect(() => {
     fetchDailySales()
@@ -138,7 +147,7 @@ export default function DailySalesReportPage() {
 
       const params = new URLSearchParams()
       params.append("branch_id", branchId)
-      params.append("date", selectedDate)
+      params.append("date", startDate)
       if (userId) params.append("user_id", userId)
 
       const response = await fetch(`/api/shifts/nozzle-report?${params.toString()}`)
@@ -158,7 +167,7 @@ export default function DailySalesReportPage() {
     } finally {
       setNozzleLoading(false)
     }
-  }, [selectedDate])
+  }, [startDate])
 
   useEffect(() => {
     fetchNozzleReport()
@@ -201,7 +210,7 @@ export default function DailySalesReportPage() {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = `daily-sales-report-${selectedDate}.csv`
+    a.download = `sales-report-${startDate}-to-${endDate}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
   }
@@ -286,17 +295,154 @@ export default function DailySalesReportPage() {
 
               <Card className="rounded-2xl">
                 <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <CardTitle className="text-lg md:text-xl">Sales by Shift</CardTitle>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full sm:w-40 rounded-xl"
-                      />
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-blue-500" />
+                        Date Range Filter
+                      </CardTitle>
+                    </div>
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-xs text-slate-600">From</Label>
+                        <Input
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-36 rounded-xl"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label className="text-xs text-slate-600">To</Label>
+                        <Input
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="w-36 rounded-xl"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => { setStartDate(today); setEndDate(today); }}
+                        >
+                          Today
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const weekAgo = new Date()
+                            weekAgo.setDate(weekAgo.getDate() - 7)
+                            setStartDate(weekAgo.toISOString().split("T")[0])
+                            setEndDate(today)
+                          }}
+                        >
+                          Last 7 Days
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const monthAgo = new Date()
+                            monthAgo.setDate(monthAgo.getDate() - 30)
+                            setStartDate(monthAgo.toISOString().split("T")[0])
+                            setEndDate(today)
+                          }}
+                        >
+                          Last 30 Days
+                        </Button>
+                      </div>
                     </div>
                   </div>
+                </CardHeader>
+              </Card>
+
+              {productTotals.length > 0 && (
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+                      <Fuel className="h-5 w-5 text-blue-500" />
+                      Product Summary
+                    </CardTitle>
+                    <p className="text-sm text-slate-600">
+                      Cumulative sales by product for the selected period
+                      {startDate !== endDate && ` (${startDate} to ${endDate})`}
+                    </p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[600px]">
+                        <thead>
+                          <tr className="border-b text-xs md:text-sm bg-slate-50">
+                            <th className="text-left py-2 px-4 font-semibold text-slate-700">Product</th>
+                            <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed (L)</th>
+                            <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed Amount</th>
+                            <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed (L)</th>
+                            <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed Amount</th>
+                            <th className="text-right py-2 px-4 font-semibold text-slate-700">Total (L)</th>
+                            <th className="text-right py-2 px-4 font-semibold text-slate-700">Total Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {productTotals.map((item, idx) => (
+                            <tr key={idx} className="border-b hover:bg-slate-50 text-xs md:text-sm">
+                              <td className="py-2 px-4 font-medium">{item.fuel_type}</td>
+                              <td className="py-2 px-4 text-right text-green-700 font-mono">
+                                {item.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-2 px-4 text-right text-green-700 font-mono">
+                                {formatCurrency(item.claimed_amount)}
+                              </td>
+                              <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                                {item.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                                {formatCurrency(item.unclaimed_amount)}
+                              </td>
+                              <td className="py-2 px-4 text-right font-mono font-semibold">
+                                {(item.claimed_quantity + item.unclaimed_quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="py-2 px-4 text-right font-mono font-semibold">
+                                {formatCurrency(item.claimed_amount + item.unclaimed_amount)}
+                              </td>
+                            </tr>
+                          ))}
+                          <tr className="font-bold bg-slate-100 text-xs md:text-sm">
+                            <td className="py-2 px-4">TOTAL</td>
+                            <td className="py-2 px-4 text-right text-green-700 font-mono">
+                              {grandTotals.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-2 px-4 text-right text-green-700 font-mono">
+                              {formatCurrency(grandTotals.claimed_amount)}
+                            </td>
+                            <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                              {grandTotals.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-2 px-4 text-right text-amber-700 font-mono">
+                              {formatCurrency(grandTotals.unclaimed_amount)}
+                            </td>
+                            <td className="py-2 px-4 text-right font-mono">
+                              {totalQuantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-2 px-4 text-right font-mono">
+                              {formatCurrency(totalSales)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card className="rounded-2xl">
+                <CardHeader>
+                  <CardTitle className="text-lg md:text-xl">Shift Details</CardTitle>
+                  <p className="text-sm text-slate-600">
+                    {shiftSummaries.length} shift{shiftSummaries.length !== 1 ? 's' : ''} in selected period
+                  </p>
                 </CardHeader>
                 <CardContent>
                   {loading ? (
@@ -307,15 +453,21 @@ export default function DailySalesReportPage() {
                   ) : shiftSummaries.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12">
                       <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No shifts recorded for this date</p>
-                      <p className="text-sm text-muted-foreground mt-1">Try selecting a different date</p>
+                      <p className="text-muted-foreground">No shifts recorded for this period</p>
+                      <p className="text-sm text-muted-foreground mt-1">Try selecting a different date range</p>
                     </div>
                   ) : (
                     <div className="space-y-6">
                       {shiftSummaries.map((shift) => (
                         <div key={shift.shift_id} className="border rounded-xl overflow-hidden">
                           <div className="bg-slate-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
+                              {startDate !== endDate && (
+                                <div className="flex items-center gap-1.5 text-sm">
+                                  <Calendar className="h-4 w-4 text-slate-500" />
+                                  <span className="font-medium">{new Date(shift.start_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                </div>
+                              )}
                               <div className="flex items-center gap-1.5 text-sm">
                                 <Clock className="h-4 w-4 text-slate-500" />
                                 <span className="font-medium">{formatTime(shift.start_time)}</span>

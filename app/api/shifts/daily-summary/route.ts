@@ -33,16 +33,31 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const branchId = searchParams.get('branch_id')
     const date = searchParams.get('date')
+    const startDate = searchParams.get('start_date')
+    const endDate = searchParams.get('end_date')
 
-    if (!branchId || !date) {
+    if (!branchId) {
       return NextResponse.json(
-        { error: "branch_id and date are required" },
+        { error: "branch_id is required" },
         { status: 400 }
       )
     }
 
-    const startOfDay = `${date}T00:00:00`
-    const endOfDay = `${date}T23:59:59`
+    let startOfPeriod: string
+    let endOfPeriod: string
+
+    if (startDate && endDate) {
+      startOfPeriod = `${startDate}T00:00:00`
+      endOfPeriod = `${endDate}T23:59:59`
+    } else if (date) {
+      startOfPeriod = `${date}T00:00:00`
+      endOfPeriod = `${date}T23:59:59`
+    } else {
+      return NextResponse.json(
+        { error: "date or (start_date and end_date) are required" },
+        { status: 400 }
+      )
+    }
 
     const shiftsQuery = `
       SELECT 
@@ -58,7 +73,7 @@ export async function GET(request: NextRequest) {
         AND s.start_time <= $3
       ORDER BY s.start_time ASC
     `
-    const shiftsResult = await pool.query(shiftsQuery, [branchId, startOfDay, endOfDay])
+    const shiftsResult = await pool.query(shiftsQuery, [branchId, startOfPeriod, endOfPeriod])
 
     const shiftSummaries: ShiftSummary[] = []
 
@@ -179,11 +194,31 @@ export async function GET(request: NextRequest) {
       unclaimed_amount: shiftSummaries.reduce((sum, s) => sum + s.totals.unclaimed_amount, 0)
     }
 
+    const productSummary = new Map<string, ShiftSaleItem>()
+    for (const shift of shiftSummaries) {
+      for (const item of shift.items) {
+        const existing = productSummary.get(item.fuel_type) || {
+          fuel_type: item.fuel_type,
+          claimed_quantity: 0,
+          claimed_amount: 0,
+          unclaimed_quantity: 0,
+          unclaimed_amount: 0
+        }
+        existing.claimed_quantity += item.claimed_quantity
+        existing.claimed_amount += item.claimed_amount
+        existing.unclaimed_quantity += item.unclaimed_quantity
+        existing.unclaimed_amount += item.unclaimed_amount
+        productSummary.set(item.fuel_type, existing)
+      }
+    }
+    const productTotals = Array.from(productSummary.values()).sort((a, b) => a.fuel_type.localeCompare(b.fuel_type))
+
     return NextResponse.json({
       success: true,
       data: {
         shifts: shiftSummaries,
-        grandTotals
+        grandTotals,
+        productTotals
       }
     })
 

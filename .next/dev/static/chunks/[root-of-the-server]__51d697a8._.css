@@ -7619,12 +7619,6 @@
   }
 
   @media (min-width: 40rem) {
-    .sm\:w-40 {
-      width: calc(var(--spacing) * 40);
-    }
-  }
-
-  @media (min-width: 40rem) {
     .sm\:w-72 {
       width: calc(var(--spacing) * 72);
     }
