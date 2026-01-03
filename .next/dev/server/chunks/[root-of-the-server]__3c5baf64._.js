@@ -76,15 +76,30 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
         const date = searchParams.get('date');
-        if (!branchId || !date) {
+        const startDate = searchParams.get('start_date');
+        const endDate = searchParams.get('end_date');
+        if (!branchId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "branch_id and date are required"
+                error: "branch_id is required"
             }, {
                 status: 400
             });
         }
-        const startOfDay = `${date}T00:00:00`;
-        const endOfDay = `${date}T23:59:59`;
+        let startOfPeriod;
+        let endOfPeriod;
+        if (startDate && endDate) {
+            startOfPeriod = `${startDate}T00:00:00`;
+            endOfPeriod = `${endDate}T23:59:59`;
+        } else if (date) {
+            startOfPeriod = `${date}T00:00:00`;
+            endOfPeriod = `${date}T23:59:59`;
+        } else {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "date or (start_date and end_date) are required"
+            }, {
+                status: 400
+            });
+        }
         const shiftsQuery = `
       SELECT 
         s.id,
@@ -101,8 +116,8 @@ async function GET(request) {
     `;
         const shiftsResult = await pool.query(shiftsQuery, [
             branchId,
-            startOfDay,
-            endOfDay
+            startOfPeriod,
+            endOfPeriod
         ]);
         const shiftSummaries = [];
         for (const shift of shiftsResult.rows){
@@ -214,11 +229,30 @@ async function GET(request) {
             unclaimed_quantity: shiftSummaries.reduce((sum, s)=>sum + s.totals.unclaimed_quantity, 0),
             unclaimed_amount: shiftSummaries.reduce((sum, s)=>sum + s.totals.unclaimed_amount, 0)
         };
+        const productSummary = new Map();
+        for (const shift of shiftSummaries){
+            for (const item of shift.items){
+                const existing = productSummary.get(item.fuel_type) || {
+                    fuel_type: item.fuel_type,
+                    claimed_quantity: 0,
+                    claimed_amount: 0,
+                    unclaimed_quantity: 0,
+                    unclaimed_amount: 0
+                };
+                existing.claimed_quantity += item.claimed_quantity;
+                existing.claimed_amount += item.claimed_amount;
+                existing.unclaimed_quantity += item.unclaimed_quantity;
+                existing.unclaimed_amount += item.unclaimed_amount;
+                productSummary.set(item.fuel_type, existing);
+            }
+        }
+        const productTotals = Array.from(productSummary.values()).sort((a, b)=>a.fuel_type.localeCompare(b.fuel_type));
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: {
                 shifts: shiftSummaries,
-                grandTotals
+                grandTotals,
+                productTotals
             }
         });
     } catch (error) {
