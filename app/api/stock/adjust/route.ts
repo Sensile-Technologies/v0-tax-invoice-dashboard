@@ -89,11 +89,10 @@ export async function POST(request: NextRequest) {
       SELECT b.id, b.kra_pin, b.bhf_id, b.sr_number,
              COALESCE(b.server_address, '5.189.171.160') as server_address,
              COALESCE(b.server_port, '8088') as server_port,
-             v.kra_pin as vendor_kra_pin
+             (SELECT v.kra_pin FROM vendors v WHERE v.id = b.vendor_id) as vendor_kra_pin
       FROM branches b
-      LEFT JOIN vendors v ON v.id = b.vendor_id
       WHERE b.id = $1
-      FOR UPDATE
+      FOR UPDATE OF b
     `, [branch_id])
     
     if (branchResult.rows.length === 0) {
@@ -106,11 +105,15 @@ export async function POST(request: NextRequest) {
     const bhfId = branch.bhf_id || "00"
 
     const tankResult = await client.query(`
-      SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, i.quantity_unit
+      SELECT t.*, 
+             (SELECT i.item_code FROM items i WHERE i.id = t.item_id) as item_code,
+             (SELECT i.class_code FROM items i WHERE i.id = t.item_id) as class_code,
+             (SELECT i.item_name FROM items i WHERE i.id = t.item_id) as item_name,
+             (SELECT i.package_unit FROM items i WHERE i.id = t.item_id) as package_unit,
+             (SELECT i.quantity_unit FROM items i WHERE i.id = t.item_id) as quantity_unit
       FROM tanks t
-      LEFT JOIN items i ON t.item_id = i.id
       WHERE t.id = $1
-      FOR UPDATE
+      FOR UPDATE OF t
     `, [tank_id])
     
     if (tankResult.rows.length === 0) {

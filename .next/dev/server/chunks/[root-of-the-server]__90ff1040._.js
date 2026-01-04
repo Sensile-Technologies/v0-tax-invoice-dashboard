@@ -176,6 +176,20 @@ async function PUT(request) {
         }
         await client.query('BEGIN');
         if (action === 'accept') {
+            // Get source tank
+            const fromTank = await client.query("SELECT * FROM tanks WHERE id = $1", [
+                transfer.from_tank_id
+            ]);
+            if (fromTank.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: false,
+                    error: "Source tank not found"
+                }, {
+                    status: 404
+                });
+            }
+            // Get destination tank
             const toTank = await client.query("SELECT * FROM tanks WHERE id = $1", [
                 transfer.to_tank_id
             ]);
@@ -188,24 +202,84 @@ async function PUT(request) {
                     status: 404
                 });
             }
-            const previousStock = parseFloat(toTank.rows[0].current_stock) || 0;
-            const newStock = previousStock + parseFloat(transfer.quantity);
+            const transferQty = parseFloat(transfer.quantity);
+            // Source tank calculations
+            const fromPreviousStock = parseFloat(fromTank.rows[0].current_stock) || 0;
+            // Check if source tank has sufficient stock
+            if (fromPreviousStock < transferQty) {
+                await client.query('ROLLBACK');
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: false,
+                    error: `Insufficient stock in source tank. Available: ${fromPreviousStock.toFixed(2)}L. Transfer quantity: ${transferQty}L.`
+                }, {
+                    status: 400
+                });
+            }
+            const fromNewStock = fromPreviousStock - transferQty;
+            // Destination tank calculations
+            const toPreviousStock = parseFloat(toTank.rows[0].current_stock) || 0;
+            const tankCapacity = parseFloat(toTank.rows[0].capacity) || 0;
+            const toNewStock = toPreviousStock + transferQty;
+            // Check if transfer would exceed destination tank capacity (100%)
+            if (tankCapacity > 0 && toNewStock > tankCapacity) {
+                await client.query('ROLLBACK');
+                const availableSpace = tankCapacity - toPreviousStock;
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: false,
+                    error: `Cannot accept transfer. Tank capacity is ${tankCapacity}L. Current stock: ${toPreviousStock}L. Available space: ${availableSpace.toFixed(2)}L. Transfer quantity: ${transfer.quantity}L would exceed capacity.`
+                }, {
+                    status: 400
+                });
+            }
+            // Update source tank (deduct stock)
             await client.query("UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2", [
-                newStock,
+                fromNewStock,
+                transfer.from_tank_id
+            ]);
+            // Update destination tank (add stock)
+            await client.query("UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2", [
+                toNewStock,
                 transfer.to_tank_id
             ]);
+            // Insert stock_adjustments for source tank (transfer_out)
+            await client.query(`INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approved_by, approval_status)
+         VALUES ($1, $2, 'transfer_out', $3, $4, $5, $6, $7, 'approved')`, [
+                transfer.from_branch_id,
+                transfer.from_tank_id,
+                transferQty,
+                fromPreviousStock,
+                fromNewStock,
+                `Transfer to ${toTank.rows[0].tank_name || 'another tank'}: ${transfer.notes || ''}`,
+                approved_by
+            ]);
+            // Insert stock_adjustments for destination tank (transfer_in)
+            await client.query(`INSERT INTO stock_adjustments (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approved_by, approval_status)
+         VALUES ($1, $2, 'transfer_in', $3, $4, $5, $6, $7, 'approved')`, [
+                transfer.to_branch_id,
+                transfer.to_tank_id,
+                transferQty,
+                toPreviousStock,
+                toNewStock,
+                `Transfer from ${fromTank.rows[0].tank_name || 'another tank'}: ${transfer.notes || ''}`,
+                approved_by
+            ]);
+            // Update the transfer record
             await client.query(`UPDATE stock_transfers 
          SET status = 'completed', 
              approval_status = 'approved',
              approved_by = $1, 
              approved_at = NOW(),
-             to_previous_stock = $2,
-             to_new_stock = $3,
+             from_previous_stock = $2,
+             from_new_stock = $3,
+             to_previous_stock = $4,
+             to_new_stock = $5,
              updated_at = NOW()
-         WHERE id = $4`, [
+         WHERE id = $6`, [
                 approved_by,
-                previousStock,
-                newStock,
+                fromPreviousStock,
+                fromNewStock,
+                toPreviousStock,
+                toNewStock,
                 transfer_id
             ]);
             await client.query('COMMIT');
@@ -213,8 +287,10 @@ async function PUT(request) {
                 success: true,
                 data: {
                     transfer_id,
-                    previousStock,
-                    newStock,
+                    fromPreviousStock,
+                    fromNewStock,
+                    toPreviousStock,
+                    toNewStock,
                     quantity: transfer.quantity
                 }
             });
