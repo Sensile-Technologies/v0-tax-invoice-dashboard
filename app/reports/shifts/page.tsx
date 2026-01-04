@@ -103,10 +103,26 @@ export default function ShiftsReportPage() {
   const [tankStocks, setTankStocks] = useState<TankStock[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null)
 
+  // Get the current selected branch from localStorage
+  function getSelectedBranchId(): string | null {
+    try {
+      const selectedBranchStr = localStorage.getItem("selectedBranch")
+      if (selectedBranchStr) {
+        const selectedBranch = JSON.parse(selectedBranchStr)
+        return selectedBranch.id && selectedBranch.id !== "hq" ? selectedBranch.id : null
+      }
+    } catch (e) {}
+    return null
+  }
 
   useEffect(() => {
     async function loadUserAndShifts() {
+      // Get initial branch selection
+      const branchId = getSelectedBranchId()
+      setSelectedBranchId(branchId)
+      
       // Try localStorage first (backward compatibility)
       const userStr = localStorage.getItem("user")
       
@@ -114,7 +130,6 @@ export default function ShiftsReportPage() {
         try {
           const user = JSON.parse(userStr)
           setUserId(user.id)
-          fetchShifts(user.id, '', '', 0)
           return
         } catch (e) {
           console.error('[ShiftsReport] Error parsing localStorage user:', e)
@@ -128,7 +143,6 @@ export default function ShiftsReportPage() {
           const sessionData = await sessionRes.json()
           if (sessionData.user?.id) {
             setUserId(sessionData.user.id)
-            fetchShifts(sessionData.user.id, '', '', 0)
             return
           }
         }
@@ -140,7 +154,35 @@ export default function ShiftsReportPage() {
     }
     
     loadUserAndShifts()
+    
+    // Listen for branch changes (when user switches branch in header)
+    function handleStorageChange(e: StorageEvent) {
+      if (e.key === "selectedBranch") {
+        const newBranchId = getSelectedBranchId()
+        setSelectedBranchId(newBranchId)
+      }
+    }
+    
+    // Also poll for changes (for same-tab localStorage updates)
+    const pollInterval = setInterval(() => {
+      const newBranchId = getSelectedBranchId()
+      setSelectedBranchId(prev => prev !== newBranchId ? newBranchId : prev)
+    }, 1000)
+    
+    window.addEventListener('storage', handleStorageChange)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(pollInterval)
+    }
   }, [])
+  
+  // Fetch shifts when userId or selectedBranchId changes
+  useEffect(() => {
+    if (userId) {
+      setCurrentPage(0)
+      fetchShifts(userId, dateFrom, dateTo, 0)
+    }
+  }, [userId, selectedBranchId])
 
   useEffect(() => {
     // Re-fetch when date filters change
@@ -158,16 +200,33 @@ export default function ShiftsReportPage() {
       params.append('limit', PAGE_SIZE.toString())
       params.append('offset', (page * PAGE_SIZE).toString())
       
-      // Try to get branch_id from localStorage first, then from session
+      // Get branch_id from selectedBranch (header selection) first, then fall back to user's assigned branch
       let branchId: string | null = null
-      const userStr = localStorage.getItem("user")
-      if (userStr) {
+      
+      // First priority: use the branch selected in the header (stored in selectedBranch)
+      const selectedBranchStr = localStorage.getItem("selectedBranch")
+      if (selectedBranchStr) {
         try {
-          const user = JSON.parse(userStr)
-          branchId = user.branch_id
+          const selectedBranch = JSON.parse(selectedBranchStr)
+          // "hq" means headquarters - no specific branch filter
+          if (selectedBranch.id && selectedBranch.id !== "hq") {
+            branchId = selectedBranch.id
+          }
         } catch (e) {}
       }
       
+      // Second priority: use user's assigned branch (for supervisors/managers)
+      if (!branchId) {
+        const userStr = localStorage.getItem("user")
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr)
+            branchId = user.branch_id
+          } catch (e) {}
+        }
+      }
+      
+      // Third priority: fetch from session
       if (!branchId) {
         try {
           const sessionRes = await fetch('/api/auth/session')
