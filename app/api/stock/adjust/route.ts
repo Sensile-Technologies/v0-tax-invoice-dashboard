@@ -120,6 +120,7 @@ export async function POST(request: NextRequest) {
 
     const tank = tankResult.rows[0]
     const previousStock = parseFloat(tank.current_stock) || 0
+    const tankCapacity = parseFloat(tank.capacity) || 0
     let newStock: number
 
     if (adjustment_type === "increase") {
@@ -128,6 +129,16 @@ export async function POST(request: NextRequest) {
       newStock = Math.max(0, previousStock - quantity)
     } else {
       newStock = quantity
+    }
+
+    // Check if adjustment would exceed tank capacity (100%)
+    if (tankCapacity > 0 && newStock > tankCapacity) {
+      await client.query('ROLLBACK')
+      const availableSpace = tankCapacity - previousStock
+      return NextResponse.json({
+        success: false,
+        error: `Cannot adjust stock. Tank capacity is ${tankCapacity}L. Adjustment would result in ${newStock.toFixed(2)}L which exceeds capacity. Available space: ${availableSpace.toFixed(2)}L`
+      }, { status: 400 })
     }
 
     const actualChange = Math.abs(newStock - previousStock)
