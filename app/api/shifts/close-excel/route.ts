@@ -210,9 +210,10 @@ export async function POST(request: NextRequest) {
             `INSERT INTO sales (
               branch_id, shift_id, nozzle_id, invoice_number, receipt_number,
               sale_date, fuel_type, quantity, unit_price, total_amount,
-              payment_method, customer_name, meter_reading_after, transmission_status
+              payment_method, customer_name, meter_reading_after, transmission_status,
+              is_automated, source_system
             ) VALUES (
-              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+              $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
             )`,
             [
               processingBranchId,
@@ -228,7 +229,9 @@ export async function POST(request: NextRequest) {
               'cash',
               'Shift Close - Bulk Sale',
               update.newReading,
-              'pending'
+              'pending',
+              true,
+              'meter_diff_bulk'
             ]
           )
 
