@@ -4,9 +4,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search } from "lucide-react"
+import { Search, Loader2 } from "lucide-react"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 export default function DeviceAssignmentPage() {
+  const { isChecking, hasAccess } = useHQAccess()
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <div className="flex flex-1 flex-col overflow-hidden">

@@ -5,9 +5,24 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { Search } from "lucide-react"
+import { Search, Loader2 } from "lucide-react"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 export default function ApprovalsPage() {
+  const { isChecking, hasAccess } = useHQAccess()
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardHeader currentBranch="hq" />

@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SearchableSelect } from "@/components/ui/searchable-select"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { ArrowLeft, Package, Save } from "lucide-react"
+import { ArrowLeft, Package, Save, Loader2 } from "lucide-react"
 import { toast } from "react-toastify"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 interface KraCode {
   cd: string
@@ -37,6 +38,7 @@ const COUNTRY_ORIGINS = [
 ].sort((a, b) => a.cd_nm.localeCompare(b.cd_nm))
 
 export default function AddItemPage() {
+  const { isChecking, hasAccess } = useHQAccess()
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [classifications, setClassifications] = useState<Classification[]>([])
@@ -70,8 +72,22 @@ export default function AddItemPage() {
   })
 
   useEffect(() => {
-    fetchKraData()
-  }, [])
+    if (hasAccess) {
+      fetchKraData()
+    }
+  }, [hasAccess])
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
 
   const fetchKraData = async () => {
     try {

@@ -6,16 +6,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Package, Search } from "lucide-react"
+import { Package, Search, Loader2 } from "lucide-react"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 export default function HardwareInventoryPage() {
+  const { isChecking, hasAccess } = useHQAccess()
   const [searchTerm, setSearchTerm] = useState("")
   const [hardware, setHardware] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchHardware()
-  }, [])
+    if (hasAccess) {
+      fetchHardware()
+    }
+  }, [hasAccess])
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
 
   const fetchHardware = async () => {
     try {

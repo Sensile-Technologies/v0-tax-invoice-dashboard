@@ -11,9 +11,10 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, MoreVertical, Edit, RotateCcw, UserX, Plus, Key, Copy, Check } from "lucide-react"
+import { Search, MoreVertical, Edit, RotateCcw, UserX, Plus, Key, Copy, Check, Loader2 } from "lucide-react"
 import { roleDescriptions } from "@/lib/auth/rbac"
 import { getCurrentUser } from "@/lib/auth/client"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 interface StaffMember {
   id: string | number
@@ -30,6 +31,7 @@ interface StaffMember {
 }
 
 export default function StaffManagementPage() {
+  const { isChecking, hasAccess } = useHQAccess()
   const [staff, setStaff] = useState<StaffMember[]>([])
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [resetDialogOpen, setResetDialogOpen] = useState(false)
@@ -53,9 +55,23 @@ export default function StaffManagementPage() {
   const [isLoadingStaff, setIsLoadingStaff] = useState(true)
 
   useEffect(() => {
-    fetchBranches()
-    fetchStaff()
-  }, [])
+    if (hasAccess) {
+      fetchBranches()
+      fetchStaff()
+    }
+  }, [hasAccess])
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
 
   const fetchBranches = async () => {
     try {

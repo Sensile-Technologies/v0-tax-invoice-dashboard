@@ -4,9 +4,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Search, Monitor } from "lucide-react"
+import { Search, Monitor, Loader2 } from "lucide-react"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 export default function DeviceInventoryPage() {
+  const { isChecking, hasAccess } = useHQAccess()
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
   const devices = [
     {
       id: "DEV-001",

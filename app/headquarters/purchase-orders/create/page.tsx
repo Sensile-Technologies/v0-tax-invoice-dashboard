@@ -18,6 +18,7 @@ import { ArrowLeft, Plus, Trash2, Loader2, Package, Truck, User, Building } from
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { getCurrentUser } from "@/lib/auth/client"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 interface Branch {
   id: string
@@ -45,6 +46,7 @@ interface POItem {
 }
 
 export default function CreatePurchaseOrderPage() {
+  const { isChecking, hasAccess } = useHQAccess()
   const router = useRouter()
   const [branches, setBranches] = useState<Branch[]>([])
   const [suppliers, setSuppliers] = useState<Partner[]>([])
@@ -122,10 +124,24 @@ export default function CreatePurchaseOrderPage() {
   }, [])
 
   useEffect(() => {
-    Promise.all([fetchBranches(), fetchSuppliers(), fetchTransporters(), fetchItems()]).finally(() => {
-      setLoading(false)
-    })
-  }, [fetchBranches, fetchSuppliers, fetchTransporters, fetchItems])
+    if (hasAccess) {
+      Promise.all([fetchBranches(), fetchSuppliers(), fetchTransporters(), fetchItems()]).finally(() => {
+        setLoading(false)
+      })
+    }
+  }, [fetchBranches, fetchSuppliers, fetchTransporters, fetchItems, hasAccess])
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
 
   const addItem = () => {
     setPoItems([...poItems, { item_id: "", item_name: "", quantity: 0, unit_price: 0, total_amount: 0 }])

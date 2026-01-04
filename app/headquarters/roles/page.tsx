@@ -3,7 +3,8 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search } from "lucide-react"
+import { Search, Loader2 } from "lucide-react"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 const roles = [
   {
@@ -29,6 +30,20 @@ const roles = [
 ]
 
 export default function RolesPage() {
+  const { isChecking, hasAccess } = useHQAccess()
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
+
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardHeader currentBranch="hq" />

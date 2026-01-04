@@ -6,12 +6,26 @@ import { HqItemsManager } from "@/components/hq-items-manager"
 import { HqItemComposition } from "@/components/hq-item-composition"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Package, Layers } from "lucide-react"
+import { ArrowLeft, Package, Layers, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 export default function HqItemsPage() {
+  const { isChecking, hasAccess } = useHQAccess()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("catalog")
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-slate-50 to-white">

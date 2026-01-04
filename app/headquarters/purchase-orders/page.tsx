@@ -42,6 +42,7 @@ import {
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { getCurrentUser } from "@/lib/auth/client"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 interface PurchaseOrder {
   id: string
@@ -68,6 +69,7 @@ interface PurchaseOrder {
 }
 
 export default function PurchaseOrdersPage() {
+  const { isChecking, hasAccess } = useHQAccess()
   const router = useRouter()
   const [orders, setOrders] = useState<PurchaseOrder[]>([])
   const [loading, setLoading] = useState(true)
@@ -105,9 +107,23 @@ export default function PurchaseOrdersPage() {
   }, [])
 
   useEffect(() => {
-    fetchOrders()
-    fetchUserRole()
-  }, [fetchOrders, fetchUserRole])
+    if (hasAccess) {
+      fetchOrders()
+      fetchUserRole()
+    }
+  }, [fetchOrders, fetchUserRole, hasAccess])
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
 
   const canApprove = ['vendor', 'manager', 'director', 'admin', 'owner'].includes(userRole)
 

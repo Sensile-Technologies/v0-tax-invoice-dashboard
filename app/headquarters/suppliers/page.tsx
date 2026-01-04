@@ -3,11 +3,25 @@
 import { DashboardHeader } from "@/components/dashboard-header"
 import { PartnersManager } from "@/components/partners-manager"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useHQAccess } from "@/lib/hooks/use-hq-access"
 
 export default function SuppliersPage() {
+  const { isChecking, hasAccess } = useHQAccess()
   const router = useRouter()
+
+  if (isChecking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!hasAccess) {
+    return null
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gradient-to-b from-slate-50 to-white">
