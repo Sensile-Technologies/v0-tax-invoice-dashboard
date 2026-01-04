@@ -62,7 +62,6 @@ export default function TankManagement({ branchId }: { branchId: string | null }
   const [items, setItems] = useState<Item[]>([])
   const [pendingTransfers, setPendingTransfers] = useState<PendingTransfer[]>([])
   const [loading, setLoading] = useState(true)
-  const [showAdjustDialog, setShowAdjustDialog] = useState(false)
   const [showReceiveDialog, setShowReceiveDialog] = useState(false)
   const [showTransferDialog, setShowTransferDialog] = useState(false)
   const [showAddTankDialog, setShowAddTankDialog] = useState(false)
@@ -71,11 +70,6 @@ export default function TankManagement({ branchId }: { branchId: string | null }
   const [destinationTanks, setDestinationTanks] = useState<Tank[]>([])
   const [loadingDestinationTanks, setLoadingDestinationTanks] = useState(false)
 
-  const [adjustForm, setAdjustForm] = useState({
-    quantity: "",
-    reason: "",
-    requestedBy: "",
-  })
 
   const [receiveForm, setReceiveForm] = useState({
     quantity: "",
@@ -331,46 +325,6 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     } catch (error) {
       console.error("Error updating tank item:", error)
       toast.error("Failed to map item to tank")
-    }
-  }
-
-  const handleAdjustStock = async () => {
-    if (!selectedTank) return
-
-    const quantity = Number.parseFloat(adjustForm.quantity)
-
-    try {
-      const adjustRes = await fetch('/api/stock/adjust', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tank_id: selectedTank.id,
-          branch_id: branchId,
-          adjustment_type: quantity >= 0 ? "increase" : "decrease",
-          quantity: Math.abs(quantity),
-          reason: adjustForm.reason,
-          approved_by: adjustForm.requestedBy,
-          sync_to_kra: true
-        })
-      })
-
-      const result = await adjustRes.json()
-      
-      if (adjustRes.ok && result.success) {
-        toast.success(`Stock adjusted: ${result.data.previousStock} -> ${result.data.newStock} litres`)
-        if (result.kraSync?.synced) {
-          toast.info("Stock synced to KRA")
-        }
-      } else {
-        toast.error(result.error || "Error adjusting stock")
-      }
-
-      setShowAdjustDialog(false)
-      setAdjustForm({ quantity: "", reason: "", requestedBy: "" })
-      fetchTanks()
-    } catch (error) {
-      console.error("Error adjusting stock:", error)
-      toast.error("Error adjusting stock")
     }
   }
 
@@ -646,18 +600,6 @@ export default function TankManagement({ branchId }: { branchId: string | null }
                     size="sm"
                     onClick={() => {
                       setSelectedTank(tank)
-                      setShowAdjustDialog(true)
-                    }}
-                    className="rounded-xl"
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Adjust Stock
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedTank(tank)
                       setShowTransferDialog(true)
                     }}
                     className="rounded-xl"
@@ -680,57 +622,6 @@ export default function TankManagement({ branchId }: { branchId: string | null }
           )
         })}
       </div>
-
-      {/* Adjust Stock Dialog */}
-      <Dialog open={showAdjustDialog} onOpenChange={setShowAdjustDialog}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Adjust Stock Level</DialogTitle>
-            <DialogDescription>
-              Manually adjust stock for {selectedTank?.tank_name}. Positive values increase stock, negative values
-              decrease it.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Adjustment Quantity (Litres)</Label>
-              <Input
-                type="number"
-                placeholder="e.g., +500 or -200"
-                value={adjustForm.quantity}
-                onChange={(e) => setAdjustForm({ ...adjustForm, quantity: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
-            <div>
-              <Label>Reason for Adjustment</Label>
-              <Input
-                placeholder="e.g., Physical count correction"
-                value={adjustForm.reason}
-                onChange={(e) => setAdjustForm({ ...adjustForm, reason: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
-            <div>
-              <Label>Requested By</Label>
-              <Input
-                placeholder="Your name"
-                value={adjustForm.requestedBy}
-                onChange={(e) => setAdjustForm({ ...adjustForm, requestedBy: e.target.value })}
-                className="rounded-xl"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAdjustDialog(false)} className="rounded-xl">
-              Cancel
-            </Button>
-            <Button onClick={handleAdjustStock} className="rounded-xl">
-              Adjust Stock
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Accept Transfer Dialog */}
       <Dialog open={showReceiveDialog} onOpenChange={setShowReceiveDialog}>
