@@ -285,19 +285,34 @@ export async function POST(request: NextRequest) {
 
       if (tank_readings && Array.isArray(tank_readings)) {
         for (const reading of tank_readings) {
+          const volumeBefore = parseFloat(reading.volume_before) || 0
+          const volumeAfter = parseFloat(reading.volume_after) || 0
+          const quantityReceived = volumeAfter - volumeBefore
+
           await client.query(
             `INSERT INTO po_acceptance_tank_readings 
              (acceptance_id, tank_id, volume_before, volume_after)
              VALUES ($1, $2, $3, $4)`,
-            [acceptanceId, reading.tank_id, reading.volume_before, reading.volume_after]
+            [acceptanceId, reading.tank_id, volumeBefore, volumeAfter]
           )
           
           await client.query(
             `UPDATE tanks 
              SET current_stock = $1, updated_at = NOW()
              WHERE id = $2 AND branch_id = $3`,
-            [parseFloat(reading.volume_after) || 0, reading.tank_id, branchId]
+            [volumeAfter, reading.tank_id, branchId]
           )
+
+          // Insert stock_adjustments record for stock in history
+          if (quantityReceived > 0) {
+            await client.query(
+              `INSERT INTO stock_adjustments 
+               (branch_id, tank_id, adjustment_type, quantity, previous_stock, new_stock, reason, approved_by, approval_status)
+               VALUES ($1, $2, 'purchase_receive', $3, $4, $5, $6, $7, 'approved')`,
+              [branchId, reading.tank_id, quantityReceived, volumeBefore, volumeAfter, 
+               `Purchase order delivery accepted (PO: ${purchase_order_id.substring(0, 8)})`, user.id]
+            )
+          }
         }
       }
 

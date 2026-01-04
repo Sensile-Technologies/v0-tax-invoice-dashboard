@@ -174,6 +174,7 @@ export function InventoryContent() {
   const stockInMovements = reportMovements.filter(m => 
     m.adjustment_type === 'receive' || m.adjustment_type === 'stock_receive' || 
     m.adjustment_type === 'addition' || m.adjustment_type === 'increase' ||
+    m.adjustment_type === 'purchase_receive' ||
     (m.adjustment_type === 'manual_adjustment' && m.quantity > 0) ||
     m.adjustment_type === 'transfer_in'
   )
@@ -201,6 +202,7 @@ export function InventoryContent() {
       stock_receive: "bg-green-100 text-green-800",
       addition: "bg-green-100 text-green-800",
       increase: "bg-green-100 text-green-800",
+      purchase_receive: "bg-green-100 text-green-800",
       sale: "bg-blue-100 text-blue-800",
       deduction: "bg-red-100 text-red-800",
       decrease: "bg-red-100 text-red-800",

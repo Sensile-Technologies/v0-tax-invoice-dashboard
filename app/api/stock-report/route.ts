@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
 
         const aggQuery = `
           SELECT 
-            COALESCE(SUM(CASE WHEN adjustment_type IN ('receive', 'stock_receive', 'addition') THEN quantity ELSE 0 END), 0) as total_received,
+            COALESCE(SUM(CASE WHEN adjustment_type IN ('receive', 'stock_receive', 'addition', 'purchase_receive') THEN quantity ELSE 0 END), 0) as total_received,
             COALESCE(SUM(CASE WHEN adjustment_type IN ('manual_adjustment', 'increase') AND quantity > 0 THEN quantity ELSE 0 END), 0) as total_adjusted_in,
             COALESCE(SUM(CASE WHEN adjustment_type IN ('manual_adjustment', 'decrease') OR (adjustment_type = 'increase' AND quantity < 0) THEN ABS(quantity) ELSE 0 END), 0) as total_adjusted_out,
             COALESCE(SUM(CASE WHEN adjustment_type IN ('sale', 'deduction') THEN ABS(quantity) ELSE 0 END), 0) as total_sold,
