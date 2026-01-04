@@ -100,28 +100,107 @@ export function SalesSummaryContent() {
   })
 
   useEffect(() => {
-    const storedBranch = localStorage.getItem("selectedBranch")
-    if (storedBranch) {
-      setCurrentBranchData(JSON.parse(storedBranch))
-    }
-    const userStr = localStorage.getItem("flow360_user")
-    if (userStr) {
+    async function initializeBranch() {
+      // Always fetch from session to get the authoritative user/branch info
       try {
-        const user = JSON.parse(userStr)
-        setUserId(user.id)
+        const sessionRes = await fetch('/api/auth/session', { credentials: 'include' })
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json()
+          const user = sessionData.user
+          
+          if (user) {
+            setUserId(user.id)
+            
+            // For branch staff with assigned branches, always use their assigned branch
+            const role = (user.role || '').toLowerCase()
+            const isRestrictedRole = ['supervisor', 'manager', 'cashier'].includes(role)
+            
+            if (isRestrictedRole && user.branch_id && user.branch_name) {
+              // Restricted roles: always use their assigned branch
+              const branchData = {
+                id: user.branch_id,
+                name: user.branch_name,
+                type: "branch",
+                status: "active"
+              }
+              setCurrentBranchData(branchData)
+              localStorage.setItem("selectedBranch", JSON.stringify(branchData))
+              return
+            }
+            
+            // For directors/vendors, use stored branch if available, otherwise HQ
+            const storedBranch = localStorage.getItem("selectedBranch")
+            if (storedBranch) {
+              try {
+                setCurrentBranchData(JSON.parse(storedBranch))
+              } catch (e) {}
+            }
+            return
+          }
+        }
       } catch (e) {
-        console.error('Error parsing user data:', e)
+        console.error('Error fetching session:', e)
+      }
+      
+      // Fallback: try localStorage user data
+      const userStr = localStorage.getItem("flow360_user") || localStorage.getItem("user")
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr)
+          setUserId(user.id)
+          
+          if (user.branch_id && user.branch_name) {
+            const branchData = {
+              id: user.branch_id,
+              name: user.branch_name,
+              type: "branch",
+              status: "active"
+            }
+            setCurrentBranchData(branchData)
+            localStorage.setItem("selectedBranch", JSON.stringify(branchData))
+            return
+          }
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+        }
+      }
+      
+      // Final fallback: use stored branch
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (storedBranch) {
+        try {
+          setCurrentBranchData(JSON.parse(storedBranch))
+        } catch (e) {}
       }
     }
+    
+    initializeBranch()
 
-    // Listen for branch changes from header dropdown
+    // Listen for branch changes from header dropdown (cross-tab)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "selectedBranch" && e.newValue) {
         setCurrentBranchData(JSON.parse(e.newValue))
       }
     }
+    
+    // Poll for same-tab localStorage changes (since storage events don't fire for same tab)
+    const pollInterval = setInterval(() => {
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (storedBranch) {
+        try {
+          const parsed = JSON.parse(storedBranch)
+          setCurrentBranchData((prev: any) => 
+            prev?.id !== parsed.id ? parsed : prev
+          )
+        } catch (e) {}
+      }
+    }, 500)
+    
     window.addEventListener("storage", handleStorageChange)
-    return () => window.removeEventListener("storage", handleStorageChange)
+    return () => {
+      window.removeEventListener("storage", handleStorageChange)
+      clearInterval(pollInterval)
+    }
   }, [])
 
   // Refetch data when branch changes
