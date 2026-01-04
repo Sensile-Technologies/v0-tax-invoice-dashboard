@@ -1299,7 +1299,23 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
             console.log(`[BULK SALES] Skipping nozzle ${reading.nozzle_id} - no price configured`);
             continue;
         }
-        const nozzleTotalAmount = meterDifference * unitPrice;
+        // Get invoiced quantity: sum of sales already created on APK for this nozzle during this shift
+        const invoicedResult = await client.query(`SELECT COALESCE(SUM(quantity), 0) as invoiced_quantity
+       FROM sales
+       WHERE shift_id = $1 AND nozzle_id = $2 AND is_automated = false`, [
+            shiftId,
+            reading.nozzle_id
+        ]);
+        const invoicedQuantity = parseFloat(invoicedResult.rows[0]?.invoiced_quantity) || 0;
+        // Bulk volume = meter difference - invoiced quantity (what was already sold via APK)
+        const bulkVolume = meterDifference - invoicedQuantity;
+        if (bulkVolume <= 0) {
+            console.log(`[BULK SALES] Nozzle ${reading.nozzle_id}: meter diff ${meterDifference}L, invoiced ${invoicedQuantity}L, no bulk needed`);
+            continue;
+        }
+        console.log(`[BULK SALES] Nozzle ${reading.nozzle_id}: meter diff ${meterDifference}L - invoiced ${invoicedQuantity}L = bulk ${bulkVolume}L`);
+        // Bulk sale = bulk volume × price per litre
+        const nozzleTotalAmount = bulkVolume * unitPrice;
         const amountDenominations = splitIntoAmountDenominations(Math.floor(nozzleTotalAmount));
         for (const invoiceAmount of amountDenominations){
             const quantity = invoiceAmount / unitPrice;
