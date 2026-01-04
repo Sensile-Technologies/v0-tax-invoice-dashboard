@@ -496,6 +496,7 @@ export function SalesSummaryContent() {
         status: "active",
         opening_cash: 0,
         notes: shiftForm.notes || null,
+        user_id: userId,
       }
 
       const response = await fetch('/api/shifts', {
