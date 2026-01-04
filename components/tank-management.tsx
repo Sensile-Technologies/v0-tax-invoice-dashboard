@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Fuel, ArrowRightLeft, Plus, Edit, Package, Trash2 } from "lucide-react"
+import { Fuel, ArrowRightLeft, Plus, Package, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "react-toastify"
 
