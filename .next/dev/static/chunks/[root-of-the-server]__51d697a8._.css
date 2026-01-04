@@ -6976,12 +6976,6 @@
   }
 
   @media (hover: hover) {
-    .hover\:no-underline:hover {
-      text-decoration-line: none;
-    }
-  }
-
-  @media (hover: hover) {
     .hover\:underline:hover {
       text-decoration-line: underline;
     }
