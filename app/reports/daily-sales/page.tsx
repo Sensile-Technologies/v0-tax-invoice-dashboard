@@ -6,10 +6,12 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle, Clock, User, Calendar } from "lucide-react"
+import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle, Clock, User, Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { Label } from "@/components/ui/label"
+
+const PAGE_SIZE = 20
 
 interface ShiftSaleItem {
   fuel_type: string
@@ -69,6 +71,7 @@ export default function DailySalesReportPage() {
     unclaimed_amount: 0,
   })
   const { formatCurrency } = useCurrency()
+  const [currentPage, setCurrentPage] = useState(1)
   const [nozzleData, setNozzleData] = useState<NozzleData[]>([])
   const [nozzleTotals, setNozzleTotals] = useState<NozzleTotals | null>(null)
   const [nozzleLoading, setNozzleLoading] = useState(false)
@@ -119,6 +122,7 @@ export default function DailySalesReportPage() {
   }, [startDate, endDate])
 
   useEffect(() => {
+    setCurrentPage(1)
     fetchDailySales()
   }, [fetchDailySales])
 
@@ -442,6 +446,7 @@ export default function DailySalesReportPage() {
                   <CardTitle className="text-lg md:text-xl">Shift Details</CardTitle>
                   <p className="text-sm text-slate-600">
                     {shiftSummaries.length} shift{shiftSummaries.length !== 1 ? 's' : ''} in selected period
+                    {shiftSummaries.length > PAGE_SIZE && ` (showing ${(currentPage - 1) * PAGE_SIZE + 1}-${Math.min(currentPage * PAGE_SIZE, shiftSummaries.length)})`}
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -458,7 +463,7 @@ export default function DailySalesReportPage() {
                     </div>
                   ) : (
                     <div className="space-y-6">
-                      {shiftSummaries.map((shift) => (
+                      {shiftSummaries.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((shift) => (
                         <div key={shift.shift_id} className="border rounded-xl overflow-hidden">
                           <div className="bg-slate-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                             <div className="flex flex-wrap items-center gap-3">
@@ -573,6 +578,35 @@ export default function DailySalesReportPage() {
                           <li><span className="text-amber-700 font-semibold">Unclaimed</span> = Bulk sales from meter difference (dispensed but no invoice)</li>
                         </ul>
                       </div>
+
+                      {shiftSummaries.length > PAGE_SIZE && (
+                        <div className="flex items-center justify-between pt-4 border-t">
+                          <p className="text-sm text-slate-500">
+                            Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, shiftSummaries.length)} of {shiftSummaries.length} shifts
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                              disabled={currentPage === 1}
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <span className="text-sm text-slate-600">
+                              Page {currentPage} of {Math.ceil(shiftSummaries.length / PAGE_SIZE)}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPage(Math.min(Math.ceil(shiftSummaries.length / PAGE_SIZE), currentPage + 1))}
+                              disabled={currentPage === Math.ceil(shiftSummaries.length / PAGE_SIZE)}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>

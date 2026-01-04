@@ -18,13 +18,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
 
-const PAGE_SIZE = 50
+const PAGE_SIZE = 20
 
 export default function AutomatedSalesPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { formatCurrency } = useCurrency()
   const [sales, setSales] = useState<any[]>([])
+  const [nozzles, setNozzles] = useState<any[]>([])
+  const [dispensers, setDispensers] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
@@ -36,6 +38,9 @@ export default function AutomatedSalesPage() {
     documentType: "all",
     fuelType: "all",
     invoiceNumber: "",
+    nozzle: "all",
+    paymentMethod: "all",
+    loyalty: "all",
   })
   
   const [issuingCreditNote, setIssuingCreditNote] = useState<string | null>(null)
@@ -64,16 +69,25 @@ export default function AutomatedSalesPage() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const salesRes = await fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}`)
-      const salesResult = await salesRes.json()
+      const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
+        fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+        fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}&page=${currentPage}&limit=${PAGE_SIZE}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}${filters.fuelType !== 'all' ? `&fuel_type=${filters.fuelType}` : ''}${filters.nozzle !== 'all' ? `&nozzle_id=${filters.nozzle}` : ''}${filters.paymentMethod !== 'all' ? `&payment_method=${filters.paymentMethod}` : ''}`)
+      ])
+      
+      const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
+        nozzlesRes.json(),
+        dispensersRes.json(),
+        salesRes.json()
+      ])
 
-      const allSales = salesResult.success ? salesResult.data || [] : []
-      setTotalCount(allSales.length)
+      setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
+      setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
 
-      const offset = (currentPage - 1) * PAGE_SIZE
-      const paginatedSales = allSales.slice(offset, offset + PAGE_SIZE)
+      const salesData = salesResult.success ? salesResult.data || [] : []
+      setTotalCount(salesResult.totalCount || salesData.length)
 
-      const processedSales = paginatedSales.map((sale: any) => ({
+      const processedSales = salesData.map((sale: any) => ({
         ...sale,
         quantity: Number(sale.quantity) || 0,
         unit_price: Number(sale.unit_price) || 0,
@@ -94,17 +108,19 @@ export default function AutomatedSalesPage() {
   const filteredSales = sales.filter((sale) => {
     if (filters.documentType === "invoices" && sale.is_credit_note) return false
     if (filters.documentType === "credit_notes" && !sale.is_credit_note) return false
-    if (filters.fuelType && filters.fuelType !== "all" && sale.fuel_type !== filters.fuelType) return false
     if (filters.invoiceNumber) {
       const invoiceMatch = (sale.invoice_number || sale.receipt_number || "")
         .toLowerCase()
         .includes(filters.invoiceNumber.toLowerCase())
       if (!invoiceMatch) return false
     }
+    if (filters.loyalty === "loyalty" && !sale.is_loyalty_sale) return false
+    if (filters.loyalty === "non-loyalty" && sale.is_loyalty_sale) return false
     return true
   })
   
   const uniqueFuelTypes = Array.from(new Set(sales.map((s) => s.fuel_type).filter(Boolean)))
+  const uniqueNozzles = Array.from(new Set(sales.map((s) => s.nozzle_id).filter(Boolean)))
   const totalRevenue = filteredSales.reduce((sum, s) => sum + s.total_amount, 0)
   const pendingCount = filteredSales.filter((s) => s.transmission_status === "pending").length
   const transmittedCount = filteredSales.filter((s) => s.transmission_status === "transmitted").length
@@ -373,6 +389,92 @@ export default function AutomatedSalesPage() {
                           </SelectContent>
                         </Select>
                       </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="fuel-filter" className="text-sm whitespace-nowrap">Fuel:</Label>
+                        <Select value={filters.fuelType} onValueChange={(value) => setFilters({ ...filters, fuelType: value })}>
+                          <SelectTrigger id="fuel-filter" className="w-28 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            {uniqueFuelTypes.map((type) => (
+                              <SelectItem key={type} value={type}>{type}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="nozzle-filter" className="text-sm whitespace-nowrap">Nozzle:</Label>
+                        <Select value={filters.nozzle} onValueChange={(value) => setFilters({ ...filters, nozzle: value })}>
+                          <SelectTrigger id="nozzle-filter" className="w-28 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            {uniqueNozzles.map((nozzleId) => {
+                              const nozzle = nozzles.find((n) => n.id === nozzleId)
+                              const dispenser = nozzle ? dispensers.find((d: any) => d.id === nozzle.dispenser_id) : null
+                              return (
+                                <SelectItem key={nozzleId} value={nozzleId}>
+                                  {dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "Unknown"}
+                                </SelectItem>
+                              )
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="payment-filter" className="text-sm whitespace-nowrap">Payment:</Label>
+                        <Select value={filters.paymentMethod} onValueChange={(value) => setFilters({ ...filters, paymentMethod: value })}>
+                          <SelectTrigger id="payment-filter" className="w-28 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="cash">Cash</SelectItem>
+                            <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                            <SelectItem value="card">Card</SelectItem>
+                            <SelectItem value="credit">Credit</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="doctype-filter" className="text-sm whitespace-nowrap">Type:</Label>
+                        <Select value={filters.documentType} onValueChange={(value) => setFilters({ ...filters, documentType: value })}>
+                          <SelectTrigger id="doctype-filter" className="w-32 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="invoices">Invoices</SelectItem>
+                            <SelectItem value="credit_notes">Credit Notes</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="loyalty-filter" className="text-sm whitespace-nowrap">Loyalty:</Label>
+                        <Select value={filters.loyalty} onValueChange={(value) => setFilters({ ...filters, loyalty: value })}>
+                          <SelectTrigger id="loyalty-filter" className="w-28 h-9">
+                            <SelectValue placeholder="All" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="loyalty">Loyalty Only</SelectItem>
+                            <SelectItem value="non-loyalty">Walk-in</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="invoice-filter" className="text-sm whitespace-nowrap">Invoice:</Label>
+                        <Input
+                          id="invoice-filter"
+                          type="text"
+                          placeholder="Search..."
+                          value={filters.invoiceNumber}
+                          onChange={(e) => setFilters({ ...filters, invoiceNumber: e.target.value })}
+                          className="w-28 h-9"
+                        />
+                      </div>
                       <Button variant="outline" size="sm" onClick={() => setFilters({
                         startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
                         endDate: new Date().toISOString().split("T")[0],
@@ -380,6 +482,9 @@ export default function AutomatedSalesPage() {
                         documentType: "all",
                         fuelType: "all",
                         invoiceNumber: "",
+                        nozzle: "all",
+                        paymentMethod: "all",
+                        loyalty: "all",
                       })} className="h-9">Clear</Button>
                     </div>
                   </div>
