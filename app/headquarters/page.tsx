@@ -55,7 +55,6 @@ import { Separator } from "@/components/ui/separator"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { useRouter } from "next/navigation"
 
-import { GlobalShiftUploadDialog } from "@/components/global-shift-upload-dialog"
 import { useCurrency } from "@/lib/currency-utils"
 import { getCurrentUser } from "@/lib/auth/client"
 
@@ -85,7 +84,6 @@ export default function HeadquartersPage() {
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [branches, setBranches] = useState<any[]>([])
   const [isLoadingBranches, setIsLoadingBranches] = useState(true)
-  const [globalShiftUploadOpen, setGlobalShiftUploadOpen] = useState(false)
   const [hqStats, setHqStats] = useState<HQStats | null>(null)
   const [isLoadingStats, setIsLoadingStats] = useState(true)
 
@@ -772,28 +770,6 @@ export default function HeadquartersPage() {
                   <a href="/headquarters/approvals" className="flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4" />
                     Approval Workflows
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="rounded-xl bg-transparent text-white hover:bg-white/10">
-                  <Clock className="mr-2 h-4 w-4" />
-                  Shifts
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-xl">
-                <DropdownMenuItem onSelect={() => setGlobalShiftUploadOpen(true)} className="cursor-pointer rounded-lg">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Global Shift Upload
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
-                  <a href="/reports/shifts">
-                    <FileText className="mr-2 h-4 w-4" />
-                    View Shift Reports
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -1796,8 +1772,6 @@ export default function HeadquartersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <GlobalShiftUploadDialog open={globalShiftUploadOpen} onOpenChange={setGlobalShiftUploadOpen} />
     </div>
   )
 }
