@@ -98,9 +98,16 @@ export function DashboardHeader({
             localStorage.setItem("currentUser", JSON.stringify(serverUser))
             localStorage.setItem("user", JSON.stringify(serverUser))
             
-            // For users who can switch branches, restore from localStorage
+            // For directors/vendors, default to HQ if no branch is selected
+            const hqRoles = ['director', 'vendor']
             const storedBranch = localStorage.getItem("selectedBranch")
-            if (storedBranch) {
+            
+            if (hqRoles.includes(role) && !storedBranch) {
+              // Directors/vendors start at HQ by default
+              setSelectedBranch("hq")
+              setCurrentBranchName("Headquarters")
+            } else if (storedBranch) {
+              // Restore from localStorage for users who can switch branches
               try {
                 const parsedBranch = JSON.parse(storedBranch)
                 if (parsedBranch?.id && parsedBranch?.name) {

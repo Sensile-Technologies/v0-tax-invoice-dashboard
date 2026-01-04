@@ -35,7 +35,15 @@ export default function LoginPage() {
         } else if (data.user?.role === "sales") {
           window.location.href = "/admin/sales"
         } else {
-          window.location.href = "/"
+          // Directors and vendors go to HQ, branch staff go to branch UI
+          const role = (data.user?.role || '').toLowerCase()
+          if (role === 'director' || role === 'vendor') {
+            // Clear any previously selected branch so they start fresh at HQ
+            localStorage.removeItem("selectedBranch")
+            window.location.href = "/headquarters"
+          } else {
+            window.location.href = "/sales/summary"
+          }
         }
       }
     } catch (error: unknown) {

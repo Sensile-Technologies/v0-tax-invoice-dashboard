@@ -118,7 +118,13 @@ function Home() {
             } else if (user.role === "sales") {
                 router.replace("/admin/sales");
             } else {
-                router.replace("/sales/summary");
+                // Directors and vendors go to HQ, branch staff go to branch UI
+                const role = (user.role || '').toLowerCase();
+                if (role === 'director' || role === 'vendor') {
+                    router.replace("/headquarters");
+                } else {
+                    router.replace("/sales/summary");
+                }
             }
         } else {
             router.replace("/auth/login");
@@ -135,12 +141,12 @@ function Home() {
                 children: "Loading..."
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 30,
+                lineNumber: 36,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/page.tsx",
-            lineNumber: 29,
+            lineNumber: 35,
             columnNumber: 7
         }, this);
     }

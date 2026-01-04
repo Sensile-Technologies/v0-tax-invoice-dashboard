@@ -16,7 +16,13 @@ export default function Home() {
       } else if (user.role === "sales") {
         router.replace("/admin/sales")
       } else {
-        router.replace("/sales/summary")
+        // Directors and vendors go to HQ, branch staff go to branch UI
+        const role = (user.role || '').toLowerCase()
+        if (role === 'director' || role === 'vendor') {
+          router.replace("/headquarters")
+        } else {
+          router.replace("/sales/summary")
+        }
       }
     } else {
       router.replace("/auth/login")
