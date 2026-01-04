@@ -32,6 +32,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const client = await pool.connect()
   try {
     const body = await request.json()
     const { 
@@ -41,25 +42,86 @@ export async function POST(request: NextRequest) {
       to_branch_id, 
       quantity, 
       requested_by, 
-      notes, 
-      approval_status 
+      notes
     } = body
 
     if (!from_tank_id || !to_tank_id || !from_branch_id) {
       return NextResponse.json({ success: false, error: "from_tank_id, to_tank_id, and from_branch_id are required" }, { status: 400 })
     }
 
-    const result = await pool.query(
-      `INSERT INTO stock_transfers (from_tank_id, to_tank_id, from_branch_id, to_branch_id, quantity, requested_by, notes, approval_status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       RETURNING *`,
-      [from_tank_id, to_tank_id, from_branch_id, to_branch_id || from_branch_id, quantity || 0, requested_by, notes, approval_status || "pending"]
+    const transferQty = parseFloat(quantity) || 0
+    if (transferQty <= 0) {
+      return NextResponse.json({ success: false, error: "Quantity must be greater than 0" }, { status: 400 })
+    }
+
+    await client.query('BEGIN')
+
+    // Get source tank and verify stock
+    const sourceTank = await client.query("SELECT * FROM tanks WHERE id = $1", [from_tank_id])
+    if (sourceTank.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return NextResponse.json({ success: false, error: "Source tank not found" }, { status: 404 })
+    }
+
+    const sourceStock = parseFloat(sourceTank.rows[0].current_stock) || 0
+    if (sourceStock < transferQty) {
+      await client.query('ROLLBACK')
+      return NextResponse.json({ success: false, error: `Insufficient stock. Available: ${sourceStock} litres` }, { status: 400 })
+    }
+
+    // Get destination tank
+    const destTank = await client.query("SELECT * FROM tanks WHERE id = $1", [to_tank_id])
+    if (destTank.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return NextResponse.json({ success: false, error: "Destination tank not found" }, { status: 404 })
+    }
+
+    const destStock = parseFloat(destTank.rows[0].current_stock) || 0
+    const newSourceStock = sourceStock - transferQty
+    const newDestStock = destStock + transferQty
+
+    // Update source tank (decrease stock)
+    await client.query(
+      "UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2",
+      [newSourceStock, from_tank_id]
     )
 
-    return NextResponse.json({ success: true, data: result.rows[0] })
+    // Update destination tank (increase stock)
+    await client.query(
+      "UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2",
+      [newDestStock, to_tank_id]
+    )
+
+    // Create completed transfer record
+    const result = await client.query(
+      `INSERT INTO stock_transfers (
+        from_tank_id, to_tank_id, from_branch_id, to_branch_id, quantity, 
+        requested_by, notes, status, approval_status,
+        from_previous_stock, from_new_stock, to_previous_stock, to_new_stock,
+        approved_by, approved_at
+      )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'completed', 'approved', $8, $9, $10, $11, $6, NOW())
+       RETURNING *`,
+      [
+        from_tank_id, to_tank_id, from_branch_id, to_branch_id || from_branch_id, 
+        transferQty, requested_by, notes,
+        sourceStock, newSourceStock, destStock, newDestStock
+      ]
+    )
+
+    await client.query('COMMIT')
+
+    return NextResponse.json({ 
+      success: true, 
+      data: result.rows[0],
+      message: `Transferred ${transferQty} litres successfully`
+    })
   } catch (error) {
+    await client.query('ROLLBACK')
     console.error("Error creating stock transfer:", error)
     return NextResponse.json({ success: false, error: "Failed to create stock transfer" }, { status: 500 })
+  } finally {
+    client.release()
   }
 }
 
