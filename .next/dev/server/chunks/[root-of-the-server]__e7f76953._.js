@@ -1356,7 +1356,7 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
 async function POST(request) {
     try {
         const body = await request.json();
-        const { branch_id, start_time, opening_cash, notes } = body;
+        const { branch_id, start_time, opening_cash, notes, staff_id, user_id } = body;
         if (!branch_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Branch ID is required"
@@ -1374,10 +1374,20 @@ async function POST(request) {
                 status: 400
             });
         }
-        const result = await pool.query(`INSERT INTO shifts (branch_id, start_time, status, opening_cash, notes, created_at)
-       VALUES ($1, $2, 'active', $3, $4, NOW())
+        let resolvedStaffId = staff_id;
+        if (!resolvedStaffId && user_id) {
+            const staffResult = await pool.query(`SELECT id FROM staff WHERE user_id = $1`, [
+                user_id
+            ]);
+            if (staffResult.rows.length > 0) {
+                resolvedStaffId = staffResult.rows[0].id;
+            }
+        }
+        const result = await pool.query(`INSERT INTO shifts (branch_id, staff_id, start_time, status, opening_cash, notes, created_at)
+       VALUES ($1, $2, $3, 'active', $4, $5, NOW())
        RETURNING *`, [
             branch_id,
+            resolvedStaffId || null,
             start_time || new Date().toISOString(),
             opening_cash || 0,
             notes || null
