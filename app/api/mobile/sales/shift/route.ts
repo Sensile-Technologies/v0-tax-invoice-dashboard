@@ -8,7 +8,7 @@ const pool = new Pool({
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { action, branch_id, shift_id, opening_cash, closing_cash } = body
+    const { action, branch_id, shift_id, opening_cash, closing_cash, staff_id, user_id } = body
 
     const client = await pool.connect()
     try {
@@ -29,11 +29,22 @@ export async function POST(request: Request) {
           )
         }
 
+        let resolvedStaffId = staff_id
+        if (!resolvedStaffId && user_id) {
+          const staffResult = await client.query(
+            `SELECT id FROM staff WHERE user_id = $1`,
+            [user_id]
+          )
+          if (staffResult.rows.length > 0) {
+            resolvedStaffId = staffResult.rows[0].id
+          }
+        }
+
         const result = await client.query(
-          `INSERT INTO shifts (branch_id, start_time, status, opening_cash)
-           VALUES ($1, NOW(), 'active', $2)
+          `INSERT INTO shifts (branch_id, staff_id, start_time, status, opening_cash)
+           VALUES ($1, $2, NOW(), 'active', $3)
            RETURNING *`,
-          [branch_id, opening_cash || 0]
+          [branch_id, resolvedStaffId || null, opening_cash || 0]
         )
 
         return NextResponse.json({

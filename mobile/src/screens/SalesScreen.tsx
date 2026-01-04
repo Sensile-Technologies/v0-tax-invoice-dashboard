@@ -132,6 +132,8 @@ export default function SalesScreen() {
         action: 'start',
         branch_id: branchId,
         opening_cash: parseFloat(shiftForm.opening_cash),
+        user_id: user?.id,
+        staff_id: user?.staff_id,
       })
       
       Alert.alert('Success', 'Shift started successfully')
