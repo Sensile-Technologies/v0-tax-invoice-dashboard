@@ -76,14 +76,12 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
         if (!branchId) {
-            // No branch specified - return empty or all from fuel_prices table
-            const result = await pool.query('SELECT * FROM fuel_prices ORDER BY effective_date DESC');
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: true,
-                data: result.rows
+                data: []
             });
         }
-        // PRIMARY SOURCE: Get fuel prices from branch_items (what Inventory Management updates)
+        // Get fuel prices from branch_items (single source of truth)
         const branchItemsResult = await pool.query(`SELECT DISTINCT ON (
          CASE 
            WHEN UPPER(i.item_name) LIKE '%DIESEL%' THEN 'Diesel'
@@ -98,13 +96,15 @@ async function GET(request) {
            WHEN UPPER(i.item_name) LIKE '%KEROSENE%' THEN 'Kerosene'
            ELSE i.item_name
          END as fuel_type,
-         COALESCE(bi.sale_price, i.sale_price) as price,
+         bi.sale_price as price,
          bi.updated_at as effective_date,
          $1::uuid as branch_id
        FROM branch_items bi
        JOIN items i ON bi.item_id = i.id
        WHERE bi.branch_id = $1
          AND bi.is_available = true
+         AND bi.sale_price IS NOT NULL
+         AND bi.sale_price > 0
          AND (UPPER(i.item_name) IN ('PETROL', 'DIESEL', 'KEROSENE', 'SUPER PETROL', 'V-POWER') 
               OR i.item_name ILIKE '%petrol%' 
               OR i.item_name ILIKE '%diesel%'
@@ -119,20 +119,9 @@ async function GET(request) {
          bi.updated_at DESC NULLS LAST`, [
             branchId
         ]);
-        // If we found prices in branch_items, use those
-        if (branchItemsResult.rows.length > 0) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                success: true,
-                data: branchItemsResult.rows
-            });
-        }
-        // FALLBACK: Check legacy fuel_prices table
-        const legacyResult = await pool.query('SELECT * FROM fuel_prices WHERE branch_id = $1 ORDER BY effective_date DESC', [
-            branchId
-        ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
-            data: legacyResult.rows
+            data: branchItemsResult.rows
         });
     } catch (error) {
         console.error("Error fetching fuel prices:", error);

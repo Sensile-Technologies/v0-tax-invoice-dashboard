@@ -1284,7 +1284,7 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
         const closingReading = parseFloat(String(reading.closing_reading)) || 0;
         const meterDifference = closingReading - openingReading;
         if (meterDifference <= 0) continue;
-        const nozzleInfo = await client.query(`SELECT n.fuel_type, n.item_id, COALESCE(bi.sale_price, i.sale_price, 0) as sale_price
+        const nozzleInfo = await client.query(`SELECT n.fuel_type, n.item_id, COALESCE(bi.sale_price, 0) as sale_price
        FROM nozzles n
        LEFT JOIN items i ON n.item_id = i.id
        LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $1
