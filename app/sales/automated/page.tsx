@@ -53,21 +53,75 @@ export default function AutomatedSalesPage() {
     notes: ""
   })
 
+  const [currentBranchId, setCurrentBranchId] = useState<string | null>(null)
+
   useEffect(() => {
-    fetchData()
-  }, [currentPage, filters])
+    const getBranchId = () => {
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (currentBranch) {
+        try {
+          const branchData = JSON.parse(currentBranch)
+          return branchData.id
+        } catch {
+          return null
+        }
+      }
+      return null
+    }
+
+    const branchId = getBranchId()
+    setCurrentBranchId(branchId)
+
+    const handleStorageChange = () => {
+      const newBranchId = getBranchId()
+      if (newBranchId !== currentBranchId) {
+        setCurrentBranchId(newBranchId)
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    
+    const interval = setInterval(() => {
+      const newBranchId = getBranchId()
+      if (newBranchId && newBranchId !== currentBranchId) {
+        setCurrentBranchId(newBranchId)
+      }
+    }, 1000)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [currentBranchId])
+
+  useEffect(() => {
+    if (currentBranchId) {
+      fetchData()
+    }
+  }, [currentPage, filters, currentBranchId])
 
   async function fetchData() {
     try {
       setLoading(true)
       const currentBranch = localStorage.getItem("selectedBranch")
       if (!currentBranch) {
-        toast.error("No branch selected")
+        toast.error("No branch selected. Please select a branch from the header.")
         return
       }
 
-      const branchData = JSON.parse(currentBranch)
-      const branchId = branchData.id
+      let branchId: string
+      try {
+        const branchData = JSON.parse(currentBranch)
+        branchId = branchData.id
+      } catch {
+        toast.error("Invalid branch selection. Please reselect your branch.")
+        return
+      }
+
+      if (!branchId || branchId === "hq") {
+        toast.error("Please select a specific branch to view automated sales.")
+        return
+      }
 
       const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
         fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
