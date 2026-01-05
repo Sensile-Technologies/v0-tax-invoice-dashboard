@@ -53,14 +53,19 @@ export async function GET(request: NextRequest) {
         i.created_at,
         i.updated_at,
         CASE 
-          WHEN bi.id IS NOT NULL THEN 'vendor_catalog'
+          WHEN bi.id IS NOT NULL AND bi.is_available = true THEN 'vendor_catalog'
           WHEN i.branch_id = $1 THEN 'branch_specific'
+          WHEN i.vendor_id = $2 AND i.branch_id IS NULL THEN 'needs_pricing'
           ELSE 'unknown'
-        END as item_source
+        END as item_source,
+        CASE 
+          WHEN bi.id IS NOT NULL AND bi.sale_price IS NOT NULL AND bi.sale_price > 0 THEN true
+          ELSE false
+        END as has_pricing
       FROM items i
-      LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1 AND bi.is_available = true
+      LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
       WHERE (
-        (i.vendor_id = $2 AND i.branch_id IS NULL AND bi.id IS NOT NULL)
+        (i.vendor_id = $2 AND i.branch_id IS NULL)
         OR 
         (i.branch_id = $1)
       )

@@ -69,36 +69,63 @@ async function findBranchByControllerId(ptsId: string): Promise<{ id: string; na
 // Helper function to find fuel grade mapping with branch_items pricing
 async function findFuelGradeMapping(ptsId: string, fuelGradeId: number): Promise<FuelGradeMapping | null> {
   try {
-    // First find branch by controller_id
+    // Try to find branch by controller_id
     const branch = await findBranchByControllerId(ptsId)
-    if (!branch) {
-      console.log(`[PUMP CALLBACK] No branch found for controller ${ptsId}`)
-      return null
+    
+    // First try controller-specific mapping with branch from controller_id
+    if (branch) {
+      let result: any = await query(`
+        SELECT 
+          m.id, m.pts_id, m.fuel_grade_id, m.fuel_grade_name, m.item_id,
+          i.item_name, i.item_code, $2::uuid as branch_id,
+          bi.sale_price
+        FROM pump_fuel_grade_mappings m
+        JOIN items i ON m.item_id = i.id
+        LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $2 AND bi.is_available = true
+        WHERE m.fuel_grade_id = $1 AND m.is_active = true AND m.item_id IS NOT NULL
+          AND (m.pts_id IS NULL OR m.pts_id = $3)
+        ORDER BY CASE WHEN m.pts_id = $3 THEN 0 ELSE 1 END
+        LIMIT 1
+      `, [fuelGradeId, branch.id, ptsId])
+      
+      let rows = result.rows || result
+      if (rows && rows.length > 0) {
+        const mapping = rows[0]
+        console.log(`[PUMP CALLBACK] Found mapping for fuel grade ${fuelGradeId} using branch ${branch.name}`)
+        if (!mapping.sale_price) {
+          console.log(`[PUMP CALLBACK] WARNING: No branch_items price configured for item ${mapping.item_name} at branch ${branch.id}`)
+        }
+        return { ...mapping, branch_id: branch.id }
+      }
     }
     
-    // Find controller-specific or global mapping with branch_items pricing
+    // Fallback: Try controller-specific mapping where the item has a branch_id
     let result: any = await query(`
       SELECT 
         m.id, m.pts_id, m.fuel_grade_id, m.fuel_grade_name, m.item_id,
-        i.item_name, i.item_code, $2::uuid as branch_id,
+        i.item_name, i.item_code, i.branch_id,
         bi.sale_price
       FROM pump_fuel_grade_mappings m
       JOIN items i ON m.item_id = i.id
-      LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $2 AND bi.is_available = true
-      WHERE m.fuel_grade_id = $1 AND m.is_active = true AND m.item_id IS NOT NULL
-        AND (m.pts_id IS NULL OR m.pts_id = $3)
-      ORDER BY CASE WHEN m.pts_id = $3 THEN 0 ELSE 1 END
+      LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = i.branch_id AND bi.is_available = true
+      WHERE m.pts_id = $1 AND m.fuel_grade_id = $2 AND m.is_active = true 
+        AND m.item_id IS NOT NULL AND i.branch_id IS NOT NULL
       LIMIT 1
-    `, [fuelGradeId, branch.id, ptsId])
+    `, [ptsId, fuelGradeId])
     
     let rows = result.rows || result
     if (rows && rows.length > 0) {
       const mapping = rows[0]
-      console.log(`[PUMP CALLBACK] Found mapping for fuel grade ${fuelGradeId} using branch ${branch.name}`)
+      console.log(`[PUMP CALLBACK] Found controller-specific mapping for fuel grade ${fuelGradeId} with branch ${mapping.branch_id}`)
       if (!mapping.sale_price) {
-        console.log(`[PUMP CALLBACK] WARNING: No branch_items price configured for item ${mapping.item_name} at branch ${branch.id}`)
+        console.log(`[PUMP CALLBACK] WARNING: No branch_items price configured for item ${mapping.item_name}`)
       }
-      return { ...mapping, branch_id: branch.id }
+      return mapping
+    }
+    
+    if (!branch) {
+      console.log(`[PUMP CALLBACK] No branch found for controller ${ptsId} and no branch-specific mapping available`)
+      return null
     }
     
     console.log(`[PUMP CALLBACK] No mapping found for fuel grade ${fuelGradeId}`)
@@ -141,9 +168,18 @@ async function processAutoKraSale(ptsId: string, data: PumpTransactionPacket['Da
     const invoiceNumber = `PTS-${ptsId}-${data.Transaction}`
     const receiptNumber = `RCP-${Date.now().toString(36).toUpperCase()}`
     
-    // Use the price from the callback, or fallback to mapped item price
-    const unitPrice = data.Price || mapping.sale_price || 0
+    // Use the price from the callback, or fallback to mapped item price from branch_items
+    const unitPrice = data.Price || mapping.sale_price
     const quantity = data.Volume || 0
+    
+    // CRITICAL: Fail if no valid price is available - prevent zero-priced sales
+    if (!unitPrice || unitPrice <= 0) {
+      console.error(`[PUMP CALLBACK] ERROR: No valid price available for ${mapping.item_name}`)
+      console.error(`[PUMP CALLBACK] Callback price: ${data.Price}, Branch items price: ${mapping.sale_price}`)
+      console.error(`[PUMP CALLBACK] Please configure pricing in Inventory Management for this item at this branch`)
+      return
+    }
+    
     const totalAmount = data.Amount || (quantity * unitPrice)
     
     console.log(`[PUMP CALLBACK] Creating KRA sale:`)

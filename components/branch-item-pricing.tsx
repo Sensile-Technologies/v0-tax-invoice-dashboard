@@ -373,7 +373,7 @@ export default function BranchItemPricing() {
                 className="rounded-xl"
               />
               <p className="text-xs text-muted-foreground">
-                This price will override the default price for this branch
+                This price is required for sales at this branch
               </p>
             </div>
 
