@@ -89,51 +89,73 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "KRA PIN not configured for this branch" }, { status: 400 })
     }
 
+    // Step 1: Get basic nozzle info
     const nozzleResult = await query(`
       SELECT n.id, n.fuel_type, n.item_id,
              COALESCE(n.initial_meter_reading, 0) as initial_meter_reading,
-             COALESCE(bi.sale_price, i.sale_price, 0) as sale_price,
              i.item_code, i.class_code, i.item_name, i.package_unit, i.quantity_unit, i.tax_type
       FROM nozzles n
       LEFT JOIN items i ON n.item_id = i.id
-      LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $1
-      WHERE n.id = $2
-    `, [branch_id, nozzle_id])
+      WHERE n.id = $1
+    `, [nozzle_id])
 
     if (nozzleResult.length === 0) {
       return NextResponse.json({ success: false, error: "Nozzle not found" }, { status: 404 })
     }
 
     let nozzle = nozzleResult[0]
-    let unitPrice = parseFloat(nozzle.sale_price) || 0
+    let unitPrice = 0
 
-    // Fallback: If nozzle doesn't have item_id, try to find item by fuel type name (like mobile app does)
-    if (!nozzle.item_id && nozzle.fuel_type) {
-      const itemByNameResult = await query(`
-        SELECT i.id as item_id, i.item_code, i.class_code, i.item_name, 
-               i.package_unit, i.quantity_unit, i.tax_type,
-               COALESCE(bi.sale_price, i.sale_price, 0) as sale_price
-        FROM items i
-        LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-        WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
-        AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
-        ORDER BY i.created_at DESC LIMIT 1
+    // Step 2: Get price STRICTLY from branch_items - this is the authoritative source
+    // First try by nozzle's item_id if it exists
+    if (nozzle.item_id) {
+      const branchPriceResult = await query(`
+        SELECT bi.sale_price
+        FROM branch_items bi
+        WHERE bi.branch_id = $1 AND bi.item_id = $2 AND bi.is_available = true
+      `, [branch_id, nozzle.item_id])
+      
+      if (branchPriceResult.length > 0 && branchPriceResult[0].sale_price) {
+        unitPrice = parseFloat(branchPriceResult[0].sale_price)
+      }
+    }
+
+    // Step 3: If no price found yet, try to find by fuel type name in branch_items
+    if (unitPrice <= 0 && nozzle.fuel_type) {
+      const priceByFuelTypeResult = await query(`
+        SELECT bi.sale_price, i.id as item_id, i.item_code, i.class_code, i.item_name,
+               i.package_unit, i.quantity_unit, i.tax_type
+        FROM branch_items bi
+        JOIN items i ON bi.item_id = i.id
+        WHERE bi.branch_id = $1
+          AND bi.is_available = true
+          AND (
+            UPPER(i.item_name) = UPPER($2) 
+            OR i.item_name ILIKE $3
+            OR (UPPER($2) = 'PETROL' AND (UPPER(i.item_name) LIKE '%PETROL%' OR UPPER(i.item_name) LIKE '%SUPER%'))
+            OR (UPPER($2) = 'DIESEL' AND UPPER(i.item_name) LIKE '%DIESEL%')
+            OR (UPPER($2) = 'KEROSENE' AND UPPER(i.item_name) LIKE '%KEROSENE%')
+          )
+        ORDER BY bi.updated_at DESC NULLS LAST
+        LIMIT 1
       `, [branch_id, nozzle.fuel_type, `%${nozzle.fuel_type}%`])
       
-      if (itemByNameResult.length > 0) {
-        const foundItem = itemByNameResult[0]
-        nozzle = {
-          ...nozzle,
-          item_id: foundItem.item_id,
-          item_code: foundItem.item_code,
-          class_code: foundItem.class_code,
-          item_name: foundItem.item_name,
-          package_unit: foundItem.package_unit,
-          quantity_unit: foundItem.quantity_unit,
-          tax_type: foundItem.tax_type,
-          sale_price: foundItem.sale_price
+      if (priceByFuelTypeResult.length > 0 && priceByFuelTypeResult[0].sale_price) {
+        const foundItem = priceByFuelTypeResult[0]
+        unitPrice = parseFloat(foundItem.sale_price)
+        // Update nozzle with item details if we found a match
+        if (!nozzle.item_id) {
+          nozzle = {
+            ...nozzle,
+            item_id: foundItem.item_id,
+            item_code: foundItem.item_code,
+            class_code: foundItem.class_code,
+            item_name: foundItem.item_name,
+            package_unit: foundItem.package_unit,
+            quantity_unit: foundItem.quantity_unit,
+            tax_type: foundItem.tax_type
+          }
         }
-        unitPrice = parseFloat(foundItem.sale_price) || 0
       }
     }
 
@@ -142,7 +164,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (unitPrice <= 0) {
-      return NextResponse.json({ success: false, error: `No price configured for "${nozzle.fuel_type}". Please set a price for this item.` }, { status: 400 })
+      return NextResponse.json({ 
+        success: false, 
+        error: `No branch-specific price found for "${nozzle.fuel_type}". Please go to Inventory Management and set a price for this item in branch_items.` 
+      }, { status: 400 })
     }
 
     let discountAmount = 0
