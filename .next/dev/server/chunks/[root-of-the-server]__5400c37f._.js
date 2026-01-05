@@ -368,6 +368,7 @@ async function POST(request) {
         }
         const nozzleResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
       SELECT n.id, n.fuel_type, n.item_id,
+             COALESCE(n.initial_meter_reading, 0) as initial_meter_reading,
              COALESCE(bi.sale_price, i.sale_price, 0) as sale_price,
              i.item_code, i.class_code, i.item_name, i.package_unit, i.quantity_unit, i.tax_type
       FROM nozzles n
@@ -446,6 +447,9 @@ async function POST(request) {
         }
         const totalAmount = Math.max(amount - discountAmount, 0);
         const quantity = totalAmount / unitPrice;
+        // Track meter reading - get current reading and calculate new reading after sale
+        const currentMeterReading = parseFloat(nozzle.initial_meter_reading) || 0;
+        const meterReadingAfter = currentMeterReading + quantity;
         const kraBaseUrl = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$url$2d$helper$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["buildKraBaseUrl"])(branch.server_address, branch.server_port);
         const responses = {
             saveSales: null,
@@ -630,11 +634,11 @@ async function POST(request) {
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO sales (
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, customer_pin,
-        invoice_number, transmission_status, 
+        invoice_number, transmission_status, meter_reading_after,
         is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, 
         sale_date, created_at,
         kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW(), $16, $17, $18, $19)`, [
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW(), $17, $18, $19, $20)`, [
             branch_id,
             activeShiftId,
             nozzle_id,
@@ -647,6 +651,7 @@ async function POST(request) {
             customer_pin || null,
             trdInvcNo,
             'transmitted',
+            meterReadingAfter,
             is_loyalty_sale || false,
             is_loyalty_sale ? loyalty_customer_name : null,
             is_loyalty_sale ? customer_pin : null,
@@ -654,6 +659,11 @@ async function POST(request) {
             kraData.rcptSign || null,
             kraData.sdcId || null,
             kraData.curRcptNo || null
+        ]);
+        // Update nozzle meter reading to track progressive sales
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE nozzles SET initial_meter_reading = $1, updated_at = NOW() WHERE id = $2`, [
+            meterReadingAfter,
+            nozzle_id
         ]);
         const splyAmt = Math.round(quantity * unitPrice * 100) / 100;
         const stockTaxAmt = Math.round(splyAmt * 0.16 * 100) / 100;
