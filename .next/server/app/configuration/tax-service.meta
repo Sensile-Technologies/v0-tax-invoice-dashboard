@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/configuration/layout,_N_T_/configuration/tax-service/layout,_N_T_/configuration/tax-service/page,_N_T_/configuration/tax-service"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/configuration/tax-service/__PAGE__",
+    "/configuration/tax-service",
+    "/configuration",
+    "/_index",
+    "/_head"
+  ]
+}

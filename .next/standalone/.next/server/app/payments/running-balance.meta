@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/payments/layout,_N_T_/payments/running-balance/layout,_N_T_/payments/running-balance/page,_N_T_/payments/running-balance"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/payments/running-balance/__PAGE__",
+    "/payments/running-balance",
+    "/payments",
+    "/_index",
+    "/_head"
+  ]
+}

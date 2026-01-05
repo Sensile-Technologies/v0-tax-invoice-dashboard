@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/headquarters/layout,_N_T_/headquarters/purchase-orders/layout,_N_T_/headquarters/purchase-orders/create/layout,_N_T_/headquarters/purchase-orders/create/page,_N_T_/headquarters/purchase-orders/create"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/headquarters/purchase-orders/create/__PAGE__",
+    "/headquarters/purchase-orders/create",
+    "/headquarters/purchase-orders",
+    "/headquarters",
+    "/_index",
+    "/_head"
+  ]
+}

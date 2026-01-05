@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/headquarters/layout,_N_T_/headquarters/inventory/layout,_N_T_/headquarters/inventory/page,_N_T_/headquarters/inventory"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/headquarters/inventory/__PAGE__",
+    "/headquarters/inventory",
+    "/headquarters",
+    "/_index",
+    "/_head"
+  ]
+}

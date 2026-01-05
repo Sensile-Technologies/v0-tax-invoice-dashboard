@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/headquarters/layout,_N_T_/headquarters/transporters/layout,_N_T_/headquarters/transporters/page,_N_T_/headquarters/transporters"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/headquarters/transporters/__PAGE__",
+    "/headquarters/transporters",
+    "/headquarters",
+    "/_index",
+    "/_head"
+  ]
+}
