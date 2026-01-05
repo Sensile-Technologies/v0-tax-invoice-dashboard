@@ -161,8 +161,8 @@ export function DashboardHeader({
         const data = await response.json()
         
         // Server already filters branches based on role and vendor
-        // For directors/vendors, add HQ option
-        if (canSwitch && data.length > 0) {
+        // For directors/vendors, always add HQ option (even if no branches exist)
+        if (canSwitch) {
           const branchList = [
             { id: "hq", name: "Headquarters", type: "headquarters", status: "active" },
             ...data.map((b: any) => ({
