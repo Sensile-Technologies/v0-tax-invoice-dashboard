@@ -9,15 +9,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { SearchableSelect } from "@/components/ui/searchable-select"
 import { toast } from "react-toastify"
-import { useCurrency } from "@/lib/currency-utils"
 
 interface Item {
   id: string
   item_code: string
   item_name: string
   item_type: string
-  purchase_price: number
-  sale_price: number
   tax_type: string
   status: string
 }
@@ -26,7 +23,6 @@ interface CompositeItem {
   id: string
   item_code: string
   item_name: string
-  sale_price: number
   tax_type: string
   compositions: Array<{
     parent_item_id: string
@@ -50,10 +46,7 @@ export function HqItemComposition() {
   const [itemName, setItemName] = useState("")
   const [description, setDescription] = useState("")
   const [compositions, setCompositions] = useState<CompositionInput[]>([{ parent_item_id: "", percentage: 0 }])
-  const [calculatedPrice, setCalculatedPrice] = useState(0)
   const [calculatedTaxType, setCalculatedTaxType] = useState<string>("")
-
-  const { formatCurrency } = useCurrency()
 
   useEffect(() => {
     fetchItems()
@@ -117,21 +110,16 @@ export function HqItemComposition() {
   }
 
   const calculateCompositeValues = () => {
-    let totalPrice = 0
     const taxTypes: Record<string, number> = {}
 
     compositions.forEach((comp) => {
       if (comp.parent_item_id && comp.percentage > 0) {
         const parentItem = items.find((item) => item.id === comp.parent_item_id)
         if (parentItem) {
-          const contribution = (comp.percentage / 100) * parentItem.sale_price
-          totalPrice += contribution
           taxTypes[parentItem.tax_type] = (taxTypes[parentItem.tax_type] || 0) + comp.percentage
         }
       }
     })
-
-    setCalculatedPrice(totalPrice)
 
     let dominantTaxType = ""
     let maxPercentage = 0
@@ -188,8 +176,6 @@ export function HqItemComposition() {
           itemCode: itemCode,
           description: description,
           itemType: "composite",
-          purchasePrice: calculatedPrice,
-          salePrice: calculatedPrice,
           taxType: calculatedTaxType,
           origin: "1",
           classCode: "10101500",
@@ -256,7 +242,7 @@ export function HqItemComposition() {
 
   const itemOptions = items.map((item) => ({
     value: item.id,
-    label: `${item.item_name} (${formatCurrency(item.sale_price)})`
+    label: item.item_name
   }))
 
   return (
@@ -379,18 +365,17 @@ export function HqItemComposition() {
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
                   <Calculator className="mr-2 h-5 w-5" />
-                  Calculated Values
+                  Calculated Tax Type
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Sale Price:</span>
-                  <span className="font-semibold">{formatCurrency(calculatedPrice)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Tax Type:</span>
+                  <span className="text-sm text-muted-foreground">Tax Type (based on composition):</span>
                   <span className="font-semibold">{calculatedTaxType || "N/A"}</span>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Note: Set pricing for composite items per branch in Inventory Management.
+                </p>
               </CardContent>
             </Card>
 
@@ -432,7 +417,6 @@ export function HqItemComposition() {
                   <TableHead>Item Code</TableHead>
                   <TableHead>Item Name</TableHead>
                   <TableHead>Composition</TableHead>
-                  <TableHead>Sale Price</TableHead>
                   <TableHead>Tax Type</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -451,7 +435,6 @@ export function HqItemComposition() {
                         ))}
                       </div>
                     </TableCell>
-                    <TableCell>{formatCurrency(item.sale_price)}</TableCell>
                     <TableCell>{item.tax_type}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" onClick={() => handleDeleteComposite(item.id)}>
