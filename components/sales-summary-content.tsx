@@ -312,10 +312,11 @@ export function SalesSummaryContent() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      let url = `/api/sales?branch_id=${branchId}&limit=50`
-      if (shiftId) {
-        url += `&shift_id=${shiftId}`
-      }
+      // Fetch all sales for the branch (don't filter by shift_id)
+      // This ensures mobile invoices without shift association still appear
+      // Use today's date as filter to keep the list relevant
+      const today = new Date().toISOString().split('T')[0]
+      let url = `/api/sales?branch_id=${branchId}&limit=100&start_date=${today}`
 
       const response = await fetch(url)
       const result = await response.json()
