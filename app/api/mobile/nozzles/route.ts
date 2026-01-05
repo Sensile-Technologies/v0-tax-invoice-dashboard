@@ -25,27 +25,58 @@ export async function GET(request: Request) {
         [branchId]
       )
 
-      // Get fuel prices from branch_items (for HQ-assigned items) or legacy items table
-      const fuelPricesResult = await client.query(
-        `SELECT i.item_name, COALESCE(bi.sale_price, i.sale_price) as price 
-         FROM items i
-         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-         WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
-         AND (UPPER(i.item_name) IN ('PETROL', 'DIESEL', 'KEROSENE') 
-              OR i.item_name ILIKE '%petrol%' 
-              OR i.item_name ILIKE '%diesel%')
-         ORDER BY i.item_name`,
+      // Get fuel prices - check multiple sources in order of priority:
+      // 1. branch_items (branch-specific prices from Inventory Management)
+      // 2. items table (legacy/default prices)
+      // 3. fuel_prices table (fallback for older setup)
+      
+      // First, get prices from branch_items (primary source - what Inventory Management updates)
+      const branchItemsResult = await client.query(
+        `SELECT DISTINCT ON (UPPER(i.item_name))
+           i.item_name, 
+           COALESCE(bi.sale_price, i.sale_price) as price,
+           bi.sale_price as branch_price,
+           i.sale_price as default_price
+         FROM branch_items bi
+         JOIN items i ON bi.item_id = i.id
+         WHERE bi.branch_id = $1
+           AND bi.is_available = true
+           AND (UPPER(i.item_name) IN ('PETROL', 'DIESEL', 'KEROSENE', 'SUPER PETROL', 'V-POWER') 
+                OR i.item_name ILIKE '%petrol%' 
+                OR i.item_name ILIKE '%diesel%'
+                OR i.item_name ILIKE '%kerosene%')
+         ORDER BY UPPER(i.item_name), bi.updated_at DESC NULLS LAST`,
         [branchId]
       )
 
-      const fuelPrices = fuelPricesResult.rows.map(fp => {
-        const itemName = fp.item_name.toUpperCase()
-        let fuelType = fp.item_name
-        if (itemName.includes('PETROL')) fuelType = 'Petrol'
-        else if (itemName.includes('DIESEL')) fuelType = 'Diesel'
-        else if (itemName.includes('KEROSENE')) fuelType = 'Kerosene'
-        return { fuel_type: fuelType, price: parseFloat(fp.price) }
-      })
+      // Fallback: check fuel_prices table if no branch_items found
+      let fuelPricesFromTable: { fuel_type: string, price: number }[] = []
+      if (branchItemsResult.rows.length === 0) {
+        const fuelTableResult = await client.query(
+          `SELECT fuel_type, price FROM fuel_prices 
+           WHERE branch_id = $1 
+           ORDER BY effective_date DESC`,
+          [branchId]
+        )
+        fuelPricesFromTable = fuelTableResult.rows.map(fp => ({
+          fuel_type: fp.fuel_type,
+          price: parseFloat(fp.price)
+        }))
+      }
+
+      // Process branch_items results
+      const fuelPrices = branchItemsResult.rows.length > 0 
+        ? branchItemsResult.rows.map(fp => {
+            const itemName = fp.item_name.toUpperCase()
+            let fuelType = fp.item_name
+            if (itemName.includes('DIESEL')) fuelType = 'Diesel'
+            else if (itemName.includes('PETROL') || itemName.includes('SUPER')) fuelType = 'Petrol'
+            else if (itemName.includes('KEROSENE')) fuelType = 'Kerosene'
+            // Use branch_price if set, otherwise default_price
+            const price = fp.branch_price !== null ? parseFloat(fp.branch_price) : parseFloat(fp.default_price || 0)
+            return { fuel_type: fuelType, price }
+          })
+        : fuelPricesFromTable
 
       const nozzles = nozzlesResult.rows.map(n => {
         const fuelPrice = fuelPrices.find(fp => 
