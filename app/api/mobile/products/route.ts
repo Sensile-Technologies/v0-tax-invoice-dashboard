@@ -28,9 +28,8 @@ export async function GET(request: Request) {
       
       const vendorId = branchResult.rows[0].vendor_id
 
-      // Fetch items from:
-      // 1. HQ catalog (branch_id IS NULL, vendor matches) that are assigned to this branch
-      // 2. Legacy branch-specific items (branch_id matches)
+      // Fetch items from branch_items (single source of truth for prices)
+      // Only show items that are assigned to this branch with prices configured
       const itemsResult = await client.query(
         `SELECT 
           i.id, 
@@ -39,16 +38,7 @@ export async function GET(request: Request) {
           COALESCE(i.class_code, 'ITEM') as item_cls_cd, 
           'L' as pkg_unit_cd, 
           'L' as qty_unit_cd,
-          COALESCE(
-            bi.sale_price,
-            (SELECT fp.price FROM fuel_prices fp 
-             WHERE fp.branch_id = $1 
-             AND LOWER(fp.fuel_type) = LOWER(i.item_name)
-             AND fp.effective_date <= CURRENT_DATE
-             ORDER BY fp.effective_date DESC LIMIT 1),
-            i.sale_price,
-            0
-          ) as unit_price,
+          bi.sale_price as unit_price,
           COALESCE(
             (SELECT t.current_stock FROM tanks t 
              WHERE (t.kra_item_cd = i.item_code OR t.item_id = i.id)
@@ -59,16 +49,13 @@ export async function GET(request: Request) {
           ) as stock_quantity,
           COALESCE(i.status, 'active') as status
          FROM items i
-         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-         WHERE (
-           -- HQ catalog items assigned to this branch
-           (i.vendor_id = $2 AND i.branch_id IS NULL AND bi.is_available = true)
-           -- OR legacy branch-specific items
-           OR i.branch_id = $1
-         )
-         AND i.status = 'active'
+         JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+         WHERE bi.is_available = true
+           AND bi.sale_price IS NOT NULL
+           AND bi.sale_price > 0
+           AND i.status = 'active'
          ORDER BY i.item_name ASC`,
-        [branchId, vendorId]
+        [branchId]
       )
 
       return NextResponse.json({

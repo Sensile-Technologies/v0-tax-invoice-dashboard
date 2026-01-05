@@ -44,10 +44,41 @@ export async function GET(request: Request) {
         [branchId]
       )
 
-      const fuelPricesResult = await client.query(
-        `SELECT fuel_type, price FROM fuel_prices 
-         WHERE branch_id = $1 
-         ORDER BY effective_date DESC`,
+      // Get fuel prices from branch_items (single source of truth)
+      const branchItemsResult = await client.query(
+        `SELECT DISTINCT ON (
+           CASE 
+             WHEN UPPER(i.item_name) LIKE '%DIESEL%' THEN 'Diesel'
+             WHEN UPPER(i.item_name) LIKE '%PETROL%' OR UPPER(i.item_name) LIKE '%SUPER%' THEN 'Petrol'
+             WHEN UPPER(i.item_name) LIKE '%KEROSENE%' THEN 'Kerosene'
+             ELSE i.item_name
+           END
+         )
+           CASE 
+             WHEN UPPER(i.item_name) LIKE '%DIESEL%' THEN 'Diesel'
+             WHEN UPPER(i.item_name) LIKE '%PETROL%' OR UPPER(i.item_name) LIKE '%SUPER%' THEN 'Petrol'
+             WHEN UPPER(i.item_name) LIKE '%KEROSENE%' THEN 'Kerosene'
+             ELSE i.item_name
+           END as fuel_type,
+           bi.sale_price as price
+         FROM branch_items bi
+         JOIN items i ON bi.item_id = i.id
+         WHERE bi.branch_id = $1
+           AND bi.is_available = true
+           AND bi.sale_price IS NOT NULL
+           AND bi.sale_price > 0
+           AND (UPPER(i.item_name) IN ('PETROL', 'DIESEL', 'KEROSENE', 'SUPER PETROL', 'V-POWER') 
+                OR i.item_name ILIKE '%petrol%' 
+                OR i.item_name ILIKE '%diesel%'
+                OR i.item_name ILIKE '%kerosene%')
+         ORDER BY 
+           CASE 
+             WHEN UPPER(i.item_name) LIKE '%DIESEL%' THEN 'Diesel'
+             WHEN UPPER(i.item_name) LIKE '%PETROL%' OR UPPER(i.item_name) LIKE '%SUPER%' THEN 'Petrol'
+             WHEN UPPER(i.item_name) LIKE '%KEROSENE%' THEN 'Kerosene'
+             ELSE i.item_name
+           END,
+           bi.updated_at DESC NULLS LAST`,
         [branchId]
       )
 
@@ -55,7 +86,7 @@ export async function GET(request: Request) {
         sales: salesResult.rows || [],
         shift: shiftResult.rows[0] || null,
         nozzles: nozzlesResult.rows || [],
-        fuel_prices: fuelPricesResult.rows || [],
+        fuel_prices: branchItemsResult.rows || [],
       })
     } finally {
       client.release()
@@ -92,18 +123,31 @@ export async function POST(request: Request) {
     try {
       await client.query('BEGIN')
 
+      // Get price from branch_items (single source of truth)
       const priceResult = await client.query(
-        `SELECT price FROM fuel_prices 
-         WHERE branch_id = $1 AND fuel_type = $2 
-         ORDER BY effective_date DESC 
+        `SELECT bi.sale_price as price
+         FROM branch_items bi
+         JOIN items i ON bi.item_id = i.id
+         WHERE bi.branch_id = $1
+           AND bi.is_available = true
+           AND bi.sale_price IS NOT NULL
+           AND bi.sale_price > 0
+           AND (
+             UPPER(i.item_name) = UPPER($2)
+             OR i.item_name ILIKE $3
+             OR (UPPER($2) = 'PETROL' AND (UPPER(i.item_name) LIKE '%PETROL%' OR UPPER(i.item_name) LIKE '%SUPER%'))
+             OR (UPPER($2) = 'DIESEL' AND UPPER(i.item_name) LIKE '%DIESEL%')
+             OR (UPPER($2) = 'KEROSENE' AND UPPER(i.item_name) LIKE '%KEROSENE%')
+           )
+         ORDER BY bi.updated_at DESC NULLS LAST
          LIMIT 1`,
-        [branch_id, fuel_type]
+        [branch_id, fuel_type, `%${fuel_type}%`]
       )
 
       if (priceResult.rows.length === 0) {
         await client.query('ROLLBACK')
         return NextResponse.json(
-          { error: `No price configured for ${fuel_type}` },
+          { error: `No price configured for ${fuel_type} in branch_items. Please set a price in Inventory Management.` },
           { status: 400 }
         )
       }

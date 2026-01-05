@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         sr.closing_reading,
         n.fuel_type,
         n.item_id,
-        COALESCE(bi.sale_price, i.sale_price, 0) as sale_price
+        COALESCE(bi.sale_price, 0) as sale_price
       FROM shift_readings sr
       JOIN nozzles n ON sr.nozzle_id = n.id
       LEFT JOIN items i ON n.item_id = i.id
@@ -299,12 +299,11 @@ export async function GET(request: NextRequest) {
         sr.opening_reading,
         sr.closing_reading,
         (CAST(sr.closing_reading AS numeric) - CAST(sr.opening_reading AS numeric)) as meter_difference,
-        COALESCE(bi.sale_price, i.sale_price, 0) as sale_price,
-        (CAST(sr.closing_reading AS numeric) - CAST(sr.opening_reading AS numeric)) * COALESCE(bi.sale_price, i.sale_price, 0) as potential_sales_value
+        COALESCE(bi.sale_price, 0) as sale_price,
+        (CAST(sr.closing_reading AS numeric) - CAST(sr.opening_reading AS numeric)) * COALESCE(bi.sale_price, 0) as potential_sales_value
       FROM shift_readings sr
       JOIN nozzles n ON sr.nozzle_id = n.id
       JOIN shifts s ON sr.shift_id = s.id
-      LEFT JOIN items i ON n.item_id = i.id
       LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = s.branch_id
       WHERE sr.shift_id = $1 AND sr.reading_type = 'nozzle'
       ORDER BY n.fuel_type, n.nozzle_number`,

@@ -66,62 +66,39 @@ async function findBranchByControllerId(ptsId: string): Promise<{ id: string; na
   }
 }
 
-// Helper function to find fuel grade mapping
+// Helper function to find fuel grade mapping with branch_items pricing
 async function findFuelGradeMapping(ptsId: string, fuelGradeId: number): Promise<FuelGradeMapping | null> {
   try {
-    // First try to find a controller-specific mapping
+    // First find branch by controller_id
+    const branch = await findBranchByControllerId(ptsId)
+    if (!branch) {
+      console.log(`[PUMP CALLBACK] No branch found for controller ${ptsId}`)
+      return null
+    }
+    
+    // Find controller-specific or global mapping with branch_items pricing
     let result: any = await query(`
       SELECT 
         m.id, m.pts_id, m.fuel_grade_id, m.fuel_grade_name, m.item_id,
-        i.item_name, i.item_code, i.sale_price, i.branch_id
+        i.item_name, i.item_code, $2::uuid as branch_id,
+        bi.sale_price
       FROM pump_fuel_grade_mappings m
       JOIN items i ON m.item_id = i.id
-      WHERE m.pts_id = $1 AND m.fuel_grade_id = $2 AND m.is_active = true AND m.item_id IS NOT NULL
+      LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $2 AND bi.is_available = true
+      WHERE m.fuel_grade_id = $1 AND m.is_active = true AND m.item_id IS NOT NULL
+        AND (m.pts_id IS NULL OR m.pts_id = $3)
+      ORDER BY CASE WHEN m.pts_id = $3 THEN 0 ELSE 1 END
       LIMIT 1
-    `, [ptsId, fuelGradeId])
+    `, [fuelGradeId, branch.id, ptsId])
     
     let rows = result.rows || result
     if (rows && rows.length > 0) {
-      console.log(`[PUMP CALLBACK] Found controller-specific mapping for fuel grade ${fuelGradeId}`)
-      return rows[0]
-    }
-    
-    // Try to find branch by controller_id and get mapping for that branch
-    const branch = await findBranchByControllerId(ptsId)
-    if (branch) {
-      result = await query(`
-        SELECT 
-          m.id, m.pts_id, m.fuel_grade_id, m.fuel_grade_name, m.item_id,
-          i.item_name, i.item_code, i.sale_price, $2::uuid as branch_id
-        FROM pump_fuel_grade_mappings m
-        JOIN items i ON m.item_id = i.id
-        WHERE m.fuel_grade_id = $1 AND m.is_active = true AND m.item_id IS NOT NULL
-          AND (m.pts_id IS NULL OR m.pts_id = $3)
-        LIMIT 1
-      `, [fuelGradeId, branch.id, ptsId])
-      
-      rows = result.rows || result
-      if (rows && rows.length > 0) {
-        console.log(`[PUMP CALLBACK] Found mapping for fuel grade ${fuelGradeId} using branch ${branch.name}`)
-        return { ...rows[0], branch_id: branch.id }
+      const mapping = rows[0]
+      console.log(`[PUMP CALLBACK] Found mapping for fuel grade ${fuelGradeId} using branch ${branch.name}`)
+      if (!mapping.sale_price) {
+        console.log(`[PUMP CALLBACK] WARNING: No branch_items price configured for item ${mapping.item_name} at branch ${branch.id}`)
       }
-    }
-    
-    // Fallback to global mapping (pts_id IS NULL)
-    result = await query(`
-      SELECT 
-        m.id, m.pts_id, m.fuel_grade_id, m.fuel_grade_name, m.item_id,
-        i.item_name, i.item_code, i.sale_price, i.branch_id
-      FROM pump_fuel_grade_mappings m
-      JOIN items i ON m.item_id = i.id
-      WHERE m.pts_id IS NULL AND m.fuel_grade_id = $1 AND m.is_active = true AND m.item_id IS NOT NULL
-      LIMIT 1
-    `, [fuelGradeId])
-    
-    rows = result.rows || result
-    if (rows && rows.length > 0) {
-      console.log(`[PUMP CALLBACK] Found global mapping for fuel grade ${fuelGradeId}`)
-      return rows[0]
+      return { ...mapping, branch_id: branch.id }
     }
     
     console.log(`[PUMP CALLBACK] No mapping found for fuel grade ${fuelGradeId}`)

@@ -11,12 +11,10 @@ export async function GET(request: NextRequest) {
     const branchId = searchParams.get('branch_id')
 
     if (!branchId) {
-      // No branch specified - return empty or all from fuel_prices table
-      const result = await pool.query('SELECT * FROM fuel_prices ORDER BY effective_date DESC')
-      return NextResponse.json({ success: true, data: result.rows })
+      return NextResponse.json({ success: true, data: [] })
     }
 
-    // PRIMARY SOURCE: Get fuel prices from branch_items (what Inventory Management updates)
+    // Get fuel prices from branch_items (single source of truth)
     const branchItemsResult = await pool.query(
       `SELECT DISTINCT ON (
          CASE 
@@ -32,13 +30,15 @@ export async function GET(request: NextRequest) {
            WHEN UPPER(i.item_name) LIKE '%KEROSENE%' THEN 'Kerosene'
            ELSE i.item_name
          END as fuel_type,
-         COALESCE(bi.sale_price, i.sale_price) as price,
+         bi.sale_price as price,
          bi.updated_at as effective_date,
          $1::uuid as branch_id
        FROM branch_items bi
        JOIN items i ON bi.item_id = i.id
        WHERE bi.branch_id = $1
          AND bi.is_available = true
+         AND bi.sale_price IS NOT NULL
+         AND bi.sale_price > 0
          AND (UPPER(i.item_name) IN ('PETROL', 'DIESEL', 'KEROSENE', 'SUPER PETROL', 'V-POWER') 
               OR i.item_name ILIKE '%petrol%' 
               OR i.item_name ILIKE '%diesel%'
@@ -54,23 +54,9 @@ export async function GET(request: NextRequest) {
       [branchId]
     )
 
-    // If we found prices in branch_items, use those
-    if (branchItemsResult.rows.length > 0) {
-      return NextResponse.json({
-        success: true,
-        data: branchItemsResult.rows
-      })
-    }
-
-    // FALLBACK: Check legacy fuel_prices table
-    const legacyResult = await pool.query(
-      'SELECT * FROM fuel_prices WHERE branch_id = $1 ORDER BY effective_date DESC',
-      [branchId]
-    )
-
     return NextResponse.json({
       success: true,
-      data: legacyResult.rows
+      data: branchItemsResult.rows
     })
 
   } catch (error: any) {

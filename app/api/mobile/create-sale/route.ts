@@ -110,14 +110,16 @@ export async function POST(request: Request) {
         )
       }
 
-      // Get item price from branch_items (for HQ-assigned items) or legacy items table
+      // Get item price from branch_items (single source of truth)
       const itemPriceResult = await client.query(
-        `SELECT COALESCE(bi.sale_price, i.sale_price) as sale_price 
+        `SELECT bi.sale_price 
          FROM items i
-         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-         WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
-         AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
-         ORDER BY i.created_at DESC LIMIT 1`,
+         JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+         WHERE bi.is_available = true
+           AND bi.sale_price IS NOT NULL
+           AND bi.sale_price > 0
+           AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
+         ORDER BY bi.updated_at DESC NULLS LAST LIMIT 1`,
         [branch_id, fuel_type, `%${fuel_type}%`]
       )
 

@@ -144,8 +144,6 @@ export async function POST(request: NextRequest) {
       taxType,
       origin,
       batchNumber,
-      purchasePrice,
-      salePrice,
       sku,
       quantityUnit,
       packageUnit
@@ -198,10 +196,10 @@ export async function POST(request: NextRequest) {
       `INSERT INTO items (
         vendor_id, branch_id, item_code, item_name, description,
         item_type, class_code, tax_type, origin, batch_number,
-        purchase_price, sale_price, sku, quantity_unit, package_unit,
+        sku, quantity_unit, package_unit,
         status, created_at, updated_at
       ) VALUES (
-        $1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+        $1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
         'active', NOW(), NOW()
       ) RETURNING *`,
       [
@@ -214,8 +212,6 @@ export async function POST(request: NextRequest) {
         taxType,
         origin,
         batchNumber || null,
-        purchasePrice || 0,
-        salePrice || 0,
         sku || null,
         quantityUnit,
         packageUnit
@@ -282,7 +278,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { id, itemName, description, purchasePrice, salePrice, status } = body
+    const { id, itemName, description, status } = body
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Item ID required" }, { status: 400 })
@@ -301,13 +297,11 @@ export async function PUT(request: NextRequest) {
       `UPDATE items SET
         item_name = COALESCE($1, item_name),
         description = COALESCE($2, description),
-        purchase_price = COALESCE($3, purchase_price),
-        sale_price = COALESCE($4, sale_price),
-        status = COALESCE($5, status),
+        status = COALESCE($3, status),
         updated_at = NOW()
-      WHERE id = $6 AND vendor_id = $7
+      WHERE id = $4 AND vendor_id = $5
       RETURNING *`,
-      [itemName, description, purchasePrice, salePrice, status, id, vendorId]
+      [itemName, description, status, id, vendorId]
     )
 
     return NextResponse.json({

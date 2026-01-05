@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
       SELECT 
         m.id, m.pts_id, m.fuel_grade_id, m.fuel_grade_name, 
         m.item_id, m.is_active, m.notes, m.created_at, m.updated_at,
-        i.item_name, i.item_code, i.sale_price
+        i.item_name, i.item_code
       FROM pump_fuel_grade_mappings m
       LEFT JOIN items i ON m.item_id = i.id
       WHERE 1=1

@@ -24,8 +24,6 @@ interface BranchItem {
   origin: string
   quantity_unit: string
   package_unit: string
-  default_purchase_price: number
-  default_sale_price: number
   item_status: string
   branch_item_id: string | null
   branch_sale_price: number | null
@@ -120,8 +118,8 @@ export default function BranchItemPricing() {
   const openPriceDialog = (item: BranchItem) => {
     setSelectedItem(item)
     setPriceForm({
-      salePrice: item.branch_sale_price?.toString() || item.default_sale_price?.toString() || "",
-      purchasePrice: item.branch_purchase_price?.toString() || item.default_purchase_price?.toString() || "",
+      salePrice: item.branch_sale_price?.toString() || "",
+      purchasePrice: item.branch_purchase_price?.toString() || "",
       isAvailable: item.is_available !== false
     })
     setShowPriceDialog(true)
@@ -277,7 +275,6 @@ export default function BranchItemPricing() {
                   <TableHead>Item Code</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Default Price</TableHead>
                   <TableHead className="text-right">Selling Price</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right w-[50px]"></TableHead>
@@ -292,9 +289,6 @@ export default function BranchItemPricing() {
                       <Badge variant="outline" className="capitalize">
                         {item.item_type}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {formatCurrency(item.default_sale_price)}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {item.is_assigned && item.branch_sale_price !== null
@@ -364,13 +358,6 @@ export default function BranchItemPricing() {
               <div className="p-3 bg-muted rounded-lg">
                 <p className="font-medium">{selectedItem?.item_name}</p>
                 <p className="text-sm text-muted-foreground">{selectedItem?.item_code}</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Default Price</Label>
-              <div className="p-3 bg-muted rounded-lg text-muted-foreground">
-                {formatCurrency(selectedItem?.default_sale_price || 0)}
               </div>
             </div>
 

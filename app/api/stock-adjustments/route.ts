@@ -71,9 +71,10 @@ export async function POST(request: NextRequest) {
     if (sync_to_kra && quantity && quantity !== 0) {
       try {
         const tankResult = await pool.query(
-          `SELECT t.*, fp.item_cd, fp.product_name, fp.unit_price
+          `SELECT t.*, i.item_code as item_cd, i.item_name as product_name, bi.sale_price as unit_price
            FROM tanks t
-           LEFT JOIN fuel_prices fp ON t.fuel_type = fp.fuel_type AND t.branch_id = fp.branch_id
+           LEFT JOIN items i ON t.item_id = i.id
+           LEFT JOIN branch_items bi ON bi.item_id = i.id AND bi.branch_id = t.branch_id
            WHERE t.id = $1`,
           [tank_id]
         )

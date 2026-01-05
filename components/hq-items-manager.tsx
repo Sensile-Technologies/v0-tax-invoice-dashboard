@@ -25,8 +25,6 @@ interface Item {
   origin: string
   quantity_unit: string
   package_unit: string
-  purchase_price: number
-  sale_price: number
   status: string
   assigned_branches: number
   created_at: string
@@ -224,7 +222,7 @@ export function HqItemsManager() {
     setSelectedItem(item)
     setAssignFormData({
       branchId: "",
-      salePrice: item.sale_price?.toString() || ""
+      salePrice: ""
     })
     setShowAssignDialog(true)
   }
@@ -329,8 +327,8 @@ export function HqItemsManager() {
       taxType: item.tax_type,
       origin: item.origin,
       batchNumber: "",
-      purchasePrice: item.purchase_price?.toString() || "",
-      salePrice: item.sale_price?.toString() || "",
+      purchasePrice: "",
+      salePrice: "",
       sku: "",
       quantityUnit: item.quantity_unit,
       packageUnit: item.package_unit
@@ -394,7 +392,6 @@ export function HqItemsManager() {
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Classification</TableHead>
-                  <TableHead className="text-right">Default Price</TableHead>
                   <TableHead className="text-center">Branches</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -407,7 +404,6 @@ export function HqItemsManager() {
                     <TableCell className="font-medium">{item.item_name}</TableCell>
                     <TableCell>{item.item_type}</TableCell>
                     <TableCell>{item.class_code}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(item.sale_price)}</TableCell>
                     <TableCell className="text-center">
                       <Badge variant="secondary">{item.assigned_branches || 0}</Badge>
                     </TableCell>

@@ -35,9 +35,10 @@ export async function GET(request: NextRequest) {
         END as approval_status,
         i.item_name,
         i.origin,
-        i.purchase_price
+        COALESCE(bi.purchase_price, 0) as purchase_price
       FROM imported_items ii
       LEFT JOIN items i ON ii.item_cd = i.item_code
+      LEFT JOIN branch_items bi ON bi.item_id = i.id AND bi.branch_id = ii.branch_id
       WHERE 1=1
     `
 
