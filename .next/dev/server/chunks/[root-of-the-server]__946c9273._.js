@@ -83,9 +83,10 @@ async function GET(request) {
         const branchId = searchParams.get('branch_id');
         const status = searchParams.get('status');
         let query = `
-      SELECT n.*, d.dispenser_number 
+      SELECT n.*, d.dispenser_number, i.item_name 
       FROM nozzles n
       LEFT JOIN dispensers d ON n.dispenser_id = d.id
+      LEFT JOIN items i ON n.item_id = i.id
       WHERE 1=1`;
         const params = [];
         if (branchId) {
@@ -115,7 +116,7 @@ async function GET(request) {
 async function POST(request) {
     try {
         const body = await request.json();
-        const { branch_id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading } = body;
+        const { branch_id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading, item_id } = body;
         if (!branch_id || !dispenser_id || !nozzle_number) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "branch_id, dispenser_id, and nozzle_number are required"
@@ -123,15 +124,16 @@ async function POST(request) {
                 status: 400
             });
         }
-        const result = await pool.query(`INSERT INTO nozzles (branch_id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading)
-       VALUES ($1, $2, $3, $4, $5, $6)
+        const result = await pool.query(`INSERT INTO nozzles (branch_id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading, item_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`, [
             branch_id,
             dispenser_id,
             nozzle_number,
             fuel_type || 'Petrol',
             status || 'active',
-            initial_meter_reading || 0
+            initial_meter_reading || 0,
+            item_id || null
         ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
@@ -150,7 +152,7 @@ async function POST(request) {
 async function PUT(request) {
     try {
         const body = await request.json();
-        const { id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading } = body;
+        const { id, dispenser_id, nozzle_number, fuel_type, status, initial_meter_reading, item_id } = body;
         if (!id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Nozzle id is required"
@@ -164,6 +166,7 @@ async function PUT(request) {
            fuel_type = COALESCE($4, fuel_type),
            status = COALESCE($5, status),
            initial_meter_reading = COALESCE($6, initial_meter_reading),
+           item_id = $7,
            updated_at = NOW()
        WHERE id = $1
        RETURNING *`, [
@@ -172,7 +175,8 @@ async function PUT(request) {
             nozzle_number,
             fuel_type,
             status,
-            initial_meter_reading
+            initial_meter_reading,
+            item_id || null
         ]);
         if (result.rows.length === 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

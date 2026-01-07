@@ -673,16 +673,16 @@ async function getNextInvoiceNo(branchId) {
     return result[0]?.invoice_number || 1;
 }
 async function getItemInfoByFuelType(branchId, fuelType) {
-    // Query supports both HQ-assigned items (via branch_items) and legacy branch-specific items
+    // ONLY use branch_items for pricing - no fallback to items table
     const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
     SELECT i.item_code, i.class_code, i.item_name, i.package_unit, 
            i.quantity_unit, i.tax_type, 
-           COALESCE(bi.sale_price, i.sale_price) as sale_price, 
-           COALESCE(bi.purchase_price, i.purchase_price) as purchase_price
+           bi.sale_price, 
+           bi.purchase_price
     FROM items i
-    LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-    WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
-    AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
+    INNER JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+    WHERE (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
+    AND bi.sale_price IS NOT NULL AND bi.sale_price > 0
     ORDER BY i.created_at DESC
     LIMIT 1
   `, [

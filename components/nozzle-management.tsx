@@ -131,7 +131,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           fuel_type: formData.fuel_type,
           initial_meter_reading: parseFloat(formData.initial_meter_reading) || 0,
           status: "active",
-          item_id: formData.item_id || null,
+          item_id: formData.item_id && formData.item_id !== "none" ? formData.item_id : null,
         }),
       })
 
@@ -164,7 +164,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           fuel_type: formData.fuel_type,
           status: selectedNozzle.status,
           initial_meter_reading: parseFloat(formData.initial_meter_reading) || 0,
-          item_id: formData.item_id || null,
+          item_id: formData.item_id && formData.item_id !== "none" ? formData.item_id : null,
         }),
       })
 
@@ -381,7 +381,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                   <SelectValue placeholder="Select item (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No item linked</SelectItem>
+                  <SelectItem value="none">No item linked</SelectItem>
                   {items.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
@@ -461,7 +461,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                   <SelectValue placeholder="Select item (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No item linked</SelectItem>
+                  <SelectItem value="none">No item linked</SelectItem>
                   {items.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}

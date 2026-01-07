@@ -276,13 +276,15 @@ async function getBranchKraInfo(branchId) {
     };
 }
 async function getTankWithItemInfo(tankId) {
+    // ONLY use branch_items for pricing - no fallback to items table or fuel_prices
     const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
     SELECT t.*, i.item_code, i.class_code, i.item_name, i.package_unit, 
-           i.quantity_unit, i.tax_type, i.sale_price, i.purchase_price,
-           fp.price as current_price
+           i.quantity_unit, i.tax_type, 
+           bi.sale_price, bi.purchase_price,
+           bi.sale_price as current_price
     FROM tanks t
-    LEFT JOIN items i ON i.item_name ILIKE '%' || t.fuel_type || '%' AND i.branch_id = t.branch_id
-    LEFT JOIN fuel_prices fp ON fp.branch_id = t.branch_id AND fp.fuel_type = t.fuel_type
+    LEFT JOIN items i ON t.item_id = i.id
+    LEFT JOIN branch_items bi ON bi.item_id = i.id AND bi.branch_id = t.branch_id
     WHERE t.id = $1
   `, [
         tankId

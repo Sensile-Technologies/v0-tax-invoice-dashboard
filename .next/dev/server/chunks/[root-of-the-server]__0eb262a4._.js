@@ -172,8 +172,6 @@ async function GET(request) {
           i.origin,
           i.quantity_unit,
           i.package_unit,
-          i.purchase_price as default_purchase_price,
-          i.sale_price as default_sale_price,
           i.status as item_status,
           bi.id as branch_item_id,
           bi.sale_price as branch_sale_price,
