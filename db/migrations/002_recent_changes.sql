@@ -279,6 +279,33 @@ DROP TABLE IF EXISTS public.fuel_prices;
 -- ON CONFLICT (branch_id, item_id) DO NOTHING;
 
 -- ============================================
+-- 14. Create bulk_sales table for tracking meter-based sales
+-- ============================================
+CREATE TABLE IF NOT EXISTS bulk_sales (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  branch_id UUID NOT NULL REFERENCES branches(id),
+  shift_id UUID NOT NULL REFERENCES shifts(id),
+  nozzle_id UUID REFERENCES nozzles(id),
+  item_id UUID REFERENCES items(id),
+  fuel_type VARCHAR(100),
+  opening_reading DECIMAL(15,3) DEFAULT 0,
+  closing_reading DECIMAL(15,3) DEFAULT 0,
+  meter_difference DECIMAL(15,3) DEFAULT 0,
+  invoiced_quantity DECIMAL(15,3) DEFAULT 0,
+  bulk_quantity DECIMAL(15,3) DEFAULT 0,
+  unit_price DECIMAL(15,2) DEFAULT 0,
+  total_amount DECIMAL(15,2) DEFAULT 0,
+  generated_invoices INTEGER DEFAULT 0,
+  status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_bulk_sales_branch_id ON bulk_sales(branch_id);
+CREATE INDEX IF NOT EXISTS idx_bulk_sales_shift_id ON bulk_sales(shift_id);
+CREATE INDEX IF NOT EXISTS idx_bulk_sales_created_at ON bulk_sales(created_at);
+
+-- ============================================
 -- Done!
 -- ============================================
 SELECT 'Migration completed successfully - branch_items is now the ONLY pricing source' as status;
