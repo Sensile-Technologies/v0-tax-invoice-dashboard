@@ -33,13 +33,14 @@ export async function GET(request: NextRequest) {
       SELECT 
         t.id as tank_id,
         t.tank_name,
-        t.fuel_type,
+        COALESCE(i.item_name, t.fuel_type) as fuel_type,
         t.capacity,
         t.current_stock,
         b.name as branch_name,
         b.id as branch_id
       FROM tanks t
       LEFT JOIN branches b ON t.branch_id = b.id
+      LEFT JOIN items i ON t.item_id = i.id
       ${tankWhereClause}
       ORDER BY b.name, t.tank_name
     `
@@ -125,7 +126,7 @@ export async function GET(request: NextRequest) {
         sa.id,
         sa.tank_id,
         t.tank_name,
-        t.fuel_type,
+        COALESCE(i.item_name, t.fuel_type) as fuel_type,
         b.name as branch_name,
         sa.adjustment_type,
         sa.quantity,
@@ -138,6 +139,7 @@ export async function GET(request: NextRequest) {
         sa.created_at
       FROM stock_adjustments sa
       LEFT JOIN tanks t ON sa.tank_id = t.id
+      LEFT JOIN items i ON t.item_id = i.id
       LEFT JOIN branches b ON sa.branch_id = b.id
       ${movementWhereClause}
       ORDER BY sa.created_at DESC

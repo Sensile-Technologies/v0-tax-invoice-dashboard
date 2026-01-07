@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
 
     if (tankIdsArray.length > 0) {
       const tanksResult = await pool.query(
-        'SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1::uuid[])',
+        `SELECT t.id, COALESCE(i.item_name, t.fuel_type) as fuel_type, t.item_id 
+         FROM tanks t
+         LEFT JOIN items i ON t.item_id = i.id
+         WHERE t.id = ANY($1::uuid[])`,
         [tankIdsArray]
       )
       
@@ -76,7 +79,10 @@ export async function POST(request: NextRequest) {
         : 1
 
       const tanksResultForNozzles = await pool.query(
-        'SELECT id, fuel_type, item_id, tank_name FROM tanks WHERE id = ANY($1::uuid[])',
+        `SELECT t.id, COALESCE(i.item_name, t.fuel_type) as fuel_type, t.item_id, t.tank_name 
+         FROM tanks t
+         LEFT JOIN items i ON t.item_id = i.id
+         WHERE t.id = ANY($1::uuid[])`,
         [tankIdsArray]
       )
 

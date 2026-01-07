@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 
     // Step 1: Get basic nozzle info
     const nozzleResult = await query(`
-      SELECT n.id, n.fuel_type, n.item_id,
+      SELECT n.id, COALESCE(i.item_name, n.fuel_type) as fuel_type, n.item_id,
              COALESCE(n.initial_meter_reading, 0) as initial_meter_reading,
              i.item_code, i.class_code, i.item_name, i.package_unit, i.quantity_unit, i.tax_type
       FROM nozzles n

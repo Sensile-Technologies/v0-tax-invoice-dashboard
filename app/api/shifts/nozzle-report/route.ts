@@ -85,10 +85,11 @@ async function getShiftNozzleReport(shiftId: string, vendorId: string | null) {
       sr.opening_reading,
       sr.closing_reading,
       n.nozzle_number,
-      n.fuel_type,
+      COALESCE(i.item_name, n.fuel_type) as fuel_type,
       'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
     FROM shift_readings sr
     JOIN nozzles n ON sr.nozzle_id = n.id
+    LEFT JOIN items i ON n.item_id = i.id
     LEFT JOIN dispensers d ON n.dispenser_id = d.id
     WHERE sr.shift_id = $1 AND sr.reading_type = 'nozzle'
   `
@@ -180,10 +181,11 @@ async function getDailyNozzleReport(branchId: string, date: string, vendorId: st
 
   if (shiftIds.length === 0) {
     const nozzlesQuery = `
-      SELECT n.id, n.nozzle_number, n.fuel_type, n.initial_meter_reading,
+      SELECT n.id, n.nozzle_number, COALESCE(i.item_name, n.fuel_type) as fuel_type, n.initial_meter_reading,
         'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
       FROM nozzles n
       LEFT JOIN dispensers d ON n.dispenser_id = d.id
+      LEFT JOIN items i ON n.item_id = i.id
       WHERE n.branch_id = $1 AND n.status = 'active'
       ORDER BY n.nozzle_number
     `
@@ -217,15 +219,16 @@ async function getDailyNozzleReport(branchId: string, date: string, vendorId: st
     SELECT 
       sr.nozzle_id,
       n.nozzle_number,
-      n.fuel_type,
+      COALESCE(i.item_name, n.fuel_type) as fuel_type,
       'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name,
       MIN(sr.opening_reading) as day_opening,
       MAX(sr.closing_reading) as day_closing
     FROM shift_readings sr
     JOIN nozzles n ON sr.nozzle_id = n.id
+    LEFT JOIN items i ON n.item_id = i.id
     LEFT JOIN dispensers d ON n.dispenser_id = d.id
     WHERE sr.shift_id = ANY($1) AND sr.reading_type = 'nozzle'
-    GROUP BY sr.nozzle_id, n.nozzle_number, n.fuel_type, d.dispenser_number
+    GROUP BY sr.nozzle_id, n.nozzle_number, i.item_name, n.fuel_type, d.dispenser_number
   `
   const readingsResult = await pool.query(nozzleReadingsQuery, [shiftIds])
 

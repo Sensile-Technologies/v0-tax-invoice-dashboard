@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
 
     let query = `
-      SELECT n.*, d.dispenser_number, i.item_name 
+      SELECT n.*, d.dispenser_number, i.item_name,
+             COALESCE(i.item_name, n.fuel_type) as fuel_type
       FROM nozzles n
       LEFT JOIN dispensers d ON n.dispenser_id = d.id
       LEFT JOIN items i ON n.item_id = i.id
