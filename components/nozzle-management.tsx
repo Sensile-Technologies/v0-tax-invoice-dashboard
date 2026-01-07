@@ -353,17 +353,30 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
               />
             </div>
             <div>
-              <Label>Fuel Type</Label>
-              <Select value={formData.fuel_type} onValueChange={(v) => setFormData({ ...formData, fuel_type: v })}>
+              <Label>Fuel Item (from branch inventory)</Label>
+              <Select 
+                value={formData.item_id} 
+                onValueChange={(v) => {
+                  const selectedItem = items.find(item => item.id === v)
+                  setFormData({ 
+                    ...formData, 
+                    item_id: v,
+                    fuel_type: selectedItem?.item_name || formData.fuel_type
+                  })
+                }}
+              >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select fuel item" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Diesel">Diesel</SelectItem>
-                  <SelectItem value="Petrol">Petrol</SelectItem>
-                  <SelectItem value="Kerosene">Kerosene</SelectItem>
+                  {items.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">KRA synced items only - same as tanks</p>
             </div>
             <div>
               <Label>Current Meter Reading</Label>
@@ -373,23 +386,6 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                 value={formData.initial_meter_reading}
                 onChange={(e) => setFormData({ ...formData, initial_meter_reading: e.target.value })}
               />
-            </div>
-            <div>
-              <Label>Link to Item (for pricing)</Label>
-              <Select value={formData.item_id} onValueChange={(v) => setFormData({ ...formData, item_id: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select item (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No item linked</SelectItem>
-                  {items.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">Same items as tanks - from branch inventory</p>
             </div>
           </div>
           <DialogFooter>
@@ -433,17 +429,30 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
               />
             </div>
             <div>
-              <Label>Fuel Type</Label>
-              <Select value={formData.fuel_type} onValueChange={(v) => setFormData({ ...formData, fuel_type: v })}>
+              <Label>Fuel Item (from branch inventory)</Label>
+              <Select 
+                value={formData.item_id} 
+                onValueChange={(v) => {
+                  const selectedItem = items.find(item => item.id === v)
+                  setFormData({ 
+                    ...formData, 
+                    item_id: v,
+                    fuel_type: selectedItem?.item_name || formData.fuel_type
+                  })
+                }}
+              >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select fuel item" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Diesel">Diesel</SelectItem>
-                  <SelectItem value="Petrol">Petrol</SelectItem>
-                  <SelectItem value="Kerosene">Kerosene</SelectItem>
+                  {items.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">KRA synced items only - same as tanks</p>
             </div>
             <div>
               <Label>Current Meter Reading</Label>
@@ -453,23 +462,6 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                 value={formData.initial_meter_reading}
                 onChange={(e) => setFormData({ ...formData, initial_meter_reading: e.target.value })}
               />
-            </div>
-            <div>
-              <Label>Link to Item (for pricing)</Label>
-              <Select value={formData.item_id} onValueChange={(v) => setFormData({ ...formData, item_id: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select item (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No item linked</SelectItem>
-                  {items.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">Same items as tanks - from branch inventory</p>
             </div>
           </div>
           <DialogFooter>
