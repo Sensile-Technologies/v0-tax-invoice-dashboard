@@ -35,7 +35,7 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 -- Name: update_updated_at_column(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.update_updated_at_column() RETURNS trigger
+CREATE OR REPLACE FUNCTION public.update_updated_at_column() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
@@ -53,7 +53,7 @@ SET default_table_access_method = heap;
 -- Name: activity_logs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.activity_logs (
+CREATE TABLE IF NOT EXISTS public.activity_logs (
     id integer NOT NULL,
     user_id character varying(255),
     user_email character varying(255),
@@ -75,7 +75,7 @@ CREATE TABLE public.activity_logs (
 -- Name: activity_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.activity_logs_id_seq
+CREATE SEQUENCE IF NOT EXISTS public.activity_logs_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -95,7 +95,7 @@ ALTER SEQUENCE public.activity_logs_id_seq OWNED BY public.activity_logs.id;
 -- Name: api_logs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.api_logs (
+CREATE TABLE IF NOT EXISTS public.api_logs (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     endpoint text NOT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE public.api_logs (
 -- Name: billing_products; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.billing_products (
+CREATE TABLE IF NOT EXISTS public.billing_products (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying(100) NOT NULL,
     description text,
@@ -133,7 +133,7 @@ CREATE TABLE public.billing_products (
 -- Name: billing_rates; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.billing_rates (
+CREATE TABLE IF NOT EXISTS public.billing_rates (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying(100) NOT NULL,
     description text,
@@ -149,7 +149,7 @@ CREATE TABLE public.billing_rates (
 -- Name: branch_insurances; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.branch_insurances (
+CREATE TABLE IF NOT EXISTS public.branch_insurances (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -171,7 +171,7 @@ CREATE TABLE public.branch_insurances (
 -- Name: branch_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.branch_items (
+CREATE TABLE IF NOT EXISTS public.branch_items (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid NOT NULL,
     item_id uuid NOT NULL,
@@ -190,7 +190,7 @@ CREATE TABLE public.branch_items (
 -- Name: branch_kra_counters; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.branch_kra_counters (
+CREATE TABLE IF NOT EXISTS public.branch_kra_counters (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     branch_id uuid,
     endpoint text NOT NULL,
@@ -205,7 +205,7 @@ CREATE TABLE public.branch_kra_counters (
 -- Name: branch_logs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.branch_logs (
+CREATE TABLE IF NOT EXISTS public.branch_logs (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     branch_id uuid NOT NULL,
     log_type character varying(50) NOT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE public.branch_logs (
 -- Name: branch_users; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.branch_users (
+CREATE TABLE IF NOT EXISTS public.branch_users (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -248,7 +248,7 @@ CREATE TABLE public.branch_users (
 -- Name: branches; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.branches (
+CREATE TABLE IF NOT EXISTS public.branches (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_id uuid,
     name text NOT NULL,
@@ -282,7 +282,7 @@ CREATE TABLE public.branches (
 -- Name: credit_notes; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.credit_notes (
+CREATE TABLE IF NOT EXISTS public.credit_notes (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     sale_id uuid,
@@ -303,7 +303,7 @@ CREATE TABLE public.credit_notes (
 -- Name: customer_branches; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.customer_branches (
+CREATE TABLE IF NOT EXISTS public.customer_branches (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     customer_id uuid NOT NULL,
     branch_id uuid NOT NULL,
@@ -318,7 +318,7 @@ CREATE TABLE public.customer_branches (
 -- Name: customers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.customers (
+CREATE TABLE IF NOT EXISTS public.customers (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -345,7 +345,7 @@ CREATE TABLE public.customers (
 -- Name: device_initialization; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.device_initialization (
+CREATE TABLE IF NOT EXISTS public.device_initialization (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -386,7 +386,7 @@ CREATE TABLE public.device_initialization (
 -- Name: dispenser_tanks; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.dispenser_tanks (
+CREATE TABLE IF NOT EXISTS public.dispenser_tanks (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     dispenser_id uuid NOT NULL,
     tank_id uuid NOT NULL,
@@ -398,7 +398,7 @@ CREATE TABLE public.dispenser_tanks (
 -- Name: dispensers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.dispensers (
+CREATE TABLE IF NOT EXISTS public.dispensers (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     dispenser_number integer NOT NULL,
@@ -415,7 +415,7 @@ CREATE TABLE public.dispensers (
 -- Name: hardware; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.hardware (
+CREATE TABLE IF NOT EXISTS public.hardware (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     hardware_type character varying(100) NOT NULL,
@@ -432,7 +432,7 @@ CREATE TABLE public.hardware (
 -- Name: imported_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.imported_items (
+CREATE TABLE IF NOT EXISTS public.imported_items (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -457,7 +457,7 @@ CREATE TABLE public.imported_items (
 -- Name: invoice_branches; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.invoice_branches (
+CREATE TABLE IF NOT EXISTS public.invoice_branches (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     invoice_id uuid,
     branch_id uuid,
@@ -469,7 +469,7 @@ CREATE TABLE public.invoice_branches (
 -- Name: invoice_line_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.invoice_line_items (
+CREATE TABLE IF NOT EXISTS public.invoice_line_items (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     invoice_id uuid,
     description character varying(255) NOT NULL,
@@ -486,7 +486,7 @@ CREATE TABLE public.invoice_line_items (
 -- Name: invoices; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.invoices (
+CREATE TABLE IF NOT EXISTS public.invoices (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     invoice_number character varying(50) NOT NULL,
     vendor_id uuid,
@@ -514,7 +514,7 @@ CREATE TABLE public.invoices (
 -- Name: item_compositions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.item_compositions (
+CREATE TABLE IF NOT EXISTS public.item_compositions (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     parent_item_id uuid,
     composite_item_id uuid,
@@ -528,7 +528,7 @@ CREATE TABLE public.item_compositions (
 -- Name: items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.items (
+CREATE TABLE IF NOT EXISTS public.items (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     item_code text,
@@ -556,7 +556,7 @@ CREATE TABLE public.items (
 -- Name: kra_codelists; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.kra_codelists (
+CREATE TABLE IF NOT EXISTS public.kra_codelists (
     id integer NOT NULL,
     bhf_id character varying(10) NOT NULL,
     cd_cls character varying(50) NOT NULL,
@@ -573,7 +573,7 @@ CREATE TABLE public.kra_codelists (
 -- Name: kra_codelists_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.kra_codelists_id_seq
+CREATE SEQUENCE IF NOT EXISTS public.kra_codelists_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -593,7 +593,7 @@ ALTER SEQUENCE public.kra_codelists_id_seq OWNED BY public.kra_codelists.id;
 -- Name: kra_item_classifications; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.kra_item_classifications (
+CREATE TABLE IF NOT EXISTS public.kra_item_classifications (
     id integer NOT NULL,
     bhf_id character varying(10) NOT NULL,
     item_cls_cd character varying(50) NOT NULL,
@@ -611,7 +611,7 @@ CREATE TABLE public.kra_item_classifications (
 -- Name: kra_item_classifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.kra_item_classifications_id_seq
+CREATE SEQUENCE IF NOT EXISTS public.kra_item_classifications_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -631,7 +631,7 @@ ALTER SEQUENCE public.kra_item_classifications_id_seq OWNED BY public.kra_item_c
 -- Name: leads; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.leads (
+CREATE TABLE IF NOT EXISTS public.leads (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_name character varying(255) NOT NULL,
     contact_name character varying(255),
@@ -661,7 +661,7 @@ CREATE TABLE public.leads (
 -- Name: loyalty_transactions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.loyalty_transactions (
+CREATE TABLE IF NOT EXISTS public.loyalty_transactions (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     sale_id uuid,
@@ -682,7 +682,7 @@ CREATE TABLE public.loyalty_transactions (
 -- Name: notices; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.notices (
+CREATE TABLE IF NOT EXISTS public.notices (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text,
@@ -702,7 +702,7 @@ CREATE TABLE public.notices (
 -- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.notifications (
+CREATE TABLE IF NOT EXISTS public.notifications (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id character varying(255),
     type character varying(50) DEFAULT 'info'::character varying NOT NULL,
@@ -719,7 +719,7 @@ CREATE TABLE public.notifications (
 -- Name: nozzles; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.nozzles (
+CREATE TABLE IF NOT EXISTS public.nozzles (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     dispenser_id uuid,
@@ -738,7 +738,7 @@ CREATE TABLE public.nozzles (
 -- Name: onboarding_requests; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.onboarding_requests (
+CREATE TABLE IF NOT EXISTS public.onboarding_requests (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     type character varying(50) NOT NULL,
     merchant_id uuid,
@@ -753,7 +753,7 @@ CREATE TABLE public.onboarding_requests (
 -- Name: password_reset_tokens; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.password_reset_tokens (
+CREATE TABLE IF NOT EXISTS public.password_reset_tokens (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     token_hash text NOT NULL,
@@ -768,7 +768,7 @@ CREATE TABLE public.password_reset_tokens (
 -- Name: payment_transactions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.payment_transactions (
+CREATE TABLE IF NOT EXISTS public.payment_transactions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     invoice_id uuid,
     vendor_id uuid,
@@ -785,7 +785,7 @@ CREATE TABLE public.payment_transactions (
 -- Name: payments; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.payments (
+CREATE TABLE IF NOT EXISTS public.payments (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     invoice_id uuid NOT NULL,
     amount numeric(12,2) NOT NULL,
@@ -802,7 +802,7 @@ CREATE TABLE public.payments (
 -- Name: po_acceptance_dispenser_readings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.po_acceptance_dispenser_readings (
+CREATE TABLE IF NOT EXISTS public.po_acceptance_dispenser_readings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     acceptance_id uuid NOT NULL,
     dispenser_id uuid NOT NULL,
@@ -816,7 +816,7 @@ CREATE TABLE public.po_acceptance_dispenser_readings (
 -- Name: po_acceptance_nozzle_readings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.po_acceptance_nozzle_readings (
+CREATE TABLE IF NOT EXISTS public.po_acceptance_nozzle_readings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     acceptance_id uuid NOT NULL,
     nozzle_id uuid NOT NULL,
@@ -830,7 +830,7 @@ CREATE TABLE public.po_acceptance_nozzle_readings (
 -- Name: po_acceptance_tank_readings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.po_acceptance_tank_readings (
+CREATE TABLE IF NOT EXISTS public.po_acceptance_tank_readings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     acceptance_id uuid NOT NULL,
     tank_id uuid NOT NULL,
@@ -844,7 +844,7 @@ CREATE TABLE public.po_acceptance_tank_readings (
 -- Name: printer_logs; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.printer_logs (
+CREATE TABLE IF NOT EXISTS public.printer_logs (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     branch_id uuid,
     vendor_id uuid,
@@ -863,7 +863,7 @@ CREATE TABLE public.printer_logs (
 -- Name: pump_callback_events; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.pump_callback_events (
+CREATE TABLE IF NOT EXISTS public.pump_callback_events (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     pts_id character varying(255),
     raw_request jsonb,
@@ -876,7 +876,7 @@ CREATE TABLE public.pump_callback_events (
 -- Name: pump_fuel_grade_mappings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.pump_fuel_grade_mappings (
+CREATE TABLE IF NOT EXISTS public.pump_fuel_grade_mappings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     pts_id text,
     fuel_grade_id integer NOT NULL,
@@ -893,7 +893,7 @@ CREATE TABLE public.pump_fuel_grade_mappings (
 -- Name: pump_transactions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.pump_transactions (
+CREATE TABLE IF NOT EXISTS public.pump_transactions (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     packet_id integer,
     pts_id character varying(255),
@@ -925,7 +925,7 @@ CREATE TABLE public.pump_transactions (
 -- Name: purchase_order_acceptances; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.purchase_order_acceptances (
+CREATE TABLE IF NOT EXISTS public.purchase_order_acceptances (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     purchase_order_id uuid NOT NULL,
     branch_id uuid NOT NULL,
@@ -943,7 +943,7 @@ CREATE TABLE public.purchase_order_acceptances (
 -- Name: purchase_order_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.purchase_order_items (
+CREATE TABLE IF NOT EXISTS public.purchase_order_items (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     purchase_order_id uuid NOT NULL,
     item_id uuid,
@@ -959,7 +959,7 @@ CREATE TABLE public.purchase_order_items (
 -- Name: purchase_orders; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.purchase_orders (
+CREATE TABLE IF NOT EXISTS public.purchase_orders (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     vendor_id uuid NOT NULL,
     branch_id uuid NOT NULL,
@@ -990,7 +990,7 @@ CREATE TABLE public.purchase_orders (
 -- Name: purchase_transaction_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.purchase_transaction_items (
+CREATE TABLE IF NOT EXISTS public.purchase_transaction_items (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     purchase_transaction_id uuid,
     item_seq integer,
@@ -1023,7 +1023,7 @@ CREATE TABLE public.purchase_transaction_items (
 -- Name: purchase_transactions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.purchase_transactions (
+CREATE TABLE IF NOT EXISTS public.purchase_transactions (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -1078,7 +1078,7 @@ CREATE TABLE public.purchase_transactions (
 -- Name: sales; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.sales (
+CREATE TABLE IF NOT EXISTS public.sales (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     shift_id uuid,
@@ -1122,7 +1122,7 @@ CREATE TABLE public.sales (
 -- Name: sales_people; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.sales_people (
+CREATE TABLE IF NOT EXISTS public.sales_people (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying(255) NOT NULL,
     email character varying(255),
@@ -1137,7 +1137,7 @@ CREATE TABLE public.sales_people (
 -- Name: sales_receipts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.sales_receipts (
+CREATE TABLE IF NOT EXISTS public.sales_receipts (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     sales_transaction_id uuid,
     cust_tin text,
@@ -1158,7 +1158,7 @@ CREATE TABLE public.sales_receipts (
 -- Name: sales_transaction_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.sales_transaction_items (
+CREATE TABLE IF NOT EXISTS public.sales_transaction_items (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     sales_transaction_id uuid,
     item_seq integer,
@@ -1191,7 +1191,7 @@ CREATE TABLE public.sales_transaction_items (
 -- Name: sales_transactions; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.sales_transactions (
+CREATE TABLE IF NOT EXISTS public.sales_transactions (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -1246,7 +1246,7 @@ CREATE TABLE public.sales_transactions (
 -- Name: shift_readings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.shift_readings (
+CREATE TABLE IF NOT EXISTS public.shift_readings (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     shift_id uuid,
     branch_id uuid,
@@ -1265,7 +1265,7 @@ CREATE TABLE public.shift_readings (
 -- Name: shifts; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.shifts (
+CREATE TABLE IF NOT EXISTS public.shifts (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     staff_id uuid,
@@ -1285,7 +1285,7 @@ CREATE TABLE public.shifts (
 -- Name: staff; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.staff (
+CREATE TABLE IF NOT EXISTS public.staff (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     user_id uuid,
@@ -1308,7 +1308,7 @@ CREATE TABLE public.staff (
 -- Name: stock_adjustments; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.stock_adjustments (
+CREATE TABLE IF NOT EXISTS public.stock_adjustments (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tank_id uuid,
@@ -1331,7 +1331,7 @@ CREATE TABLE public.stock_adjustments (
 -- Name: stock_master; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.stock_master (
+CREATE TABLE IF NOT EXISTS public.stock_master (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -1351,7 +1351,7 @@ CREATE TABLE public.stock_master (
 -- Name: stock_movement_items; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.stock_movement_items (
+CREATE TABLE IF NOT EXISTS public.stock_movement_items (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     stock_movement_id uuid,
     item_seq integer,
@@ -1380,7 +1380,7 @@ CREATE TABLE public.stock_movement_items (
 -- Name: stock_movements; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.stock_movements (
+CREATE TABLE IF NOT EXISTS public.stock_movements (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tin text NOT NULL,
@@ -1414,7 +1414,7 @@ CREATE TABLE public.stock_movements (
 -- Name: stock_transfers; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.stock_transfers (
+CREATE TABLE IF NOT EXISTS public.stock_transfers (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     from_branch_id uuid,
     to_branch_id uuid,
@@ -1441,7 +1441,7 @@ CREATE TABLE public.stock_transfers (
 -- Name: support_tickets; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.support_tickets (
+CREATE TABLE IF NOT EXISTS public.support_tickets (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     ticket_number character varying(20) NOT NULL,
     vendor_id uuid,
@@ -1463,7 +1463,7 @@ CREATE TABLE public.support_tickets (
 -- Name: tanks; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.tanks (
+CREATE TABLE IF NOT EXISTS public.tanks (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     branch_id uuid,
     tank_name text NOT NULL,
@@ -1484,7 +1484,7 @@ CREATE TABLE public.tanks (
 -- Name: ticket_categories; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.ticket_categories (
+CREATE TABLE IF NOT EXISTS public.ticket_categories (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying(100) NOT NULL,
     description text,
@@ -1498,7 +1498,7 @@ CREATE TABLE public.ticket_categories (
 -- Name: ticket_messages; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.ticket_messages (
+CREATE TABLE IF NOT EXISTS public.ticket_messages (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     ticket_id uuid,
     sender_id uuid,
@@ -1513,7 +1513,7 @@ CREATE TABLE public.ticket_messages (
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.users (
+CREATE TABLE IF NOT EXISTS public.users (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     email text,
     username text,
@@ -1529,7 +1529,7 @@ CREATE TABLE public.users (
 -- Name: vendor_partners; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.vendor_partners (
+CREATE TABLE IF NOT EXISTS public.vendor_partners (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     vendor_id uuid NOT NULL,
     partner_type character varying(20) NOT NULL,
@@ -1550,7 +1550,7 @@ CREATE TABLE public.vendor_partners (
 -- Name: vendor_po_sequences; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.vendor_po_sequences (
+CREATE TABLE IF NOT EXISTS public.vendor_po_sequences (
     vendor_id uuid NOT NULL,
     next_po_number integer DEFAULT 1
 );
@@ -1560,7 +1560,7 @@ CREATE TABLE public.vendor_po_sequences (
 -- Name: vendors; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.vendors (
+CREATE TABLE IF NOT EXISTS public.vendors (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     name character varying(255) NOT NULL,
     email character varying(255),
@@ -2308,476 +2308,476 @@ ALTER TABLE ONLY public.vendors
 -- Name: branches_user_bhf_unique; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX branches_user_bhf_unique ON public.branches USING btree (user_id, bhf_id);
+CREATE UNIQUE INDEX IF NOT EXISTS branches_user_bhf_unique ON public.branches USING btree (user_id, bhf_id);
 
 
 --
 -- Name: idx_activity_logs_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_activity_logs_branch_id ON public.activity_logs USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_branch_id ON public.activity_logs USING btree (branch_id);
 
 
 --
 -- Name: idx_activity_logs_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_activity_logs_created_at ON public.activity_logs USING btree (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON public.activity_logs USING btree (created_at DESC);
 
 
 --
 -- Name: idx_activity_logs_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_activity_logs_user_id ON public.activity_logs USING btree (user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON public.activity_logs USING btree (user_id);
 
 
 --
 -- Name: idx_activity_logs_vendor_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_activity_logs_vendor_id ON public.activity_logs USING btree (vendor_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_vendor_id ON public.activity_logs USING btree (vendor_id);
 
 
 --
 -- Name: idx_api_logs_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_api_logs_branch_id ON public.api_logs USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_api_logs_branch_id ON public.api_logs USING btree (branch_id);
 
 
 --
 -- Name: idx_api_logs_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_api_logs_created_at ON public.api_logs USING btree (created_at);
+CREATE INDEX IF NOT EXISTS idx_api_logs_created_at ON public.api_logs USING btree (created_at);
 
 
 --
 -- Name: idx_branch_items_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_branch_items_branch_id ON public.branch_items USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_branch_items_branch_id ON public.branch_items USING btree (branch_id);
 
 
 --
 -- Name: idx_branch_items_item_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_branch_items_item_id ON public.branch_items USING btree (item_id);
+CREATE INDEX IF NOT EXISTS idx_branch_items_item_id ON public.branch_items USING btree (item_id);
 
 
 --
 -- Name: idx_branch_logs_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_branch_logs_branch_id ON public.branch_logs USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_branch_logs_branch_id ON public.branch_logs USING btree (branch_id);
 
 
 --
 -- Name: idx_branch_logs_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_branch_logs_created_at ON public.branch_logs USING btree (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_branch_logs_created_at ON public.branch_logs USING btree (created_at DESC);
 
 
 --
 -- Name: idx_branches_bhf_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_branches_bhf_id ON public.branches USING btree (bhf_id);
+CREATE INDEX IF NOT EXISTS idx_branches_bhf_id ON public.branches USING btree (bhf_id);
 
 
 --
 -- Name: idx_branches_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_branches_user_id ON public.branches USING btree (user_id);
+CREATE INDEX IF NOT EXISTS idx_branches_user_id ON public.branches USING btree (user_id);
 
 
 --
 -- Name: idx_branches_vendor_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_branches_vendor_id ON public.branches USING btree (vendor_id);
+CREATE INDEX IF NOT EXISTS idx_branches_vendor_id ON public.branches USING btree (vendor_id);
 
 
 --
 -- Name: idx_credit_notes_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_credit_notes_branch_id ON public.credit_notes USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_credit_notes_branch_id ON public.credit_notes USING btree (branch_id);
 
 
 --
 -- Name: idx_customer_branches_branch; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_customer_branches_branch ON public.customer_branches USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_customer_branches_branch ON public.customer_branches USING btree (branch_id);
 
 
 --
 -- Name: idx_customer_branches_customer; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_customer_branches_customer ON public.customer_branches USING btree (customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_branches_customer ON public.customer_branches USING btree (customer_id);
 
 
 --
 -- Name: idx_customers_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_customers_branch_id ON public.customers USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_customers_branch_id ON public.customers USING btree (branch_id);
 
 
 --
 -- Name: idx_device_initialization_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_device_initialization_branch_id ON public.device_initialization USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_device_initialization_branch_id ON public.device_initialization USING btree (branch_id);
 
 
 --
 -- Name: idx_dispensers_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_dispensers_branch_id ON public.dispensers USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_dispensers_branch_id ON public.dispensers USING btree (branch_id);
 
 
 --
 -- Name: idx_hardware_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_hardware_branch_id ON public.hardware USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_hardware_branch_id ON public.hardware USING btree (branch_id);
 
 
 --
 -- Name: idx_invoice_items_invoice_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_invoice_items_invoice_id ON public.invoice_line_items USING btree (invoice_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice_id ON public.invoice_line_items USING btree (invoice_id);
 
 
 --
 -- Name: idx_invoices_next_date; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_invoices_next_date ON public.invoices USING btree (next_invoice_date) WHERE (next_invoice_date IS NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_invoices_next_date ON public.invoices USING btree (next_invoice_date) WHERE (next_invoice_date IS NOT NULL);
 
 
 --
 -- Name: idx_invoices_recurring; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_invoices_recurring ON public.invoices USING btree (is_recurring) WHERE (is_recurring = true);
+CREATE INDEX IF NOT EXISTS idx_invoices_recurring ON public.invoices USING btree (is_recurring) WHERE (is_recurring = true);
 
 
 --
 -- Name: idx_invoices_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_invoices_status ON public.invoices USING btree (status);
+CREATE INDEX IF NOT EXISTS idx_invoices_status ON public.invoices USING btree (status);
 
 
 --
 -- Name: idx_invoices_vendor_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_invoices_vendor_id ON public.invoices USING btree (vendor_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_vendor_id ON public.invoices USING btree (vendor_id);
 
 
 --
 -- Name: idx_items_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_items_branch_id ON public.items USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_items_branch_id ON public.items USING btree (branch_id);
 
 
 --
 -- Name: idx_kra_codelists_bhf_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_kra_codelists_bhf_id ON public.kra_codelists USING btree (bhf_id);
+CREATE INDEX IF NOT EXISTS idx_kra_codelists_bhf_id ON public.kra_codelists USING btree (bhf_id);
 
 
 --
 -- Name: idx_kra_item_classifications_bhf_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_kra_item_classifications_bhf_id ON public.kra_item_classifications USING btree (bhf_id);
+CREATE INDEX IF NOT EXISTS idx_kra_item_classifications_bhf_id ON public.kra_item_classifications USING btree (bhf_id);
 
 
 --
 -- Name: idx_loyalty_transactions_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_loyalty_transactions_branch_id ON public.loyalty_transactions USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_loyalty_transactions_branch_id ON public.loyalty_transactions USING btree (branch_id);
 
 
 --
 -- Name: idx_loyalty_transactions_sale_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_loyalty_transactions_sale_id ON public.loyalty_transactions USING btree (sale_id);
+CREATE INDEX IF NOT EXISTS idx_loyalty_transactions_sale_id ON public.loyalty_transactions USING btree (sale_id);
 
 
 --
 -- Name: idx_notices_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_notices_branch_id ON public.notices USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_notices_branch_id ON public.notices USING btree (branch_id);
 
 
 --
 -- Name: idx_nozzles_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_nozzles_branch_id ON public.nozzles USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_nozzles_branch_id ON public.nozzles USING btree (branch_id);
 
 
 --
 -- Name: idx_nozzles_dispenser_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_nozzles_dispenser_id ON public.nozzles USING btree (dispenser_id);
+CREATE INDEX IF NOT EXISTS idx_nozzles_dispenser_id ON public.nozzles USING btree (dispenser_id);
 
 
 --
 -- Name: idx_payments_invoice_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_payments_invoice_id ON public.payments USING btree (invoice_id);
+CREATE INDEX IF NOT EXISTS idx_payments_invoice_id ON public.payments USING btree (invoice_id);
 
 
 --
 -- Name: idx_po_acceptances_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_po_acceptances_branch_id ON public.purchase_order_acceptances USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_po_acceptances_branch_id ON public.purchase_order_acceptances USING btree (branch_id);
 
 
 --
 -- Name: idx_po_acceptances_po_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_po_acceptances_po_id ON public.purchase_order_acceptances USING btree (purchase_order_id);
+CREATE INDEX IF NOT EXISTS idx_po_acceptances_po_id ON public.purchase_order_acceptances USING btree (purchase_order_id);
 
 
 --
 -- Name: idx_po_items_po_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_po_items_po_id ON public.purchase_order_items USING btree (purchase_order_id);
+CREATE INDEX IF NOT EXISTS idx_po_items_po_id ON public.purchase_order_items USING btree (purchase_order_id);
 
 
 --
 -- Name: idx_po_nozzle_readings_acceptance; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_po_nozzle_readings_acceptance ON public.po_acceptance_nozzle_readings USING btree (acceptance_id);
+CREATE INDEX IF NOT EXISTS idx_po_nozzle_readings_acceptance ON public.po_acceptance_nozzle_readings USING btree (acceptance_id);
 
 
 --
 -- Name: idx_po_nozzle_readings_nozzle; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_po_nozzle_readings_nozzle ON public.po_acceptance_nozzle_readings USING btree (nozzle_id);
+CREATE INDEX IF NOT EXISTS idx_po_nozzle_readings_nozzle ON public.po_acceptance_nozzle_readings USING btree (nozzle_id);
 
 
 --
 -- Name: idx_printer_logs_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_printer_logs_branch_id ON public.printer_logs USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_printer_logs_branch_id ON public.printer_logs USING btree (branch_id);
 
 
 --
 -- Name: idx_printer_logs_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_printer_logs_created_at ON public.printer_logs USING btree (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_printer_logs_created_at ON public.printer_logs USING btree (created_at DESC);
 
 
 --
 -- Name: idx_pump_callback_events_created; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_pump_callback_events_created ON public.pump_callback_events USING btree (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pump_callback_events_created ON public.pump_callback_events USING btree (created_at DESC);
 
 
 --
 -- Name: idx_pump_callback_events_pts; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_pump_callback_events_pts ON public.pump_callback_events USING btree (pts_id);
+CREATE INDEX IF NOT EXISTS idx_pump_callback_events_pts ON public.pump_callback_events USING btree (pts_id);
 
 
 --
 -- Name: idx_purchase_orders_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_purchase_orders_branch_id ON public.purchase_orders USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_branch_id ON public.purchase_orders USING btree (branch_id);
 
 
 --
 -- Name: idx_purchase_orders_issued_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_purchase_orders_issued_at ON public.purchase_orders USING btree (issued_at);
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_issued_at ON public.purchase_orders USING btree (issued_at);
 
 
 --
 -- Name: idx_purchase_orders_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_purchase_orders_status ON public.purchase_orders USING btree (status);
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_status ON public.purchase_orders USING btree (status);
 
 
 --
 -- Name: idx_purchase_orders_vendor_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_purchase_orders_vendor_id ON public.purchase_orders USING btree (vendor_id);
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_vendor_id ON public.purchase_orders USING btree (vendor_id);
 
 
 --
 -- Name: idx_purchase_transactions_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_purchase_transactions_branch_id ON public.purchase_transactions USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_purchase_transactions_branch_id ON public.purchase_transactions USING btree (branch_id);
 
 
 --
 -- Name: idx_sales_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_sales_branch_id ON public.sales USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_sales_branch_id ON public.sales USING btree (branch_id);
 
 
 --
 -- Name: idx_sales_sale_date; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_sales_sale_date ON public.sales USING btree (sale_date);
+CREATE INDEX IF NOT EXISTS idx_sales_sale_date ON public.sales USING btree (sale_date);
 
 
 --
 -- Name: idx_sales_shift_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_sales_shift_id ON public.sales USING btree (shift_id);
+CREATE INDEX IF NOT EXISTS idx_sales_shift_id ON public.sales USING btree (shift_id);
 
 
 --
 -- Name: idx_sales_staff_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_sales_staff_id ON public.sales USING btree (staff_id);
+CREATE INDEX IF NOT EXISTS idx_sales_staff_id ON public.sales USING btree (staff_id);
 
 
 --
 -- Name: idx_sales_transactions_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_sales_transactions_branch_id ON public.sales_transactions USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_sales_transactions_branch_id ON public.sales_transactions USING btree (branch_id);
 
 
 --
 -- Name: idx_shifts_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_shifts_branch_id ON public.shifts USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_shifts_branch_id ON public.shifts USING btree (branch_id);
 
 
 --
 -- Name: idx_shifts_staff_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_shifts_staff_id ON public.shifts USING btree (staff_id);
+CREATE INDEX IF NOT EXISTS idx_shifts_staff_id ON public.shifts USING btree (staff_id);
 
 
 --
 -- Name: idx_staff_attendant_code; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_staff_attendant_code ON public.staff USING btree (branch_id, attendant_code) WHERE (attendant_code IS NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_staff_attendant_code ON public.staff USING btree (branch_id, attendant_code) WHERE (attendant_code IS NOT NULL);
 
 
 --
 -- Name: idx_staff_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_staff_branch_id ON public.staff USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_staff_branch_id ON public.staff USING btree (branch_id);
 
 
 --
 -- Name: idx_staff_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_staff_user_id ON public.staff USING btree (user_id);
+CREATE INDEX IF NOT EXISTS idx_staff_user_id ON public.staff USING btree (user_id);
 
 
 --
 -- Name: idx_stock_adjustments_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_stock_adjustments_branch_id ON public.stock_adjustments USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_stock_adjustments_branch_id ON public.stock_adjustments USING btree (branch_id);
 
 
 --
 -- Name: idx_stock_movements_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_stock_movements_branch_id ON public.stock_movements USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_branch_id ON public.stock_movements USING btree (branch_id);
 
 
 --
 -- Name: idx_stock_transfers_from_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_stock_transfers_from_branch_id ON public.stock_transfers USING btree (from_branch_id);
+CREATE INDEX IF NOT EXISTS idx_stock_transfers_from_branch_id ON public.stock_transfers USING btree (from_branch_id);
 
 
 --
 -- Name: idx_stock_transfers_to_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_stock_transfers_to_branch_id ON public.stock_transfers USING btree (to_branch_id);
+CREATE INDEX IF NOT EXISTS idx_stock_transfers_to_branch_id ON public.stock_transfers USING btree (to_branch_id);
 
 
 --
 -- Name: idx_tanks_branch_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_tanks_branch_id ON public.tanks USING btree (branch_id);
+CREATE INDEX IF NOT EXISTS idx_tanks_branch_id ON public.tanks USING btree (branch_id);
 
 
 --
 -- Name: idx_ticket_messages_ticket_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_ticket_messages_ticket_id ON public.ticket_messages USING btree (ticket_id);
+CREATE INDEX IF NOT EXISTS idx_ticket_messages_ticket_id ON public.ticket_messages USING btree (ticket_id);
 
 
 --
 -- Name: idx_tickets_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_tickets_status ON public.support_tickets USING btree (status);
+CREATE INDEX IF NOT EXISTS idx_tickets_status ON public.support_tickets USING btree (status);
 
 
 --
 -- Name: idx_tickets_vendor_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_tickets_vendor_id ON public.support_tickets USING btree (vendor_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_vendor_id ON public.support_tickets USING btree (vendor_id);
 
 
 --
 -- Name: pump_fuel_grade_mappings_global_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX pump_fuel_grade_mappings_global_idx ON public.pump_fuel_grade_mappings USING btree (fuel_grade_id) WHERE (pts_id IS NULL);
+CREATE UNIQUE INDEX IF NOT EXISTS pump_fuel_grade_mappings_global_idx ON public.pump_fuel_grade_mappings USING btree (fuel_grade_id) WHERE (pts_id IS NULL);
 
 
 --
