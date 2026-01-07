@@ -2,7 +2,6 @@
 -- PostgreSQL database dump
 --
 
-\restrict hbUZ7aJ582lpq8Oju4Q6eB8lJdp0ifK2t3HO42yG6gwjOUCgdIsZczH1SW5EoPO
 
 -- Dumped from database version 16.10
 -- Dumped by pg_dump version 16.10
@@ -3695,5 +3694,4 @@ ALTER TABLE ONLY public.vendor_po_sequences
 -- PostgreSQL database dump complete
 --
 
-\unrestrict hbUZ7aJ582lpq8Oju4Q6eB8lJdp0ifK2t3HO42yG6gwjOUCgdIsZczH1SW5EoPO
 
