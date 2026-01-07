@@ -12,10 +12,11 @@ export async function GET(request: NextRequest) {
     }
 
     const tanks = await query(
-      `SELECT t.*, i.item_name,
-              COALESCE(i.item_name, t.fuel_type) as fuel_type
+      `SELECT t.id, t.branch_id, t.tank_name, t.capacity, t.current_stock, t.status, 
+              t.kra_item_cd, t.item_id, t.kra_sync_status, t.last_kra_synced_stock, 
+              t.created_at, t.updated_at, i.item_name, i.item_name as fuel_type
        FROM tanks t 
-       LEFT JOIN items i ON t.item_id = i.id 
+       JOIN items i ON t.item_id = i.id 
        WHERE t.branch_id = $1 
        ORDER BY t.tank_name`,
       [branchId]
@@ -34,7 +35,6 @@ export async function POST(request: NextRequest) {
     const { 
       branch_id, 
       tank_name, 
-      fuel_type, 
       capacity, 
       current_stock, 
       status,
@@ -44,15 +44,19 @@ export async function POST(request: NextRequest) {
       item_id
     } = body
 
-    if (!branch_id || !tank_name || !fuel_type) {
-      return NextResponse.json({ success: false, error: "branch_id, tank_name, and fuel_type are required" }, { status: 400 })
+    if (!branch_id || !tank_name || !item_id) {
+      return NextResponse.json({ success: false, error: "branch_id, tank_name, and item_id are required" }, { status: 400 })
     }
 
+    // Get item_name for KRA sync
+    const itemResult = await query("SELECT item_name FROM items WHERE id = $1", [item_id])
+    const itemName = itemResult.length > 0 ? itemResult[0].item_name : 'Unknown'
+
     const result = await query(
-      `INSERT INTO tanks (branch_id, tank_name, fuel_type, capacity, current_stock, status, kra_item_cd, item_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO tanks (branch_id, tank_name, capacity, current_stock, status, kra_item_cd, item_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [branch_id, tank_name, fuel_type, capacity || 0, current_stock || 0, status || "active", kra_item_cd || null, item_id || null]
+      [branch_id, tank_name, capacity || 0, current_stock || 0, status || "active", kra_item_cd || null, item_id]
     )
 
     const tank = result[0]
@@ -69,7 +73,7 @@ export async function POST(request: NextRequest) {
           quantity: current_stock,
           unitPrice: unit_price || 0,
           itemCode: kra_item_cd,
-          itemName: fuel_type
+          itemName: itemName
         }],
         { remark: `Initial stock for tank: ${tank_name}` }
       )

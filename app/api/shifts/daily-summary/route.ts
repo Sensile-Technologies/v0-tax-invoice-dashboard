@@ -83,10 +83,10 @@ export async function GET(request: NextRequest) {
           sr.nozzle_id,
           sr.opening_reading,
           sr.closing_reading,
-          COALESCE(i.item_name, n.fuel_type) as fuel_type
+          i.item_name as fuel_type
         FROM shift_readings sr
         JOIN nozzles n ON sr.nozzle_id = n.id
-        LEFT JOIN items i ON n.item_id = i.id
+        JOIN items i ON n.item_id = i.id
         WHERE sr.shift_id = $1 AND sr.reading_type = 'nozzle'
       `
       const readingsResult = await pool.query(nozzleReadingsQuery, [shift.id])

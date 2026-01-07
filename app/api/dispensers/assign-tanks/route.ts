@@ -29,9 +29,9 @@ export async function POST(request: NextRequest) {
 
     if (tankIdsArray.length > 0) {
       const tanksResult = await pool.query(
-        `SELECT t.id, COALESCE(i.item_name, t.fuel_type) as fuel_type, t.item_id 
+        `SELECT t.id, i.item_name as fuel_type, t.item_id 
          FROM tanks t
-         LEFT JOIN items i ON t.item_id = i.id
+         JOIN items i ON t.item_id = i.id
          WHERE t.id = ANY($1::uuid[])`,
         [tankIdsArray]
       )
@@ -79,9 +79,9 @@ export async function POST(request: NextRequest) {
         : 1
 
       const tanksResultForNozzles = await pool.query(
-        `SELECT t.id, COALESCE(i.item_name, t.fuel_type) as fuel_type, t.item_id, t.tank_name 
+        `SELECT t.id, i.item_name as fuel_type, t.item_id, t.tank_name 
          FROM tanks t
-         LEFT JOIN items i ON t.item_id = i.id
+         JOIN items i ON t.item_id = i.id
          WHERE t.id = ANY($1::uuid[])`,
         [tankIdsArray]
       )
@@ -93,17 +93,17 @@ export async function POST(request: NextRequest) {
           const nozzleNumber = nextNozzleNumber++
 
           const nozzleResult = await pool.query(
-            `INSERT INTO nozzles (branch_id, dispenser_id, tank_id, nozzle_number, fuel_type, item_id, status, initial_meter_reading)
-             VALUES ($1, $2, $3, $4, $5, $6, 'active', 0)
-             RETURNING id, nozzle_number, fuel_type`,
-            [branch_id, dispenser_id, tank.id, nozzleNumber, tank.fuel_type, tank.item_id]
+            `INSERT INTO nozzles (branch_id, dispenser_id, tank_id, nozzle_number, item_id, status, initial_meter_reading)
+             VALUES ($1, $2, $3, $4, $5, 'active', 0)
+             RETURNING id, nozzle_number`,
+            [branch_id, dispenser_id, tank.id, nozzleNumber, tank.item_id]
           )
           
           if (nozzleResult.rows.length > 0) {
             createdNozzles.push({
               id: nozzleResult.rows[0].id,
               nozzle_number: nozzleResult.rows[0].nozzle_number,
-              fuel_type: nozzleResult.rows[0].fuel_type,
+              fuel_type: tank.fuel_type,
               tank_name: tank.tank_name,
               dispenser_number: dispenserNumber
             })

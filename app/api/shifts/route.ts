@@ -65,9 +65,9 @@ async function generateBulkSalesFromMeterDiff(
     if (meterDifference <= 0) continue
 
     const nozzleInfo = await client.query(
-      `SELECT COALESCE(i.item_name, n.fuel_type) as fuel_type, n.item_id, COALESCE(bi.sale_price, 0) as sale_price
+      `SELECT i.item_name as fuel_type, n.item_id, COALESCE(bi.sale_price, 0) as sale_price
        FROM nozzles n
-       LEFT JOIN items i ON n.item_id = i.id
+       JOIN items i ON n.item_id = i.id
        LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $1
        WHERE n.id = $2`,
       [branchId, reading.nozzle_id]

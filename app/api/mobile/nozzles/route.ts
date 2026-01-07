@@ -17,10 +17,10 @@ export async function GET(request: Request) {
     const client = await pool.connect()
     try {
       const nozzlesResult = await client.query(
-        `SELECT n.id, n.nozzle_number, COALESCE(i.item_name, n.fuel_type) as fuel_type, n.status, d.dispenser_number
+        `SELECT n.id, n.nozzle_number, i.item_name as fuel_type, n.status, d.dispenser_number
          FROM nozzles n 
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
-         LEFT JOIN items i ON n.item_id = i.id
+         JOIN items i ON n.item_id = i.id
          WHERE n.branch_id = $1 AND n.status = 'active'
          ORDER BY d.dispenser_number, n.nozzle_number ASC`,
         [branchId]
