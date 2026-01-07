@@ -240,6 +240,45 @@ BEGIN
 END $$;
 
 -- ============================================
+-- 11. Remove legacy pricing columns from items table (if they exist)
+-- branch_items is now the ONLY source of truth for pricing
+-- ============================================
+DO $$
+BEGIN
+    -- Remove sale_price from items if it exists
+    IF EXISTS (SELECT 1 FROM information_schema.columns 
+               WHERE table_name = 'items' AND column_name = 'sale_price') THEN
+        ALTER TABLE public.items DROP COLUMN sale_price;
+        RAISE NOTICE 'Removed items.sale_price column';
+    END IF;
+    
+    -- Remove purchase_price from items if it exists
+    IF EXISTS (SELECT 1 FROM information_schema.columns 
+               WHERE table_name = 'items' AND column_name = 'purchase_price') THEN
+        ALTER TABLE public.items DROP COLUMN purchase_price;
+        RAISE NOTICE 'Removed items.purchase_price column';
+    END IF;
+END $$;
+
+-- ============================================
+-- 12. Drop fuel_prices table if it exists (replaced by branch_items)
+-- ============================================
+DROP TABLE IF EXISTS public.fuel_prices;
+
+-- ============================================
+-- 13. Migrate any orphaned pricing data to branch_items
+-- This ensures no pricing data is lost during migration
+-- ============================================
+-- Note: Run this BEFORE dropping columns if you need to preserve legacy prices
+-- INSERT INTO branch_items (branch_id, item_id, sale_price, purchase_price)
+-- SELECT i.branch_id, i.id, i.sale_price, i.purchase_price
+-- FROM items i
+-- WHERE i.branch_id IS NOT NULL 
+--   AND i.sale_price IS NOT NULL
+--   AND NOT EXISTS (SELECT 1 FROM branch_items bi WHERE bi.item_id = i.id AND bi.branch_id = i.branch_id)
+-- ON CONFLICT (branch_id, item_id) DO NOTHING;
+
+-- ============================================
 -- Done!
 -- ============================================
-SELECT 'Migration completed successfully' as status;
+SELECT 'Migration completed successfully - branch_items is now the ONLY pricing source' as status;
