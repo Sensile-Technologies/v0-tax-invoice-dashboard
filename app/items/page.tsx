@@ -24,8 +24,6 @@ interface Item {
   origin: string
   quantity_unit: string | null
   package_unit: string | null
-  default_purchase_price: number
-  default_sale_price: number
   item_status: string
   branch_item_id: string | null
   branch_sale_price: number | null
@@ -406,8 +404,8 @@ export default function ItemsListPage() {
                               )}
                             </td>
                             <td className="p-3">{getItemTypeName(item.item_type)}</td>
-                            <td className="p-3">{formatCurrency(item.branch_purchase_price ?? item.default_purchase_price)}</td>
-                            <td className="p-3">{formatCurrency(item.branch_sale_price ?? item.default_sale_price)}</td>
+                            <td className="p-3">{item.branch_purchase_price ? formatCurrency(item.branch_purchase_price) : <span className="text-muted-foreground text-xs">Not set</span>}</td>
+                            <td className="p-3">{item.branch_sale_price ? formatCurrency(item.branch_sale_price) : <span className="text-muted-foreground text-xs">Not set</span>}</td>
                             <td className="p-3 text-muted-foreground">{item.quantity_unit || "N/A"}</td>
                             <td className="p-3 text-muted-foreground font-mono text-xs">{item.class_code}</td>
                             <td className="p-3">{item.origin}</td>
