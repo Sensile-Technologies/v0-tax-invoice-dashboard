@@ -1,0 +1,281 @@
+We're already looking into it! Feel free to reach out to our support team, make sure to copy error ID
+
+Invalid response from Replit driver
+CREATE TABLE IF NOT EXISTS public.branch_items (
+  id uuid DEFAULT public.uuid_generate_v4 () NOT NULL,
+  branch_id uuid NOT NULL,
+  item_id uuid NOT NULL,
+  sale_price numeric(10, 2) NOT NULL,
+  purchase_price numeric(10, 2),
+  is_available boolean DEFAULT true,
+  kra_status character varying(20) DEFAULT 'pending'::character varying,
+  kra_response text,
+  kra_last_synced_at timestamp without time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT branch_items_pkey PRIMARY KEY (id),
+  CONSTRAINT branch_items_branch_id_item_id_key UNIQUE (branch_id, item_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_branch_items_branch_id ON public.branch_items USING btree (branch_id);
+
+CREATE INDEX IF NOT EXISTS idx_branch_items_item_id ON public.branch_items USING btree (item_id);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'branch_items_branch_id_fkey') THEN
+        ALTER TABLE public.branch_items ADD CONSTRAINT branch_items_branch_id_fkey 
+        FOREIGN KEY (branch_id) REFERENCES public.branches(id) ON DELETE CASCADE;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'branch_items_item_id_fkey') THEN
+        ALTER TABLE public.branch_items ADD CONSTRAINT branch_items_item_id_fkey 
+        FOREIGN KEY (item_id) REFERENCES public.items(id) ON DELETE CASCADE;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'branches' AND column_name = 'controller_id') THEN
+        ALTER TABLE public.branches ADD COLUMN controller_id character varying(255);
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'sales' AND column_name = 'is_automated') THEN
+        ALTER TABLE public.sales ADD COLUMN is_automated boolean DEFAULT false;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'sales' AND column_name = 'source_system') THEN
+        ALTER TABLE public.sales ADD COLUMN source_system text;
+    END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.pump_transactions (
+  id uuid DEFAULT public.uuid_generate_v4 () NOT NULL,
+  packet_id integer,
+  pts_id character varying(255),
+  pump_number integer,
+  nozzle_number integer,
+  fuel_grade_id integer,
+  fuel_grade_name character varying(100),
+  transaction_id bigint,
+  volume numeric(10, 4),
+  tc_volume numeric(10, 4),
+  price numeric(10, 2),
+  amount numeric(10, 2),
+  total_volume numeric(15, 4),
+  total_amount numeric(15, 2),
+  tag character varying(100),
+  user_id integer,
+  configuration_id character varying(100),
+  transaction_start timestamp without time zone,
+  transaction_end timestamp without time zone,
+  processed boolean DEFAULT false,
+  sale_id uuid,
+  created_at timestamp without time zone DEFAULT now(),
+  callback_event_id uuid,
+  raw_packet jsonb,
+  CONSTRAINT pump_transactions_pkey PRIMARY KEY (id),
+  CONSTRAINT pump_transactions_pts_id_transaction_id_key UNIQUE (pts_id, transaction_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.pump_callback_events (
+  id uuid DEFAULT public.uuid_generate_v4 () NOT NULL,
+  pts_id character varying(255),
+  raw_request jsonb,
+  raw_response jsonb,
+  created_at timestamp without time zone DEFAULT now(),
+  CONSTRAINT pump_callback_events_pkey PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pump_callback_events_pts ON public.pump_callback_events USING btree (pts_id);
+
+CREATE INDEX IF NOT EXISTS idx_pump_callback_events_created ON public.pump_callback_events USING btree (created_at DESC);
+
+CREATE TABLE IF NOT EXISTS public.pump_fuel_grade_mappings (
+  id uuid DEFAULT public.uuid_generate_v4 () NOT NULL,
+  pts_id text,
+  fuel_grade_id integer,
+  fuel_grade_name text,
+  item_id uuid,
+  is_active boolean DEFAULT true,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT pump_fuel_grade_mappings_pkey PRIMARY KEY (id),
+  CONSTRAINT pump_fuel_grade_mappings_pts_fuel_unique UNIQUE (pts_id, fuel_grade_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS pump_fuel_grade_mappings_global_idx ON public.pump_fuel_grade_mappings USING btree (fuel_grade_id)
+WHERE
+  (pts_id IS NULL);
+
+CREATE TABLE IF NOT EXISTS public.branch_logs (
+  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  branch_id uuid NOT NULL,
+  log_type character varying(50) NOT NULL,
+  endpoint text,
+  request_payload jsonb,
+  response_payload jsonb,
+  status character varying(20),
+  created_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  CONSTRAINT branch_logs_pkey PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_branch_logs_branch_id ON public.branch_logs USING btree (branch_id);
+
+CREATE INDEX IF NOT EXISTS idx_branch_logs_created_at ON public.branch_logs USING btree (created_at DESC);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'nozzles' AND column_name = 'item_id') THEN
+        ALTER TABLE public.nozzles ADD COLUMN item_id uuid;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'tanks' AND column_name = 'item_id') THEN
+        ALTER TABLE public.tanks ADD COLUMN item_id uuid;
+    END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS public.vendor_partners (
+  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  vendor_id uuid NOT NULL,
+  partner_type character varying(20) NOT NULL,
+  name character varying(255) NOT NULL,
+  tin character varying(50),
+  physical_address text,
+  contact_person character varying(255),
+  phone character varying(50),
+  status character varying(20) DEFAULT 'active'::character varying,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT vendor_partners_pkey PRIMARY KEY (id),
+  CONSTRAINT vendor_partners_partner_type_check CHECK (
+    (
+      (partner_type)::text = ANY (
+        (
+          ARRAY[
+            'supplier'::character varying,
+            'transporter'::character varying
+          ]
+        )::text[]
+      )
+    )
+  ),
+  CONSTRAINT vendor_partners_status_check CHECK (
+    (
+      (status)::text = ANY (
+        (
+          ARRAY[
+            'active'::character varying,
+            'inactive'::character varying
+          ]
+        )::text[]
+      )
+    )
+  )
+);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'transporter_id') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN transporter_id uuid;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'transport_cost') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN transport_cost numeric(15,2) DEFAULT 0;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'vehicle_registration') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN vehicle_registration character varying(50);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'driver_name') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN driver_name character varying(255);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'driver_phone') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN driver_phone character varying(50);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'approval_status') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN approval_status character varying(50) DEFAULT 'draft';
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'approved_by') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN approved_by uuid;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'approved_at') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN approved_at timestamp with time zone;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name = 'purchase_orders' AND column_name = 'rejection_comments') THEN
+        ALTER TABLE public.purchase_orders ADD COLUMN rejection_comments text;
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    -- Remove sale_price from items if it exists
+    IF EXISTS (SELECT 1 FROM information_schema.columns 
+               WHERE table_name = 'items' AND column_name = 'sale_price') THEN
+        ALTER TABLE public.items DROP COLUMN sale_price;
+        RAISE NOTICE 'Removed items.sale_price column';
+    END IF;
+    
+    -- Remove purchase_price from items if it exists
+    IF EXISTS (SELECT 1 FROM information_schema.columns 
+               WHERE table_name = 'items' AND column_name = 'purchase_price') THEN
+        ALTER TABLE public.items DROP COLUMN purchase_price;
+        RAISE NOTICE 'Removed items.purchase_price column';
+    END IF;
+END $$;
+
+DROP TABLE IF EXISTS public.fuel_prices;
+
+SELECT
+  'Migration completed successfully - branch_items is now the ONLY pricing source' as status;
+{
+  "sql": "CREATE TABLE IF NOT EXISTS public.branch_items (\n    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,\n    branch_id uuid NOT NULL,\n    item_id uuid NOT NULL,\n    sale_price numeric(10,2) NOT NULL,\n    purchase_price numeric(10,2),\n    is_available boolean DEFAULT true,\n    kra_status character varying(20) DEFAULT 'pending'::character varying,\n    kra_response text,\n    kra_last_synced_at timestamp without time zone,\n    created_at timestamp with time zone DEFAULT now(),\n    updated_at timestamp with time zone DEFAULT now(),\n    CONSTRAINT branch_items_pkey PRIMARY KEY (id),\n    CONSTRAINT branch_items_branch_id_item_id_key UNIQUE (branch_id, item_id)\n);\n\nCREATE INDEX IF NOT EXISTS idx_branch_items_branch_id ON public.branch_items USING btree (branch_id);\n\nCREATE INDEX IF NOT EXISTS idx_branch_items_item_id ON public.branch_items USING btree (item_id);\n\nDO $$\nBEGIN\n    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'branch_items_branch_id_fkey') THEN\n        ALTER TABLE public.branch_items ADD CONSTRAINT branch_items_branch_id_fkey \n        FOREIGN KEY (branch_id) REFERENCES public.branches(id) ON DELETE CASCADE;\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'branch_items_item_id_fkey') THEN\n        ALTER TABLE public.branch_items ADD CONSTRAINT branch_items_item_id_fkey \n        FOREIGN KEY (item_id) REFERENCES public.items(id) ON DELETE CASCADE;\n    END IF;\nEND $$;\n\nDO $$\nBEGIN\n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'branches' AND column_name = 'controller_id') THEN\n        ALTER TABLE public.branches ADD COLUMN controller_id character varying(255);\n    END IF;\nEND $$;\n\nDO $$\nBEGIN\n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'sales' AND column_name = 'is_automated') THEN\n        ALTER TABLE public.sales ADD COLUMN is_automated boolean DEFAULT false;\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'sales' AND column_name = 'source_system') THEN\n        ALTER TABLE public.sales ADD COLUMN source_system text;\n    END IF;\nEND $$;\n\nCREATE TABLE IF NOT EXISTS public.pump_transactions (\n    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,\n    packet_id integer,\n    pts_id character varying(255),\n    pump_number integer,\n    nozzle_number integer,\n    fuel_grade_id integer,\n    fuel_grade_name character varying(100),\n    transaction_id bigint,\n    volume numeric(10,4),\n    tc_volume numeric(10,4),\n    price numeric(10,2),\n    amount numeric(10,2),\n    total_volume numeric(15,4),\n    total_amount numeric(15,2),\n    tag character varying(100),\n    user_id integer,\n    configuration_id character varying(100),\n    transaction_start timestamp without time zone,\n    transaction_end timestamp without time zone,\n    processed boolean DEFAULT false,\n    sale_id uuid,\n    created_at timestamp without time zone DEFAULT now(),\n    callback_event_id uuid,\n    raw_packet jsonb,\n    CONSTRAINT pump_transactions_pkey PRIMARY KEY (id),\n    CONSTRAINT pump_transactions_pts_id_transaction_id_key UNIQUE (pts_id, transaction_id)\n);\n\nCREATE TABLE IF NOT EXISTS public.pump_callback_events (\n    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,\n    pts_id character varying(255),\n    raw_request jsonb,\n    raw_response jsonb,\n    created_at timestamp without time zone DEFAULT now(),\n    CONSTRAINT pump_callback_events_pkey PRIMARY KEY (id)\n);\n\nCREATE INDEX IF NOT EXISTS idx_pump_callback_events_pts ON public.pump_callback_events USING btree (pts_id);\n\nCREATE INDEX IF NOT EXISTS idx_pump_callback_events_created ON public.pump_callback_events USING btree (created_at DESC);\n\nCREATE TABLE IF NOT EXISTS public.pump_fuel_grade_mappings (\n    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,\n    pts_id text,\n    fuel_grade_id integer,\n    fuel_grade_name text,\n    item_id uuid,\n    is_active boolean DEFAULT true,\n    notes text,\n    created_at timestamp with time zone DEFAULT now(),\n    updated_at timestamp with time zone DEFAULT now(),\n    CONSTRAINT pump_fuel_grade_mappings_pkey PRIMARY KEY (id),\n    CONSTRAINT pump_fuel_grade_mappings_pts_fuel_unique UNIQUE (pts_id, fuel_grade_id)\n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS pump_fuel_grade_mappings_global_idx \nON public.pump_fuel_grade_mappings USING btree (fuel_grade_id) WHERE (pts_id IS NULL);\n\nCREATE TABLE IF NOT EXISTS public.branch_logs (\n    id uuid DEFAULT gen_random_uuid() NOT NULL,\n    branch_id uuid NOT NULL,\n    log_type character varying(50) NOT NULL,\n    endpoint text,\n    request_payload jsonb,\n    response_payload jsonb,\n    status character varying(20),\n    created_at timestamp with time zone DEFAULT now(),\n    created_by uuid,\n    CONSTRAINT branch_logs_pkey PRIMARY KEY (id)\n);\n\nCREATE INDEX IF NOT EXISTS idx_branch_logs_branch_id ON public.branch_logs USING btree (branch_id);\n\nCREATE INDEX IF NOT EXISTS idx_branch_logs_created_at ON public.branch_logs USING btree (created_at DESC);\n\nDO $$\nBEGIN\n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'nozzles' AND column_name = 'item_id') THEN\n        ALTER TABLE public.nozzles ADD COLUMN item_id uuid;\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'tanks' AND column_name = 'item_id') THEN\n        ALTER TABLE public.tanks ADD COLUMN item_id uuid;\n    END IF;\nEND $$;\n\nCREATE TABLE IF NOT EXISTS public.vendor_partners (\n    id uuid DEFAULT gen_random_uuid() NOT NULL,\n    vendor_id uuid NOT NULL,\n    partner_type character varying(20) NOT NULL,\n    name character varying(255) NOT NULL,\n    tin character varying(50),\n    physical_address text,\n    contact_person character varying(255),\n    phone character varying(50),\n    status character varying(20) DEFAULT 'active'::character varying,\n    created_at timestamp with time zone DEFAULT now(),\n    updated_at timestamp with time zone DEFAULT now(),\n    CONSTRAINT vendor_partners_pkey PRIMARY KEY (id),\n    CONSTRAINT vendor_partners_partner_type_check CHECK (((partner_type)::text = ANY ((ARRAY['supplier'::character varying, 'transporter'::character varying])::text[]))),\n    CONSTRAINT vendor_partners_status_check CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'inactive'::character varying])::text[])))\n);\n\nDO $$\nBEGIN\n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'transporter_id') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN transporter_id uuid;\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'transport_cost') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN transport_cost numeric(15,2) DEFAULT 0;\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'vehicle_registration') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN vehicle_registration character varying(50);\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'driver_name') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN driver_name character varying(255);\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'driver_phone') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN driver_phone character varying(50);\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'approval_status') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN approval_status character varying(50) DEFAULT 'draft';\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'approved_by') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN approved_by uuid;\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'approved_at') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN approved_at timestamp with time zone;\n    END IF;\n    \n    IF NOT EXISTS (SELECT 1 FROM information_schema.columns \n                   WHERE table_name = 'purchase_orders' AND column_name = 'rejection_comments') THEN\n        ALTER TABLE public.purchase_orders ADD COLUMN rejection_comments text;\n    END IF;\nEND $$;\n\nDO $$\nBEGIN\n    -- Remove sale_price from items if it exists\n    IF EXISTS (SELECT 1 FROM information_schema.columns \n               WHERE table_name = 'items' AND column_name = 'sale_price') THEN\n        ALTER TABLE public.items DROP COLUMN sale_price;\n        RAISE NOTICE 'Removed items.sale_price column';\n    END IF;\n    \n    -- Remove purchase_price from items if it exists\n    IF EXISTS (SELECT 1 FROM information_schema.columns \n               WHERE table_name = 'items' AND column_name = 'purchase_price') THEN\n        ALTER TABLE public.items DROP COLUMN purchase_price;\n        RAISE NOTICE 'Removed items.purchase_price column';\n    END IF;\nEND $$;\n\nDROP TABLE IF EXISTS public.fuel_prices;\n\nSELECT 'Migration completed successfully - branch_items is now the ONLY pricing source' as status;"
+}
+[
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]",
+  "[Object]"
+]
