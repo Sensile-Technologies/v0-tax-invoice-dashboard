@@ -1,0 +1,228 @@
+2026-01-06T01:00:54Z info: Deployment: 7d2aed84-fd8a-4bee-a5a0-e9fbd5a25f49
+2026-01-06T01:00:54Z info: Build: 260e48e2-ecaf-4251-9e7a-2c98165936bb
+2026-01-06T01:00:54Z info: Running Security Scan
+2026-01-06T01:07:16Z warn: Security scan skipped: SCAN_ABORTED
+--> npm install
+
+
+up to date, audited 538 packages in 5s
+
+36 packages are looking for funding
+  run `npm fund` for details
+
+
+up to date, audited 538 packages in 5s
+
+36 packages are looking for funding
+  run `npm fund` for details
+
+
+4 vulnerabilities (2 high, 2 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.
+
+Run `npm audit` for details.
+
+2026-01-06T01:07:22Z info: Starting Build
+
+> my-v0-project@0.1.0 build
+> next build
+
+
+   ▲ Next.js 16.0.7 (Turbopack)
+
+   Creating an optimized production build ...
+
+ ✓ Compiled successfully in 62s
+
+   Skipping validation of types
+
+   Collecting page data using 7 workers ...
+
+   Generating static pages using 7 workers (0/198) ...
+
+   Generating static pages using 7 workers (49/198) 
+
+   Generating static pages using 7 workers (98/198) 
+
+   Generating static pages using 7 workers (148/198) 
+
+ ✓ Generating static pages using 7 workers (198/198) in 4.3s
+
+   Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /accounting/collections
+├ ○ /accounting/credit
+├ ○ /accounting/stock-takes
+├ ○ /add-import
+├ ○ /add-item
+├ ○ /admin
+├ ○ /admin/invoices
+├ ƒ /admin/invoices/[id]/edit
+├ ○ /admin/invoices/create
+├ ○ /admin/merchants
+├ ○ /admin/operations
+├ ○ /admin/sales
+├ ○ /admin/settings
+├ ○ /admin/tickets
+├ ƒ /api/activity-logs
+├ ƒ /api/admin/billing-products
+├ ƒ /api/admin/branches
+├ ƒ /api/admin/dashboard
+├ ƒ /api/admin/invoices
+├ ƒ /api/admin/invoices/[id]
+├ ƒ /api/admin/invoices/[id]/duplicate
+├ ƒ /api/admin/leads
+├ ƒ /api/admin/leads/upload-contract
+├ ƒ /api/admin/notifications
+├ ƒ /api/admin/operations/hardware
+├ ƒ /api/admin/operations/onboarding
+├ ƒ /api/admin/operations/signups
+├ ƒ /api/admin/payments
+├ ƒ /api/admin/sales-people
+├ ƒ /api/admin/tickets
+├ ƒ /api/admin/vendors
+├ ƒ /api/admin/vendors/[id]/branches
+├ ƒ /api/admin/vendors/[id]/invoices
+├ ƒ /api/auth/mobile-signin
+├ ƒ /api/auth/reset/complete
+├ ƒ /api/auth/reset/issue
+├ ƒ /api/auth/reset/request
+├ ƒ /api/auth/session
+├ ƒ /api/auth/signin
+├ ƒ /api/auth/signup
+├ ƒ /api/branch-items
+├ ƒ /api/branch/config
+├ ƒ /api/branches
+├ ƒ /api/branches/[id]
+├ ƒ /api/branches/[id]/logs
+├ ƒ /api/branches/create
+├ ƒ /api/branches/deactivate
+├ ƒ /api/branches/delete
+├ ƒ /api/branches/list
+├ ƒ /api/branches/register-backend
+├ ƒ /api/controller-logs
+├ ƒ /api/controller-logs/fuel-grade-mappings
+├ ƒ /api/credit-notes
+├ ƒ /api/customers
+├ ƒ /api/customers/list
+├ ƒ /api/db/[table]
+├ ƒ /api/dispensers
+├ ƒ /api/dispensers/assign-tanks
+├ ƒ /api/download-manual
+├ ƒ /api/flow360/dispensers/list
+├ ƒ /api/flow360/fuel-prices/create
+├ ƒ /api/flow360/fuel-prices/list
+├ ƒ /api/flow360/nozzles/create
+├ ƒ /api/flow360/nozzles/list
+├ ƒ /api/flow360/sales/create
+├ ƒ /api/flow360/sales/list
+├ ƒ /api/flow360/shifts/[id]/update
+├ ƒ /api/flow360/shifts/create
+├ ƒ /api/flow360/shifts/list
+├ ƒ /api/flow360/stations/list
+├ ƒ /api/fuel-prices
+├ ƒ /api/global-uploads
+├ ƒ /api/hardware/create
+├ ƒ /api/headquarters/items
+├ ƒ /api/headquarters/purchase-orders
+├ ƒ /api/headquarters/purchase-orders/[id]
+├ ƒ /api/headquarters/purchase-orders/[id]/approve
+├ ƒ /api/headquarters/purchase-orders/[id]/pdf
+├ ƒ /api/headquarters/stats
+├ ƒ /api/imports
+├ ƒ /api/item-compositions
+├ ƒ /api/items
+├ ƒ /api/items/[id]
+├ ƒ /api/items/[id]/resend-kra
+├ ƒ /api/items/list
+├ ƒ /api/kra/codes
+├ ƒ /api/kra/customers/save
+├ ƒ /api/kra/init
+├ ƒ /api/kra/initialize
+├ ƒ /api/kra/issue-invoice
+├ ƒ /api/kra/items/classifications
+├ ƒ /api/kra/items/saveItems
+├ ƒ /api/kra/notices
+├ ƒ /api/kra/purchases/save
+├ ƒ /api/kra/sales/save
+├ ƒ /api/kra/saved-data
+├ ƒ /api/kra/stock/save
+├ ƒ /api/kra/stock/saveStockItems
+├ ƒ /api/kra/test-sale
+├ ƒ /api/logs
+├ ƒ /api/loyalty-transactions
+├ ƒ /api/mobile/create-sale
+├ ƒ /api/mobile/dashboard
+├ ƒ /api/mobile/invoices
+├ ƒ /api/mobile/loyalty-transaction
+├ ƒ /api/mobile/nozzles
+├ ƒ /api/mobile/printer-logs
+├ ƒ /api/mobile/products
+├ ƒ /api/mobile/sales
+├ ƒ /api/mobile/sales/shift
+├ ƒ /api/mobile/verify-loyalty
+├ ƒ /api/nozzles
+├ ƒ /api/pump-callback
+├ ƒ /api/purchases
+├ ƒ /api/purchases/accept
+├ ƒ /api/receipt/credit-note
+├ ƒ /api/receipt/generate
+├ ƒ /api/receipt/image
+├ ƒ /api/reports/fiscal
+├ ƒ /api/sales
+├ ƒ /api/sales/export
+├ ƒ /api/setup-demo
+├ ƒ /api/shifts
+├ ƒ /api/shifts/baselines
+├ ƒ /api/shifts/daily-summary
+├ ƒ /api/shifts/generate-bulk-sales
+├ ƒ /api/shifts/list
+├ ƒ /api/shifts/nozzle-report
+├ ƒ /api/staff/create
+├ ƒ /api/staff/generate-code
+├ ƒ /api/staff/list
+├ ƒ /api/staff/reset-password
+├ ƒ /api/staff/seed-auth
+├ ƒ /api/staff/seed-demo
+├ ƒ /api/staff/update-status
+├ ƒ /api/stock-adjustments
+├ ƒ /api/stock-report
+├ ƒ /api/stock-transfers
+├ ƒ /api/stock/adjust
+├ ƒ /api/stock/receive
+├ ƒ /api/stock/transfer
+├ ƒ /api/tanks
+├ ƒ /api/test-connection
+├ ƒ /api/users
+├ ƒ /api/vendors/current
+├ ƒ /api/vendors/partners
+├ ƒ /api/vendors/partners/[id]
+├ ƒ /auth/callback
+├ ○ /auth/error
+├ ○ /auth/login
+├ ○ /auth/reset-password
+├ ○ /auth/sign-up
+├ ○ /auth/sign-up-success
+├ ○ /configuration/tax-service
+├ ○ /controller-logs
+├ ○ /customers
+├ ○ /headquarters
+├ ○ /headquarters
+2026-01-06T01:08:42Z info: Pushing pid1 binary layer...
+2026-01-06T01:08:45Z info: Created pid1 binary layer
+2026-01-06T01:08:50Z info: Pushing hosting layer...
+2026-01-06T01:08:50Z info: Pushing Repl layer...
+2026-01-06T01:08:50Z info: Retrieved cached nix layer
+2026-01-06T01:08:50Z info: Created hosting layer
+Deployment timed out. Check the Logs tab for more details. - 2026-01-06T01:09:54.696Z
