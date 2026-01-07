@@ -170,24 +170,52 @@ export async function GET(request: Request) {
           b.id,
           b.name,
           COALESCE(SUM(CASE WHEN s.created_at >= $1 THEN s.total_amount ELSE 0 END), 0) as mtd_sales,
-          0 as mtd_purchases
+          0 as mtd_purchases,
+          COALESCE(bs.bulk_sales_count, 0) as bulk_sales_count,
+          COALESCE(bs.bulk_sales_volume, 0) as bulk_sales_volume,
+          COALESCE(bs.bulk_sales_amount, 0) as bulk_sales_amount
         FROM branches b
         LEFT JOIN sales s ON s.branch_id = b.id
+        LEFT JOIN (
+          SELECT 
+            sh.branch_id,
+            COUNT(DISTINCT bs.id) as bulk_sales_count,
+            COALESCE(SUM(bs.quantity), 0) as bulk_sales_volume,
+            COALESCE(SUM(bs.total_amount), 0) as bulk_sales_amount
+          FROM shifts sh
+          JOIN bulk_sales bs ON bs.shift_id = sh.id
+          WHERE sh.created_at >= $1
+          GROUP BY sh.branch_id
+        ) bs ON bs.branch_id = b.id
         WHERE b.vendor_id = $2 AND (b.status = 'active' OR b.status IS NULL)
-        GROUP BY b.id, b.name
+        GROUP BY b.id, b.name, bs.bulk_sales_count, bs.bulk_sales_volume, bs.bulk_sales_amount
         ORDER BY b.name
       `, [startOfMonth, vendorId]) : (branchIds && branchIds.length > 0 ? pool.query(`
         SELECT 
           b.id,
           b.name,
           COALESCE(SUM(CASE WHEN s.created_at >= $1 THEN s.total_amount ELSE 0 END), 0) as mtd_sales,
-          0 as mtd_purchases
+          0 as mtd_purchases,
+          COALESCE(bs.bulk_sales_count, 0) as bulk_sales_count,
+          COALESCE(bs.bulk_sales_volume, 0) as bulk_sales_volume,
+          COALESCE(bs.bulk_sales_amount, 0) as bulk_sales_amount
         FROM branches b
         LEFT JOIN sales s ON s.branch_id = b.id
+        LEFT JOIN (
+          SELECT 
+            sh.branch_id,
+            COUNT(DISTINCT bs.id) as bulk_sales_count,
+            COALESCE(SUM(bs.quantity), 0) as bulk_sales_volume,
+            COALESCE(SUM(bs.total_amount), 0) as bulk_sales_amount
+          FROM shifts sh
+          JOIN bulk_sales bs ON bs.shift_id = sh.id
+          WHERE sh.created_at >= $1
+          GROUP BY sh.branch_id
+        ) bs ON bs.branch_id = b.id
         WHERE b.id = ANY($2::uuid[]) AND (b.status = 'active' OR b.status IS NULL)
-        GROUP BY b.id, b.name
+        GROUP BY b.id, b.name, bs.bulk_sales_count, bs.bulk_sales_volume, bs.bulk_sales_amount
         ORDER BY b.name
-      `, [startOfMonth, branchIds]) : pool.query(`SELECT NULL as id, NULL as name, 0 as mtd_sales, 0 as mtd_purchases WHERE false`)),
+      `, [startOfMonth, branchIds]) : pool.query(`SELECT NULL as id, NULL as name, 0 as mtd_sales, 0 as mtd_purchases, 0 as bulk_sales_count, 0 as bulk_sales_volume, 0 as bulk_sales_amount WHERE false`)),
       
       vendorId ? pool.query(`
         SELECT 
@@ -222,7 +250,10 @@ export async function GET(request: Request) {
     const branchPerformance = branchStatsResult.rows.map((row: any) => ({
       branch: row.name,
       sales: parseFloat(row.mtd_sales) / 1000,
-      purchases: parseFloat(row.mtd_purchases) / 1000
+      purchases: parseFloat(row.mtd_purchases) / 1000,
+      bulkSalesCount: parseInt(row.bulk_sales_count) || 0,
+      bulkSalesVolume: parseFloat(row.bulk_sales_volume) || 0,
+      bulkSalesAmount: parseFloat(row.bulk_sales_amount) || 0
     }));
 
     const monthlyRevenue = monthlyRevenueResult.rows.map((row: any) => ({

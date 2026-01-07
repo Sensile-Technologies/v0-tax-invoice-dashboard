@@ -22,6 +22,7 @@ import {
   AlertCircle,
   Truck,
   ClipboardList,
+  Droplet,
 } from "lucide-react"
 
 import { useState, useEffect } from "react"
@@ -67,7 +68,14 @@ interface HQStats {
   dieselStock: number
   petrolStock: number
   inventoryGrowth: number
-  branchPerformance: { branch: string; sales: number; purchases: number }[]
+  branchPerformance: { 
+    branch: string
+    sales: number
+    purchases: number
+    bulkSalesCount: number
+    bulkSalesVolume: number
+    bulkSalesAmount: number
+  }[]
   monthlyRevenue: { month: string; revenue: number }[]
 }
 
@@ -964,6 +972,58 @@ export default function HeadquartersPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Bulk Sales by Branch */}
+          {hqStats?.branchPerformance && hqStats.branchPerformance.some(b => b.bulkSalesCount > 0) && (
+            <Card className="rounded-2xl mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Droplet className="h-5 w-5 text-blue-500" />
+                  Bulk Sales by Branch (MTD)
+                </CardTitle>
+                <CardDescription>Bulk fuel sales performance across branches</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-3 font-medium">Branch</th>
+                        <th className="text-right py-2 px-3 font-medium">Transactions</th>
+                        <th className="text-right py-2 px-3 font-medium">Volume (L)</th>
+                        <th className="text-right py-2 px-3 font-medium">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {hqStats.branchPerformance
+                        .filter(b => b.bulkSalesCount > 0)
+                        .sort((a, b) => b.bulkSalesAmount - a.bulkSalesAmount)
+                        .map((branch, idx) => (
+                          <tr key={idx} className="border-b last:border-0 hover:bg-gray-50">
+                            <td className="py-2 px-3">{branch.branch}</td>
+                            <td className="text-right py-2 px-3">{branch.bulkSalesCount.toLocaleString()}</td>
+                            <td className="text-right py-2 px-3">{branch.bulkSalesVolume.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                            <td className="text-right py-2 px-3">{formatCurrency(branch.bulkSalesAmount)}</td>
+                          </tr>
+                        ))}
+                      <tr className="bg-gray-100 font-medium">
+                        <td className="py-2 px-3">Total</td>
+                        <td className="text-right py-2 px-3">
+                          {hqStats.branchPerformance.reduce((sum, b) => sum + b.bulkSalesCount, 0).toLocaleString()}
+                        </td>
+                        <td className="text-right py-2 px-3">
+                          {hqStats.branchPerformance.reduce((sum, b) => sum + b.bulkSalesVolume, 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </td>
+                        <td className="text-right py-2 px-3">
+                          {formatCurrency(hqStats.branchPerformance.reduce((sum, b) => sum + b.bulkSalesAmount, 0))}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Branches */}
