@@ -34,6 +34,8 @@ interface Nozzle {
   dispenser_id: string
   dispenser_number?: number
   initial_meter_reading?: number
+  item_id?: string
+  item_name?: string
 }
 
 interface Dispenser {
@@ -44,9 +46,17 @@ interface Dispenser {
   fuel_type?: string
 }
 
+interface Item {
+  id: string
+  item_name: string
+  item_code?: string
+  item_type?: string
+}
+
 export default function NozzleManagement({ branchId }: { branchId: string | null }) {
   const [nozzles, setNozzles] = useState<Nozzle[]>([])
   const [dispensers, setDispensers] = useState<Dispenser[]>([])
+  const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
@@ -57,6 +67,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
     nozzle_number: "1",
     fuel_type: "Diesel",
     initial_meter_reading: "0",
+    item_id: "",
   })
 
   useEffect(() => {
@@ -68,19 +79,32 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [nozzlesRes, dispensersRes] = await Promise.all([
+      const [nozzlesRes, dispensersRes, itemsRes] = await Promise.all([
         fetch(`/api/nozzles?branch_id=${branchId}`),
-        fetch(`/api/dispensers?branch_id=${branchId}`)
+        fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/branch-items?branchId=${branchId}`)
       ])
 
       const nozzlesResult = await nozzlesRes.json()
       const dispensersResult = await dispensersRes.json()
+      const itemsResult = await itemsRes.json()
 
       if (nozzlesResult.success) {
         setNozzles(nozzlesResult.data || [])
       }
       if (dispensersResult.success) {
         setDispensers(dispensersResult.data || [])
+      }
+      if (itemsResult.success) {
+        const mappedItems = (itemsResult.items || [])
+          .filter((item: any) => item.is_assigned || item.branch_item_id)
+          .map((item: any) => ({
+            id: item.item_id,
+            item_name: item.item_name,
+            item_code: item.item_code,
+            item_type: item.item_type
+          }))
+        setItems(mappedItems)
       }
     } catch (error) {
       console.error("Error fetching data:", error)
@@ -107,6 +131,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           fuel_type: formData.fuel_type,
           initial_meter_reading: parseFloat(formData.initial_meter_reading) || 0,
           status: "active",
+          item_id: formData.item_id || null,
         }),
       })
 
@@ -139,6 +164,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           fuel_type: formData.fuel_type,
           status: selectedNozzle.status,
           initial_meter_reading: parseFloat(formData.initial_meter_reading) || 0,
+          item_id: formData.item_id || null,
         }),
       })
 
@@ -190,6 +216,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
       nozzle_number: nozzle.nozzle_number.toString(),
       fuel_type: nozzle.fuel_type,
       initial_meter_reading: (nozzle.initial_meter_reading || 0).toString(),
+      item_id: nozzle.item_id || "",
     })
     setShowEditDialog(true)
   }
@@ -200,6 +227,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
       nozzle_number: "1",
       fuel_type: "Diesel",
       initial_meter_reading: "0",
+      item_id: "",
     })
   }
 
@@ -244,6 +272,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                   <TableHead>Nozzle</TableHead>
                   <TableHead>Dispenser</TableHead>
                   <TableHead>Fuel Type</TableHead>
+                  <TableHead>Linked Item</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Current Meter Reading</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -260,6 +289,13 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                       <Badge variant={nozzle.fuel_type === "Diesel" ? "default" : "secondary"}>
                         {nozzle.fuel_type}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {nozzle.item_name ? (
+                        <span className="text-sm">{nozzle.item_name}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Not linked</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant={nozzle.status === "active" ? "default" : "destructive"}>
@@ -338,6 +374,23 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                 onChange={(e) => setFormData({ ...formData, initial_meter_reading: e.target.value })}
               />
             </div>
+            <div>
+              <Label>Link to Item (for pricing)</Label>
+              <Select value={formData.item_id} onValueChange={(v) => setFormData({ ...formData, item_id: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select item (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No item linked</SelectItem>
+                  {items.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">Same items as tanks - from branch inventory</p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
@@ -400,6 +453,23 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                 value={formData.initial_meter_reading}
                 onChange={(e) => setFormData({ ...formData, initial_meter_reading: e.target.value })}
               />
+            </div>
+            <div>
+              <Label>Link to Item (for pricing)</Label>
+              <Select value={formData.item_id} onValueChange={(v) => setFormData({ ...formData, item_id: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select item (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No item linked</SelectItem>
+                  {items.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">Same items as tanks - from branch inventory</p>
             </div>
           </div>
           <DialogFooter>
