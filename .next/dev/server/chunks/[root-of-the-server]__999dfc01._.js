@@ -319,9 +319,9 @@ async function GET(request) {
           b.name,
           COALESCE(SUM(CASE WHEN s.created_at >= $1 THEN s.total_amount ELSE 0 END), 0) as mtd_sales,
           0 as mtd_purchases,
-          0 as bulk_sales_count,
-          0 as bulk_sales_volume,
-          0 as bulk_sales_amount
+          COALESCE(SUM(CASE WHEN s.created_at >= $1 AND s.source_system = 'meter_diff_bulk' THEN 1 ELSE 0 END), 0) as bulk_sales_count,
+          COALESCE(SUM(CASE WHEN s.created_at >= $1 AND s.source_system = 'meter_diff_bulk' THEN s.quantity ELSE 0 END), 0) as bulk_sales_volume,
+          COALESCE(SUM(CASE WHEN s.created_at >= $1 AND s.source_system = 'meter_diff_bulk' THEN s.total_amount ELSE 0 END), 0) as bulk_sales_amount
         FROM branches b
         LEFT JOIN sales s ON s.branch_id = b.id
         WHERE b.vendor_id = $2 AND (b.status = 'active' OR b.status IS NULL)
@@ -336,9 +336,9 @@ async function GET(request) {
           b.name,
           COALESCE(SUM(CASE WHEN s.created_at >= $1 THEN s.total_amount ELSE 0 END), 0) as mtd_sales,
           0 as mtd_purchases,
-          0 as bulk_sales_count,
-          0 as bulk_sales_volume,
-          0 as bulk_sales_amount
+          COALESCE(SUM(CASE WHEN s.created_at >= $1 AND s.source_system = 'meter_diff_bulk' THEN 1 ELSE 0 END), 0) as bulk_sales_count,
+          COALESCE(SUM(CASE WHEN s.created_at >= $1 AND s.source_system = 'meter_diff_bulk' THEN s.quantity ELSE 0 END), 0) as bulk_sales_volume,
+          COALESCE(SUM(CASE WHEN s.created_at >= $1 AND s.source_system = 'meter_diff_bulk' THEN s.total_amount ELSE 0 END), 0) as bulk_sales_amount
         FROM branches b
         LEFT JOIN sales s ON s.branch_id = b.id
         WHERE b.id = ANY($2::uuid[]) AND (b.status = 'active' OR b.status IS NULL)
