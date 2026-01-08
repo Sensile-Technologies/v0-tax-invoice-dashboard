@@ -16,19 +16,46 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const itemResult = await query(`
-      SELECT i.*, COALESCE(b.kra_pin, v.kra_pin) as kra_pin, b.bhf_id,
+    // First try catalog items (via branch_items)
+    let itemResult = await query(`
+      SELECT i.*, 
+             COALESCE(bi.sale_price, 0) as sale_price,
+             COALESCE(bi.purchase_price, 0) as purchase_price,
+             COALESCE(b.kra_pin, v.kra_pin) as kra_pin, 
+             b.bhf_id,
              COALESCE(b.server_address, '5.189.171.160') as server_address,
-             COALESCE(b.server_port, '8088') as server_port
+             COALESCE(b.server_port, '8088') as server_port,
+             bi.id as branch_item_id,
+             'catalog' as item_source
       FROM items i
       JOIN vendors v ON v.id = i.vendor_id
-      JOIN branches b ON b.id = i.branch_id
-      WHERE i.id = $1 AND i.branch_id = $2
+      JOIN branch_items bi ON bi.item_id = i.id
+      JOIN branches b ON b.id = bi.branch_id
+      WHERE i.id = $1 AND bi.branch_id = $2 AND i.branch_id IS NULL
     `, [itemId, branchId])
+
+    // If not found as catalog item, try legacy items
+    if (itemResult.length === 0) {
+      itemResult = await query(`
+        SELECT i.*, 
+               COALESCE(i.sale_price, 0) as sale_price,
+               COALESCE(i.purchase_price, 0) as purchase_price,
+               COALESCE(b.kra_pin, v.kra_pin) as kra_pin, 
+               b.bhf_id,
+               COALESCE(b.server_address, '5.189.171.160') as server_address,
+               COALESCE(b.server_port, '8088') as server_port,
+               NULL as branch_item_id,
+               'legacy' as item_source
+        FROM items i
+        JOIN vendors v ON v.id = i.vendor_id
+        JOIN branches b ON b.id = i.branch_id
+        WHERE i.id = $1 AND i.branch_id = $2
+      `, [itemId, branchId])
+    }
 
     if (itemResult.length === 0) {
       return NextResponse.json(
-        { error: "Item not found or branch mismatch" },
+        { error: "Item not found or not assigned to this branch" },
         { status: 404 }
       )
     }
@@ -137,17 +164,31 @@ export async function POST(request: NextRequest) {
     const isSuccess = kraResponse.resultCd === "000" || kraResponse.resultCd === "0"
     const status = isSuccess ? "success" : "rejected"
 
-    await query(`
-      UPDATE items 
-      SET kra_status = $1, 
-          kra_response = $2, 
-          kra_last_synced_at = NOW()
-      WHERE id = $3
-    `, [status, JSON.stringify(kraResponse), itemId])
+    // Update KRA status based on item source
+    if (item.item_source === 'catalog' && item.branch_item_id) {
+      // For catalog items, update branch_items table
+      await query(`
+        UPDATE branch_items 
+        SET kra_status = $1, 
+            kra_last_synced_at = NOW(),
+            updated_at = NOW()
+        WHERE id = $2
+      `, [status, item.branch_item_id])
+    } else {
+      // For legacy items, update items table
+      await query(`
+        UPDATE items 
+        SET kra_status = $1, 
+            kra_response = $2, 
+            kra_last_synced_at = NOW()
+        WHERE id = $3
+      `, [status, JSON.stringify(kraResponse), itemId])
+    }
 
     return NextResponse.json({
       success: isSuccess,
       kraResponse,
+      itemSource: item.item_source,
       message: isSuccess 
         ? "Item successfully submitted to KRA" 
         : `KRA submission failed: ${kraResponse.resultMsg || 'Unknown error'}`

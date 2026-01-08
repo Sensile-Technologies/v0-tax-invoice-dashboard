@@ -212,12 +212,12 @@ export default function ItemsListPage() {
       return
     }
     
-    if (!confirm(`Are you sure you want to delete "${item.item_name}"? This action cannot be undone.`)) {
+    if (!confirm(`Are you sure you want to delete "${item.item_name}"? This action cannot be undone.\n\nNote: If the item is linked to nozzles or tanks, you'll need to reassign them first.`)) {
       return
     }
     
     try {
-      const response = await fetch(`/api/items/${item.item_id}`, {
+      const response = await fetch(`/api/items?id=${item.item_id}`, {
         method: "DELETE"
       })
 

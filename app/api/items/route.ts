@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { cookies } from "next/headers"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -209,5 +210,108 @@ export async function GET(request: NextRequest) {
       { error: "Failed to fetch items" },
       { status: 500 }
     )
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const client = await pool.connect()
+  
+  try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get("user_session")
+    if (!sessionCookie) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    let session
+    try {
+      session = JSON.parse(sessionCookie.value)
+    } catch {
+      return NextResponse.json({ success: false, error: "Invalid session" }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const itemId = searchParams.get('id')
+
+    if (!itemId) {
+      return NextResponse.json({ success: false, error: "Item ID required" }, { status: 400 })
+    }
+
+    const userResult = await client.query(
+      `SELECT u.id, COALESCE(s.role, u.role) as role, v.id as vendor_id, s.branch_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
+      [session.id]
+    )
+    
+    if (userResult.rows.length === 0) {
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 })
+    }
+
+    const user = userResult.rows[0]
+    const userBranchId = user.branch_id
+
+    const itemCheck = await client.query(
+      'SELECT id, item_name, branch_id, vendor_id FROM items WHERE id = $1',
+      [itemId]
+    )
+
+    if (itemCheck.rows.length === 0) {
+      return NextResponse.json({ success: false, error: "Item not found" }, { status: 404 })
+    }
+
+    const item = itemCheck.rows[0]
+
+    if (item.branch_id === null) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "This is a catalog item. Delete it from Headquarters > Items instead." 
+      }, { status: 400 })
+    }
+
+    if (!['director', 'vendor', 'manager'].includes(user.role)) {
+      return NextResponse.json({ success: false, error: "Access denied. Only managers and above can delete items." }, { status: 403 })
+    }
+
+    if (['supervisor', 'manager'].includes(user.role) && item.branch_id !== userBranchId) {
+      return NextResponse.json({ success: false, error: "Access denied to this branch's items" }, { status: 403 })
+    }
+
+    const nozzlesCheck = await client.query(
+      'SELECT COUNT(*) as count FROM nozzles WHERE item_id = $1',
+      [itemId]
+    )
+    if (parseInt(nozzlesCheck.rows[0].count) > 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Cannot delete item - it is linked to nozzles. Remove nozzle links first." 
+      }, { status: 400 })
+    }
+
+    const tanksCheck = await client.query(
+      'SELECT COUNT(*) as count FROM tanks WHERE item_id = $1',
+      [itemId]
+    )
+    if (parseInt(tanksCheck.rows[0].count) > 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Cannot delete item - it is linked to tanks. Remove tank links first." 
+      }, { status: 400 })
+    }
+
+    await client.query('DELETE FROM items WHERE id = $1', [itemId])
+
+    return NextResponse.json({
+      success: true,
+      message: `Legacy item "${item.item_name}" deleted successfully`
+    })
+
+  } catch (error) {
+    console.error("Error deleting item:", error)
+    return NextResponse.json({ success: false, error: "Failed to delete item" }, { status: 500 })
+  } finally {
+    client.release()
   }
 }
