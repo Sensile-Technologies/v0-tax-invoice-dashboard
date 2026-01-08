@@ -501,8 +501,9 @@ export async function POST(request: NextRequest) {
     }
 
     const tankResult = await query(`
-      SELECT current_stock FROM tanks
-      WHERE branch_id = $1 AND (kra_item_cd = $2 OR UPPER(fuel_type) = UPPER($3))
+      SELECT t.current_stock FROM tanks t
+      LEFT JOIN items i ON t.item_id = i.id
+      WHERE t.branch_id = $1 AND (t.kra_item_cd = $2 OR UPPER(i.item_name) = UPPER($3))
       LIMIT 1
     `, [branch_id, itemCd, itemNm])
     

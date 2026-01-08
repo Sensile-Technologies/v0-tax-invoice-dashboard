@@ -368,11 +368,11 @@ async function POST(request) {
         }
         // Step 1: Get basic nozzle info
         const nozzleResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT n.id, n.fuel_type, n.item_id,
+      SELECT n.id, i.item_name as fuel_type, n.item_id,
              COALESCE(n.initial_meter_reading, 0) as initial_meter_reading,
              i.item_code, i.class_code, i.item_name, i.package_unit, i.quantity_unit, i.tax_type
       FROM nozzles n
-      LEFT JOIN items i ON n.item_id = i.id
+      JOIN items i ON n.item_id = i.id
       WHERE n.id = $1
     `, [
             nozzle_id

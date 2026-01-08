@@ -597,9 +597,11 @@ async function GET(request) {
                 status: 400
             });
         }
-        const tanks = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT t.*, i.item_name 
+        const tanks = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT t.id, t.branch_id, t.tank_name, t.capacity, t.current_stock, t.status, 
+              t.kra_item_cd, t.item_id, t.kra_sync_status, t.last_kra_synced_stock, 
+              t.created_at, t.updated_at, i.item_name, i.item_name as fuel_type
        FROM tanks t 
-       LEFT JOIN items i ON t.item_id = i.id 
+       JOIN items i ON t.item_id = i.id 
        WHERE t.branch_id = $1 
        ORDER BY t.tank_name`, [
             branchId
@@ -621,26 +623,30 @@ async function GET(request) {
 async function POST(request) {
     try {
         const body = await request.json();
-        const { branch_id, tank_name, fuel_type, capacity, current_stock, status, kra_item_cd, sync_to_kra, unit_price, item_id } = body;
-        if (!branch_id || !tank_name || !fuel_type) {
+        const { branch_id, tank_name, capacity, current_stock, status, kra_item_cd, sync_to_kra, unit_price, item_id } = body;
+        if (!branch_id || !tank_name || !item_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
-                error: "branch_id, tank_name, and fuel_type are required"
+                error: "branch_id, tank_name, and item_id are required"
             }, {
                 status: 400
             });
         }
-        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO tanks (branch_id, tank_name, fuel_type, capacity, current_stock, status, kra_item_cd, item_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        // Get item_name for KRA sync
+        const itemResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])("SELECT item_name FROM items WHERE id = $1", [
+            item_id
+        ]);
+        const itemName = itemResult.length > 0 ? itemResult[0].item_name : 'Unknown';
+        const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO tanks (branch_id, tank_name, capacity, current_stock, status, kra_item_cd, item_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`, [
             branch_id,
             tank_name,
-            fuel_type,
             capacity || 0,
             current_stock || 0,
             status || "active",
             kra_item_cd || null,
-            item_id || null
+            item_id
         ]);
         const tank = result[0];
         let kraResult = null;
@@ -652,7 +658,7 @@ async function POST(request) {
                     quantity: current_stock,
                     unitPrice: unit_price || 0,
                     itemCode: kra_item_cd,
-                    itemName: fuel_type
+                    itemName: itemName
                 }
             ], {
                 remark: `Initial stock for tank: ${tank_name}`
@@ -769,7 +775,7 @@ async function PATCH(request) {
                     quantity: Math.abs(stockDiff),
                     unitPrice: unit_price || 0,
                     itemCode: tank.kra_item_cd,
-                    itemName: tank.fuel_type
+                    itemName: tank.item_name || 'Fuel'
                 }
             ], {
                 remark: `Stock ${movementType}: ${previousStock} -> ${current_stock}`

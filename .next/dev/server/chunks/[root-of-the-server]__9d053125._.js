@@ -1346,7 +1346,7 @@ async function GET(request) {
 async function POST(request) {
     try {
         const body = await request.json();
-        const { branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, total_amount, payment_method, customer_name, vehicle_number, customer_pin, invoice_number, meter_reading_after, transmission_status, receipt_number, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, staff_id, sync_to_kra = true, deduct_from_tank = true } = body;
+        const { branch_id, shift_id, nozzle_id, fuel_type, item_id, quantity, unit_price, total_amount, payment_method, customer_name, vehicle_number, customer_pin, invoice_number, meter_reading_after, transmission_status, receipt_number, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, staff_id, sync_to_kra = true, deduct_from_tank = true } = body;
         if (!branch_id || !nozzle_id || !fuel_type) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Missing required fields"
@@ -1354,16 +1354,27 @@ async function POST(request) {
                 status: 400
             });
         }
+        // Get item_id from nozzle if not provided
+        let effectiveItemId = item_id;
+        if (!effectiveItemId && nozzle_id) {
+            const nozzleResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT item_id FROM nozzles WHERE id = $1`, [
+                nozzle_id
+            ]);
+            if (nozzleResult.length > 0) {
+                effectiveItemId = nozzleResult[0].item_id;
+            }
+        }
         const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO sales (
-        branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
+        branch_id, shift_id, nozzle_id, item_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, vehicle_number, customer_pin,
         invoice_number, meter_reading_after, transmission_status, receipt_number,
         is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, staff_id, sale_date, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW(), NOW())
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW(), NOW())
       RETURNING *`, [
             branch_id,
             shift_id,
             nozzle_id,
+            effectiveItemId,
             fuel_type,
             quantity,
             unit_price,
@@ -1385,85 +1396,102 @@ async function POST(request) {
         let kraResult = null;
         let tankUpdate = null;
         if (quantity && quantity > 0) {
-            const tankResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM tanks WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' ORDER BY current_stock DESC LIMIT 1`, [
+            // Find tank by item_id first, fallback to fuel_type name match
+            let tankResult = effectiveItemId ? await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT * FROM tanks WHERE branch_id = $1 AND item_id = $2 AND status = 'active' ORDER BY current_stock DESC LIMIT 1`, [
                 branch_id,
-                `%${fuel_type}%`
-            ]);
-            if (tankResult.length > 0) {
-                const tank = tankResult[0];
-                if (!tank.kra_item_cd) {
-                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                        error: `Tank "${tank.tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.`
-                    }, {
-                        status: 400
-                    });
-                }
-                const previousStock = tank.current_stock || 0;
-                const newStock = Math.max(0, previousStock - quantity);
-                if (deduct_from_tank) {
-                    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`, [
-                        newStock,
-                        tank.id
+                effectiveItemId
+            ]) : [];
+            // Fallback: match by item name via JOIN (for tanks with item_id set)
+            if (tankResult.length === 0 && fuel_type) {
+                tankResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT t.* FROM tanks t 
+           JOIN items i ON t.item_id = i.id
+           WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active' 
+           ORDER BY t.current_stock DESC LIMIT 1`, [
+                    branch_id,
+                    fuel_type
+                ]);
+            }
+            // No tank found - return error instead of silent failure
+            if (tankResult.length === 0) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: `No tank found for item. Please ensure tanks have item_id configured in Inventory Management.`
+                }, {
+                    status: 400
+                });
+            }
+            const tank = tankResult[0];
+            if (!tank.kra_item_cd) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: `Tank "${tank.tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.`
+                }, {
+                    status: 400
+                });
+            }
+            const previousStock = tank.current_stock || 0;
+            const newStock = Math.max(0, previousStock - quantity);
+            if (deduct_from_tank) {
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`, [
+                    newStock,
+                    tank.id
+                ]);
+                tankUpdate = {
+                    tankId: tank.id,
+                    tankName: tank.tank_name,
+                    previousStock,
+                    newStock,
+                    quantityDeducted: quantity
+                };
+            }
+            if (sync_to_kra) {
+                console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`);
+                // Use loyalty customer PIN for KRA when it's a loyalty sale
+                const effectiveCustomerPin = is_loyalty_sale && loyalty_customer_pin ? loyalty_customer_pin : customer_pin || '';
+                const effectiveCustomerName = is_loyalty_sale && loyalty_customer_name ? loyalty_customer_name : customer_name || 'Walk-in Customer';
+                kraResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$sales$2d$api$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["callKraSaveSales"])({
+                    branch_id,
+                    invoice_number: invoice_number || `INV-${Date.now().toString(36).toUpperCase()}`,
+                    receipt_number: receipt_number || `RCP-${Date.now().toString(36).toUpperCase()}`,
+                    fuel_type,
+                    quantity,
+                    unit_price: unit_price || 0,
+                    total_amount: total_amount || quantity * (unit_price || 0),
+                    payment_method: payment_method || 'cash',
+                    customer_name: effectiveCustomerName,
+                    customer_pin: effectiveCustomerPin,
+                    sale_date: new Date().toISOString(),
+                    tank_id: tank.id
+                });
+                await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE tanks SET kra_sync_status = $1 WHERE id = $2`, [
+                    kraResult.success ? 'synced' : 'failed',
+                    tank.id
+                ]);
+                if (kraResult.success && kraResult.kraResponse?.data) {
+                    const kraData = kraResult.kraResponse.data;
+                    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE sales SET 
+              kra_status = 'success',
+              kra_rcpt_sign = $1,
+              kra_scu_id = $2,
+              kra_cu_inv = $3,
+              kra_internal_data = $4,
+              transmission_status = 'transmitted'
+            WHERE id = $5`, [
+                        kraData.rcptSign || '',
+                        kraData.sdcId || '',
+                        `${kraData.sdcId}/${kraData.rcptNo}`,
+                        kraData.intrlData || '',
+                        sale.id
                     ]);
-                    tankUpdate = {
-                        tankId: tank.id,
-                        tankName: tank.tank_name,
-                        previousStock,
-                        newStock,
-                        quantityDeducted: quantity
-                    };
-                }
-                if (sync_to_kra) {
-                    console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`);
-                    // Use loyalty customer PIN for KRA when it's a loyalty sale
-                    const effectiveCustomerPin = is_loyalty_sale && loyalty_customer_pin ? loyalty_customer_pin : customer_pin || '';
-                    const effectiveCustomerName = is_loyalty_sale && loyalty_customer_name ? loyalty_customer_name : customer_name || 'Walk-in Customer';
-                    kraResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$sales$2d$api$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["callKraSaveSales"])({
-                        branch_id,
-                        invoice_number: invoice_number || `INV-${Date.now().toString(36).toUpperCase()}`,
-                        receipt_number: receipt_number || `RCP-${Date.now().toString(36).toUpperCase()}`,
-                        fuel_type,
-                        quantity,
-                        unit_price: unit_price || 0,
-                        total_amount: total_amount || quantity * (unit_price || 0),
-                        payment_method: payment_method || 'cash',
-                        customer_name: effectiveCustomerName,
-                        customer_pin: effectiveCustomerPin,
-                        sale_date: new Date().toISOString(),
-                        tank_id: tank.id
-                    });
-                    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE tanks SET kra_sync_status = $1 WHERE id = $2`, [
-                        kraResult.success ? 'synced' : 'failed',
-                        tank.id
+                    sale.kra_status = 'success';
+                    sale.kra_rcpt_sign = kraData.rcptSign;
+                    sale.kra_scu_id = kraData.sdcId;
+                    sale.kra_cu_inv = `${kraData.sdcId}/${kraData.rcptNo}`;
+                    sale.kra_internal_data = kraData.intrlData;
+                } else if (!kraResult.success) {
+                    await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE sales SET kra_status = 'failed', kra_error = $1 WHERE id = $2`, [
+                        kraResult.error || 'Unknown error',
+                        sale.id
                     ]);
-                    if (kraResult.success && kraResult.kraResponse?.data) {
-                        const kraData = kraResult.kraResponse.data;
-                        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE sales SET 
-                kra_status = 'success',
-                kra_rcpt_sign = $1,
-                kra_scu_id = $2,
-                kra_cu_inv = $3,
-                kra_internal_data = $4,
-                transmission_status = 'transmitted'
-              WHERE id = $5`, [
-                            kraData.rcptSign || '',
-                            kraData.sdcId || '',
-                            `${kraData.sdcId}/${kraData.rcptNo}`,
-                            kraData.intrlData || '',
-                            sale.id
-                        ]);
-                        sale.kra_status = 'success';
-                        sale.kra_rcpt_sign = kraData.rcptSign;
-                        sale.kra_scu_id = kraData.sdcId;
-                        sale.kra_cu_inv = `${kraData.sdcId}/${kraData.rcptNo}`;
-                        sale.kra_internal_data = kraData.intrlData;
-                    } else if (!kraResult.success) {
-                        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE sales SET kra_status = 'failed', kra_error = $1 WHERE id = $2`, [
-                            kraResult.error || 'Unknown error',
-                            sale.id
-                        ]);
-                        sale.kra_status = 'failed';
-                    }
+                    sale.kra_status = 'failed';
                 }
             }
         }
