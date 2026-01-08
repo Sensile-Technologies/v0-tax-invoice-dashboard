@@ -445,6 +445,7 @@ async function DELETE(request) {
         }
         const { searchParams } = new URL(request.url);
         const branchItemId = searchParams.get('id');
+        const preview = searchParams.get('preview') === 'true';
         if (!branchItemId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
@@ -472,9 +473,10 @@ async function DELETE(request) {
         const userVendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
             session.id
         ])).rows[0]?.vendor_id;
-        const branchItemCheck = await client.query(`SELECT bi.*, b.vendor_id 
+        const branchItemCheck = await client.query(`SELECT bi.*, b.vendor_id, i.item_name
        FROM branch_items bi 
        JOIN branches b ON bi.branch_id = b.id 
+       JOIN items i ON bi.item_id = i.id
        WHERE bi.id = $1`, [
             branchItemId
         ]);
@@ -495,13 +497,66 @@ async function DELETE(request) {
                 status: 403
             });
         }
-        await client.query('DELETE FROM branch_items WHERE id = $1', [
-            branchItemId
+        const nozzleCount = await client.query('SELECT COUNT(*) as count FROM nozzles WHERE branch_id = $1 AND item_id = $2', [
+            branchItem.branch_id,
+            branchItem.item_id
         ]);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            success: true,
-            message: "Item removed from branch"
-        });
+        const tankCount = await client.query('SELECT COUNT(*) as count FROM tanks WHERE branch_id = $1 AND item_id = $2', [
+            branchItem.branch_id,
+            branchItem.item_id
+        ]);
+        const dispenserCount = await client.query('SELECT COUNT(*) as count FROM dispensers WHERE branch_id = $1 AND item_id = $2', [
+            branchItem.branch_id,
+            branchItem.item_id
+        ]);
+        const affectedNozzles = parseInt(nozzleCount.rows[0].count);
+        const affectedTanks = parseInt(tankCount.rows[0].count);
+        const affectedDispensers = parseInt(dispenserCount.rows[0].count);
+        if (preview) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: true,
+                preview: true,
+                itemName: branchItem.item_name,
+                affectedNozzles,
+                affectedTanks,
+                affectedDispensers
+            });
+        }
+        await client.query('BEGIN');
+        try {
+            if (affectedNozzles > 0) {
+                await client.query('DELETE FROM nozzles WHERE branch_id = $1 AND item_id = $2', [
+                    branchItem.branch_id,
+                    branchItem.item_id
+                ]);
+            }
+            if (affectedDispensers > 0) {
+                await client.query('DELETE FROM dispensers WHERE branch_id = $1 AND item_id = $2', [
+                    branchItem.branch_id,
+                    branchItem.item_id
+                ]);
+            }
+            if (affectedTanks > 0) {
+                await client.query('DELETE FROM tanks WHERE branch_id = $1 AND item_id = $2', [
+                    branchItem.branch_id,
+                    branchItem.item_id
+                ]);
+            }
+            await client.query('DELETE FROM branch_items WHERE id = $1', [
+                branchItemId
+            ]);
+            await client.query('COMMIT');
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: true,
+                message: "Item removed from branch",
+                deletedNozzles: affectedNozzles,
+                deletedTanks: affectedTanks,
+                deletedDispensers: affectedDispensers
+            });
+        } catch (txError) {
+            await client.query('ROLLBACK');
+            throw txError;
+        }
     } catch (error) {
         console.error("Error removing branch item:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({

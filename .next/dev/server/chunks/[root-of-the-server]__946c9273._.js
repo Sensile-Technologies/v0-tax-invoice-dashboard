@@ -82,20 +82,29 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
         const status = searchParams.get('status');
-        let query = `
-      SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
-             n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
-             d.dispenser_number, i.item_name, i.item_name as fuel_type
-      FROM nozzles n
-      LEFT JOIN dispensers d ON n.dispenser_id = d.id
-      JOIN items i ON n.item_id = i.id`;
         const params = [];
+        let query;
         if (branchId) {
             params.push(branchId);
-            query += ` INNER JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $${params.length}`;
-            query += ` WHERE n.branch_id = $${params.length}`;
+            const branchIdx = params.length;
+            query = `
+        SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
+               n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
+               d.dispenser_number, i.item_name, i.item_name as fuel_type
+        FROM nozzles n
+        LEFT JOIN dispensers d ON n.dispenser_id = d.id
+        JOIN items i ON n.item_id = i.id
+        INNER JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $${branchIdx} AND bi.is_available = true
+        WHERE n.branch_id = $${branchIdx}`;
         } else {
-            query += ` WHERE 1=1`;
+            query = `
+        SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
+               n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
+               d.dispenser_number, i.item_name, i.item_name as fuel_type
+        FROM nozzles n
+        LEFT JOIN dispensers d ON n.dispenser_id = d.id
+        JOIN items i ON n.item_id = i.id
+        WHERE 1=1`;
         }
         if (status) {
             params.push(status);

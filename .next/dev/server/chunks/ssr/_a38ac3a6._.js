@@ -3121,7 +3121,7 @@ function TankManagement({ branchId }) {
     });
     const [newTankForm, setNewTankForm] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
         tankName: "",
-        fuelType: "Petrol",
+        itemId: "",
         capacity: "",
         initialStock: ""
     });
@@ -3423,6 +3423,10 @@ function TankManagement({ branchId }) {
     const handleAddTank = async ()=>{
         if (!branchId) return;
         try {
+            if (!newTankForm.itemId) {
+                __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$toastify$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["toast"].error("Please select an item for this tank");
+                return;
+            }
             const response = await fetch('/api/tanks', {
                 method: 'POST',
                 headers: {
@@ -3431,7 +3435,7 @@ function TankManagement({ branchId }) {
                 body: JSON.stringify({
                     branch_id: branchId,
                     tank_name: newTankForm.tankName,
-                    fuel_type: newTankForm.fuelType,
+                    item_id: newTankForm.itemId,
                     capacity: Number.parseFloat(newTankForm.capacity),
                     current_stock: Number.parseFloat(newTankForm.initialStock || "0"),
                     status: "active"
@@ -3442,7 +3446,7 @@ function TankManagement({ branchId }) {
                 setShowAddTankDialog(false);
                 setNewTankForm({
                     tankName: "",
-                    fuelType: "Petrol",
+                    itemId: "",
                     capacity: "",
                     initialStock: ""
                 });
@@ -3492,12 +3496,12 @@ function TankManagement({ branchId }) {
                 children: "Please select a branch to view tank management."
             }, void 0, false, {
                 fileName: "[project]/components/tank-management.tsx",
-                lineNumber: 474,
+                lineNumber: 479,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/tank-management.tsx",
-            lineNumber: 473,
+            lineNumber: 478,
             columnNumber: 7
         }, this);
     }
@@ -3507,7 +3511,7 @@ function TankManagement({ branchId }) {
             children: "Loading tank management..."
         }, void 0, false, {
             fileName: "[project]/components/tank-management.tsx",
-            lineNumber: 480,
+            lineNumber: 485,
             columnNumber: 12
         }, this);
     }
@@ -3524,7 +3528,7 @@ function TankManagement({ branchId }) {
                                 children: "Tank Management"
                             }, void 0, false, {
                                 fileName: "[project]/components/tank-management.tsx",
-                                lineNumber: 487,
+                                lineNumber: 492,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3532,13 +3536,13 @@ function TankManagement({ branchId }) {
                                 children: "Manage fuel tanks, stock levels, and transfers"
                             }, void 0, false, {
                                 fileName: "[project]/components/tank-management.tsx",
-                                lineNumber: 488,
+                                lineNumber: 493,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/tank-management.tsx",
-                        lineNumber: 486,
+                        lineNumber: 491,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3549,20 +3553,20 @@ function TankManagement({ branchId }) {
                                 className: "h-4 w-4 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/components/tank-management.tsx",
-                                lineNumber: 491,
+                                lineNumber: 496,
                                 columnNumber: 11
                             }, this),
                             "Add New Tank"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/tank-management.tsx",
-                        lineNumber: 490,
+                        lineNumber: 495,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/tank-management.tsx",
-                lineNumber: 485,
+                lineNumber: 490,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3586,12 +3590,12 @@ function TankManagement({ branchId }) {
                                                         className: "h-5 w-5 text-primary"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 507,
+                                                        lineNumber: 512,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 506,
+                                                    lineNumber: 511,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3601,7 +3605,7 @@ function TankManagement({ branchId }) {
                                                             children: tank.tank_name
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 510,
+                                                            lineNumber: 515,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3609,19 +3613,19 @@ function TankManagement({ branchId }) {
                                                             children: tank.fuel_type
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 511,
+                                                            lineNumber: 516,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 509,
+                                                    lineNumber: 514,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 505,
+                                            lineNumber: 510,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -3632,18 +3636,18 @@ function TankManagement({ branchId }) {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 514,
+                                            lineNumber: 519,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 504,
+                                    lineNumber: 509,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/tank-management.tsx",
-                                lineNumber: 503,
+                                lineNumber: 508,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3659,7 +3663,7 @@ function TankManagement({ branchId }) {
                                                         children: "Capacity"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 522,
+                                                        lineNumber: 527,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3670,13 +3674,13 @@ function TankManagement({ branchId }) {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 523,
+                                                        lineNumber: 528,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 521,
+                                                lineNumber: 526,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3686,7 +3690,7 @@ function TankManagement({ branchId }) {
                                                         children: "Current Stock"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 526,
+                                                        lineNumber: 531,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3697,13 +3701,13 @@ function TankManagement({ branchId }) {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 527,
+                                                        lineNumber: 532,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 525,
+                                                lineNumber: 530,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3713,7 +3717,7 @@ function TankManagement({ branchId }) {
                                                         children: "Available Space"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 530,
+                                                        lineNumber: 535,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3724,13 +3728,13 @@ function TankManagement({ branchId }) {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 531,
+                                                        lineNumber: 536,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 529,
+                                                lineNumber: 534,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3740,7 +3744,7 @@ function TankManagement({ branchId }) {
                                                         children: "Linked Item"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 534,
+                                                        lineNumber: 539,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -3753,12 +3757,12 @@ function TankManagement({ branchId }) {
                                                                     placeholder: "Select item"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/tank-management.tsx",
-                                                                    lineNumber: 540,
+                                                                    lineNumber: 545,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/tank-management.tsx",
-                                                                lineNumber: 539,
+                                                                lineNumber: 544,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -3768,7 +3772,7 @@ function TankManagement({ branchId }) {
                                                                         children: "No item linked"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/tank-management.tsx",
-                                                                        lineNumber: 543,
+                                                                        lineNumber: 548,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     items.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -3776,31 +3780,31 @@ function TankManagement({ branchId }) {
                                                                             children: item.item_name
                                                                         }, item.id, false, {
                                                                             fileName: "[project]/components/tank-management.tsx",
-                                                                            lineNumber: 545,
+                                                                            lineNumber: 550,
                                                                             columnNumber: 27
                                                                         }, this))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/tank-management.tsx",
-                                                                lineNumber: 542,
+                                                                lineNumber: 547,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 535,
+                                                        lineNumber: 540,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 533,
+                                                lineNumber: 538,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/tank-management.tsx",
-                                        lineNumber: 520,
+                                        lineNumber: 525,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3811,7 +3815,7 @@ function TankManagement({ branchId }) {
                                                 children: "Serving Dispensers/Nozzles"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 555,
+                                                lineNumber: 560,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3825,7 +3829,7 @@ function TankManagement({ branchId }) {
                                                             ]
                                                         }, d.id, true, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 558,
+                                                            lineNumber: 563,
                                                             columnNumber: 23
                                                         }, this)),
                                                     tank.nozzles?.map((n)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -3836,7 +3840,7 @@ function TankManagement({ branchId }) {
                                                             ]
                                                         }, n.id, true, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 563,
+                                                            lineNumber: 568,
                                                             columnNumber: 23
                                                         }, this)),
                                                     !tank.dispensers?.length && !tank.nozzles?.length && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3844,19 +3848,19 @@ function TankManagement({ branchId }) {
                                                         children: "No dispensers/nozzles assigned"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 568,
+                                                        lineNumber: 573,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 556,
+                                                lineNumber: 561,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/tank-management.tsx",
-                                        lineNumber: 554,
+                                        lineNumber: 559,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3879,7 +3883,7 @@ function TankManagement({ branchId }) {
                                                             className: "h-4 w-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 588,
+                                                            lineNumber: 593,
                                                             columnNumber: 25
                                                         }, this),
                                                         "Accept Transfer",
@@ -3888,13 +3892,13 @@ function TankManagement({ branchId }) {
                                                             children: tankTransfers.length
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 591,
+                                                            lineNumber: 596,
                                                             columnNumber: 27
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 577,
+                                                    lineNumber: 582,
                                                     columnNumber: 23
                                                 }, this);
                                             })(),
@@ -3911,14 +3915,14 @@ function TankManagement({ branchId }) {
                                                         className: "h-4 w-4 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 607,
+                                                        lineNumber: 612,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Transfer Stock"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 598,
+                                                lineNumber: 603,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3931,38 +3935,38 @@ function TankManagement({ branchId }) {
                                                         className: "h-4 w-4 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 616,
+                                                        lineNumber: 621,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Delete"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/tank-management.tsx",
-                                                lineNumber: 610,
+                                                lineNumber: 615,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/tank-management.tsx",
-                                        lineNumber: 573,
+                                        lineNumber: 578,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/tank-management.tsx",
-                                lineNumber: 519,
+                                lineNumber: 524,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, tank.id, true, {
                         fileName: "[project]/components/tank-management.tsx",
-                        lineNumber: 502,
+                        lineNumber: 507,
                         columnNumber: 13
                     }, this);
                 })
             }, void 0, false, {
                 fileName: "[project]/components/tank-management.tsx",
-                lineNumber: 496,
+                lineNumber: 501,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -3977,7 +3981,7 @@ function TankManagement({ branchId }) {
                                     children: "Accept Stock Transfer"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 630,
+                                    lineNumber: 635,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -3988,13 +3992,13 @@ function TankManagement({ branchId }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 631,
+                                    lineNumber: 636,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 629,
+                            lineNumber: 634,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4006,14 +4010,14 @@ function TankManagement({ branchId }) {
                                         className: "h-12 w-12 mx-auto mb-3 opacity-50"
                                     }, void 0, false, {
                                         fileName: "[project]/components/tank-management.tsx",
-                                        lineNumber: 638,
+                                        lineNumber: 643,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         children: "No pending transfers for this tank"
                                     }, void 0, false, {
                                         fileName: "[project]/components/tank-management.tsx",
-                                        lineNumber: 639,
+                                        lineNumber: 644,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4021,13 +4025,13 @@ function TankManagement({ branchId }) {
                                         children: "Transfers must be initiated from another branch"
                                     }, void 0, false, {
                                         fileName: "[project]/components/tank-management.tsx",
-                                        lineNumber: 640,
+                                        lineNumber: 645,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/tank-management.tsx",
-                                lineNumber: 637,
+                                lineNumber: 642,
                                 columnNumber: 15
                             }, this) : selectedTank && pendingTransfers.filter((t)=>t.to_tank_id === selectedTank.id).map((transfer)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
                                     className: "rounded-xl",
@@ -4047,7 +4051,7 @@ function TankManagement({ branchId }) {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 648,
+                                                            lineNumber: 653,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4060,7 +4064,7 @@ function TankManagement({ branchId }) {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 651,
+                                                            lineNumber: 656,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4071,7 +4075,7 @@ function TankManagement({ branchId }) {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 654,
+                                                            lineNumber: 659,
                                                             columnNumber: 25
                                                         }, this),
                                                         transfer.notes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4082,7 +4086,7 @@ function TankManagement({ branchId }) {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 658,
+                                                            lineNumber: 663,
                                                             columnNumber: 27
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4094,13 +4098,13 @@ function TankManagement({ branchId }) {
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 662,
+                                                            lineNumber: 667,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 647,
+                                                    lineNumber: 652,
                                                     columnNumber: 23
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4114,7 +4118,7 @@ function TankManagement({ branchId }) {
                                                             children: "Reject"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 667,
+                                                            lineNumber: 672,
                                                             columnNumber: 25
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -4125,34 +4129,34 @@ function TankManagement({ branchId }) {
                                                             children: acceptingTransferId === transfer.id ? "Accepting..." : "Accept"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 675,
+                                                            lineNumber: 680,
                                                             columnNumber: 25
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 666,
+                                                    lineNumber: 671,
                                                     columnNumber: 23
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 646,
+                                            lineNumber: 651,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/tank-management.tsx",
-                                        lineNumber: 645,
+                                        lineNumber: 650,
                                         columnNumber: 19
                                     }, this)
                                 }, transfer.id, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 644,
+                                    lineNumber: 649,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 635,
+                            lineNumber: 640,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -4163,23 +4167,23 @@ function TankManagement({ branchId }) {
                                 children: "Close"
                             }, void 0, false, {
                                 fileName: "[project]/components/tank-management.tsx",
-                                lineNumber: 691,
+                                lineNumber: 696,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 690,
+                            lineNumber: 695,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/tank-management.tsx",
-                    lineNumber: 628,
+                    lineNumber: 633,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/tank-management.tsx",
-                lineNumber: 627,
+                lineNumber: 632,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -4194,7 +4198,7 @@ function TankManagement({ branchId }) {
                                     children: "Transfer Stock"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 702,
+                                    lineNumber: 707,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -4205,13 +4209,13 @@ function TankManagement({ branchId }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 703,
+                                    lineNumber: 708,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 701,
+                            lineNumber: 706,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4223,7 +4227,7 @@ function TankManagement({ branchId }) {
                                             children: "Destination Branch"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 707,
+                                            lineNumber: 712,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -4240,12 +4244,12 @@ function TankManagement({ branchId }) {
                                                         placeholder: "Select branch"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 713,
+                                                        lineNumber: 718,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 712,
+                                                    lineNumber: 717,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4254,24 +4258,24 @@ function TankManagement({ branchId }) {
                                                             children: branch.name
                                                         }, branch.id, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 717,
+                                                            lineNumber: 722,
                                                             columnNumber: 21
                                                         }, this))
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 715,
+                                                    lineNumber: 720,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 708,
+                                            lineNumber: 713,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 706,
+                                    lineNumber: 711,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4280,7 +4284,7 @@ function TankManagement({ branchId }) {
                                             children: "Destination Tank"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 725,
+                                            lineNumber: 730,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -4297,12 +4301,12 @@ function TankManagement({ branchId }) {
                                                         placeholder: loadingDestinationTanks ? "Loading tanks..." : "Select tank"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 732,
+                                                        lineNumber: 737,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 731,
+                                                    lineNumber: 736,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4317,7 +4321,7 @@ function TankManagement({ branchId }) {
                                                                 ]
                                                             }, tank.id, true, {
                                                                 fileName: "[project]/components/tank-management.tsx",
-                                                                lineNumber: 738,
+                                                                lineNumber: 743,
                                                                 columnNumber: 23
                                                             }, this)),
                                                         destinationTanks.filter((t)=>t.id !== selectedTank?.id && t.fuel_type === selectedTank?.fuel_type).length === 0 && !loadingDestinationTanks && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4325,25 +4329,25 @@ function TankManagement({ branchId }) {
                                                             children: "No matching tanks found"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 743,
+                                                            lineNumber: 748,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 734,
+                                                    lineNumber: 739,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 726,
+                                            lineNumber: 731,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 724,
+                                    lineNumber: 729,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4352,7 +4356,7 @@ function TankManagement({ branchId }) {
                                             children: "Quantity to Transfer (Litres)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 749,
+                                            lineNumber: 754,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4366,13 +4370,13 @@ function TankManagement({ branchId }) {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 750,
+                                            lineNumber: 755,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 748,
+                                    lineNumber: 753,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4381,7 +4385,7 @@ function TankManagement({ branchId }) {
                                             children: "Transfer Notes"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 759,
+                                            lineNumber: 764,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4394,13 +4398,13 @@ function TankManagement({ branchId }) {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 760,
+                                            lineNumber: 765,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 758,
+                                    lineNumber: 763,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4409,7 +4413,7 @@ function TankManagement({ branchId }) {
                                             children: "Requested By"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 768,
+                                            lineNumber: 773,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4422,13 +4426,13 @@ function TankManagement({ branchId }) {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 769,
+                                            lineNumber: 774,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 767,
+                                    lineNumber: 772,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4436,13 +4440,13 @@ function TankManagement({ branchId }) {
                                     children: "This transfer requires approval before taking effect."
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 776,
+                                    lineNumber: 781,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 705,
+                            lineNumber: 710,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -4454,7 +4458,7 @@ function TankManagement({ branchId }) {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 779,
+                                    lineNumber: 784,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -4463,24 +4467,24 @@ function TankManagement({ branchId }) {
                                     children: "Submit Transfer Request"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 782,
+                                    lineNumber: 787,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 778,
+                            lineNumber: 783,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/tank-management.tsx",
-                    lineNumber: 700,
+                    lineNumber: 705,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/tank-management.tsx",
-                lineNumber: 699,
+                lineNumber: 704,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -4495,20 +4499,20 @@ function TankManagement({ branchId }) {
                                     children: "Add New Tank"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 793,
+                                    lineNumber: 798,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Add a new fuel tank to this branch"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 794,
+                                    lineNumber: 799,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 792,
+                            lineNumber: 797,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4520,7 +4524,7 @@ function TankManagement({ branchId }) {
                                             children: "Tank Name"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 798,
+                                            lineNumber: 803,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4533,93 +4537,85 @@ function TankManagement({ branchId }) {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 799,
+                                            lineNumber: 804,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 797,
+                                    lineNumber: 802,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Label"], {
-                                            children: "Fuel Type"
+                                            children: "Item (Fuel Type)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 807,
+                                            lineNumber: 812,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
-                                            value: newTankForm.fuelType,
+                                            value: newTankForm.itemId,
                                             onValueChange: (value)=>setNewTankForm({
                                                     ...newTankForm,
-                                                    fuelType: value
+                                                    itemId: value
                                                 }),
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectTrigger"], {
                                                     className: "rounded-xl",
-                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectValue"], {}, void 0, false, {
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectValue"], {
+                                                        placeholder: "Select an item"
+                                                    }, void 0, false, {
                                                         fileName: "[project]/components/tank-management.tsx",
-                                                        lineNumber: 813,
+                                                        lineNumber: 818,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 812,
+                                                    lineNumber: 817,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                            value: "Petrol",
-                                                            children: "Petrol"
-                                                        }, void 0, false, {
+                                                    children: items.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                                        value: "",
+                                                        disabled: true,
+                                                        children: "No items available - assign items to this branch first"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/components/tank-management.tsx",
+                                                        lineNumber: 822,
+                                                        columnNumber: 21
+                                                    }, this) : items.map((item)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                                            value: item.id,
+                                                            children: item.item_name
+                                                        }, item.id, false, {
                                                             fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 816,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                            value: "Diesel",
-                                                            children: "Diesel"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 817,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                            value: "Kerosene",
-                                                            children: "Kerosene"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 818,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                            value: "Super",
-                                                            children: "Super"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/components/tank-management.tsx",
-                                                            lineNumber: 819,
-                                                            columnNumber: 19
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
+                                                            lineNumber: 825,
+                                                            columnNumber: 23
+                                                        }, this))
+                                                }, void 0, false, {
                                                     fileName: "[project]/components/tank-management.tsx",
-                                                    lineNumber: 815,
+                                                    lineNumber: 820,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 808,
+                                            lineNumber: 813,
                                             columnNumber: 15
+                                        }, this),
+                                        items.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-xs text-muted-foreground mt-1",
+                                            children: "Go to Items List and assign items to this branch first"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/tank-management.tsx",
+                                            lineNumber: 833,
+                                            columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 806,
+                                    lineNumber: 811,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4628,7 +4624,7 @@ function TankManagement({ branchId }) {
                                             children: "Tank Capacity (Litres)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 824,
+                                            lineNumber: 839,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4642,13 +4638,13 @@ function TankManagement({ branchId }) {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 825,
+                                            lineNumber: 840,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 823,
+                                    lineNumber: 838,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4657,7 +4653,7 @@ function TankManagement({ branchId }) {
                                             children: "Initial Stock (Litres)"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 834,
+                                            lineNumber: 849,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Input"], {
@@ -4671,19 +4667,19 @@ function TankManagement({ branchId }) {
                                             className: "rounded-xl"
                                         }, void 0, false, {
                                             fileName: "[project]/components/tank-management.tsx",
-                                            lineNumber: 835,
+                                            lineNumber: 850,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 833,
+                                    lineNumber: 848,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 796,
+                            lineNumber: 801,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -4695,7 +4691,7 @@ function TankManagement({ branchId }) {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 845,
+                                    lineNumber: 860,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -4704,30 +4700,30 @@ function TankManagement({ branchId }) {
                                     children: "Add Tank"
                                 }, void 0, false, {
                                     fileName: "[project]/components/tank-management.tsx",
-                                    lineNumber: 848,
+                                    lineNumber: 863,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/tank-management.tsx",
-                            lineNumber: 844,
+                            lineNumber: 859,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/tank-management.tsx",
-                    lineNumber: 791,
+                    lineNumber: 796,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/tank-management.tsx",
-                lineNumber: 790,
+                lineNumber: 795,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/tank-management.tsx",
-        lineNumber: 484,
+        lineNumber: 489,
         columnNumber: 5
     }, this);
 }

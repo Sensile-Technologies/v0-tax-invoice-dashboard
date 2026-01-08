@@ -87,7 +87,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
 
   const [newTankForm, setNewTankForm] = useState({
     tankName: "",
-    fuelType: "Petrol",
+    itemId: "",
     capacity: "",
     initialStock: "",
   })
@@ -407,13 +407,18 @@ export default function TankManagement({ branchId }: { branchId: string | null }
     if (!branchId) return
 
     try {
+      if (!newTankForm.itemId) {
+        toast.error("Please select an item for this tank")
+        return
+      }
+
       const response = await fetch('/api/tanks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           branch_id: branchId,
           tank_name: newTankForm.tankName,
-          fuel_type: newTankForm.fuelType,
+          item_id: newTankForm.itemId,
           capacity: Number.parseFloat(newTankForm.capacity),
           current_stock: Number.parseFloat(newTankForm.initialStock || "0"),
           status: "active",
@@ -423,7 +428,7 @@ export default function TankManagement({ branchId }: { branchId: string | null }
       if (response.ok) {
         toast.success(`Tank ${newTankForm.tankName} added successfully`)
         setShowAddTankDialog(false)
-        setNewTankForm({ tankName: "", fuelType: "Petrol", capacity: "", initialStock: "" })
+        setNewTankForm({ tankName: "", itemId: "", capacity: "", initialStock: "" })
         fetchTanks()
       } else {
         console.error("Error adding tank")
@@ -804,21 +809,31 @@ export default function TankManagement({ branchId }: { branchId: string | null }
               />
             </div>
             <div>
-              <Label>Fuel Type</Label>
+              <Label>Item (Fuel Type)</Label>
               <Select
-                value={newTankForm.fuelType}
-                onValueChange={(value) => setNewTankForm({ ...newTankForm, fuelType: value })}
+                value={newTankForm.itemId}
+                onValueChange={(value) => setNewTankForm({ ...newTankForm, itemId: value })}
               >
                 <SelectTrigger className="rounded-xl">
-                  <SelectValue />
+                  <SelectValue placeholder="Select an item" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Petrol">Petrol</SelectItem>
-                  <SelectItem value="Diesel">Diesel</SelectItem>
-                  <SelectItem value="Kerosene">Kerosene</SelectItem>
-                  <SelectItem value="Super">Super</SelectItem>
+                  {items.length === 0 ? (
+                    <SelectItem value="" disabled>No items available - assign items to this branch first</SelectItem>
+                  ) : (
+                    items.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.item_name}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
+              {items.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Go to Items List and assign items to this branch first
+                </p>
+              )}
             </div>
             <div>
               <Label>Tank Capacity (Litres)</Label>
