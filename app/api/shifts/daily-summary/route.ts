@@ -93,15 +93,16 @@ export async function GET(request: NextRequest) {
 
       const invoicedSalesQuery = `
         SELECT 
-          nozzle_id,
-          fuel_type,
-          SUM(quantity) as invoiced_quantity,
-          SUM(total_amount) as invoiced_amount
-        FROM sales
-        WHERE shift_id = $1 AND nozzle_id IS NOT NULL
-          AND (source_system IS NULL OR source_system NOT IN ('meter_diff_bulk', 'PTS'))
-          AND is_automated = false
-        GROUP BY nozzle_id, fuel_type
+          s.nozzle_id,
+          COALESCE(i.item_name, s.fuel_type) as fuel_type,
+          SUM(s.quantity) as invoiced_quantity,
+          SUM(s.total_amount) as invoiced_amount
+        FROM sales s
+        LEFT JOIN items i ON s.item_id = i.id
+        WHERE s.shift_id = $1 AND s.nozzle_id IS NOT NULL
+          AND (s.source_system IS NULL OR s.source_system NOT IN ('meter_diff_bulk', 'PTS'))
+          AND s.is_automated = false
+        GROUP BY s.nozzle_id, COALESCE(i.item_name, s.fuel_type)
       `
       const invoicedResult = await pool.query(invoicedSalesQuery, [shift.id])
       const invoicedMap = new Map<string, { quantity: number, amount: number }>()

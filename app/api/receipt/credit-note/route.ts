@@ -22,11 +22,11 @@ export async function POST(request: Request) {
         `SELECT cn.*, b.name as branch_name, b.kra_pin, b.bhf_id, b.address as branch_address,
                 b.phone as branch_phone,
                 s.fuel_type, s.quantity as original_qty, s.unit_price, s.invoice_number as original_invoice,
-                i.item_name, i.item_code
+                COALESCE(i.item_name, s.fuel_type) as item_name, i.item_code
          FROM credit_notes cn
          LEFT JOIN branches b ON cn.branch_id = b.id
          LEFT JOIN sales s ON cn.sale_id = s.id
-         LEFT JOIN items i ON UPPER(s.fuel_type) = UPPER(i.item_name) AND i.branch_id = s.branch_id
+         LEFT JOIN items i ON s.item_id = i.id
          WHERE cn.id = $1`,
         [credit_note_id]
       )

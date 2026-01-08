@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     const saleResult = await client.query(
       `SELECT s.*, i.item_code, i.class_code, i.item_name, i.package_unit, i.quantity_unit, i.tax_type
        FROM sales s
-       LEFT JOIN items i ON i.branch_id = s.branch_id AND UPPER(i.item_name) = UPPER(s.fuel_type)
+       LEFT JOIN items i ON s.item_id = i.id
        WHERE s.id = $1`,
       [sale_id]
     )
@@ -101,17 +101,18 @@ export async function POST(request: NextRequest) {
 
     const insertResult = await client.query(
       `INSERT INTO sales (
-        id, branch_id, nozzle_id, fuel_type, quantity, unit_price, total_amount,
+        id, branch_id, nozzle_id, item_id, fuel_type, quantity, unit_price, total_amount,
         payment_method, customer_name, customer_pin, is_loyalty_sale, 
         meter_reading_after, invoice_number, receipt_number,
         transmission_status, sale_date, is_credit_note, original_sale_id,
         kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv, is_automated, source_system
       ) VALUES (
-        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), $15, $16, $17, $18, $19, $20, $21, $22
+        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), $16, $17, $18, $19, $20, $21, $22, $23
       ) RETURNING *`,
       [
         branch_id,
         originalSale.nozzle_id,
+        originalSale.item_id,
         originalSale.fuel_type,
         -refundQty,
         unitPrice,

@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
       shift_id,
       nozzle_id,
       fuel_type,
+      item_id,
       quantity,
       unit_price,
       total_amount,
@@ -152,16 +153,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get item_id from nozzle if not provided
+    let effectiveItemId = item_id
+    if (!effectiveItemId && nozzle_id) {
+      const nozzleResult = await query(`SELECT item_id FROM nozzles WHERE id = $1`, [nozzle_id])
+      if (nozzleResult.length > 0) {
+        effectiveItemId = nozzleResult[0].item_id
+      }
+    }
+
     const result = await query(
       `INSERT INTO sales (
-        branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
+        branch_id, shift_id, nozzle_id, item_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, vehicle_number, customer_pin,
         invoice_number, meter_reading_after, transmission_status, receipt_number,
         is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, staff_id, sale_date, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW(), NOW())
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, NOW(), NOW())
       RETURNING *`,
       [
-        branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price,
+        branch_id, shift_id, nozzle_id, effectiveItemId, fuel_type, quantity, unit_price,
         total_amount, payment_method, customer_name, vehicle_number, customer_pin,
         invoice_number, meter_reading_after, transmission_status || 'pending', receipt_number,
         is_loyalty_sale || false, loyalty_customer_name, loyalty_customer_pin, staff_id || null
@@ -173,10 +183,32 @@ export async function POST(request: NextRequest) {
     let tankUpdate = null
 
     if (quantity && quantity > 0) {
-      const tankResult = await query(
-        `SELECT * FROM tanks WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' ORDER BY current_stock DESC LIMIT 1`,
-        [branch_id, `%${fuel_type}%`]
-      )
+      // Find tank by item_id first, fallback to fuel_type name match
+      let tankResult = effectiveItemId 
+        ? await query(
+            `SELECT * FROM tanks WHERE branch_id = $1 AND item_id = $2 AND status = 'active' ORDER BY current_stock DESC LIMIT 1`,
+            [branch_id, effectiveItemId]
+          )
+        : []
+      
+      // Fallback 1: match by item name via JOIN (for tanks with item_id set)
+      if (tankResult.length === 0) {
+        tankResult = await query(
+          `SELECT t.* FROM tanks t 
+           JOIN items i ON t.item_id = i.id
+           WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active' 
+           ORDER BY t.current_stock DESC LIMIT 1`,
+          [branch_id, fuel_type]
+        )
+      }
+      
+      // Fallback 2: legacy tanks without item_id - match by fuel_type column (backward compatibility)
+      if (tankResult.length === 0) {
+        tankResult = await query(
+          `SELECT * FROM tanks WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' ORDER BY current_stock DESC LIMIT 1`,
+          [branch_id, `%${fuel_type}%`]
+        )
+      }
 
       if (tankResult.length > 0) {
         const tank = tankResult[0]
