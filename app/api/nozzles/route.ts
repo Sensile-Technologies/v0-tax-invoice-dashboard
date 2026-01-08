@@ -20,8 +20,8 @@ export async function GET(request: NextRequest) {
       query = `
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
                n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
-               d.dispenser_number, COALESCE(i.item_name, n.fuel_type, 'Unknown') as item_name, 
-               COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type
+               d.dispenser_number, COALESCE(i.item_name, 'Unknown') as item_name, 
+               COALESCE(i.item_name, 'Unknown') as fuel_type
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
         LEFT JOIN items i ON n.item_id = i.id
@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
       query = `
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
                n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
-               d.dispenser_number, COALESCE(i.item_name, n.fuel_type, 'Unknown') as item_name, 
-               COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type
+               d.dispenser_number, COALESCE(i.item_name, 'Unknown') as item_name, 
+               COALESCE(i.item_name, 'Unknown') as fuel_type
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
         LEFT JOIN items i ON n.item_id = i.id

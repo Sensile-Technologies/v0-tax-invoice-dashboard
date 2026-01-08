@@ -275,44 +275,13 @@ function NozzleSalesReportContent() {
                 </div>
               </div>
 
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-lg">Report Filters</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-4 items-end">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">View By</label>
-                      <Select value={viewMode} onValueChange={(v: "shift" | "daily") => setViewMode(v)}>
-                        <SelectTrigger className="w-40 rounded-xl">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="shift">By Shift</SelectItem>
-                          <SelectItem value="daily">By Date</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {viewMode === "shift" ? (
-                      <div className="space-y-2 flex-1 min-w-[250px]">
-                        <label className="text-sm font-medium text-slate-700">Select Shift</label>
-                        <Select value={selectedShiftId} onValueChange={setSelectedShiftId}>
-                          <SelectTrigger className="rounded-xl">
-                            <SelectValue placeholder={shiftsLoading ? "Loading shifts..." : "Select a shift"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {shifts.map((shift) => (
-                              <SelectItem key={shift.id} value={shift.id}>
-                                {formatDateTime(shift.start_time)} - {formatDateTime(shift.end_time)}
-                                {shift.cashier_name && ` (${shift.cashier_name})`}
-                                {shift.status === "active" && " [Active]"}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    ) : (
+              {!urlShiftId && (
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Report Filters</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-wrap gap-4 items-end">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-700">Select Date</label>
                         <div className="flex items-center gap-2">
@@ -325,15 +294,15 @@ function NozzleSalesReportContent() {
                           />
                         </div>
                       </div>
-                    )}
 
-                    <Button onClick={fetchNozzleReport} disabled={loading || (viewMode === "shift" && !selectedShiftId)}>
-                      {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-                      Load Report
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                      <Button onClick={() => { setViewMode("daily"); fetchNozzleReport(); }} disabled={loading}>
+                        {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                        Load Report
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {reportData?.shifts && reportData.shifts.length > 0 && viewMode === "daily" && (
                 <Card className="rounded-2xl">
@@ -473,16 +442,8 @@ function NozzleSalesReportContent() {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                       <Fuel className="h-12 w-12 mb-4 text-slate-300" />
-                      <p className="text-lg font-medium">
-                        {viewMode === "shift" && !selectedShiftId 
-                          ? "Select a shift to view nozzle report" 
-                          : "No nozzle readings found"}
-                      </p>
-                      <p className="text-sm">
-                        {viewMode === "shift" && !selectedShiftId 
-                          ? "Choose a shift from the dropdown above" 
-                          : "This shift/date may not have recorded nozzle readings yet"}
-                      </p>
+                      <p className="text-lg font-medium">No nozzle readings found</p>
+                      <p className="text-sm">This shift/date may not have recorded nozzle readings yet</p>
                     </div>
                   )}
                 </CardContent>

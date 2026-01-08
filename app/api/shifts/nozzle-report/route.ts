@@ -85,7 +85,7 @@ async function getShiftNozzleReport(shiftId: string, vendorId: string | null) {
       sr.opening_reading,
       sr.closing_reading,
       n.nozzle_number,
-      COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type,
+      COALESCE(i.item_name, 'Unknown') as fuel_type,
       'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
     FROM shift_readings sr
     JOIN nozzles n ON sr.nozzle_id = n.id
@@ -181,7 +181,7 @@ async function getDailyNozzleReport(branchId: string, date: string, vendorId: st
 
   if (shiftIds.length === 0) {
     const nozzlesQuery = `
-      SELECT n.id, n.nozzle_number, COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type, n.initial_meter_reading,
+      SELECT n.id, n.nozzle_number, COALESCE(i.item_name, 'Unknown') as fuel_type, n.initial_meter_reading,
         'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
       FROM nozzles n
       LEFT JOIN dispensers d ON n.dispenser_id = d.id
@@ -219,7 +219,7 @@ async function getDailyNozzleReport(branchId: string, date: string, vendorId: st
     SELECT 
       sr.nozzle_id,
       n.nozzle_number,
-      COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type,
+      COALESCE(i.item_name, 'Unknown') as fuel_type,
       'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name,
       MIN(sr.opening_reading) as day_opening,
       MAX(sr.closing_reading) as day_closing
@@ -228,7 +228,7 @@ async function getDailyNozzleReport(branchId: string, date: string, vendorId: st
     LEFT JOIN items i ON n.item_id = i.id
     LEFT JOIN dispensers d ON n.dispenser_id = d.id
     WHERE sr.shift_id = ANY($1) AND sr.reading_type = 'nozzle'
-    GROUP BY sr.nozzle_id, n.nozzle_number, COALESCE(i.item_name, n.fuel_type, 'Unknown'), d.dispenser_number
+    GROUP BY sr.nozzle_id, n.nozzle_number, COALESCE(i.item_name, 'Unknown'), d.dispenser_number
   `
   const readingsResult = await pool.query(nozzleReadingsQuery, [shiftIds])
 
