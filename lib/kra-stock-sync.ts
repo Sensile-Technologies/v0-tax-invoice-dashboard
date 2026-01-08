@@ -240,7 +240,7 @@ async function callSaveStockMaster(
   const tankResult = await query(`
     SELECT t.current_stock 
     FROM tanks t
-    JOIN items i ON UPPER(t.fuel_type) = UPPER(i.item_name) AND i.branch_id = t.branch_id
+    JOIN items i ON t.item_id = i.id
     WHERE i.item_code = $1 AND t.branch_id = $2
     LIMIT 1
   `, [itemCode, branchId])
