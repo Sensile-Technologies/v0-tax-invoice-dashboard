@@ -191,8 +191,8 @@ export async function POST(request: NextRequest) {
           )
         : []
       
-      // Fallback 1: match by item name via JOIN (for tanks with item_id set)
-      if (tankResult.length === 0) {
+      // Fallback: match by item name via JOIN (for tanks with item_id set)
+      if (tankResult.length === 0 && fuel_type) {
         tankResult = await query(
           `SELECT t.* FROM tanks t 
            JOIN items i ON t.item_id = i.id
@@ -202,103 +202,100 @@ export async function POST(request: NextRequest) {
         )
       }
       
-      // Fallback 2: legacy tanks without item_id - match by fuel_type column (backward compatibility)
+      // No tank found - return error instead of silent failure
       if (tankResult.length === 0) {
-        tankResult = await query(
-          `SELECT * FROM tanks WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' ORDER BY current_stock DESC LIMIT 1`,
-          [branch_id, `%${fuel_type}%`]
-        )
+        return NextResponse.json({ 
+          error: `No tank found for item. Please ensure tanks have item_id configured in Inventory Management.` 
+        }, { status: 400 })
       }
 
-      if (tankResult.length > 0) {
-        const tank = tankResult[0]
+      const tank = tankResult[0]
+      
+      if (!tank.kra_item_cd) {
+        return NextResponse.json(
+          { error: `Tank "${tank.tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
+          { status: 400 }
+        )
+      }
+      const previousStock = tank.current_stock || 0
+      const newStock = Math.max(0, previousStock - quantity)
+
+      if (deduct_from_tank) {
+        await query(
+          `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
+          [newStock, tank.id]
+        )
+
+        tankUpdate = {
+          tankId: tank.id,
+          tankName: tank.tank_name,
+          previousStock,
+          newStock,
+          quantityDeducted: quantity
+        }
+      }
+
+      if (sync_to_kra) {
+        console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`)
         
-        if (!tank.kra_item_cd) {
-          return NextResponse.json(
-            { error: `Tank "${tank.tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
-            { status: 400 }
-          )
-        }
-        const previousStock = tank.current_stock || 0
-        const newStock = Math.max(0, previousStock - quantity)
+        // Use loyalty customer PIN for KRA when it's a loyalty sale
+        const effectiveCustomerPin = (is_loyalty_sale && loyalty_customer_pin) 
+          ? loyalty_customer_pin 
+          : (customer_pin || '')
+        const effectiveCustomerName = (is_loyalty_sale && loyalty_customer_name)
+          ? loyalty_customer_name
+          : (customer_name || 'Walk-in Customer')
+        
+        kraResult = await callKraSaveSales({
+          branch_id,
+          invoice_number: invoice_number || `INV-${Date.now().toString(36).toUpperCase()}`,
+          receipt_number: receipt_number || `RCP-${Date.now().toString(36).toUpperCase()}`,
+          fuel_type,
+          quantity,
+          unit_price: unit_price || 0,
+          total_amount: total_amount || (quantity * (unit_price || 0)),
+          payment_method: payment_method || 'cash',
+          customer_name: effectiveCustomerName,
+          customer_pin: effectiveCustomerPin,
+          sale_date: new Date().toISOString(),
+          tank_id: tank.id
+        })
 
-        if (deduct_from_tank) {
+        await query(
+          `UPDATE tanks SET kra_sync_status = $1 WHERE id = $2`,
+          [kraResult.success ? 'synced' : 'failed', tank.id]
+        )
+
+        if (kraResult.success && kraResult.kraResponse?.data) {
+          const kraData = kraResult.kraResponse.data
           await query(
-            `UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`,
-            [newStock, tank.id]
+            `UPDATE sales SET 
+              kra_status = 'success',
+              kra_rcpt_sign = $1,
+              kra_scu_id = $2,
+              kra_cu_inv = $3,
+              kra_internal_data = $4,
+              transmission_status = 'transmitted'
+            WHERE id = $5`,
+            [
+              kraData.rcptSign || '',
+              kraData.sdcId || '',
+              `${kraData.sdcId}/${kraData.rcptNo}`,
+              kraData.intrlData || '',
+              sale.id
+            ]
           )
-
-          tankUpdate = {
-            tankId: tank.id,
-            tankName: tank.tank_name,
-            previousStock,
-            newStock,
-            quantityDeducted: quantity
-          }
-        }
-
-        if (sync_to_kra) {
-          console.log(`[Sales API] Syncing sale of ${quantity} ${fuel_type} to KRA for branch ${branch_id}`)
-          
-          // Use loyalty customer PIN for KRA when it's a loyalty sale
-          const effectiveCustomerPin = (is_loyalty_sale && loyalty_customer_pin) 
-            ? loyalty_customer_pin 
-            : (customer_pin || '')
-          const effectiveCustomerName = (is_loyalty_sale && loyalty_customer_name)
-            ? loyalty_customer_name
-            : (customer_name || 'Walk-in Customer')
-          
-          kraResult = await callKraSaveSales({
-            branch_id,
-            invoice_number: invoice_number || `INV-${Date.now().toString(36).toUpperCase()}`,
-            receipt_number: receipt_number || `RCP-${Date.now().toString(36).toUpperCase()}`,
-            fuel_type,
-            quantity,
-            unit_price: unit_price || 0,
-            total_amount: total_amount || (quantity * (unit_price || 0)),
-            payment_method: payment_method || 'cash',
-            customer_name: effectiveCustomerName,
-            customer_pin: effectiveCustomerPin,
-            sale_date: new Date().toISOString(),
-            tank_id: tank.id
-          })
-
+          sale.kra_status = 'success'
+          sale.kra_rcpt_sign = kraData.rcptSign
+          sale.kra_scu_id = kraData.sdcId
+          sale.kra_cu_inv = `${kraData.sdcId}/${kraData.rcptNo}`
+          sale.kra_internal_data = kraData.intrlData
+        } else if (!kraResult.success) {
           await query(
-            `UPDATE tanks SET kra_sync_status = $1 WHERE id = $2`,
-            [kraResult.success ? 'synced' : 'failed', tank.id]
+            `UPDATE sales SET kra_status = 'failed', kra_error = $1 WHERE id = $2`,
+            [kraResult.error || 'Unknown error', sale.id]
           )
-
-          if (kraResult.success && kraResult.kraResponse?.data) {
-            const kraData = kraResult.kraResponse.data
-            await query(
-              `UPDATE sales SET 
-                kra_status = 'success',
-                kra_rcpt_sign = $1,
-                kra_scu_id = $2,
-                kra_cu_inv = $3,
-                kra_internal_data = $4,
-                transmission_status = 'transmitted'
-              WHERE id = $5`,
-              [
-                kraData.rcptSign || '',
-                kraData.sdcId || '',
-                `${kraData.sdcId}/${kraData.rcptNo}`,
-                kraData.intrlData || '',
-                sale.id
-              ]
-            )
-            sale.kra_status = 'success'
-            sale.kra_rcpt_sign = kraData.rcptSign
-            sale.kra_scu_id = kraData.sdcId
-            sale.kra_cu_inv = `${kraData.sdcId}/${kraData.rcptNo}`
-            sale.kra_internal_data = kraData.intrlData
-          } else if (!kraResult.success) {
-            await query(
-              `UPDATE sales SET kra_status = 'failed', kra_error = $1 WHERE id = $2`,
-              [kraResult.error || 'Unknown error', sale.id]
-            )
-            sale.kra_status = 'failed'
-          }
+          sale.kra_status = 'failed'
         }
       }
     }

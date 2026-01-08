@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         `SELECT s.*, b.name as branch_name, b.kra_pin, b.bhf_id, b.address as branch_address,
                 b.phone as branch_phone,
                 n.nozzle_number, d.dispenser_number,
-                COALESCE(i.item_name, s.fuel_type) as item_name, i.item_code,
+                i.item_name, i.item_code,
                 st.full_name as served_by_name
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
@@ -39,6 +39,12 @@ export async function POST(request: Request) {
       }
 
       const sale = saleResult.rows[0]
+      
+      if (!sale.item_id || !sale.item_name) {
+        return NextResponse.json({ 
+          error: "Sale is missing item_id. Please update the sale record with a valid item reference before generating receipt." 
+        }, { status: 400 })
+      }
       
       const isCreditNote = sale.sale_type === 'credit_note' || 
                            sale.invoice_number?.includes('-CR') || 

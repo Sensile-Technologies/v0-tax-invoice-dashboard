@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         `SELECT cn.*, b.name as branch_name, b.kra_pin, b.bhf_id, b.address as branch_address,
                 b.phone as branch_phone,
                 s.fuel_type, s.quantity as original_qty, s.unit_price, s.invoice_number as original_invoice,
-                COALESCE(i.item_name, s.fuel_type) as item_name, i.item_code
+                s.item_id, i.item_name, i.item_code
          FROM credit_notes cn
          LEFT JOIN branches b ON cn.branch_id = b.id
          LEFT JOIN sales s ON cn.sale_id = s.id
@@ -36,6 +36,12 @@ export async function POST(request: Request) {
       }
 
       const cn = creditNoteResult.rows[0]
+      
+      if (!cn.item_id || !cn.item_name) {
+        return NextResponse.json({ 
+          error: "Original sale is missing item_id. Please update the sale record with a valid item reference before generating credit note receipt." 
+        }, { status: 400 })
+      }
       
       const pageWidth = 80
       const doc = new jsPDF({ unit: 'mm', format: [pageWidth, 280] })
