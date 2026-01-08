@@ -96,7 +96,10 @@ async function POST(request) {
         let fuelTypes = [];
         let itemId = null;
         if (tankIdsArray.length > 0) {
-            const tanksResult = await pool.query('SELECT id, fuel_type, item_id FROM tanks WHERE id = ANY($1::uuid[])', [
+            const tanksResult = await pool.query(`SELECT t.id, i.item_name as fuel_type, t.item_id 
+         FROM tanks t
+         JOIN items i ON t.item_id = i.id
+         WHERE t.id = ANY($1::uuid[])`, [
                 tankIdsArray
             ]);
             fuelTypes = [
@@ -136,28 +139,30 @@ async function POST(request) {
             const existingNozzleNumbers = existingNozzlesResult.rows.map((n)=>n.nozzle_number);
             // Find the next available nozzle number
             let nextNozzleNumber = existingNozzleNumbers.length > 0 ? Math.max(...existingNozzleNumbers) + 1 : 1;
-            const tanksResultForNozzles = await pool.query('SELECT id, fuel_type, item_id, tank_name FROM tanks WHERE id = ANY($1::uuid[])', [
+            const tanksResultForNozzles = await pool.query(`SELECT t.id, i.item_name as fuel_type, t.item_id, t.tank_name 
+         FROM tanks t
+         JOIN items i ON t.item_id = i.id
+         WHERE t.id = ANY($1::uuid[])`, [
                 tankIdsArray
             ]);
             for(let i = 0; i < tanksResultForNozzles.rows.length; i++){
                 const tank = tanksResultForNozzles.rows[i];
                 if (!existingTankIds.includes(tank.id)) {
                     const nozzleNumber = nextNozzleNumber++;
-                    const nozzleResult = await pool.query(`INSERT INTO nozzles (branch_id, dispenser_id, tank_id, nozzle_number, fuel_type, item_id, status, initial_meter_reading)
-             VALUES ($1, $2, $3, $4, $5, $6, 'active', 0)
-             RETURNING id, nozzle_number, fuel_type`, [
+                    const nozzleResult = await pool.query(`INSERT INTO nozzles (branch_id, dispenser_id, tank_id, nozzle_number, item_id, status, initial_meter_reading)
+             VALUES ($1, $2, $3, $4, $5, 'active', 0)
+             RETURNING id, nozzle_number`, [
                         branch_id,
                         dispenser_id,
                         tank.id,
                         nozzleNumber,
-                        tank.fuel_type,
                         tank.item_id
                     ]);
                     if (nozzleResult.rows.length > 0) {
                         createdNozzles.push({
                             id: nozzleResult.rows[0].id,
                             nozzle_number: nozzleResult.rows[0].nozzle_number,
-                            fuel_type: nozzleResult.rows[0].fuel_type,
+                            fuel_type: tank.fuel_type,
                             tank_name: tank.tank_name,
                             dispenser_number: dispenserNumber
                         });
