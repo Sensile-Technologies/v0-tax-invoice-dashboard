@@ -107,14 +107,15 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
     let totalVolume = 0;
     let totalAmount = 0;
     let invoiceIndex = 1;
+    const salesForKra = [];
     for (const reading of nozzleReadings){
         const openingReading = parseFloat(String(reading.opening_reading)) || 0;
         const closingReading = parseFloat(String(reading.closing_reading)) || 0;
         const meterDifference = closingReading - openingReading;
         if (meterDifference <= 0) continue;
-        const nozzleInfo = await client.query(`SELECT n.fuel_type, n.item_id, COALESCE(bi.sale_price, i.sale_price, 0) as sale_price
+        const nozzleInfo = await client.query(`SELECT i.item_name as fuel_type, n.item_id, COALESCE(bi.sale_price, 0) as sale_price
        FROM nozzles n
-       LEFT JOIN items i ON n.item_id = i.id
+       JOIN items i ON n.item_id = i.id
        LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $1
        WHERE n.id = $2`, [
             branchId,
@@ -127,14 +128,30 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
             console.log(`[BULK SALES] Skipping nozzle ${reading.nozzle_id} - no price configured`);
             continue;
         }
-        const nozzleTotalAmount = meterDifference * unitPrice;
+        // Get invoiced quantity: sum of sales already created on APK for this nozzle during this shift
+        const invoicedResult = await client.query(`SELECT COALESCE(SUM(quantity), 0) as invoiced_quantity
+       FROM sales
+       WHERE shift_id = $1 AND nozzle_id = $2 AND is_automated = false`, [
+            shiftId,
+            reading.nozzle_id
+        ]);
+        const invoicedQuantity = parseFloat(invoicedResult.rows[0]?.invoiced_quantity) || 0;
+        // Bulk volume = meter difference - invoiced quantity (what was already sold via APK)
+        const bulkVolume = meterDifference - invoicedQuantity;
+        if (bulkVolume <= 0) {
+            console.log(`[BULK SALES] Nozzle ${reading.nozzle_id}: meter diff ${meterDifference}L, invoiced ${invoicedQuantity}L, no bulk needed`);
+            continue;
+        }
+        console.log(`[BULK SALES] Nozzle ${reading.nozzle_id}: meter diff ${meterDifference}L - invoiced ${invoicedQuantity}L = bulk ${bulkVolume}L`);
+        // Bulk sale = bulk volume × price per litre
+        const nozzleTotalAmount = bulkVolume * unitPrice;
         const amountDenominations = splitIntoAmountDenominations(Math.floor(nozzleTotalAmount));
         for (const invoiceAmount of amountDenominations){
             const quantity = invoiceAmount / unitPrice;
             const timestamp = Date.now().toString(36).toUpperCase();
             const invoiceNumber = `BLK-${branchCode}-${timestamp}-${String(invoiceIndex).padStart(4, '0')}`;
             const receiptNumber = `RCP-${timestamp}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-            await client.query(`INSERT INTO sales (
+            const saleResult = await client.query(`INSERT INTO sales (
           branch_id, shift_id, staff_id, nozzle_id,
           invoice_number, receipt_number, sale_date,
           fuel_type, quantity, unit_price, total_amount,
@@ -145,7 +162,7 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
           $7, $8, $9, $10,
           'cash', true, 'meter_diff_bulk',
           'pending', NOW()
-        )`, [
+        ) RETURNING id`, [
                 branchId,
                 shiftId,
                 staffId,
@@ -157,6 +174,16 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
                 unitPrice,
                 invoiceAmount
             ]);
+            salesForKra.push({
+                id: saleResult.rows[0]?.id,
+                branch_id: branchId,
+                invoice_number: invoiceNumber,
+                receipt_number: receiptNumber,
+                fuel_type,
+                quantity: parseFloat(quantity.toFixed(2)),
+                unit_price: unitPrice,
+                total_amount: invoiceAmount
+            });
             invoicesCreated++;
             totalVolume += quantity;
             totalAmount += invoiceAmount;
@@ -167,13 +194,14 @@ async function generateBulkSalesFromMeterDiff(client, shiftId, branchId, staffId
     return {
         invoicesCreated,
         totalVolume,
-        totalAmount
+        totalAmount,
+        salesForKra
     };
 }
 async function POST(request) {
     try {
         const body = await request.json();
-        const { branch_id, start_time, opening_cash, notes } = body;
+        const { branch_id, start_time, opening_cash, notes, staff_id, user_id } = body;
         if (!branch_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Branch ID is required"
@@ -191,10 +219,20 @@ async function POST(request) {
                 status: 400
             });
         }
-        const result = await pool.query(`INSERT INTO shifts (branch_id, start_time, status, opening_cash, notes, created_at)
-       VALUES ($1, $2, 'active', $3, $4, NOW())
+        let resolvedStaffId = staff_id;
+        if (!resolvedStaffId && user_id) {
+            const staffResult = await pool.query(`SELECT id FROM staff WHERE user_id = $1`, [
+                user_id
+            ]);
+            if (staffResult.rows.length > 0) {
+                resolvedStaffId = staffResult.rows[0].id;
+            }
+        }
+        const result = await pool.query(`INSERT INTO shifts (branch_id, staff_id, start_time, status, opening_cash, notes, created_at)
+       VALUES ($1, $2, $3, 'active', $4, $5, NOW())
        RETURNING *`, [
             branch_id,
+            resolvedStaffId || null,
             start_time || new Date().toISOString(),
             opening_cash || 0,
             notes || null
@@ -258,6 +296,33 @@ async function PATCH(request) {
             });
         }
         await client.query('BEGIN');
+        // Check if this is an active shift being ended
+        const shiftStatusCheck = await client.query(`SELECT status FROM shifts WHERE id = $1`, [
+            id
+        ]);
+        if (shiftStatusCheck.rows.length === 0) {
+            await client.query('ROLLBACK');
+            client.release();
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Shift not found"
+            }, {
+                status: 404
+            });
+        }
+        const currentStatus = shiftStatusCheck.rows[0].status;
+        const targetStatus = status || 'completed';
+        // Require nozzle readings when ending an active shift (transitioning to completed)
+        if (currentStatus === 'active' && targetStatus === 'completed') {
+            if (!nozzle_readings || !Array.isArray(nozzle_readings) || nozzle_readings.length === 0) {
+                await client.query('ROLLBACK');
+                client.release();
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: "Nozzle meter readings are required to end a shift. Please enter closing readings for all nozzles."
+                }, {
+                    status: 400
+                });
+            }
+        }
         const shiftCheck = await client.query(`SELECT s.*, b.name as branch_name FROM shifts s
        JOIN branches b ON s.branch_id = b.id
        WHERE s.id = $1`, [
@@ -356,7 +421,8 @@ async function PATCH(request) {
         let bulkSalesResult = {
             invoicesCreated: 0,
             totalVolume: 0,
-            totalAmount: 0
+            totalAmount: 0,
+            salesForKra: []
         };
         if (savedNozzleReadings.length > 0) {
             bulkSalesResult = await generateBulkSalesFromMeterDiff(client, id, branchId, staffId, branchName, savedNozzleReadings);
@@ -397,6 +463,19 @@ async function PATCH(request) {
         ]);
         const newShift = newShiftResult.rows[0];
         await client.query('COMMIT');
+        // DISABLED: Bulk sales KRA submission
+        // Bulk sales are stored locally but not sent to KRA - batch update for performance
+        if (bulkSalesResult.salesForKra.length > 0) {
+            console.log(`[BULK SALES] Created ${bulkSalesResult.salesForKra.length} invoices locally (KRA submission disabled)`);
+            const saleIds = bulkSalesResult.salesForKra.map((s)=>s.id);
+            await pool.query(`UPDATE sales SET 
+          kra_status = 'pending',
+          transmission_status = 'not_sent',
+          updated_at = NOW()
+        WHERE id = ANY($1)`, [
+                saleIds
+            ]);
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: shift,

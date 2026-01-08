@@ -40,11 +40,8 @@ export async function POST(request: Request) {
 
       const sale = saleResult.rows[0]
       
-      if (!sale.item_id || !sale.item_name) {
-        return NextResponse.json({ 
-          error: "Sale is missing item_id. Please update the sale record with a valid item reference before generating receipt." 
-        }, { status: 400 })
-      }
+      const itemName = sale.item_name || sale.fuel_type || 'Fuel'
+      const itemCode = sale.item_code || sale.fuel_type || 'FUEL'
       
       const isCreditNote = sale.sale_type === 'credit_note' || 
                            sale.invoice_number?.includes('-CR') || 
@@ -141,10 +138,10 @@ export async function POST(request: Request) {
       const vatAmount = totalAmount - taxableAmount
 
       doc.text(`Item Code:`, leftMargin, y)
-      doc.text(sale.item_code || sale.fuel_type || "N/A", leftMargin + 22, y)
+      doc.text(itemCode, leftMargin + 22, y)
       y += 3
       doc.text(`Description:`, leftMargin, y)
-      doc.text(sale.item_name || sale.fuel_type || "Fuel", leftMargin + 22, y)
+      doc.text(itemName, leftMargin + 22, y)
       y += 3
       doc.text(`Dispenser:`, leftMargin, y)
       doc.text(`D${sale.dispenser_number || '0'}N${sale.nozzle_number || '1'}`, leftMargin + 22, y)

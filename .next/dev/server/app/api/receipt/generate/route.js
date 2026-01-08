@@ -1,0 +1,12 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/receipt/generate/route.js")
+R.c("server/chunks/node_modules_next_a79d705c._.js")
+R.c("server/chunks/node_modules_html2canvas_dist_html2canvas_esm_178f5bb6.js")
+R.c("server/chunks/node_modules_core-js_39ccef3f._.js")
+R.c("server/chunks/node_modules_canvg_lib_index_cjs_84557b9a._.js")
+R.c("server/chunks/node_modules_pako_dist_pako_esm_mjs_90207aba._.js")
+R.c("server/chunks/node_modules_jspdf_dist_jspdf_node_min_2f7aa471.js")
+R.c("server/chunks/node_modules_8762b739._.js")
+R.c("server/chunks/[root-of-the-server]__cace8927._.js")
+R.c("server/chunks/_next-internal_server_app_api_receipt_generate_route_actions_9ac0260b.js")
+R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/receipt/generate/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/receipt/generate/route.ts [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports
