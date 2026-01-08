@@ -3613,7 +3613,7 @@ function NozzleSalesReportContent() {
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                             className: "text-lg font-medium",
-                                                            children: viewMode === "shift" && !selectedShiftId ? "Select a shift to view nozzle report" : "No nozzle readings found"
+                                                            children: "No nozzle readings found"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/nozzle-sales/page.tsx",
                                                             lineNumber: 445,
@@ -3621,10 +3621,10 @@ function NozzleSalesReportContent() {
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                             className: "text-sm",
-                                                            children: viewMode === "shift" && !selectedShiftId ? "Choose a shift from the dropdown above" : "This shift/date may not have recorded nozzle readings yet"
+                                                            children: "This shift/date may not have recorded nozzle readings yet"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/nozzle-sales/page.tsx",
-                                                            lineNumber: 450,
+                                                            lineNumber: 446,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
@@ -3653,13 +3653,13 @@ function NozzleSalesReportContent() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/nozzle-sales/page.tsx",
-                                                lineNumber: 461,
+                                                lineNumber: 453,
                                                 columnNumber: 28
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/nozzle-sales/page.tsx",
-                                        lineNumber: 460,
+                                        lineNumber: 452,
                                         columnNumber: 15
                                     }, this)
                                 ]
@@ -3699,22 +3699,22 @@ function NozzleSalesReportPage() {
                 className: "h-8 w-8 animate-spin text-slate-400"
             }, void 0, false, {
                 fileName: "[project]/app/reports/nozzle-sales/page.tsx",
-                lineNumber: 475,
+                lineNumber: 467,
                 columnNumber: 9
             }, void 0)
         }, void 0, false, {
             fileName: "[project]/app/reports/nozzle-sales/page.tsx",
-            lineNumber: 474,
+            lineNumber: 466,
             columnNumber: 7
         }, void 0),
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(NozzleSalesReportContent, {}, void 0, false, {
             fileName: "[project]/app/reports/nozzle-sales/page.tsx",
-            lineNumber: 478,
+            lineNumber: 470,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/reports/nozzle-sales/page.tsx",
-        lineNumber: 473,
+        lineNumber: 465,
         columnNumber: 5
     }, this);
 }
