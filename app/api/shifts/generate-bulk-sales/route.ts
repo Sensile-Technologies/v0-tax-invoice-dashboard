@@ -191,17 +191,20 @@ export async function POST(request: NextRequest) {
     await client.query('COMMIT')
 
     // DISABLED: Bulk sales KRA submission
-    // Bulk sales are stored locally but not sent to KRA
+    // Bulk sales are stored locally but not sent to KRA - batch update for performance
     console.log(`[BULK SALES] Created ${salesCreated.length} invoices locally (KRA submission disabled)`)
-    for (const sale of salesCreated) {
+    const saleIds = salesCreated.map(s => s.id)
+    if (saleIds.length > 0) {
       await pool.query(
         `UPDATE sales SET 
           kra_status = 'pending',
           transmission_status = 'not_sent',
           updated_at = NOW()
-        WHERE id = $1`,
-        [sale.id]
+        WHERE id = ANY($1)`,
+        [saleIds]
       )
+    }
+    for (const sale of salesCreated) {
       sale.kra_status = 'pending'
       sale.transmission_status = 'not_sent'
     }
