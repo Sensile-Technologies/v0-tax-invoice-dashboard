@@ -90,20 +90,22 @@ async function GET(request) {
             query = `
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
                n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
-               d.dispenser_number, i.item_name, i.item_name as fuel_type
+               d.dispenser_number, COALESCE(i.item_name, n.fuel_type, 'Unknown') as item_name, 
+               COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
-        JOIN items i ON n.item_id = i.id
-        INNER JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $${branchIdx} AND bi.is_available = true
+        LEFT JOIN items i ON n.item_id = i.id
+        LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $${branchIdx}
         WHERE n.branch_id = $${branchIdx}`;
         } else {
             query = `
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
                n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
-               d.dispenser_number, i.item_name, i.item_name as fuel_type
+               d.dispenser_number, COALESCE(i.item_name, n.fuel_type, 'Unknown') as item_name, 
+               COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
-        JOIN items i ON n.item_id = i.id
+        LEFT JOIN items i ON n.item_id = i.id
         WHERE 1=1`;
         }
         if (status) {

@@ -157,11 +157,11 @@ async function getShiftNozzleReport(shiftId, vendorId) {
       sr.opening_reading,
       sr.closing_reading,
       n.nozzle_number,
-      i.item_name as fuel_type,
+      COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type,
       'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
     FROM shift_readings sr
     JOIN nozzles n ON sr.nozzle_id = n.id
-    JOIN items i ON n.item_id = i.id
+    LEFT JOIN items i ON n.item_id = i.id
     LEFT JOIN dispensers d ON n.dispenser_id = d.id
     WHERE sr.shift_id = $1 AND sr.reading_type = 'nozzle'
   `;
@@ -259,11 +259,11 @@ async function getDailyNozzleReport(branchId, date, vendorId) {
     const shiftIds = shiftsResult.rows.map((s)=>s.id);
     if (shiftIds.length === 0) {
         const nozzlesQuery = `
-      SELECT n.id, n.nozzle_number, i.item_name as fuel_type, n.initial_meter_reading,
+      SELECT n.id, n.nozzle_number, COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type, n.initial_meter_reading,
         'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name
       FROM nozzles n
       LEFT JOIN dispensers d ON n.dispenser_id = d.id
-      JOIN items i ON n.item_id = i.id
+      LEFT JOIN items i ON n.item_id = i.id
       WHERE n.branch_id = $1 AND n.status = 'active'
       ORDER BY n.nozzle_number
     `;
@@ -300,16 +300,16 @@ async function getDailyNozzleReport(branchId, date, vendorId) {
     SELECT 
       sr.nozzle_id,
       n.nozzle_number,
-      i.item_name as fuel_type,
+      COALESCE(i.item_name, n.fuel_type, 'Unknown') as fuel_type,
       'Dispenser ' || COALESCE(d.dispenser_number::text, '') || ' - Nozzle ' || COALESCE(n.nozzle_number::text, '') as nozzle_name,
       MIN(sr.opening_reading) as day_opening,
       MAX(sr.closing_reading) as day_closing
     FROM shift_readings sr
     JOIN nozzles n ON sr.nozzle_id = n.id
-    JOIN items i ON n.item_id = i.id
+    LEFT JOIN items i ON n.item_id = i.id
     LEFT JOIN dispensers d ON n.dispenser_id = d.id
     WHERE sr.shift_id = ANY($1) AND sr.reading_type = 'nozzle'
-    GROUP BY sr.nozzle_id, n.nozzle_number, i.item_name, d.dispenser_number
+    GROUP BY sr.nozzle_id, n.nozzle_number, COALESCE(i.item_name, n.fuel_type, 'Unknown'), d.dispenser_number
   `;
     const readingsResult = await pool.query(nozzleReadingsQuery, [
         shiftIds
