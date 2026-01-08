@@ -102,16 +102,16 @@ function NozzleSalesReportContent() {
       params.append("branch_id", branchId)
       params.append("limit", "50")
 
-      const response = await fetch(`/api/shifts?${params.toString()}`)
+      const response = await fetch(`/api/shifts/list?${params.toString()}`)
       const result = await response.json()
 
-      if (result.success && result.shifts) {
-        setShifts(result.shifts.map((s: any) => ({
+      if (result.success && result.data) {
+        setShifts(result.data.map((s: any) => ({
           id: s.id,
           start_time: s.start_time,
           end_time: s.end_time,
           status: s.status,
-          cashier_name: s.cashier
+          cashier_name: s.staff_name || s.cashier || 'Unknown'
         })))
       }
     } catch (error) {
