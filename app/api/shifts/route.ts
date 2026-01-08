@@ -437,64 +437,19 @@ export async function PATCH(request: NextRequest) {
 
     await client.query('COMMIT')
 
-    // Submit bulk sales to KRA AFTER the transaction is committed
-    // This ensures database records exist before external API calls
+    // DISABLED: Bulk sales KRA submission
+    // Bulk sales are stored locally but not sent to KRA
     if (bulkSalesResult.salesForKra.length > 0) {
-      console.log(`[BULK SALES] Submitting ${bulkSalesResult.salesForKra.length} sales to KRA...`)
+      console.log(`[BULK SALES] Created ${bulkSalesResult.salesForKra.length} invoices locally (KRA submission disabled)`)
       for (const sale of bulkSalesResult.salesForKra) {
-        try {
-          const kraResult = await callKraSaveSales({
-            branch_id: sale.branch_id,
-            invoice_number: sale.invoice_number,
-            receipt_number: sale.receipt_number,
-            fuel_type: sale.fuel_type,
-            quantity: sale.quantity,
-            unit_price: sale.unit_price,
-            total_amount: sale.total_amount,
-            payment_method: 'cash',
-            customer_name: 'Walk-in Customer',
-            customer_pin: '',
-            sale_date: new Date().toISOString()
-          })
-
-          const kraData = kraResult.kraResponse?.data || {}
-          const kraStatus = kraResult.success ? 'success' : 'failed'
-          const transmissionStatus = kraResult.success ? 'transmitted' : 'failed'
-
-          await pool.query(
-            `UPDATE sales SET 
-              kra_status = $1,
-              kra_rcpt_sign = $2,
-              kra_scu_id = $3,
-              kra_cu_inv = $4,
-              kra_internal_data = $5,
-              transmission_status = $6,
-              updated_at = NOW()
-            WHERE id = $7`,
-            [
-              kraStatus,
-              kraData.rcptSign || null,
-              kraData.sdcId || null,
-              kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
-              kraData.intrlData || null,
-              transmissionStatus,
-              sale.id
-            ]
-          )
-
-          console.log(`[BULK SALES] Invoice ${sale.invoice_number} - KRA ${kraResult.success ? 'SUCCESS' : 'FAILED'}`)
-        } catch (kraError: any) {
-          console.error(`[BULK SALES] KRA submission error for ${sale.invoice_number}:`, kraError.message)
-          await pool.query(
-            `UPDATE sales SET 
-              kra_status = 'failed',
-              kra_error = $1,
-              transmission_status = 'failed',
-              updated_at = NOW()
-            WHERE id = $2`,
-            [kraError.message || 'KRA submission error', sale.id]
-          )
-        }
+        await pool.query(
+          `UPDATE sales SET 
+            kra_status = 'pending',
+            transmission_status = 'not_sent',
+            updated_at = NOW()
+          WHERE id = $1`,
+          [sale.id]
+        )
       }
     }
 
