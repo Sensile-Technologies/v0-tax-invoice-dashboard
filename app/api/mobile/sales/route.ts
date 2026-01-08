@@ -180,15 +180,16 @@ export async function POST(request: Request) {
         }
       }
 
-      // Fallback: find tank by fuel type if not found via nozzle
+      // Fallback: find tank by fuel type via item_id join if not found via nozzle
       if (!tankId) {
         const tankResult = await client.query(
-          `SELECT id, tank_name, current_stock 
-           FROM tanks 
-           WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active'
-           ORDER BY current_stock DESC 
+          `SELECT t.id, t.tank_name, t.current_stock 
+           FROM tanks t
+           JOIN items i ON t.item_id = i.id
+           WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active'
+           ORDER BY t.current_stock DESC 
            LIMIT 1`,
-          [branch_id, `%${fuel_type}%`]
+          [branch_id, fuel_type]
         )
         if (tankResult.rows.length > 0) {
           tankId = tankResult.rows[0].id

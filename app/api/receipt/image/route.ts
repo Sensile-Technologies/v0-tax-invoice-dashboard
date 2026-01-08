@@ -196,8 +196,7 @@ export async function POST(request: Request) {
         `SELECT s.*, b.name as branch_name, b.kra_pin, b.bhf_id, b.address as branch_address,
                 b.phone as branch_phone, b.vendor_id,
                 n.nozzle_number, d.dispenser_number,
-                COALESCE(i.item_name, iv.item_name) as item_name, 
-                COALESCE(i.item_code, iv.item_code) as item_code,
+                i.item_name, i.item_code,
                 st.full_name as cashier_name,
                 c.cust_tin as loyalty_cust_tin,
                 c.cust_nm as loyalty_cust_name
@@ -205,8 +204,7 @@ export async function POST(request: Request) {
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
-         LEFT JOIN items i ON UPPER(s.fuel_type) = UPPER(i.item_name) AND i.branch_id = s.branch_id
-         LEFT JOIN items iv ON UPPER(s.fuel_type) = UPPER(iv.item_name) AND iv.vendor_id = b.vendor_id AND iv.branch_id IS NULL
+         LEFT JOIN items i ON s.item_id = i.id
          LEFT JOIN staff st ON s.staff_id = st.id
          LEFT JOIN customer_branches cb ON cb.branch_id = s.branch_id AND cb.status = 'active'
          LEFT JOIN customers c ON c.id = cb.customer_id 

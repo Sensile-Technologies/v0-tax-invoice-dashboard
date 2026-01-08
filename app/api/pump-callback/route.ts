@@ -152,10 +152,11 @@ async function processAutoKraSale(ptsId: string, data: PumpTransactionPacket['Da
     
     // Find an active tank for this fuel type to use for KRA sync
     const tankResult: any = await query(`
-      SELECT id, tank_name, kra_item_cd FROM tanks 
-      WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' 
-      ORDER BY current_stock DESC LIMIT 1
-    `, [mapping.branch_id, `%${mapping.item_name}%`])
+      SELECT t.id, t.tank_name, t.kra_item_cd FROM tanks t
+      JOIN items i ON t.item_id = i.id
+      WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active' 
+      ORDER BY t.current_stock DESC LIMIT 1
+    `, [mapping.branch_id, mapping.item_name])
     
     const tanks = tankResult.rows || tankResult
     const tank = tanks[0]

@@ -105,14 +105,7 @@ export async function GET(request: NextRequest) {
           s.id as sale_id,
           s.total_amount,
           COALESCE(
-            (SELECT i.tax_type FROM items i 
-             WHERE LOWER(i.item_name) = LOWER(s.fuel_type) 
-             AND i.branch_id = s.branch_id 
-             LIMIT 1),
-            (SELECT i.tax_type FROM items i 
-             WHERE LOWER(i.item_name) = LOWER(s.fuel_type) 
-             AND i.branch_id IS NULL 
-             LIMIT 1),
+            (SELECT i.tax_type FROM items i WHERE i.id = s.item_id LIMIT 1),
             'B'
           ) as tax_type
         FROM sales s

@@ -774,8 +774,9 @@ async function POST(request) {
             });
         }
         const tankResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT current_stock FROM tanks
-      WHERE branch_id = $1 AND (kra_item_cd = $2 OR UPPER(fuel_type) = UPPER($3))
+      SELECT t.current_stock FROM tanks t
+      LEFT JOIN items i ON t.item_id = i.id
+      WHERE t.branch_id = $1 AND (t.kra_item_cd = $2 OR UPPER(i.item_name) = UPPER($3))
       LIMIT 1
     `, [
             branch_id,

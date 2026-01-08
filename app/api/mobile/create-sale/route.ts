@@ -97,10 +97,11 @@ export async function POST(request: Request) {
       }
 
       const tankCheck = await client.query(
-        `SELECT id, tank_name, kra_item_cd FROM tanks 
-         WHERE branch_id = $1 AND fuel_type ILIKE $2 AND status = 'active' 
-         ORDER BY current_stock DESC LIMIT 1`,
-        [branch_id, `%${fuel_type}%`]
+        `SELECT t.id, t.tank_name, t.kra_item_cd FROM tanks t
+         JOIN items i ON t.item_id = i.id
+         WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active' 
+         ORDER BY t.current_stock DESC LIMIT 1`,
+        [branch_id, fuel_type]
       )
 
       if (tankCheck.rows.length > 0 && !tankCheck.rows[0].kra_item_cd) {
