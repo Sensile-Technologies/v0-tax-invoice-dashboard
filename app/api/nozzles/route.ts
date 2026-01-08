@@ -17,13 +17,15 @@ export async function GET(request: NextRequest) {
              d.dispenser_number, i.item_name, i.item_name as fuel_type
       FROM nozzles n
       LEFT JOIN dispensers d ON n.dispenser_id = d.id
-      JOIN items i ON n.item_id = i.id
-      WHERE 1=1`
+      JOIN items i ON n.item_id = i.id`
     const params: any[] = []
 
     if (branchId) {
       params.push(branchId)
-      query += ` AND n.branch_id = $${params.length}`
+      query += ` INNER JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $${params.length}`
+      query += ` WHERE n.branch_id = $${params.length}`
+    } else {
+      query += ` WHERE 1=1`
     }
 
     if (status) {
