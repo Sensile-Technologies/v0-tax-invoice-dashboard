@@ -180,9 +180,9 @@ async function GET(request) {
           bi.is_available,
           bi.kra_status,
           bi.kra_last_synced_at,
-          CASE WHEN bi.id IS NOT NULL THEN true ELSE false END as is_assigned
+          true as is_assigned
         FROM items i
-        LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+        INNER JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
         WHERE i.status = 'active' 
           AND (
             (i.vendor_id = $2 AND i.branch_id IS NULL)
