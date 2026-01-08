@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     const nozzleId = searchParams.get('nozzle_id')
     const paymentMethod = searchParams.get('payment_method')
     const documentType = searchParams.get('document_type')
+    const isAutomated = searchParams.get('is_automated')
 
     if (!branchId) {
       return NextResponse.json({ error: "Branch ID required" }, { status: 400 })
@@ -65,6 +66,13 @@ export async function GET(request: NextRequest) {
       whereClause += ` AND (is_credit_note IS NULL OR is_credit_note = false)`
     } else if (documentType === 'credit_notes') {
       whereClause += ` AND is_credit_note = true`
+    }
+
+    // Filter by is_automated (true = bulk/automated sales only, false = manual APK/web sales only)
+    if (isAutomated === 'true') {
+      whereClause += ` AND is_automated = true`
+    } else if (isAutomated === 'false') {
+      whereClause += ` AND (is_automated = false OR is_automated IS NULL)`
     }
 
     const sql = `SELECT * FROM sales ${whereClause} ORDER BY sale_date DESC`
