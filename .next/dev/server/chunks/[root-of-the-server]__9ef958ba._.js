@@ -57,6 +57,8 @@ __turbopack_async_result__();
 return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, __turbopack_async_result__) => { try {
 
 __turbopack_context__.s([
+    "DELETE",
+    ()=>DELETE,
     "GET",
     ()=>GET,
     "POST",
@@ -224,7 +226,7 @@ async function POST(request) {
             });
         }
         const body = await request.json();
-        const { itemName, description, itemType, classCode, taxType, origin, batchNumber, purchasePrice, salePrice, sku, quantityUnit, packageUnit } = body;
+        const { itemName, description, itemType, classCode, taxType, origin, batchNumber, sku, quantityUnit, packageUnit } = body;
         if (!itemName || !itemType || !classCode || !taxType || !origin || !quantityUnit || !packageUnit) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
@@ -265,10 +267,10 @@ async function POST(request) {
         const insertResult = await client.query(`INSERT INTO items (
         vendor_id, branch_id, item_code, item_name, description,
         item_type, class_code, tax_type, origin, batch_number,
-        purchase_price, sale_price, sku, quantity_unit, package_unit,
+        sku, quantity_unit, package_unit,
         status, created_at, updated_at
       ) VALUES (
-        $1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+        $1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12,
         'active', NOW(), NOW()
       ) RETURNING *`, [
             vendorId,
@@ -280,8 +282,6 @@ async function POST(request) {
             taxType,
             origin,
             batchNumber || null,
-            purchasePrice || 0,
-            salePrice || 0,
             sku || null,
             quantityUnit,
             packageUnit
@@ -361,7 +361,7 @@ async function PUT(request) {
             });
         }
         const body = await request.json();
-        const { id, itemName, description, purchasePrice, salePrice, status } = body;
+        const { id, itemName, description, status } = body;
         if (!id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
@@ -385,16 +385,12 @@ async function PUT(request) {
         const updateResult = await client.query(`UPDATE items SET
         item_name = COALESCE($1, item_name),
         description = COALESCE($2, description),
-        purchase_price = COALESCE($3, purchase_price),
-        sale_price = COALESCE($4, sale_price),
-        status = COALESCE($5, status),
+        status = COALESCE($3, status),
         updated_at = NOW()
-      WHERE id = $6 AND vendor_id = $7
+      WHERE id = $4 AND vendor_id = $5
       RETURNING *`, [
             itemName,
             description,
-            purchasePrice,
-            salePrice,
             status,
             id,
             vendorId
@@ -408,6 +404,132 @@ async function PUT(request) {
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: false,
             error: "Failed to update item"
+        }, {
+            status: 500
+        });
+    } finally{
+        client.release();
+    }
+}
+async function DELETE(request) {
+    const client = await pool.connect();
+    try {
+        const session = await getSession();
+        if (!session) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Unauthorized"
+            }, {
+                status: 401
+            });
+        }
+        const userResult = await client.query(`SELECT u.id, u.role as user_role, s.role as staff_role, v.id as vendor_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`, [
+            session.id
+        ]);
+        if (userResult.rows.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "User not found"
+            }, {
+                status: 404
+            });
+        }
+        const user = userResult.rows[0];
+        const vendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+            session.id
+        ])).rows[0]?.vendor_id;
+        const hasHqAccess = [
+            'director',
+            'vendor'
+        ].includes(user.user_role) || user.staff_role && user.staff_role.toLowerCase() === 'director';
+        if (!hasHqAccess) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Access denied. Only HQ can delete items."
+            }, {
+                status: 403
+            });
+        }
+        if (!vendorId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Vendor not found"
+            }, {
+                status: 404
+            });
+        }
+        const { searchParams } = new URL(request.url);
+        const itemId = searchParams.get('id');
+        if (!itemId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Item ID required"
+            }, {
+                status: 400
+            });
+        }
+        const itemCheck = await client.query('SELECT id, item_name, branch_id FROM items WHERE id = $1 AND vendor_id = $2', [
+            itemId,
+            vendorId
+        ]);
+        if (itemCheck.rows.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Item not found"
+            }, {
+                status: 404
+            });
+        }
+        const item = itemCheck.rows[0];
+        const branchItemsCheck = await client.query('SELECT COUNT(*) as count FROM branch_items WHERE item_id = $1', [
+            itemId
+        ]);
+        if (parseInt(branchItemsCheck.rows[0].count) > 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Cannot delete item - it is assigned to branches. Remove branch assignments first."
+            }, {
+                status: 400
+            });
+        }
+        const nozzlesCheck = await client.query('SELECT COUNT(*) as count FROM nozzles WHERE item_id = $1', [
+            itemId
+        ]);
+        if (parseInt(nozzlesCheck.rows[0].count) > 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Cannot delete item - it is linked to nozzles. Remove nozzle links first."
+            }, {
+                status: 400
+            });
+        }
+        const tanksCheck = await client.query('SELECT COUNT(*) as count FROM tanks WHERE item_id = $1', [
+            itemId
+        ]);
+        if (parseInt(tanksCheck.rows[0].count) > 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Cannot delete item - it is linked to tanks. Remove tank links first."
+            }, {
+                status: 400
+            });
+        }
+        await client.query('DELETE FROM items WHERE id = $1', [
+            itemId
+        ]);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: true,
+            message: `Item "${item.item_name}" deleted successfully`
+        });
+    } catch (error) {
+        console.error("Error deleting HQ item:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: false,
+            error: "Failed to delete item"
         }, {
             status: 500
         });
