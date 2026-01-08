@@ -3239,7 +3239,7 @@ function SalesReportsPage() {
             const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
                 fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
                 fetch(`/api/dispensers?branch_id=${branchId}`),
-                fetch(`/api/sales?branch_id=${branchId}&page=${currentPage}&limit=${PAGE_SIZE}`)
+                fetch(`/api/sales?branch_id=${branchId}&page=${currentPage}&limit=${PAGE_SIZE}&is_automated=false`)
             ]);
             const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
                 nozzlesRes.json(),
@@ -3273,7 +3273,7 @@ function SalesReportsPage() {
         params.set('branch_id', branchData.id);
         params.set('format', format);
         params.set('export', 'true');
-        // Include all sales (both manual and automated bulk sales)
+        params.set('is_automated', 'false'); // Exclude bulk/automated sales - only show APK and web sales
         if (filters.date) params.set('date', filters.date);
         if (filters.fuelType && filters.fuelType !== 'all') params.set('fuel_type', filters.fuelType);
         if (filters.nozzle && filters.nozzle !== 'all') params.set('nozzle_id', filters.nozzle);

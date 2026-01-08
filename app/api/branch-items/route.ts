@@ -83,6 +83,7 @@ export async function GET(request: NextRequest) {
           i.quantity_unit,
           i.package_unit,
           i.status as item_status,
+          i.color_code,
           bi.id as branch_item_id,
           bi.sale_price as branch_sale_price,
           bi.purchase_price as branch_purchase_price,

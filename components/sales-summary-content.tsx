@@ -57,6 +57,7 @@ export function SalesSummaryContent() {
   const [loyaltyCustomers, setLoyaltyCustomers] = useState<Array<{ id: string; name: string; pin: string }>>([])
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [fuelColorMap, setFuelColorMap] = useState<Record<string, string>>({})
 
   const [saleForm, setSaleForm] = useState({
     nozzle_id: "",
@@ -224,20 +225,22 @@ export function SalesSummaryContent() {
       const branchData = JSON.parse(currentBranch)
       const branchId = branchData.id
 
-      const [nozzlesRes, dispensersRes, pricesRes, shiftRes, tanksRes] = await Promise.all([
+      const [nozzlesRes, dispensersRes, pricesRes, shiftRes, tanksRes, itemsRes] = await Promise.all([
         fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
         fetch(`/api/dispensers?branch_id=${branchId}`),
         fetch(`/api/fuel-prices?branch_id=${branchId}`),
         fetch(`/api/shifts?branch_id=${branchId}&status=active`),
-        fetch(`/api/tanks?branch_id=${branchId}`)
+        fetch(`/api/tanks?branch_id=${branchId}`),
+        fetch(`/api/branch-items?branchId=${branchId}`)
       ])
 
-      const [nozzlesResult, dispensersResult, pricesResult, shiftResult, tanksResult] = await Promise.all([
+      const [nozzlesResult, dispensersResult, pricesResult, shiftResult, tanksResult, itemsResult] = await Promise.all([
         nozzlesRes.json(),
         dispensersRes.json(),
         pricesRes.json(),
         shiftRes.json(),
-        tanksRes.json()
+        tanksRes.json(),
+        itemsRes.json()
       ])
 
       if (nozzlesResult.success) {
@@ -254,6 +257,18 @@ export function SalesSummaryContent() {
 
       if (tanksResult.success) {
         setTanks(tanksResult.data || [])
+      }
+
+      if (itemsResult.success && itemsResult.data) {
+        const colorMap: Record<string, string> = {}
+        itemsResult.data.forEach((item: any) => {
+          if (item.item_name && item.color_code) {
+            colorMap[item.item_name] = item.color_code
+            colorMap[item.item_name.toUpperCase()] = item.color_code
+            colorMap[item.item_name.toLowerCase()] = item.color_code
+          }
+        })
+        setFuelColorMap(colorMap)
       }
 
       if (shiftResult.success && shiftResult.data) {
@@ -803,13 +818,12 @@ export function SalesSummaryContent() {
                       dataKey="value"
                     >
                       {(() => {
-                        const FUEL_COLORS: any = { Diesel: "#FFFF00", Petrol: "#FF0000", Unleaded: "#FF0000", Super: "#10B981" }
                         const fuelSales = sales.reduce((acc: any, sale) => {
                           acc[sale.fuel_type] = (acc[sale.fuel_type] || 0) + sale.total_amount
                           return acc
                         }, {})
                         return Object.keys(fuelSales).map((fuelType, index) => (
-                          <Cell key={`cell-${index}`} fill={FUEL_COLORS[fuelType] || "#6B7280"} />
+                          <Cell key={`cell-${index}`} fill={fuelColorMap[fuelType] || fuelColorMap[fuelType?.toUpperCase()] || "#6B7280"} />
                         ))
                       })()}
                     </Pie>
@@ -1011,15 +1025,15 @@ export function SalesSummaryContent() {
                     labelFormatter={(label) => new Date(label).toLocaleDateString()}
                   />
                   {[...new Set(sales.map((s) => s.fuel_type))].map((fuelType) => {
-                    const FUEL_COLORS: any = { Diesel: "#FFFF00", Petrol: "#FF0000", Unleaded: "#FF0000", Super: "#10B981" }
+                    const color = fuelColorMap[fuelType] || fuelColorMap[fuelType?.toUpperCase()] || "#000"
                     return (
                       <Line
                         key={fuelType}
                         type="monotone"
                         dataKey={fuelType}
-                        stroke={FUEL_COLORS[fuelType] || "#000"}
+                        stroke={color}
                         strokeWidth={2}
-                        dot={{ fill: FUEL_COLORS[fuelType] || "#000" }}
+                        dot={{ fill: color }}
                         name={fuelType}
                       />
                     )
