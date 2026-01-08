@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
           previousStock,
           adjustedQuantity: 0,
           newStock: previousStock,
-          fuelType: tank.fuel_type
+          fuelType: tank.item_name || 'Fuel'
         },
         kraSync: null,
         message: "No adjustment needed - stock unchanged"
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
       const kraBaseUrl = buildKraBaseUrl(branch.server_address, branch.server_port)
       const itemCd = tank.item_code || tank.kra_item_cd || `FUEL${tank_id.substring(0, 8)}`
       const itemClsCd = tank.class_code || "5059690800"
-      const itemNm = tank.item_name || tank.fuel_type || "Fuel"
+      const itemNm = tank.item_name || "Fuel"
       
       const saveStockItemsPayload = {
         tin,
@@ -357,7 +357,7 @@ export async function POST(request: NextRequest) {
         previousStock,
         adjustedQuantity: actualChange,
         newStock,
-        fuelType: tank.fuel_type
+        fuelType: tank.item_name || 'Fuel'
       },
       kraSync: kraResult ? {
         synced: kraResult.success,

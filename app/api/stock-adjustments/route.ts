@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
             movementType,
             [{
               tankId: tank_id,
-              itemCode: tank.item_cd || tank.fuel_type?.substring(0, 10) || 'FUEL',
-              itemName: tank.product_name || tank.name || tank.fuel_type || 'Fuel',
+              itemCode: tank.item_cd || 'FUEL',
+              itemName: tank.product_name || tank.name || 'Fuel',
               quantity: Math.abs(quantity),
               unitPrice: tank.unit_price || 0
             }],

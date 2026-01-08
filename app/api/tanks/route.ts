@@ -189,7 +189,7 @@ export async function PATCH(request: NextRequest) {
           quantity: Math.abs(stockDiff),
           unitPrice: unit_price || 0,
           itemCode: tank.kra_item_cd,
-          itemName: tank.fuel_type
+          itemName: tank.item_name || 'Fuel'
         }],
         { remark: `Stock ${movementType}: ${previousStock} -> ${current_stock}` }
       )

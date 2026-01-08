@@ -42,6 +42,10 @@ export async function POST(request: NextRequest) {
     const quantityNum = parseFloat(quantity)
     const newStock = previousStock + quantityNum
 
+    // Get fuel type from items table
+    const itemResult = await query("SELECT item_name FROM items WHERE id = $1", [tank.item_id])
+    const fuelType = itemResult.length > 0 ? itemResult[0].item_name : 'Unknown'
+
     console.log(`[Stock Receive] Tank ${tank_id}: previousStock=${previousStock}, quantity=${quantityNum}, newStock=${newStock}`)
 
     await query(
@@ -68,7 +72,7 @@ export async function POST(request: NextRequest) {
           quantity: quantity,
           unitPrice: unit_price || 0,
           itemCode: tank.kra_item_cd,
-          itemName: tank.fuel_type
+          itemName: fuelType
         }],
         { 
           remark: delivery_note || `Stock received: ${quantity} liters`,
@@ -96,7 +100,7 @@ export async function POST(request: NextRequest) {
         previousStock,
         quantityReceived: quantity,
         newStock,
-        fuelType: tank.fuel_type
+        fuelType: fuelType
       },
       kraSync: kraResult ? {
         synced: kraResult.success,
