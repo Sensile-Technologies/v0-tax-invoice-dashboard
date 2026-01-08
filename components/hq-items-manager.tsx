@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SearchableSelect } from "@/components/ui/searchable-select"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Search, Package, Edit, RefreshCw, Building2 } from "lucide-react"
+import { Plus, Search, Package, Edit, RefreshCw, Building2, Trash2 } from "lucide-react"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { toast } from "react-toastify"
 import { useCurrency } from "@/lib/currency-utils"
 
@@ -103,8 +104,10 @@ export function HqItemsManager() {
   const [searchQuery, setSearchQuery] = useState("")
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showAssignDialog, setShowAssignDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [branches, setBranches] = useState<Branch[]>([])
   const [assignFormData, setAssignFormData] = useState({
     branchId: "",
@@ -336,6 +339,37 @@ export function HqItemsManager() {
     setShowEditDialog(true)
   }
 
+  const openDeleteDialog = (item: Item) => {
+    setSelectedItem(item)
+    setShowDeleteDialog(true)
+  }
+
+  const handleDeleteItem = async () => {
+    if (!selectedItem) return
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/headquarters/items?id=${selectedItem.id}`, {
+        method: "DELETE"
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        toast.success(result.message || "Item deleted successfully")
+        setShowDeleteDialog(false)
+        setSelectedItem(null)
+        fetchItems()
+      } else {
+        toast.error(result.error || "Failed to delete item")
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error)
+      toast.error("Failed to delete item")
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   const filteredItems = items.filter(item =>
     item.item_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.item_code.toLowerCase().includes(searchQuery.toLowerCase())
@@ -418,6 +452,9 @@ export function HqItemsManager() {
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)} title="Edit">
                         <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => openDeleteDialog(item)} title="Delete" className="text-destructive hover:text-destructive">
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -519,6 +556,28 @@ export function HqItemsManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedItem?.item_name}"? This action cannot be undone.
+              {selectedItem && (selectedItem.assigned_branches || 0) > 0 && (
+                <span className="block mt-2 text-amber-600 font-medium">
+                  Note: This item is assigned to {selectedItem.assigned_branches} branch(es). You must remove all branch assignments first.
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteItem} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

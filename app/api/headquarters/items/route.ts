@@ -316,3 +316,108 @@ export async function PUT(request: NextRequest) {
     client.release()
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  const client = await pool.connect()
+  
+  try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
+    }
+
+    const userResult = await client.query(
+      `SELECT u.id, u.role as user_role, s.role as staff_role, v.id as vendor_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
+      [session.id]
+    )
+    
+    if (userResult.rows.length === 0) {
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 })
+    }
+
+    const user = userResult.rows[0]
+    const vendorId = user.vendor_id || (await client.query(
+      'SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1',
+      [session.id]
+    )).rows[0]?.vendor_id
+    
+    const hasHqAccess = ['director', 'vendor'].includes(user.user_role) || 
+                        (user.staff_role && user.staff_role.toLowerCase() === 'director')
+    
+    if (!hasHqAccess) {
+      return NextResponse.json({ success: false, error: "Access denied. Only HQ can delete items." }, { status: 403 })
+    }
+
+    if (!vendorId) {
+      return NextResponse.json({ success: false, error: "Vendor not found" }, { status: 404 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const itemId = searchParams.get('id')
+
+    if (!itemId) {
+      return NextResponse.json({ success: false, error: "Item ID required" }, { status: 400 })
+    }
+
+    const itemCheck = await client.query(
+      'SELECT id, item_name, branch_id FROM items WHERE id = $1 AND vendor_id = $2',
+      [itemId, vendorId]
+    )
+
+    if (itemCheck.rows.length === 0) {
+      return NextResponse.json({ success: false, error: "Item not found" }, { status: 404 })
+    }
+
+    const item = itemCheck.rows[0]
+
+    const branchItemsCheck = await client.query(
+      'SELECT COUNT(*) as count FROM branch_items WHERE item_id = $1',
+      [itemId]
+    )
+    if (parseInt(branchItemsCheck.rows[0].count) > 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Cannot delete item - it is assigned to branches. Remove branch assignments first." 
+      }, { status: 400 })
+    }
+
+    const nozzlesCheck = await client.query(
+      'SELECT COUNT(*) as count FROM nozzles WHERE item_id = $1',
+      [itemId]
+    )
+    if (parseInt(nozzlesCheck.rows[0].count) > 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Cannot delete item - it is linked to nozzles. Remove nozzle links first." 
+      }, { status: 400 })
+    }
+
+    const tanksCheck = await client.query(
+      'SELECT COUNT(*) as count FROM tanks WHERE item_id = $1',
+      [itemId]
+    )
+    if (parseInt(tanksCheck.rows[0].count) > 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Cannot delete item - it is linked to tanks. Remove tank links first." 
+      }, { status: 400 })
+    }
+
+    await client.query('DELETE FROM items WHERE id = $1', [itemId])
+
+    return NextResponse.json({
+      success: true,
+      message: `Item "${item.item_name}" deleted successfully`
+    })
+
+  } catch (error) {
+    console.error("Error deleting HQ item:", error)
+    return NextResponse.json({ success: false, error: "Failed to delete item" }, { status: 500 })
+  } finally {
+    client.release()
+  }
+}
