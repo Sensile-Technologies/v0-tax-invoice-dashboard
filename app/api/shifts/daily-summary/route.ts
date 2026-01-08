@@ -83,13 +83,16 @@ export async function GET(request: NextRequest) {
           sr.nozzle_id,
           sr.opening_reading,
           sr.closing_reading,
-          i.item_name as fuel_type
+          i.item_name as fuel_type,
+          i.id as item_id,
+          COALESCE(bi.sale_price, 0) as unit_price
         FROM shift_readings sr
         JOIN nozzles n ON sr.nozzle_id = n.id
         JOIN items i ON n.item_id = i.id
+        LEFT JOIN branch_items bi ON bi.item_id = i.id AND bi.branch_id = $2
         WHERE sr.shift_id = $1 AND sr.reading_type = 'nozzle'
       `
-      const readingsResult = await pool.query(nozzleReadingsQuery, [shift.id])
+      const readingsResult = await pool.query(nozzleReadingsQuery, [shift.id, branchId])
 
       const invoicedSalesQuery = `
         SELECT 
@@ -121,6 +124,7 @@ export async function GET(request: NextRequest) {
         const openingReading = parseFloat(reading.opening_reading) || 0
         const closingReading = parseFloat(reading.closing_reading) || 0
         const meterDifference = closingReading - openingReading
+        const branchItemPrice = parseFloat(reading.unit_price) || 0
 
         const invoiced = invoicedMap.get(reading.nozzle_id)
         const claimedQty = invoiced?.quantity || 0
@@ -133,15 +137,15 @@ export async function GET(request: NextRequest) {
         const existing = fuelTypeData.get(fuelType) || { 
           claimed: { quantity: 0, amount: 0 }, 
           unclaimed: { quantity: 0, amount: 0 },
-          unitPrice: 0
+          unitPrice: branchItemPrice
         }
 
         existing.claimed.quantity += claimedQty
         existing.claimed.amount += claimedAmt
         existing.unclaimed.quantity += unclaimedQty
         
-        if (claimedQty > 0 && claimedAmt > 0) {
-          existing.unitPrice = claimedAmt / claimedQty
+        if (branchItemPrice > 0) {
+          existing.unitPrice = branchItemPrice
         }
 
         fuelTypeData.set(fuelType, existing)
@@ -154,7 +158,7 @@ export async function GET(request: NextRequest) {
       let totalUnclaimedAmt = 0
 
       for (const [fuelType, data] of fuelTypeData) {
-        const unitPrice = data.unitPrice || 180
+        const unitPrice = data.unitPrice
         const unclaimedAmt = data.unclaimed.quantity * unitPrice
 
         items.push({
