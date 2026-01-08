@@ -97,14 +97,15 @@ export async function POST(request: Request) {
       }
 
       const tankCheck = await client.query(
-        `SELECT t.id, t.tank_name, t.kra_item_cd FROM tanks t
+        `SELECT t.id, t.tank_name, COALESCE(t.kra_item_cd, i.item_code) as kra_item_cd, i.item_name, i.item_code 
+         FROM tanks t
          JOIN items i ON t.item_id = i.id
          WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active' 
          ORDER BY t.current_stock DESC LIMIT 1`,
         [branch_id, fuel_type]
       )
 
-      if (tankCheck.rows.length > 0 && !tankCheck.rows[0].kra_item_cd) {
+      if (tankCheck.rows.length > 0 && !tankCheck.rows[0].kra_item_cd && !tankCheck.rows[0].item_code) {
         return NextResponse.json(
           { error: `Tank "${tankCheck.rows[0].tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
           { status: 400 }
