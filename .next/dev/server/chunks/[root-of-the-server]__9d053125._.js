@@ -471,7 +471,7 @@ async function callSaveStockMaster(branchId, itemCode) {
     const tankResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
     SELECT t.current_stock 
     FROM tanks t
-    JOIN items i ON UPPER(t.fuel_type) = UPPER(i.item_name) AND i.branch_id = t.branch_id
+    JOIN items i ON t.item_id = i.id
     WHERE i.item_code = $1 AND t.branch_id = $2
     LIMIT 1
   `, [

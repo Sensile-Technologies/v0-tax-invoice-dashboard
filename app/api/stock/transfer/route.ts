@@ -37,8 +37,14 @@ export async function POST(request: NextRequest) {
     }
 
     const [fromTankResult, toTankResult] = await Promise.all([
-      query("SELECT * FROM tanks WHERE id = $1", [from_tank_id]),
-      query("SELECT * FROM tanks WHERE id = $1", [to_tank_id])
+      query(`SELECT t.*, i.item_name, i.item_code as kra_item_cd 
+             FROM tanks t 
+             LEFT JOIN items i ON t.item_id = i.id 
+             WHERE t.id = $1`, [from_tank_id]),
+      query(`SELECT t.*, i.item_name 
+             FROM tanks t 
+             LEFT JOIN items i ON t.item_id = i.id 
+             WHERE t.id = $1`, [to_tank_id])
     ])
 
     if (fromTankResult.length === 0) {
@@ -91,7 +97,7 @@ export async function POST(request: NextRequest) {
             quantity: quantity,
             unitPrice: 0,
             itemCode: fromTank.kra_item_cd,
-            itemName: fromTank.fuel_type
+            itemName: fromTank.item_name
           }
         ],
         { remark: `Stock transfer: ${fromTank.tank_name} -> ${toTank.tank_name}` }
