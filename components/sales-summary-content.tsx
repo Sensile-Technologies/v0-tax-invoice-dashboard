@@ -823,12 +823,22 @@ export function SalesSummaryContent() {
                       dataKey="value"
                     >
                       {(() => {
+                        const getFuelColor = (fuelType: string) => {
+                          const ft = (fuelType || '').toUpperCase()
+                          if (fuelColorMap[fuelType]) return fuelColorMap[fuelType]
+                          if (fuelColorMap[ft]) return fuelColorMap[ft]
+                          if (ft.includes('DIESEL')) return '#FFFF00'
+                          if (ft.includes('PETROL') || ft.includes('SUPER') || ft.includes('UNLEADED')) return '#FF0000'
+                          if (ft.includes('KEROSENE')) return '#0D1433'
+                          if (ft.includes('GAS') || ft.includes('LPG')) return '#00FF00'
+                          return '#6B7280'
+                        }
                         const fuelSales = sales.reduce((acc: any, sale) => {
                           acc[sale.fuel_type] = (acc[sale.fuel_type] || 0) + sale.total_amount
                           return acc
                         }, {})
                         return Object.keys(fuelSales).map((fuelType, index) => (
-                          <Cell key={`cell-${index}`} fill={fuelColorMap[fuelType] || fuelColorMap[fuelType?.toUpperCase()] || "#6B7280"} />
+                          <Cell key={`cell-${index}`} fill={getFuelColor(fuelType)} />
                         ))
                       })()}
                     </Pie>
@@ -1030,7 +1040,17 @@ export function SalesSummaryContent() {
                     labelFormatter={(label) => new Date(label).toLocaleDateString()}
                   />
                   {[...new Set(sales.map((s) => s.fuel_type))].map((fuelType) => {
-                    const color = fuelColorMap[fuelType] || fuelColorMap[fuelType?.toUpperCase()] || "#000"
+                    const getFuelColor = (ft: string) => {
+                      const ftUpper = (ft || '').toUpperCase()
+                      if (fuelColorMap[ft]) return fuelColorMap[ft]
+                      if (fuelColorMap[ftUpper]) return fuelColorMap[ftUpper]
+                      if (ftUpper.includes('DIESEL')) return '#FFFF00'
+                      if (ftUpper.includes('PETROL') || ftUpper.includes('SUPER') || ftUpper.includes('UNLEADED')) return '#FF0000'
+                      if (ftUpper.includes('KEROSENE')) return '#0D1433'
+                      if (ftUpper.includes('GAS') || ftUpper.includes('LPG')) return '#00FF00'
+                      return '#000'
+                    }
+                    const color = getFuelColor(fuelType)
                     return (
                       <Line
                         key={fuelType}

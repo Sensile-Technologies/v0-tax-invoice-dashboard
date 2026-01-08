@@ -791,18 +791,20 @@ export function SalesContent() {
                       dataKey="value"
                     >
                       {(() => {
-                        const FUEL_COLORS: any = {
-                          Diesel: "#FFFF00",
-                          Petrol: "#FF0000",
-                          Unleaded: "#FF0000",
-                          Super: "#10B981",
+                        const getFuelColor = (fuelType: string) => {
+                          const ft = (fuelType || '').toUpperCase()
+                          if (ft.includes('DIESEL')) return '#FFFF00'
+                          if (ft.includes('PETROL') || ft.includes('SUPER') || ft.includes('UNLEADED')) return '#FF0000'
+                          if (ft.includes('KEROSENE')) return '#0D1433'
+                          if (ft.includes('GAS') || ft.includes('LPG')) return '#00FF00'
+                          return '#6B7280'
                         }
                         const fuelSales = sales.reduce((acc: any, sale) => {
                           acc[sale.fuel_type] = (acc[sale.fuel_type] || 0) + sale.total_amount
                           return acc
                         }, {})
                         return Object.keys(fuelSales).map((fuelType, index) => (
-                          <Cell key={`cell-${index}`} fill={FUEL_COLORS[fuelType] || "#6B7280"} />
+                          <Cell key={`cell-${index}`} fill={getFuelColor(fuelType)} />
                         ))
                       })()}
                     </Pie>
@@ -1038,20 +1040,23 @@ export function SalesContent() {
                     labelFormatter={(label) => new Date(label).toLocaleDateString()}
                   />
                   {[...new Set(sales.map((s) => s.fuel_type))].map((fuelType) => {
-                    const FUEL_COLORS: any = {
-                      Diesel: "#FFFF00", // Pure Yellow
-                      Petrol: "#FF0000", // Pure Red
-                      Unleaded: "#FF0000", // Pure Red
-                      Super: "#10B981", // Green
+                    const getFuelColor = (ft: string) => {
+                      const ftUpper = (ft || '').toUpperCase()
+                      if (ftUpper.includes('DIESEL')) return '#FFFF00'
+                      if (ftUpper.includes('PETROL') || ftUpper.includes('SUPER') || ftUpper.includes('UNLEADED')) return '#FF0000'
+                      if (ftUpper.includes('KEROSENE')) return '#0D1433'
+                      if (ftUpper.includes('GAS') || ftUpper.includes('LPG')) return '#00FF00'
+                      return '#000'
                     }
+                    const color = getFuelColor(fuelType)
                     return (
                       <Line
                         key={fuelType}
                         type="monotone"
                         dataKey={fuelType}
-                        stroke={FUEL_COLORS[fuelType] || "#000"}
+                        stroke={color}
                         strokeWidth={2}
-                        dot={{ fill: FUEL_COLORS[fuelType] || "#000" }}
+                        dot={{ fill: color }}
                         name={fuelType}
                       />
                     )
