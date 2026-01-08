@@ -3555,9 +3555,9 @@ function SalesSummaryContent() {
             if (tanksResult.success) {
                 setTanks(tanksResult.data || []);
             }
-            if (itemsResult.success && itemsResult.data) {
+            if (itemsResult.success && itemsResult.items) {
                 const colorMap = {};
-                itemsResult.data.forEach((item)=>{
+                itemsResult.items.forEach((item)=>{
                     if (item.item_name && item.color_code) {
                         colorMap[item.item_name] = item.color_code;
                         colorMap[item.item_name.toUpperCase()] = item.color_code;

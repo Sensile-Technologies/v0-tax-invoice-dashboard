@@ -259,9 +259,9 @@ export function SalesSummaryContent() {
         setTanks(tanksResult.data || [])
       }
 
-      if (itemsResult.success && itemsResult.data) {
+      if (itemsResult.success && itemsResult.items) {
         const colorMap: Record<string, string> = {}
-        itemsResult.data.forEach((item: any) => {
+        itemsResult.items.forEach((item: any) => {
           if (item.item_name && item.color_code) {
             colorMap[item.item_name] = item.color_code
             colorMap[item.item_name.toUpperCase()] = item.color_code
