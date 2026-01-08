@@ -158,13 +158,8 @@ async function POST(request) {
                 });
             }
             const sale = saleResult.rows[0];
-            if (!sale.item_id || !sale.item_name) {
-                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                    error: "Sale is missing item_id. Please update the sale record with a valid item reference before generating receipt."
-                }, {
-                    status: 400
-                });
-            }
+            const itemName = sale.item_name || sale.fuel_type || 'Fuel';
+            const itemCode = sale.item_code || sale.fuel_type || 'FUEL';
             const isCreditNote = sale.sale_type === 'credit_note' || sale.invoice_number?.includes('-CR') || parseFloat(sale.total_amount) < 0;
             const pageWidth = 80;
             const doc = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jspdf$2f$dist$2f$jspdf$2e$node$2e$min$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"]({
@@ -262,10 +257,10 @@ async function POST(request) {
             const taxableAmount = totalAmount / 1.16;
             const vatAmount = totalAmount - taxableAmount;
             doc.text(`Item Code:`, leftMargin, y);
-            doc.text(sale.item_code || sale.fuel_type || "N/A", leftMargin + 22, y);
+            doc.text(itemCode, leftMargin + 22, y);
             y += 3;
             doc.text(`Description:`, leftMargin, y);
-            doc.text(sale.item_name || sale.fuel_type || "Fuel", leftMargin + 22, y);
+            doc.text(itemName, leftMargin + 22, y);
             y += 3;
             doc.text(`Dispenser:`, leftMargin, y);
             doc.text(`D${sale.dispenser_number || '0'}N${sale.nozzle_number || '1'}`, leftMargin + 22, y);
