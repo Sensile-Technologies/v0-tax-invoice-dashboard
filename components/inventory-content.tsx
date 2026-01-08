@@ -636,34 +636,97 @@ export function InventoryContent() {
 
       {activeView === "tankManagement" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
               ← Back to Overview
             </Button>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Branch:</Label>
+              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                <SelectTrigger className="w-[200px] rounded-xl">
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <TankManagement branchId={selectedBranchId} />
+          {selectedBranchId ? (
+            <TankManagement branchId={selectedBranchId} />
+          ) : (
+            <Card className="rounded-2xl">
+              <CardContent className="py-12 text-center text-muted-foreground">
+                Please select a branch to manage tanks
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 
       {activeView === "dispenserManagement" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
               ← Back to Overview
             </Button>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Branch:</Label>
+              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                <SelectTrigger className="w-[200px] rounded-xl">
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <DispenserManagement branchId={selectedBranchId} />
+          {selectedBranchId ? (
+            <DispenserManagement branchId={selectedBranchId} />
+          ) : (
+            <Card className="rounded-2xl">
+              <CardContent className="py-12 text-center text-muted-foreground">
+                Please select a branch to manage dispensers
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 
       {activeView === "nozzleManagement" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
               ← Back to Overview
             </Button>
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">Branch:</Label>
+              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                <SelectTrigger className="w-[200px] rounded-xl">
+                  <SelectValue placeholder="Select branch" />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <NozzleManagement branchId={selectedBranchId} />
+          {selectedBranchId ? (
+            <NozzleManagement branchId={selectedBranchId} />
+          ) : (
+            <Card className="rounded-2xl">
+              <CardContent className="py-12 text-center text-muted-foreground">
+                Please select a branch to manage nozzles
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 
