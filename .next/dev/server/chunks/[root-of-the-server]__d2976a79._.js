@@ -387,7 +387,7 @@ async function syncStockWithKRA(branchId, movementType, items, options) {
             let tankInfo = await getTankWithItemInfo(item.tankId);
             const itemCd = item.itemCode || tankInfo?.item_code || tankInfo?.kra_item_cd || `KE1NTXU000000${index + 1}`;
             const itemClsCd = item.itemClassCode || tankInfo?.class_code || "5059690800";
-            const itemNm = item.itemName || tankInfo?.item_name || tankInfo?.fuel_type || "Fuel Item";
+            const itemNm = item.itemName || tankInfo?.item_name || "Fuel Item";
             const isPurchaseMovement = movementType === "stock_receive";
             const price = item.unitPrice || (isPurchaseMovement ? tankInfo?.purchase_price : tankInfo?.current_price) || tankInfo?.sale_price || 0;
             const splyAmt = Math.round(item.quantity * price * 100) / 100;

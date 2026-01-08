@@ -598,6 +598,11 @@ export function SalesSummaryContent() {
         })
       })
       
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned an invalid response. Please try again.')
+      }
+      
       const result = await response.json()
 
       if (!response.ok || !result.success) {
