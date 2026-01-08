@@ -184,20 +184,42 @@ export default function ItemsListPage() {
       return
     }
     
-    if (!confirm(`Remove "${item.item_name}" from this branch? The item will still exist in the catalog.`)) {
-      return
-    }
-    
     try {
+      const previewResponse = await fetch(`/api/branch-items?id=${item.branch_item_id}&preview=true`, {
+        method: "DELETE"
+      })
+      const preview = await previewResponse.json()
+      
+      if (!preview.success) {
+        toast.error(preview.error || "Failed to check item dependencies")
+        return
+      }
+
+      let warningMessage = `Remove "${item.item_name}" from this branch?\n\n`
+      warningMessage += `This action will permanently delete:\n`
+      warningMessage += `- ${preview.affectedDispensers} dispenser(s)\n`
+      warningMessage += `- ${preview.affectedNozzles} nozzle(s)\n`
+      warningMessage += `- ${preview.affectedTanks} tank(s)\n\n`
+      warningMessage += `The item will still exist in the catalog but all associated hardware will be removed from this branch.`
+      
+      if (!confirm(warningMessage)) {
+        return
+      }
+      
       const response = await fetch(`/api/branch-items?id=${item.branch_item_id}`, {
         method: "DELETE"
       })
 
+      const result = await response.json()
+      
       if (response.ok) {
         setItems(items.filter(i => i.item_id !== item.item_id))
-        toast.success("Item removed from branch")
+        let successMsg = "Item removed from branch"
+        if (result.deletedDispensers > 0 || result.deletedNozzles > 0 || result.deletedTanks > 0) {
+          successMsg += ` (deleted ${result.deletedDispensers} dispenser(s), ${result.deletedNozzles} nozzle(s), ${result.deletedTanks} tank(s))`
+        }
+        toast.success(successMsg)
       } else {
-        const result = await response.json()
         toast.error(result.error || "Failed to remove item")
       }
     } catch (error) {
