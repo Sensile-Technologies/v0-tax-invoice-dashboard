@@ -296,19 +296,21 @@ async function GET(request) {
             vendorId ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT 
           COALESCE(SUM(current_stock), 0) as total_inventory,
-          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
-          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%petrol%' OR LOWER(fuel_type) LIKE '%super%' OR LOWER(fuel_type) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
+          COALESCE(SUM(CASE WHEN LOWER(i.item_name) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
+          COALESCE(SUM(CASE WHEN LOWER(i.item_name) LIKE '%petrol%' OR LOWER(i.item_name) LIKE '%super%' OR LOWER(i.item_name) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
         FROM tanks t
         JOIN branches b ON t.branch_id = b.id
+        LEFT JOIN items i ON t.item_id = i.id
         WHERE b.vendor_id = $1 AND (t.status = 'active' OR t.status IS NULL)
       `, [
                 vendorId
             ]) : branchIds && branchIds.length > 0 ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["pool"].query(`
         SELECT 
           COALESCE(SUM(current_stock), 0) as total_inventory,
-          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
-          COALESCE(SUM(CASE WHEN LOWER(fuel_type) LIKE '%petrol%' OR LOWER(fuel_type) LIKE '%super%' OR LOWER(fuel_type) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
+          COALESCE(SUM(CASE WHEN LOWER(i.item_name) LIKE '%diesel%' THEN current_stock ELSE 0 END), 0) as diesel_stock,
+          COALESCE(SUM(CASE WHEN LOWER(i.item_name) LIKE '%petrol%' OR LOWER(i.item_name) LIKE '%super%' OR LOWER(i.item_name) LIKE '%unleaded%' THEN current_stock ELSE 0 END), 0) as petrol_stock
         FROM tanks t
+        LEFT JOIN items i ON t.item_id = i.id
         WHERE t.branch_id = ANY($1::uuid[]) AND (t.status = 'active' OR t.status IS NULL)
       `, [
                 branchIds
