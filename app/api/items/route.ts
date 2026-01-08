@@ -45,9 +45,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!branchId) {
+    // CATALOG-ONLY ENFORCEMENT: Items must be created at HQ level (branch_id = NULL)
+    // Branch-specific pricing is managed via branch_items table
+    if (branchId) {
+      console.log("[Items API] Rejecting legacy item creation - use HQ catalog instead")
       return NextResponse.json(
-        { error: "Branch not assigned. Please contact your administrator." },
+        { error: "Items can only be created at headquarters level. Please use the HQ Items catalog to create items, then assign them to branches with pricing." },
         { status: 400 }
       )
     }
@@ -86,18 +89,19 @@ export async function POST(request: NextRequest) {
     )
 
     const existingItem = await client.query(
-      'SELECT id FROM items WHERE item_code = $1 AND branch_id = $2',
-      [itemCode, branchId]
+      'SELECT id FROM items WHERE item_code = $1 AND vendor_id = $2',
+      [itemCode, vendorId]
     )
 
     if (existingItem.rows.length > 0) {
       await client.query('ROLLBACK')
       return NextResponse.json(
-        { error: "Item code already exists for this branch. Please try again." },
+        { error: "Item code already exists. Please try again." },
         { status: 409 }
       )
     }
 
+    // Create catalog item (branch_id = NULL)
     const insertResult = await client.query(
       `INSERT INTO items (
         vendor_id, branch_id, item_code, item_name, description,
@@ -105,12 +109,11 @@ export async function POST(request: NextRequest) {
         purchase_price, sale_price, sku, quantity_unit, package_unit,
         status, created_at, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15,
+        $1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
         'active', NOW(), NOW()
       ) RETURNING *`,
       [
         vendorId,
-        branchId || null,
         itemCode,
         itemName,
         description || null,
@@ -136,33 +139,11 @@ export async function POST(request: NextRequest) {
 
     const createdItem = insertResult.rows[0]
 
-    let kraResult = { success: false, kraResponse: null as any, message: "KRA submission pending" }
-    
-    try {
-      const kraResponse = await fetch(`${request.nextUrl.origin}/api/kra/items/saveItems`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          itemId: createdItem.id,
-          branchId: branchId
-        })
-      })
-      kraResult = await kraResponse.json()
-      console.log(`[Items API] KRA submission result for ${itemCode}:`, kraResult)
-    } catch (kraError) {
-      console.error(`[Items API] KRA submission error for ${itemCode}:`, kraError)
-    }
-
     return NextResponse.json({
       success: true,
       item: createdItem,
       itemCode: itemCode,
-      kraSubmission: {
-        success: kraResult.success,
-        status: kraResult.success ? 'success' : 'rejected',
-        response: kraResult.kraResponse
-      },
-      message: `Item created successfully with code: ${itemCode}. KRA submission: ${kraResult.success ? 'Successful' : 'Pending/Rejected'}`
+      message: `Item created successfully in catalog with code: ${itemCode}. Assign to branches to configure pricing and sync with KRA.`
     })
 
   } catch (error) {
