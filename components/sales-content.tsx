@@ -483,9 +483,47 @@ export function SalesContent() {
     setShowCreditNoteDialog(true)
   }
 
-  function viewInvoice(sale: any) {
-    toast.info(`Viewing invoice ${sale.invoice_number}`)
-    // TODO: Implement invoice viewing/printing functionality
+  async function viewInvoice(sale: any) {
+    try {
+      toast.info(`Generating invoice ${sale.invoice_number || sale.id}...`)
+      
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (!currentBranch) {
+        toast.error("No branch selected")
+        return
+      }
+      const branchData = JSON.parse(currentBranch)
+      
+      const response = await fetch('/api/receipt/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sale_id: sale.id,
+          branch_id: branchData.id
+        })
+      })
+      
+      if (!response.ok) {
+        const error = await response.json()
+        toast.error(error.error || "Failed to generate invoice")
+        return
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `invoice-${sale.invoice_number || sale.id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+      
+      toast.success("Invoice downloaded successfully")
+    } catch (error) {
+      console.error("Error downloading invoice:", error)
+      toast.error("Failed to download invoice")
+    }
   }
 
   function getStatusBadgeVariant(status: string) {
