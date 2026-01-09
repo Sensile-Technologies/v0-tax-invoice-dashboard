@@ -35,6 +35,7 @@ interface Item {
   id: string
   item_name: string
   unit_price?: number
+  purchase_price?: number
 }
 
 interface POItem {
@@ -105,7 +106,7 @@ export default function CreatePurchaseOrderPage() {
     }
   }, [])
 
-  const fetchItems = useCallback(async () => {
+  const fetchItems = useCallback(async (branchId?: string) => {
     try {
       const user = getCurrentUser()
       const vendorId = user?.vendor_id
@@ -113,10 +114,35 @@ export default function CreatePurchaseOrderPage() {
         console.error("No vendor ID found")
         return
       }
+      
+      // Fetch catalog items
       const response = await fetch(`/api/items?vendorId=${vendorId}&catalog=true`)
       const result = await response.json()
+      
       if (result.success) {
-        setItems(result.items || [])
+        let itemsWithPricing = result.items || []
+        
+        // If branch is selected, fetch branch_items pricing
+        if (branchId) {
+          const branchItemsResponse = await fetch(`/api/branch-items?branch_id=${branchId}`)
+          const branchItemsResult = await branchItemsResponse.json()
+          
+          if (branchItemsResult.success && branchItemsResult.data) {
+            const branchItemsMap = new Map(
+              branchItemsResult.data.map((bi: any) => [bi.item_id, bi])
+            )
+            
+            itemsWithPricing = itemsWithPricing.map((item: Item) => {
+              const branchItem = branchItemsMap.get(item.id) as any
+              return {
+                ...item,
+                purchase_price: branchItem?.purchase_price || item.purchase_price || null
+              }
+            })
+          }
+        }
+        
+        setItems(itemsWithPricing)
       }
     } catch (error) {
       console.error("Error fetching items:", error)
@@ -130,6 +156,13 @@ export default function CreatePurchaseOrderPage() {
       })
     }
   }, [fetchBranches, fetchSuppliers, fetchTransporters, fetchItems, hasAccess])
+
+  // Re-fetch items with branch pricing when branch changes
+  useEffect(() => {
+    if (selectedBranch && hasAccess) {
+      fetchItems(selectedBranch)
+    }
+  }, [selectedBranch, fetchItems, hasAccess])
 
   if (isChecking) {
     return (
@@ -155,6 +188,11 @@ export default function CreatePurchaseOrderPage() {
       const selectedItem = items.find(i => i.id === value)
       if (selectedItem) {
         updated[index].item_name = selectedItem.item_name
+        // Pre-populate unit_price from branch_items purchase_price if available
+        if (selectedItem.purchase_price && selectedItem.purchase_price > 0) {
+          updated[index].unit_price = parseFloat(String(selectedItem.purchase_price))
+          updated[index].total_amount = updated[index].quantity * updated[index].unit_price
+        }
       }
     }
 

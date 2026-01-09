@@ -1403,7 +1403,8 @@ async function POST(request) {
             ]) : [];
             // Fallback: match by item name via JOIN (for tanks with item_id set)
             if (tankResult.length === 0 && fuel_type) {
-                tankResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT t.* FROM tanks t 
+                tankResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT t.*, COALESCE(t.kra_item_cd, i.item_code) as effective_item_cd, i.item_code 
+           FROM tanks t 
            JOIN items i ON t.item_id = i.id
            WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active' 
            ORDER BY t.current_stock DESC LIMIT 1`, [
@@ -1420,7 +1421,8 @@ async function POST(request) {
                 });
             }
             const tank = tankResult[0];
-            if (!tank.kra_item_cd) {
+            // Use item_code from items table if tank.kra_item_cd is not set
+            if (!tank.kra_item_cd && !tank.effective_item_cd && !tank.item_code) {
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                     error: `Tank "${tank.tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.`
                 }, {
