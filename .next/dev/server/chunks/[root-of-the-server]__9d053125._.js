@@ -1497,6 +1497,27 @@ async function POST(request) {
                 }
             }
         }
+        // Create loyalty_transaction record for loyalty sales
+        if (is_loyalty_sale) {
+            const loyaltyCustomerName = loyalty_customer_name || customer_name || 'Walk-in Customer';
+            const loyaltyCustomerPin = loyalty_customer_pin || customer_pin || '';
+            const pointsEarned = Math.floor((total_amount || 0) / 100) // 1 point per 100 KES
+            ;
+            await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO loyalty_transactions 
+         (branch_id, sale_id, customer_name, customer_pin, transaction_date, transaction_amount, points_earned, payment_method, fuel_type, quantity)
+         VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8, $9)`, [
+                branch_id,
+                sale.id,
+                loyaltyCustomerName,
+                loyaltyCustomerPin,
+                total_amount || 0,
+                pointsEarned,
+                payment_method || 'cash',
+                fuel_type,
+                quantity || 0
+            ]);
+            console.log(`[Sales API] Created loyalty_transaction for sale ${sale.id}, points: ${pointsEarned}`);
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: sale,
