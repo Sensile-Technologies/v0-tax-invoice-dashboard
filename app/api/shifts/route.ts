@@ -288,6 +288,52 @@ export async function PATCH(request: NextRequest) {
           { status: 400 }
         )
       }
+
+      // Get the branch_id from shift to find active nozzles
+      const shiftBranchResult = await client.query(
+        `SELECT branch_id FROM shifts WHERE id = $1`,
+        [id]
+      )
+      const shiftBranchId = shiftBranchResult.rows[0]?.branch_id
+
+      if (shiftBranchId) {
+        // Get all active nozzles for this branch
+        const activeNozzlesResult = await client.query(
+          `SELECT n.id, n.number, i.item_name as fuel_type
+           FROM nozzles n
+           LEFT JOIN items i ON n.item_id = i.id
+           WHERE n.branch_id = $1 AND n.status = 'active'`,
+          [shiftBranchId]
+        )
+
+        const activeNozzleIds = new Set(activeNozzlesResult.rows.map((n: any) => n.id))
+        const submittedNozzleIds = new Set(
+          nozzle_readings
+            .filter((r: any) => r.nozzle_id && !isNaN(r.closing_reading))
+            .map((r: any) => r.nozzle_id)
+        )
+
+        // Find nozzles that are active but missing readings
+        const missingNozzles = activeNozzlesResult.rows.filter(
+          (n: any) => !submittedNozzleIds.has(n.id)
+        )
+
+        if (missingNozzles.length > 0) {
+          const missingList = missingNozzles
+            .map((n: any) => `Nozzle ${n.number} (${n.fuel_type || 'Unknown'})`)
+            .join(', ')
+          
+          await client.query('ROLLBACK')
+          client.release()
+          return NextResponse.json(
+            { 
+              error: `Cannot close shift: missing readings for ${missingNozzles.length} active nozzle(s): ${missingList}. Please enter closing readings for all nozzles.`,
+              missingNozzles: missingNozzles.map((n: any) => ({ id: n.id, number: n.number, fuel_type: n.fuel_type }))
+            },
+            { status: 400 }
+          )
+        }
+      }
     }
 
     const shiftCheck = await client.query(
