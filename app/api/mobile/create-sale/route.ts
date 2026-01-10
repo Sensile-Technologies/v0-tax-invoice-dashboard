@@ -238,6 +238,31 @@ export async function POST(request: Request) {
         console.log(`[Mobile Create Sale] Reduced tank ${tankId} stock by ${correctQuantity} liters`)
       }
 
+      // Create loyalty_transaction record for loyalty sales
+      if (is_loyalty_customer) {
+        const loyaltyCustomerName = loyalty_customer_name || customer_name || 'Walk-in Customer'
+        const loyaltyCustomerPin = loyalty_customer_pin || kra_pin || ''
+        const pointsEarned = Math.floor(total_amount / 100) // 1 point per 100 KES
+        
+        await client.query(
+          `INSERT INTO loyalty_transactions 
+           (branch_id, sale_id, customer_name, customer_pin, transaction_date, transaction_amount, points_earned, payment_method, fuel_type, quantity)
+           VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8, $9)`,
+          [
+            branch_id,
+            sale.id,
+            loyaltyCustomerName,
+            loyaltyCustomerPin,
+            total_amount,
+            pointsEarned,
+            payment_method || 'cash',
+            fuel_type,
+            correctQuantity
+          ]
+        )
+        console.log(`[Mobile Create Sale] Created loyalty_transaction for sale ${sale.id}, points: ${pointsEarned}`)
+      }
+
       await client.query('COMMIT')
 
       const branchResult = await client.query(
