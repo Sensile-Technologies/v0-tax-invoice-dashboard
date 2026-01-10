@@ -103,19 +103,22 @@ export default function LoyaltyPage() {
         }
 
         const branch = JSON.parse(selectedBranch)
-        const response = await fetch(`/api/customers/list?branch_id=${branch.id}`)
+        // Use /api/customers which correctly uses customer_branches junction table
+        const response = await fetch(`/api/customers?branch_id=${branch.id}`)
         
         if (response.ok) {
           const data = await response.json()
-          const customerList = (data.customers || []).map((c: any) => ({
+          // Map from /api/customers response format
+          const customerList = (data.data || []).map((c: any) => ({
             id: c.id,
-            name: c.name || "Unknown",
+            name: c.cust_nm || "Unknown",
             points: parseInt(c.total_points) || 0,
             tier: getTier(parseInt(c.total_points) || 0),
             purchases: parseInt(c.total_purchases) || 0,
             lastActivity: formatLastActivity(c.last_activity),
-            phone: c.phone,
+            phone: c.tel_no,
             email: c.email,
+            kra_pin: c.cust_tin,
           }))
           setLoyaltyCustomers(customerList)
         }
