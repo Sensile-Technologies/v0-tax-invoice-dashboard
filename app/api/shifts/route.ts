@@ -299,7 +299,7 @@ export async function PATCH(request: NextRequest) {
       if (shiftBranchId) {
         // Get all active nozzles for this branch
         const activeNozzlesResult = await client.query(
-          `SELECT n.id, n.number, i.item_name as fuel_type
+          `SELECT n.id, n.nozzle_number, i.item_name as fuel_type
            FROM nozzles n
            LEFT JOIN items i ON n.item_id = i.id
            WHERE n.branch_id = $1 AND n.status = 'active'`,
@@ -320,7 +320,7 @@ export async function PATCH(request: NextRequest) {
 
         if (missingNozzles.length > 0) {
           const missingList = missingNozzles
-            .map((n: any) => `Nozzle ${n.number} (${n.fuel_type || 'Unknown'})`)
+            .map((n: any) => `Nozzle ${n.nozzle_number} (${n.fuel_type || 'Unknown'})`)
             .join(', ')
           
           await client.query('ROLLBACK')
@@ -328,7 +328,7 @@ export async function PATCH(request: NextRequest) {
           return NextResponse.json(
             { 
               error: `Cannot close shift: missing readings for ${missingNozzles.length} active nozzle(s): ${missingList}. Please enter closing readings for all nozzles.`,
-              missingNozzles: missingNozzles.map((n: any) => ({ id: n.id, number: n.number, fuel_type: n.fuel_type }))
+              missingNozzles: missingNozzles.map((n: any) => ({ id: n.id, number: n.nozzle_number, fuel_type: n.fuel_type }))
             },
             { status: 400 }
           )
