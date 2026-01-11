@@ -77,6 +77,9 @@ async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get("branch_id");
+        const page = parseInt(searchParams.get("page") || "1");
+        const pageSize = parseInt(searchParams.get("pageSize") || "50");
+        const offset = (page - 1) * pageSize;
         if (!branchId) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
@@ -85,12 +88,38 @@ async function GET(request) {
                 status: 400
             });
         }
-        const result = await pool.query("SELECT * FROM loyalty_transactions WHERE branch_id = $1 ORDER BY transaction_date DESC", [
+        const countResult = await pool.query("SELECT COUNT(*) FROM loyalty_transactions WHERE branch_id = $1", [
             branchId
+        ]);
+        const total = parseInt(countResult.rows[0].count);
+        // Get branch-wide aggregates for dashboard cards
+        const aggregatesResult = await pool.query(`SELECT 
+        COALESCE(SUM(points_earned), 0) as total_points,
+        COALESCE(SUM(transaction_amount), 0) as total_revenue,
+        COUNT(DISTINCT customer_name) as unique_customers
+       FROM loyalty_transactions WHERE branch_id = $1`, [
+            branchId
+        ]);
+        const aggregates = aggregatesResult.rows[0];
+        const result = await pool.query("SELECT * FROM loyalty_transactions WHERE branch_id = $1 ORDER BY transaction_date DESC LIMIT $2 OFFSET $3", [
+            branchId,
+            pageSize,
+            offset
         ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
-            data: result.rows
+            data: result.rows,
+            aggregates: {
+                totalPoints: parseFloat(aggregates.total_points) || 0,
+                totalRevenue: parseFloat(aggregates.total_revenue) || 0,
+                uniqueCustomers: parseInt(aggregates.unique_customers) || 0
+            },
+            pagination: {
+                page,
+                pageSize,
+                total,
+                totalPages: Math.ceil(total / pageSize)
+            }
         });
     } catch (error) {
         console.error("Error fetching loyalty transactions:", error);
