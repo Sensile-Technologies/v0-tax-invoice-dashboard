@@ -7725,8 +7725,8 @@
   }
 
   @media (min-width: 40rem) {
-    .sm\:text-\[55px\] {
-      font-size: 55px;
+    .sm\:text-\[50px\] {
+      font-size: 50px;
     }
   }
 
