@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, TrendingUp, Users, Award, Calendar, Leaf } from "lucide-react"
+import { Search, TrendingUp, Users, Award, Calendar, Leaf, ChevronLeft, ChevronRight } from "lucide-react"
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
 import { useCurrency } from "@/lib/currency-utils"
@@ -47,12 +47,18 @@ export default function LoyaltyPage() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [dateRange, setDateRange] = useState({ from: "", to: "" })
-  const [searchTerm, setSearchTerm] = useState("")
   const { formatCurrency } = useCurrency()
   const [loyaltyTransactions, setLoyaltyTransactions] = useState<any[]>([])
   const [loyaltyCustomers, setLoyaltyCustomers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingCustomers, setLoadingCustomers] = useState(true)
+  const [transactionsPage, setTransactionsPage] = useState(1)
+  const [transactionsPagination, setTransactionsPagination] = useState({ total: 0, totalPages: 1 })
+  const [transactionsAggregates, setTransactionsAggregates] = useState({ totalPoints: 0, totalRevenue: 0, uniqueCustomers: 0 })
+  const [customersPage, setCustomersPage] = useState(1)
+  const [customersPagination, setCustomersPagination] = useState({ total: 0, totalPages: 1 })
+  const [customerSearch, setCustomerSearch] = useState("")
+  const pageSize = 50
 
   const getTier = (points: number) => {
     if (points >= 4000) return "Platinum"
@@ -82,11 +88,17 @@ export default function LoyaltyPage() {
         if (!selectedBranch) return
 
         const branch = JSON.parse(selectedBranch)
-        const response = await fetch(`/api/loyalty-transactions?branch_id=${branch.id}`)
+        const response = await fetch(`/api/loyalty-transactions?branch_id=${branch.id}&page=${transactionsPage}&pageSize=${pageSize}`)
         const result = await response.json()
 
         if (!result.success) throw new Error(result.error)
         setLoyaltyTransactions(result.data || [])
+        if (result.pagination) {
+          setTransactionsPagination({ total: result.pagination.total, totalPages: result.pagination.totalPages })
+        }
+        if (result.aggregates) {
+          setTransactionsAggregates(result.aggregates)
+        }
       } catch (error) {
         console.error("Error fetching loyalty transactions:", error)
       } finally {
@@ -94,6 +106,10 @@ export default function LoyaltyPage() {
       }
     }
 
+    fetchLoyaltyTransactions()
+  }, [transactionsPage])
+
+  useEffect(() => {
     const fetchCustomers = async () => {
       try {
         const selectedBranch = localStorage.getItem("selectedBranch")
@@ -103,12 +119,11 @@ export default function LoyaltyPage() {
         }
 
         const branch = JSON.parse(selectedBranch)
-        // Use /api/customers which correctly uses customer_branches junction table
-        const response = await fetch(`/api/customers?branch_id=${branch.id}`)
+        const searchParam = customerSearch ? `&search=${encodeURIComponent(customerSearch)}` : ''
+        const response = await fetch(`/api/customers?branch_id=${branch.id}&page=${customersPage}&pageSize=${pageSize}${searchParam}`)
         
         if (response.ok) {
           const data = await response.json()
-          // Map from /api/customers response format
           const customerList = (data.data || []).map((c: any) => ({
             id: c.id,
             name: c.cust_nm || "Unknown",
@@ -121,6 +136,9 @@ export default function LoyaltyPage() {
             kra_pin: c.cust_tin,
           }))
           setLoyaltyCustomers(customerList)
+          if (data.pagination) {
+            setCustomersPagination({ total: data.pagination.total, totalPages: data.pagination.totalPages })
+          }
         }
       } catch (error) {
         console.error("Error fetching customers:", error)
@@ -129,19 +147,16 @@ export default function LoyaltyPage() {
       }
     }
 
-    fetchLoyaltyTransactions()
     fetchCustomers()
-    const interval = setInterval(fetchLoyaltyTransactions, 5000)
-    return () => clearInterval(interval)
-  }, [])
+  }, [customersPage, customerSearch])
 
-  const totalPointsIssued = loyaltyTransactions.reduce((sum, t) => sum + (parseFloat(t.points_earned) || 0), 0)
-  const uniqueCustomers = new Set(loyaltyTransactions.map((t) => t.customer_name)).size
-  const totalRevenue = loyaltyTransactions.reduce((sum, t) => sum + (parseFloat(t.transaction_amount) || 0), 0)
+  // Use aggregates from API for branch-wide totals (not from page data)
+  const totalPointsIssued = transactionsAggregates.totalPoints
+  const uniqueCustomers = transactionsAggregates.uniqueCustomers
+  const totalRevenue = transactionsAggregates.totalRevenue
 
-  const filteredCustomers = loyaltyCustomers.filter((customer) =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  // Customers are already filtered server-side via search param
+  const filteredCustomers = loyaltyCustomers
 
   return (
     <div className="flex min-h-screen w-full overflow-x-hidden relative">
@@ -188,8 +203,11 @@ export default function LoyaltyPage() {
                   <Input
                     type="search"
                     placeholder="Search customers..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={customerSearch}
+                    onChange={(e) => {
+                      setCustomerSearch(e.target.value)
+                      setCustomersPage(1)
+                    }}
                     className="pl-9 rounded-xl"
                   />
                 </div>
@@ -252,7 +270,7 @@ export default function LoyaltyPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {loyaltyTransactions.length > 0 ? (totalPointsIssued / loyaltyTransactions.length).toFixed(1) : "0"}
+                    {transactionsPagination.total > 0 ? (totalPointsIssued / transactionsPagination.total).toFixed(1) : "0"}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">Points per transaction</p>
                 </CardContent>
@@ -341,6 +359,36 @@ export default function LoyaltyPage() {
                         </tbody>
                       </table>
                     </div>
+                    <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+                      <div>Showing {filteredCustomers.length} of {customersPagination.total} customer(s)</div>
+                    </div>
+                    {customersPagination.totalPages > 1 && (
+                      <div className="mt-4 flex items-center justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCustomersPage(p => Math.max(1, p - 1))}
+                          disabled={customersPage === 1}
+                          className="rounded-lg"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                          Previous
+                        </Button>
+                        <span className="px-3 py-1 text-sm">
+                          Page {customersPage} of {customersPagination.totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCustomersPage(p => Math.min(customersPagination.totalPages, p + 1))}
+                          disabled={customersPage === customersPagination.totalPages}
+                          className="rounded-lg"
+                        >
+                          Next
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -424,7 +472,9 @@ export default function LoyaltyPage() {
                           </table>
                         </div>
                         <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-                          <div>Showing {loyaltyTransactions.length} transaction(s)</div>
+                          <div>
+                            Showing {loyaltyTransactions.length} of {transactionsPagination.total} transaction(s)
+                          </div>
                           <div className="flex items-center gap-4">
                             <div className="font-medium text-foreground">
                               Total Points: <span className="text-green-600">{totalPointsIssued.toFixed(0)} pts</span>
@@ -434,6 +484,33 @@ export default function LoyaltyPage() {
                             </div>
                           </div>
                         </div>
+                        {transactionsPagination.totalPages > 1 && (
+                          <div className="mt-4 flex items-center justify-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setTransactionsPage(p => Math.max(1, p - 1))}
+                              disabled={transactionsPage === 1}
+                              className="rounded-lg"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                              Previous
+                            </Button>
+                            <span className="px-3 py-1 text-sm">
+                              Page {transactionsPage} of {transactionsPagination.totalPages}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setTransactionsPage(p => Math.min(transactionsPagination.totalPages, p + 1))}
+                              disabled={transactionsPage === transactionsPagination.totalPages}
+                              className="rounded-lg"
+                            >
+                              Next
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
                       </>
                     )}
                   </CardContent>
