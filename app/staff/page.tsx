@@ -150,7 +150,7 @@ export default function BranchStaffPage() {
               <p className="text-xs md:text-sm text-blue-800">
                 <strong>Note:</strong> To add, edit, or manage staff assignments, please visit the{" "}
                 <a href="/headquarters" className="underline font-semibold hover:text-blue-900">
-                  Headquarters
+                  Head Office
                 </a>{" "}
                 page and access the Users Management section.
               </p>

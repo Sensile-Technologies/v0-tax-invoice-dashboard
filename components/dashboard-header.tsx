@@ -48,12 +48,12 @@ export function DashboardHeader({
   onMobileMenuToggle,
 }: DashboardHeaderProps) {
   const [selectedBranch, setSelectedBranch] = useState(currentBranch)
-  const [branches, setBranches] = useState<Array<{ id: string; name: string; type: string; status?: string }>>([{ id: "hq", name: "Headquarters", type: "headquarters", status: "active" }])
+  const [branches, setBranches] = useState<Array<{ id: string; name: string; type: string; status?: string }>>([{ id: "hq", name: "Head Office", type: "headquarters", status: "active" }])
   const [notifications, setNotifications] = useState([
     { id: 1, title: "Notification 1", message: "This is the first notification", time: "10:00 AM", unread: true },
     { id: 2, title: "Notification 2", message: "This is the second notification", time: "11:00 AM", unread: false },
   ])
-  const [currentBranchName, setCurrentBranchName] = useState("Headquarters")
+  const [currentBranchName, setCurrentBranchName] = useState("Head Office")
   const [userName, setUserName] = useState("")
   const [userRole, setUserRole] = useState<string>("")
   const [canSwitchBranches, setCanSwitchBranches] = useState(true)
@@ -107,7 +107,7 @@ export function DashboardHeader({
             if (hqRoles.includes(role) && !storedBranch) {
               // Directors/vendors start at HQ by default
               setSelectedBranch("hq")
-              setCurrentBranchName("Headquarters")
+              setCurrentBranchName("Head Office")
             } else if (storedBranch) {
               // Restore from localStorage for users who can switch branches
               try {
@@ -178,7 +178,7 @@ export function DashboardHeader({
         // For directors/vendors, always add HQ option (even if no branches exist)
         if (canSwitch) {
           const branchList = [
-            { id: "hq", name: "Headquarters", type: "headquarters", status: "active" },
+            { id: "hq", name: "Head Office", type: "headquarters", status: "active" },
             ...data.map((b: any) => ({
               id: b.id,
               name: b.name,
@@ -214,7 +214,7 @@ export function DashboardHeader({
     setSelectedBranch(branchId)
     if (branchId === "hq") {
       localStorage.removeItem("selectedBranch")
-      setCurrentBranchName("Headquarters")
+      setCurrentBranchName("Head Office")
       router.push("/headquarters")
     } else {
       const branch = branches.find((b) => b.id === branchId)

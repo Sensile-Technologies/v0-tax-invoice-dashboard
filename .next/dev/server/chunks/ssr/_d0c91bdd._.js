@@ -662,7 +662,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
     const [branches, setBranches] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([
         {
             id: "hq",
-            name: "Headquarters",
+            name: "Head Office",
             type: "headquarters",
             status: "active"
         }
@@ -683,7 +683,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
             unread: false
         }
     ]);
-    const [currentBranchName, setCurrentBranchName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("Headquarters");
+    const [currentBranchName, setCurrentBranchName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("Head Office");
     const [userName, setUserName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [userRole, setUserRole] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [canSwitchBranches, setCanSwitchBranches] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
@@ -738,7 +738,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                         if (hqRoles.includes(role) && !storedBranch) {
                             // Directors/vendors start at HQ by default
                             setSelectedBranch("hq");
-                            setCurrentBranchName("Headquarters");
+                            setCurrentBranchName("Head Office");
                         } else if (storedBranch) {
                             // Restore from localStorage for users who can switch branches
                             try {
@@ -808,7 +808,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                     const branchList = [
                         {
                             id: "hq",
-                            name: "Headquarters",
+                            name: "Head Office",
                             type: "headquarters",
                             status: "active"
                         },
@@ -846,7 +846,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
         setSelectedBranch(branchId);
         if (branchId === "hq") {
             localStorage.removeItem("selectedBranch");
-            setCurrentBranchName("Headquarters");
+            setCurrentBranchName("Head Office");
             router.push("/headquarters");
         } else {
             const branch = branches.find((b)=>b.id === branchId);
@@ -2804,7 +2804,7 @@ function HeadquartersPage() {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                         className: "text-3xl font-bold tracking-tight text-balance text-white",
-                                        children: "Headquarters Overview"
+                                        children: "Head Office Overview"
                                     }, void 0, false, {
                                         fileName: "[project]/app/headquarters/page.tsx",
                                         lineNumber: 706,

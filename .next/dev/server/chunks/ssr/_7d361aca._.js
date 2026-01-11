@@ -226,7 +226,7 @@ const regularNavigationItems = [
         href: "/configuration/tax-service"
     }
 ];
-const headquartersNavigationItems = [
+const headOfficeNavigationItems = [
     {
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layout$2d$dashboard$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__LayoutDashboard$3e$__["LayoutDashboard"],
         label: "Overview",
@@ -266,7 +266,7 @@ const headquartersNavigationItems = [
 function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transparent = false, mobileOpen = false, onMobileClose }) {
     const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePathname"])();
     const [openSections, setOpenSections] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].useState({});
-    const navigationItems = isHeadquarters ? headquartersNavigationItems : regularNavigationItems;
+    const navigationItems = isHeadquarters ? headOfficeNavigationItems : regularNavigationItems;
     const toggleSection = (section)=>{
         setOpenSections((prev)=>({
                 ...prev,
@@ -1469,7 +1469,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
     const [branches, setBranches] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([
         {
             id: "hq",
-            name: "Headquarters",
+            name: "Head Office",
             type: "headquarters",
             status: "active"
         }
@@ -1490,7 +1490,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
             unread: false
         }
     ]);
-    const [currentBranchName, setCurrentBranchName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("Headquarters");
+    const [currentBranchName, setCurrentBranchName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("Head Office");
     const [userName, setUserName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [userRole, setUserRole] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [canSwitchBranches, setCanSwitchBranches] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
@@ -1545,7 +1545,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                         if (hqRoles.includes(role) && !storedBranch) {
                             // Directors/vendors start at HQ by default
                             setSelectedBranch("hq");
-                            setCurrentBranchName("Headquarters");
+                            setCurrentBranchName("Head Office");
                         } else if (storedBranch) {
                             // Restore from localStorage for users who can switch branches
                             try {
@@ -1615,7 +1615,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                     const branchList = [
                         {
                             id: "hq",
-                            name: "Headquarters",
+                            name: "Head Office",
                             type: "headquarters",
                             status: "active"
                         },
@@ -1653,7 +1653,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
         setSelectedBranch(branchId);
         if (branchId === "hq") {
             localStorage.removeItem("selectedBranch");
-            setCurrentBranchName("Headquarters");
+            setCurrentBranchName("Head Office");
             router.push("/headquarters");
         } else {
             const branch = branches.find((b)=>b.id === branchId);

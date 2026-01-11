@@ -59,7 +59,7 @@ const regularNavigationItems: NavigationItem[] = [
   { icon: Settings, label: "Tax Service", href: "/configuration/tax-service" },
 ]
 
-const headquartersNavigationItems: NavigationItem[] = [
+const headOfficeNavigationItems: NavigationItem[] = [
   { icon: LayoutDashboard, label: "Overview", href: "/headquarters" },
   { icon: TrendingUp, label: "Performance", href: "/headquarters/performance" },
   { icon: BarChart3, label: "Analytics", href: "/headquarters/analytics" },
@@ -79,7 +79,7 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname()
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({})
-  const navigationItems = isHeadquarters ? headquartersNavigationItems : regularNavigationItems
+  const navigationItems = isHeadquarters ? headOfficeNavigationItems : regularNavigationItems
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({

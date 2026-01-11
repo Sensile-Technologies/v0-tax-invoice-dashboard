@@ -703,7 +703,7 @@ export default function HeadquartersPage() {
         {/* Header Section */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-balance text-white">Headquarters Overview</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-balance text-white">Head Office Overview</h1>
             <p className="mt-1 text-white/80 text-pretty">Monitor all branches and organization performance</p>
           </div>
           <div className="flex gap-3">
