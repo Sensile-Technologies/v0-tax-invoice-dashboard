@@ -32,7 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { signOut, getCurrentUser } from "@/lib/auth/client"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 interface DashboardHeaderProps {
   currentBranch?: string
@@ -58,6 +58,8 @@ export function DashboardHeader({
   const [userRole, setUserRole] = useState<string>("")
   const [canSwitchBranches, setCanSwitchBranches] = useState(true)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const branchIdFromUrl = searchParams.get('branch')
 
   useEffect(() => {
     const initSession = async () => {
@@ -151,6 +153,18 @@ export function DashboardHeader({
     // fetchBranches is called after session is initialized
     // to ensure canSwitchBranches is set correctly
   }, [])
+
+  // Handle branch from URL query parameter
+  useEffect(() => {
+    if (branchIdFromUrl && branches.length > 1) {
+      const branchFromUrl = branches.find(b => b.id === branchIdFromUrl)
+      if (branchFromUrl) {
+        setSelectedBranch(branchFromUrl.id)
+        setCurrentBranchName(branchFromUrl.name)
+        localStorage.setItem("selectedBranch", JSON.stringify(branchFromUrl))
+      }
+    }
+  }, [branchIdFromUrl, branches])
 
   const fetchBranchesWithRole = async (canSwitch: boolean) => {
     try {
