@@ -7775,13 +7775,6 @@
   }
 
   @media (min-width: 40rem) {
-    .sm\:text-4xl {
-      font-size: var(--text-4xl);
-      line-height: var(--tw-leading, var(--text-4xl--line-height));
-    }
-  }
-
-  @media (min-width: 40rem) {
     .sm\:text-base {
       font-size: var(--text-base);
       line-height: var(--tw-leading, var(--text-base--line-height));
@@ -7792,6 +7785,12 @@
     .sm\:text-sm {
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .sm\:text-\[44px\] {
+      font-size: 44px;
     }
   }
 
