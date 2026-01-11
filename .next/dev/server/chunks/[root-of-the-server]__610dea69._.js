@@ -78,26 +78,50 @@ async function GET(request) {
         const { searchParams } = new URL(request.url);
         const branchId = searchParams.get('branch_id');
         const search = searchParams.get('search');
-        let query = `
-      SELECT DISTINCT c.id, c.cust_nm, c.cust_tin, c.cust_no, c.tel_no, c.email
+        const page = parseInt(searchParams.get('page') || '1');
+        const pageSize = parseInt(searchParams.get('pageSize') || '50');
+        const offset = (page - 1) * pageSize;
+        let baseQuery = `
       FROM customers c
       INNER JOIN customer_branches cb ON c.id = cb.customer_id
       WHERE c.use_yn = 'Y' AND cb.status = 'active'
     `;
         const params = [];
+        let branchParamIndex = null;
         if (branchId) {
             params.push(branchId);
-            query += ` AND cb.branch_id = $${params.length}`;
+            branchParamIndex = params.length;
+            baseQuery += ` AND cb.branch_id = $${branchParamIndex}`;
         }
         if (search) {
             params.push(`%${search}%`);
-            query += ` AND (c.cust_nm ILIKE $${params.length} OR c.cust_tin ILIKE $${params.length} OR c.tel_no ILIKE $${params.length})`;
+            baseQuery += ` AND (c.cust_nm ILIKE $${params.length} OR c.cust_tin ILIKE $${params.length} OR c.tel_no ILIKE $${params.length})`;
         }
-        query += ' ORDER BY c.cust_nm';
-        const result = await pool.query(query, params);
+        const countResult = await pool.query(`SELECT COUNT(DISTINCT c.id) ${baseQuery}`, params);
+        const total = parseInt(countResult.rows[0].count);
+        const dataParams = [
+            ...params,
+            pageSize,
+            offset
+        ];
+        const limitParamIndex = dataParams.length - 1;
+        const offsetParamIndex = dataParams.length;
+        // Build branch-scoped aggregates with parameterized branch_id (reuses the same param index)
+        const branchCondition = branchParamIndex ? ` AND lt.branch_id = $${branchParamIndex}` : '';
+        const result = await pool.query(`SELECT DISTINCT c.id, c.cust_nm, c.cust_tin, c.cust_no, c.tel_no, c.email,
+        COALESCE((SELECT SUM(lt.points_earned) FROM loyalty_transactions lt WHERE (lt.customer_name = c.cust_nm OR lt.customer_pin = c.cust_tin)${branchCondition}), 0) as total_points,
+        COALESCE((SELECT COUNT(*) FROM loyalty_transactions lt WHERE (lt.customer_name = c.cust_nm OR lt.customer_pin = c.cust_tin)${branchCondition}), 0) as total_purchases,
+        (SELECT MAX(lt.transaction_date) FROM loyalty_transactions lt WHERE (lt.customer_name = c.cust_nm OR lt.customer_pin = c.cust_tin)${branchCondition}) as last_activity
+       ${baseQuery} ORDER BY c.cust_nm LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}`, dataParams);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
-            data: result.rows
+            data: result.rows,
+            pagination: {
+                page,
+                pageSize,
+                total,
+                totalPages: Math.ceil(total / pageSize)
+            }
         });
     } catch (error) {
         console.error("Error fetching customers:", error);
