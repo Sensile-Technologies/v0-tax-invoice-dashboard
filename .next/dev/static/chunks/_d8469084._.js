@@ -3190,8 +3190,8 @@ function LoyaltyPage() {
     // - Green Purchases: Count of unique loyalty transactions
     const impactMetrics = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "LoyaltyPage.useMemo[impactMetrics]": ()=>{
-            const totalRevenue = transactionsAggregates.totalRevenue || 0;
-            const totalTransactions = transactionsPagination.total || 0;
+            const totalRevenue = Number(transactionsAggregates.totalRevenue) || 0;
+            const totalTransactions = Number(transactionsPagination.total) || 0;
             const co2Offset = Math.round(totalRevenue / 100 * 0.5) // 0.5 kg CO2 per 100 KES
             ;
             const treesEquivalent = Math.round(co2Offset / 22) // 22 kg CO2 per tree per year
