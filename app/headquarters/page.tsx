@@ -272,8 +272,8 @@ export default function HeadquartersPage() {
     if (branchId === "hq") {
       router.push("/headquarters")
     } else {
-      // Navigate to sales page with branch context (can be expanded to dedicated branch pages)
-      router.push(`/sales?branch=${branchId}`)
+      // Navigate to sales summary page with branch context
+      router.push(`/sales/summary?branch=${branchId}`)
     }
   }
 
