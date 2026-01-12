@@ -1219,10 +1219,6 @@
     inset: calc(var(--spacing) * 0);
   }
 
-  .-top-0\.5 {
-    top: calc(var(--spacing) * -.5);
-  }
-
   .-top-1 {
     top: calc(var(--spacing) * -1);
   }
@@ -7536,8 +7532,8 @@
   }
 
   @media (min-width: 40rem) {
-    .sm\:-top-1 {
-      top: calc(var(--spacing) * -1);
+    .sm\:-top-2 {
+      top: calc(var(--spacing) * -2);
     }
   }
 
