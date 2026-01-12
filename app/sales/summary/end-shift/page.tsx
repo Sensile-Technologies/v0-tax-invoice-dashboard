@@ -204,6 +204,17 @@ export default function EndShiftPage() {
         return false
       }
     }
+    for (const tank of tanks) {
+      const openingStock = tankBaselines[tank.id] || 0
+      const closingStock = parseFloat(tankStocks[tank.id] || "0") || 0
+      if (closingStock > openingStock) {
+        const stockReceived = parseFloat(tankStockReceived[tank.id] || "0") || 0
+        if (stockReceived <= 0) {
+          toast.error(`Please enter stock received for ${tank.tank_name || 'tank'} (closing stock is higher than opening)`)
+          return false
+        }
+      }
+    }
     return true
   }
 
