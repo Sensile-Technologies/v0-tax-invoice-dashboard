@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { DialogDescription } from "@/components/ui/dialog"
 import { CardDescription } from "@/components/ui/card"
 import { useState, useEffect } from "react"
@@ -37,6 +38,7 @@ import {
 } from "recharts"
 
 export function SalesSummaryContent() {
+  const router = useRouter()
   const { formatCurrency } = useCurrency()
   const [sales, setSales] = useState<any[]>([])
   const [nozzles, setNozzles] = useState<any[]>([])
@@ -813,7 +815,7 @@ export function SalesSummaryContent() {
               <DropdownMenuItem onClick={() => openShiftDialog("start")} disabled={!!currentShift}>
                 Start Shift
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => openShiftDialog("end")} disabled={!currentShift}>
+              <DropdownMenuItem onClick={() => router.push('/sales/summary/end-shift')} disabled={!currentShift}>
                 End Shift
               </DropdownMenuItem>
             </DropdownMenuContent>
