@@ -265,9 +265,17 @@ export default function EndShiftPage() {
         }),
       })
 
-      const result = await response.json()
+      const responseText = await response.text()
+      let result
+      try {
+        result = responseText ? JSON.parse(responseText) : {}
+      } catch {
+        console.error("Response was not valid JSON:", responseText)
+        throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}`)
+      }
+      
       if (!response.ok) {
-        throw new Error(result.error || "Failed to end shift")
+        throw new Error(result.error || `Failed to end shift: ${response.status}`)
       }
 
       toast.success("Shift ended successfully")
