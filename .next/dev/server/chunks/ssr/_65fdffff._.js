@@ -2932,7 +2932,7 @@ function EndShiftPage() {
                 setNozzles(nozzlesData.data || []);
                 setTanks(tanksData.data || []);
                 setDispensers(dispensersData.data || []);
-                const allStaff = staffData.data || staffData || [];
+                const allStaff = Array.isArray(staffData.staff) ? staffData.staff : Array.isArray(staffData.data) ? staffData.data : [];
                 const branchCashiers = allStaff.filter((s)=>s.role?.toLowerCase() === 'cashier' && s.status === 'active').map((s)=>({
                         id: s.id,
                         name: s.full_name || s.username || 'Unknown'
