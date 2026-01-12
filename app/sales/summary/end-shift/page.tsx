@@ -256,9 +256,8 @@ export default function EndShiftPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          shift_id: currentShift.id,
-          branch_id: branchId,
-          action: "end",
+          id: currentShift.id,
+          status: "completed",
           notes,
           nozzle_readings: readings,
           tank_stocks: tankData,
