@@ -3272,7 +3272,7 @@ function EndShiftPage() {
                         }))
                 }));
             const response = await fetch("/api/shifts", {
-                method: "PUT",
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
                 },

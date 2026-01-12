@@ -242,7 +242,7 @@ export default function EndShiftPage() {
       }))
 
       const response = await fetch("/api/shifts", {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           shift_id: currentShift.id,
