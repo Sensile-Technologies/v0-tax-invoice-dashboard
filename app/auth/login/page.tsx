@@ -71,7 +71,7 @@ export default function LoginPage() {
           <div className="flex justify-center">
             <Image src="/flow360-logo.png" alt="Flow360 Logo" width={64} height={64} className="rounded-full sm:w-20 sm:h-20" />
           </div>
-          <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold text-primary">flow360<sup className="text-xs sm:text-sm align-top relative -top-1 sm:-top-3">™</sup></CardTitle>
+          <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold text-primary">flow360<sup className="text-xs sm:text-sm relative -top-0.5 sm:-top-1">™</sup></CardTitle>
           <p className="text-center text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
