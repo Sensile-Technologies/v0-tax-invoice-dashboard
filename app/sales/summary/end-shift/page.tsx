@@ -89,22 +89,24 @@ export default function EndShiftPage() {
         
         setBranchId(currentBranchId)
 
-        const [shiftRes, nozzlesRes, tanksRes, dispensersRes, cashiersRes, salesRes] = await Promise.all([
+        const [shiftRes, nozzlesRes, tanksRes, dispensersRes, cashiersRes, salesRes, baselinesRes] = await Promise.all([
           fetch(`/api/shifts?branch_id=${currentBranchId}&status=active`, { credentials: 'include' }),
           fetch(`/api/nozzles?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/tanks?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/dispensers?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/shifts/attendants?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/sales?branch_id=${currentBranchId}&limit=1000`, { credentials: 'include' }),
+          fetch(`/api/shifts/baselines?branch_id=${currentBranchId}`, { credentials: 'include' }),
         ])
 
-        const [shiftData, nozzlesData, tanksData, dispensersData, cashiersData, salesData] = await Promise.all([
+        const [shiftData, nozzlesData, tanksData, dispensersData, cashiersData, salesData, baselinesData] = await Promise.all([
           shiftRes.json(),
           nozzlesRes.json(),
           tanksRes.json(),
           dispensersRes.json(),
           cashiersRes.json(),
           salesRes.json(),
+          baselinesRes.json(),
         ])
 
         if (!shiftData.data) {
@@ -124,17 +126,25 @@ export default function EndShiftPage() {
         )
         setSales(shiftSales)
 
-        const baselines: Record<string, number> = {}
-        for (const nozzle of nozzlesData.data || []) {
-          baselines[nozzle.id] = nozzle.current_meter_reading || 0
+        if (baselinesData.success && baselinesData.nozzleBaselines) {
+          setNozzleBaselines(baselinesData.nozzleBaselines)
+        } else {
+          const baselines: Record<string, number> = {}
+          for (const nozzle of nozzlesData.data || []) {
+            baselines[nozzle.id] = nozzle.initial_meter_reading || 0
+          }
+          setNozzleBaselines(baselines)
         }
-        setNozzleBaselines(baselines)
 
-        const tankBl: Record<string, number> = {}
-        for (const tank of tanksData.data || []) {
-          tankBl[tank.id] = tank.current_volume || 0
+        if (baselinesData.success && baselinesData.tankBaselines) {
+          setTankBaselines(baselinesData.tankBaselines)
+        } else {
+          const tankBl: Record<string, number> = {}
+          for (const tank of tanksData.data || []) {
+            tankBl[tank.id] = tank.current_stock || 0
+          }
+          setTankBaselines(tankBl)
         }
-        setTankBaselines(tankBl)
 
         const attendantIds = [...new Set(shiftSales.map((s: any) => s.attendant_id).filter(Boolean))]
         const outgoing = (cashiersData.cashiers || []).filter((c: { id: string }) => attendantIds.includes(c.id))
