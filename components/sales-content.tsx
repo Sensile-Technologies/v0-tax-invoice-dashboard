@@ -103,6 +103,9 @@ export function SalesContent() {
   const [endShiftStep, setEndShiftStep] = useState<1 | 2>(1)
   const [cashiers, setCashiers] = useState<Array<{ id: string; name: string }>>([])
   const [incomingAttendants, setIncomingAttendants] = useState<Record<string, string>>({})
+  const [nozzleRtt, setNozzleRtt] = useState<Record<string, string>>({})
+  const [nozzleSelfFueling, setNozzleSelfFueling] = useState<Record<string, string>>({})
+  const [nozzlePrepaidSale, setNozzlePrepaidSale] = useState<Record<string, string>>({})
   const [outgoingAttendants, setOutgoingAttendants] = useState<Array<{ id: string; name: string }>>([])
   const [attendantCollections, setAttendantCollections] = useState<Record<string, Array<{ payment_method: string; amount: string }>>>({})
   const [attendantAppPayments, setAttendantAppPayments] = useState<Record<string, number>>({})
@@ -618,6 +621,9 @@ export function SalesContent() {
         .map(([nozzleId, reading]) => ({
           nozzle_id: nozzleId,
           closing_reading: parseFloat(reading),
+          rtt: parseFloat(nozzleRtt[nozzleId] || "0") || 0,
+          self_fueling: parseFloat(nozzleSelfFueling[nozzleId] || "0") || 0,
+          prepaid_sale: parseFloat(nozzlePrepaidSale[nozzleId] || "0") || 0,
           incoming_attendant_id: incomingAttendants[nozzleId] || null
         }))
       
@@ -675,6 +681,9 @@ export function SalesContent() {
         setTankStocks({})
         setTankStockReceived({})
         setIncomingAttendants({})
+        setNozzleRtt({})
+        setNozzleSelfFueling({})
+        setNozzlePrepaidSale({})
         setAttendantCollections({})
         setAttendantAppPayments({})
         setEndShiftStep(1)
@@ -693,6 +702,9 @@ export function SalesContent() {
     setShowShiftDialog(true)
     setEndShiftStep(1)
     setIncomingAttendants({})
+    setNozzleRtt({})
+    setNozzleSelfFueling({})
+    setNozzlePrepaidSale({})
     setAttendantCollections({})
     setAttendantAppPayments({})
     setOutgoingAttendants([])
@@ -1779,23 +1791,58 @@ export function SalesContent() {
                                   />
                                 </div>
                                 <div>
-                                  <Label className="text-xs text-slate-500">Incoming Attendant</Label>
-                                  <Select
-                                    value={incomingAttendants[nozzle.id] || ""}
-                                    onValueChange={(value) => setIncomingAttendants({ ...incomingAttendants, [nozzle.id]: value })}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select cashier" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {cashiers.map((cashier) => (
-                                        <SelectItem key={cashier.id} value={cashier.id}>
-                                          {cashier.name}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
+                                  <Label className="text-xs text-slate-500">RTT (Litres)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    value={nozzleRtt[nozzle.id] || ""}
+                                    onChange={(e) => setNozzleRtt({ ...nozzleRtt, [nozzle.id]: e.target.value })}
+                                  />
                                 </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-xs text-slate-500">Self Fueling (Litres)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    value={nozzleSelfFueling[nozzle.id] || ""}
+                                    onChange={(e) => setNozzleSelfFueling({ ...nozzleSelfFueling, [nozzle.id]: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-slate-500">Prepaid Sale (Litres)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    value={nozzlePrepaidSale[nozzle.id] || ""}
+                                    onChange={(e) => setNozzlePrepaidSale({ ...nozzlePrepaidSale, [nozzle.id]: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-slate-500">Incoming Attendant</Label>
+                                <Select
+                                  value={incomingAttendants[nozzle.id] || ""}
+                                  onValueChange={(value) => setIncomingAttendants({ ...incomingAttendants, [nozzle.id]: value })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select cashier" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {cashiers.map((cashier) => (
+                                      <SelectItem key={cashier.id} value={cashier.id}>
+                                        {cashier.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
                               {nozzleReadings[nozzle.id] && parseFloat(nozzleReadings[nozzle.id]) < openingReading && (
                                 <p className="text-xs text-red-500">Closing reading cannot be less than opening ({openingReading})</p>
