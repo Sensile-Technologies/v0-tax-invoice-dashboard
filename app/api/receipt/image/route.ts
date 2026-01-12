@@ -3,6 +3,7 @@ import { Pool } from "pg"
 import puppeteer from "puppeteer"
 import QRCode from "qrcode"
 import { execSync } from "child_process"
+import { formatInTimeZone } from "date-fns-tz"
 
 function getChromiumPath(): string {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) {
@@ -66,9 +67,9 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
   const taxableAmount = totalAmount / 1.16
   const vatAmount = totalAmount - taxableAmount
   
-  const saleDate = new Date(sale.sale_date)
-  const dateStr = saleDate.toLocaleDateString('en-KE', { year: 'numeric', month: '2-digit', day: '2-digit' })
-  const timeStr = saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+  const saleTimestamp = new Date(sale.created_at || sale.sale_date)
+  const dateStr = formatInTimeZone(saleTimestamp, 'Africa/Nairobi', 'dd/MM/yyyy')
+  const timeStr = formatInTimeZone(saleTimestamp, 'Africa/Nairobi', 'HH:mm:ss')
   
   const co2PerLitre = sale.fuel_type?.toLowerCase().includes('diesel') ? 2.68 : 2.31
   const totalCo2 = quantity * co2PerLitre

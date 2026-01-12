@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { Pool } from "pg"
 import jsPDF from "jspdf"
 import QRCode from "qrcode"
+import { formatInTimeZone } from "date-fns-tz"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -195,9 +196,9 @@ export async function POST(request: Request) {
       drawLine()
 
       doc.setFontSize(7)
-      const saleDate = new Date(sale.sale_date)
-      const dateStr = saleDate.toLocaleDateString('en-KE', { year: 'numeric', month: '2-digit', day: '2-digit' })
-      const timeStr = saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+      const saleTimestamp = new Date(sale.created_at || sale.sale_date)
+      const dateStr = formatInTimeZone(saleTimestamp, 'Africa/Nairobi', 'dd/MM/yyyy')
+      const timeStr = formatInTimeZone(saleTimestamp, 'Africa/Nairobi', 'HH:mm:ss')
       
       doc.text(`Date:`, leftMargin, y)
       doc.text(dateStr, leftMargin + 22, y)
