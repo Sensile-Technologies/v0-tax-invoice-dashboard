@@ -89,22 +89,22 @@ export default function EndShiftPage() {
         
         setBranchId(currentBranchId)
 
-        const [shiftRes, nozzlesRes, tanksRes, dispensersRes, cashiersRes, salesRes, baselinesRes] = await Promise.all([
+        const [shiftRes, nozzlesRes, tanksRes, dispensersRes, staffRes, salesRes, baselinesRes] = await Promise.all([
           fetch(`/api/shifts?branch_id=${currentBranchId}&status=active`, { credentials: 'include' }),
           fetch(`/api/nozzles?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/tanks?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/dispensers?branch_id=${currentBranchId}`, { credentials: 'include' }),
-          fetch(`/api/shifts/attendants?branch_id=${currentBranchId}`, { credentials: 'include' }),
+          fetch(`/api/staff/list?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/sales?branch_id=${currentBranchId}&limit=1000`, { credentials: 'include' }),
           fetch(`/api/shifts/baselines?branch_id=${currentBranchId}`, { credentials: 'include' }),
         ])
 
-        const [shiftData, nozzlesData, tanksData, dispensersData, cashiersData, salesData, baselinesData] = await Promise.all([
+        const [shiftData, nozzlesData, tanksData, dispensersData, staffData, salesData, baselinesData] = await Promise.all([
           shiftRes.json(),
           nozzlesRes.json(),
           tanksRes.json(),
           dispensersRes.json(),
-          cashiersRes.json(),
+          staffRes.json(),
           salesRes.json(),
           baselinesRes.json(),
         ])
@@ -119,7 +119,12 @@ export default function EndShiftPage() {
         setNozzles(nozzlesData.data || [])
         setTanks(tanksData.data || [])
         setDispensers(dispensersData.data || [])
-        setCashiers(cashiersData.cashiers || cashiersData.data || [])
+        
+        const allStaff = staffData.data || staffData || []
+        const branchCashiers = allStaff
+          .filter((s: any) => s.role?.toLowerCase() === 'cashier' && s.status === 'active')
+          .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
+        setCashiers(branchCashiers)
         
         const shiftSales = (salesData.data || []).filter((s: any) => 
           s.shift_id === shiftData.data.id
@@ -146,8 +151,10 @@ export default function EndShiftPage() {
           setTankBaselines(tankBl)
         }
 
-        const attendantIds = [...new Set(shiftSales.map((s: any) => s.attendant_id).filter(Boolean))]
-        const outgoing = (cashiersData.cashiers || []).filter((c: { id: string }) => attendantIds.includes(c.id))
+        const attendantIds = [...new Set(shiftSales.map((s: any) => s.attendant_id || s.staff_id).filter(Boolean))]
+        const outgoing = allStaff
+          .filter((s: any) => attendantIds.includes(s.id))
+          .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
         setOutgoingAttendants(outgoing)
 
         const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
