@@ -448,14 +448,20 @@ async function PATCH(request) {
                 if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
                     const openingReading = nozzleBaseReadings[reading.nozzle_id] || 0;
                     const incomingAttendantId = reading.incoming_attendant_id || null;
-                    await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading, incoming_attendant_id)
-             VALUES ($1, $2, 'nozzle', $3, $4, $5, $6)`, [
+                    const rtt = parseFloat(reading.rtt) || 0;
+                    const selfFueling = parseFloat(reading.self_fueling) || 0;
+                    const prepaidSale = parseFloat(reading.prepaid_sale) || 0;
+                    await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading, incoming_attendant_id, rtt, self_fueling, prepaid_sale)
+             VALUES ($1, $2, 'nozzle', $3, $4, $5, $6, $7, $8, $9)`, [
                         id,
                         branchId,
                         reading.nozzle_id,
                         openingReading,
                         reading.closing_reading,
-                        incomingAttendantId
+                        incomingAttendantId,
+                        rtt,
+                        selfFueling,
+                        prepaidSale
                     ]);
                     savedNozzleReadings.push({
                         nozzle_id: reading.nozzle_id,

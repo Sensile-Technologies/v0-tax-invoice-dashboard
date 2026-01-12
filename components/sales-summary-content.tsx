@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { toast } from "sonner"
 import { AlertCircle, ChevronDown, Plus } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -78,10 +79,17 @@ export function SalesSummaryContent() {
   const [shiftForm, setShiftForm] = useState({
     date: new Date().toISOString().split("T")[0],
     time: new Date().toTimeString().slice(0, 5),
-    closing_cash: "",
     notes: "",
   })
   const [shiftLoading, setShiftLoading] = useState(false)
+  const [endShiftStep, setEndShiftStep] = useState<1 | 2>(1)
+  const [cashiers, setCashiers] = useState<Array<{ id: string; name: string }>>([])
+  const [incomingAttendants, setIncomingAttendants] = useState<Record<string, string>>({})
+  const [nozzleRtt, setNozzleRtt] = useState<Record<string, string>>({})
+  const [nozzleSelfFueling, setNozzleSelfFueling] = useState<Record<string, string>>({})
+  const [nozzlePrepaidSale, setNozzlePrepaidSale] = useState<Record<string, string>>({})
+  const [outgoingAttendants, setOutgoingAttendants] = useState<Array<{ id: string; name: string }>>([])
+  const [attendantCollections, setAttendantCollections] = useState<Record<string, Array<{ payment_method: string; amount: string }>>>({})
 
   const [showInvoiceDialog, setShowInvoiceDialog] = useState(false)
   const [invoiceLoading, setInvoiceLoading] = useState(false)
@@ -546,7 +554,6 @@ export function SalesSummaryContent() {
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
           time: new Date().toTimeString().slice(0, 5),
-          closing_cash: "",
           notes: "",
         })
       }
@@ -572,7 +579,11 @@ export function SalesSummaryContent() {
         .filter(([_, value]) => value !== "")
         .map(([nozzleId, reading]) => ({
           nozzle_id: nozzleId,
-          closing_reading: parseFloat(reading)
+          closing_reading: parseFloat(reading),
+          rtt: parseFloat(nozzleRtt[nozzleId] || "0") || 0,
+          self_fueling: parseFloat(nozzleSelfFueling[nozzleId] || "0") || 0,
+          prepaid_sale: parseFloat(nozzlePrepaidSale[nozzleId] || "0") || 0,
+          incoming_attendant_id: incomingAttendants[nozzleId] || null
         }))
       
       const tankStocksData = Object.entries(tankStocks)
@@ -582,6 +593,14 @@ export function SalesSummaryContent() {
           closing_reading: parseFloat(stock),
           stock_received: parseFloat(tankStockReceived[tankId] || "0") || 0
         }))
+
+      const collectionsData = Object.entries(attendantCollections).map(([attendantId, payments]) => ({
+        attendant_id: attendantId,
+        payments: payments.map(p => ({
+          payment_method: p.payment_method,
+          amount: parseFloat(p.amount || "0") || 0
+        }))
+      }))
       
       const response = await fetch('/api/shifts', {
         method: 'PATCH',
@@ -590,11 +609,11 @@ export function SalesSummaryContent() {
           id: currentShift.id,
           end_time: new Date().toISOString(),
           status: "completed",
-          closing_cash: shiftForm.closing_cash ? Number.parseFloat(shiftForm.closing_cash) : 0,
           total_sales: totalSales,
           notes: shiftForm.notes || null,
           nozzle_readings: nozzleReadingsData,
           tank_stocks: tankStocksData,
+          attendant_collections: collectionsData,
         })
       })
       
@@ -617,12 +636,17 @@ export function SalesSummaryContent() {
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
           time: new Date().toTimeString().slice(0, 5),
-          closing_cash: "",
           notes: "",
         })
         setNozzleReadings({})
         setTankStocks({})
         setTankStockReceived({})
+        setIncomingAttendants({})
+        setNozzleRtt({})
+        setNozzleSelfFueling({})
+        setNozzlePrepaidSale({})
+        setAttendantCollections({})
+        setEndShiftStep(1)
         fetchData()
       }
     } catch (error) {
@@ -636,17 +660,54 @@ export function SalesSummaryContent() {
   async function openShiftDialog(action: "start" | "end") {
     setShiftAction(action)
     setShowShiftDialog(true)
+    setEndShiftStep(1)
+    setIncomingAttendants({})
+    setNozzleRtt({})
+    setNozzleSelfFueling({})
+    setNozzlePrepaidSale({})
+    setAttendantCollections({})
+    setOutgoingAttendants([])
+    setCashiers([])
     
     if (action === "end" && currentBranchData?.id) {
       try {
-        const res = await fetch(`/api/shifts/baselines?branch_id=${currentBranchData.id}`)
-        const data = await res.json()
-        if (data.success) {
-          setNozzleBaselines(data.nozzleBaselines || {})
-          setTankBaselines(data.tankBaselines || {})
+        const [baselinesRes, cashiersRes, outgoingRes] = await Promise.all([
+          fetch(`/api/shifts/baselines?branch_id=${currentBranchData.id}`),
+          fetch(`/api/shifts/attendants?branch_id=${currentBranchData.id}`),
+          fetch(`/api/sales?branch_id=${currentBranchData.id}&shift_id=${currentShift?.id}&group_by_staff=true`)
+        ])
+        
+        const baselinesData = await baselinesRes.json()
+        if (baselinesData.success) {
+          setNozzleBaselines(baselinesData.nozzleBaselines || {})
+          setTankBaselines(baselinesData.tankBaselines || {})
+        }
+        
+        const cashiersData = await cashiersRes.json()
+        if (cashiersData.success && cashiersData.cashiers) {
+          setCashiers(cashiersData.cashiers)
+        }
+        
+        const outgoingData = await outgoingRes.json()
+        if (outgoingData.success && outgoingData.staffSummary) {
+          setOutgoingAttendants(outgoingData.staffSummary.map((s: any) => ({
+            id: s.staff_id,
+            name: s.staff_name
+          })))
+          const initialCollections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
+          outgoingData.staffSummary.forEach((s: any) => {
+            initialCollections[s.staff_id] = [
+              { payment_method: 'cash', amount: '' },
+              { payment_method: 'mpesa', amount: (s.mpesa_total || 0).toString() },
+              { payment_method: 'card', amount: (s.card_total || 0).toString() },
+              { payment_method: 'mobile_money', amount: (s.mobile_money_total || 0).toString() },
+              { payment_method: 'credit', amount: '' }
+            ]
+          })
+          setAttendantCollections(initialCollections)
         }
       } catch (error) {
-        console.error("Error fetching baselines:", error)
+        console.error("Error fetching shift data:", error)
       }
     }
   }
@@ -1109,9 +1170,14 @@ export function SalesSummaryContent() {
                 </div>
               </div>
             )}
-            {shiftAction === "end" && currentShift && (
+            {shiftAction === "end" && currentShift && endShiftStep === 1 && (
               <ScrollArea className="h-[50vh]">
                 <div className="space-y-4 pr-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant="default">Step 1 of 2</Badge>
+                    <span className="text-sm text-slate-600">Meter Readings & Handover</span>
+                  </div>
+                  
                   <div className="bg-slate-50 p-4 rounded-lg space-y-2">
                     <h4 className="font-semibold text-slate-700">Shift Summary</h4>
                     <div className="grid grid-cols-2 gap-2 text-sm">
@@ -1125,11 +1191,7 @@ export function SalesSummaryContent() {
                           {Math.round((Date.now() - new Date(currentShift.start_time).getTime()) / 3600000)}h
                         </span>
                       </div>
-                      <div>
-                        <span className="text-slate-500">Opening Cash:</span>
-                        <span className="ml-2 font-medium">KES {(currentShift.opening_cash || 0).toLocaleString()}</span>
-                      </div>
-                      <div>
+                      <div className="col-span-2">
                         <span className="text-slate-500">Total Sales:</span>
                         <span className="ml-2 font-medium text-green-600">
                           KES {sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0).toLocaleString()}
@@ -1140,14 +1202,14 @@ export function SalesSummaryContent() {
 
                   {nozzles.length > 0 && (
                     <div className="space-y-3">
-                      <h4 className="font-semibold text-slate-700">Nozzle Meter Readings</h4>
+                      <h4 className="font-semibold text-slate-700">Nozzle Meter Readings & Incoming Attendants</h4>
                       <div className="grid gap-3">
                         {nozzles.map((nozzle) => {
                           const dispenser = dispensers.find((d: any) => d.id === nozzle.dispenser_id)
                           const openingReading = nozzleBaselines[nozzle.id] || 0
                           return (
-                            <div key={nozzle.id} className="bg-slate-50 p-3 rounded-lg space-y-2">
-                              <div className="flex items-center gap-3">
+                            <div key={nozzle.id} className="bg-slate-50 p-3 rounded-lg space-y-3">
+                              <div className="flex items-center gap-2">
                                 <div className="flex-1">
                                   <p className="text-sm font-medium">
                                     {dispenser?.name || 'Dispenser'} - Nozzle {nozzle.nozzle_number}
@@ -1156,15 +1218,72 @@ export function SalesSummaryContent() {
                                     {nozzle.fuel_type} - Opening: {openingReading.toLocaleString()}
                                   </p>
                                 </div>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  min={openingReading}
-                                  placeholder="Closing reading"
-                                  className="w-36"
-                                  value={nozzleReadings[nozzle.id] || ""}
-                                  onChange={(e) => setNozzleReadings({ ...nozzleReadings, [nozzle.id]: e.target.value })}
-                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-xs text-slate-500">Closing Reading</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min={openingReading}
+                                    placeholder="Enter reading"
+                                    value={nozzleReadings[nozzle.id] || ""}
+                                    onChange={(e) => setNozzleReadings({ ...nozzleReadings, [nozzle.id]: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-slate-500">RTT (Litres)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    value={nozzleRtt[nozzle.id] || ""}
+                                    onChange={(e) => setNozzleRtt({ ...nozzleRtt, [nozzle.id]: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-xs text-slate-500">Self Fueling (Litres)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    value={nozzleSelfFueling[nozzle.id] || ""}
+                                    onChange={(e) => setNozzleSelfFueling({ ...nozzleSelfFueling, [nozzle.id]: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-slate-500">Prepaid Sale (Litres)</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    placeholder="0.00"
+                                    value={nozzlePrepaidSale[nozzle.id] || ""}
+                                    onChange={(e) => setNozzlePrepaidSale({ ...nozzlePrepaidSale, [nozzle.id]: e.target.value })}
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-slate-500">Incoming Attendant</Label>
+                                <Select
+                                  value={incomingAttendants[nozzle.id] || ""}
+                                  onValueChange={(value) => setIncomingAttendants({ ...incomingAttendants, [nozzle.id]: value })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select cashier" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {cashiers.map((cashier) => (
+                                      <SelectItem key={cashier.id} value={cashier.id}>
+                                        {cashier.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </div>
                               {nozzleReadings[nozzle.id] && parseFloat(nozzleReadings[nozzle.id]) < openingReading && (
                                 <p className="text-xs text-red-500">Closing reading cannot be less than opening ({openingReading})</p>
@@ -1221,18 +1340,51 @@ export function SalesSummaryContent() {
                       </div>
                     </div>
                   )}
-
-                  <div>
-                    <Label htmlFor="closing-cash">Closing Cash Amount</Label>
-                    <Input
-                      id="closing-cash"
-                      type="number"
-                      placeholder="Enter actual cash in drawer"
-                      value={shiftForm.closing_cash}
-                      onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
-                    />
-                    <p className="text-xs text-slate-500 mt-1">Enter the actual cash amount in the drawer to calculate variance</p>
+                </div>
+              </ScrollArea>
+            )}
+            {shiftAction === "end" && currentShift && endShiftStep === 2 && (
+              <ScrollArea className="h-[50vh]">
+                <div className="space-y-4 pr-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant="default">Step 2 of 2</Badge>
+                    <span className="text-sm text-slate-600">Attendant Collections</span>
                   </div>
+                  
+                  {outgoingAttendants.length > 0 ? (
+                    <div className="space-y-4">
+                      {outgoingAttendants.map((attendant) => (
+                        <div key={attendant.id} className="bg-slate-50 p-4 rounded-lg space-y-3">
+                          <h4 className="font-semibold text-slate-700">{attendant.name}</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {attendantCollections[attendant.id]?.map((payment, idx) => (
+                              <div key={payment.payment_method}>
+                                <Label className="text-xs text-slate-500 capitalize">{payment.payment_method.replace('_', ' ')}</Label>
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  placeholder="0.00"
+                                  value={payment.amount}
+                                  disabled={['mpesa', 'card', 'mobile_money'].includes(payment.payment_method)}
+                                  onChange={(e) => {
+                                    const newCollections = { ...attendantCollections }
+                                    newCollections[attendant.id][idx].amount = e.target.value
+                                    setAttendantCollections(newCollections)
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-slate-500">
+                      No sales recorded during this shift
+                    </div>
+                  )}
+                  
                   <div>
                     <Label htmlFor="shift-notes">Notes (Optional)</Label>
                     <Textarea
@@ -1259,11 +1411,42 @@ export function SalesSummaryContent() {
               </div>
             )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setShowShiftDialog(false)}>Cancel</Button>
-            <Button onClick={shiftAction === "start" ? handleStartShift : handleEndShift} disabled={shiftLoading}>
-              {shiftAction === "start" ? "Start Shift" : "End Shift"}
-            </Button>
+          <DialogFooter className="mt-4 flex-col sm:flex-row gap-2">
+            {shiftAction === "start" && (
+              <>
+                <Button variant="outline" onClick={() => setShowShiftDialog(false)}>Cancel</Button>
+                <Button onClick={handleStartShift} disabled={shiftLoading}>Start Shift</Button>
+              </>
+            )}
+            {shiftAction === "end" && endShiftStep === 1 && (
+              <>
+                <Button variant="outline" onClick={() => setShowShiftDialog(false)}>Cancel</Button>
+                <Button 
+                  onClick={() => {
+                    const missingReadings = nozzles.filter(n => !nozzleReadings[n.id])
+                    if (missingReadings.length > 0) {
+                      toast.error("Please enter closing readings for all nozzles")
+                      return
+                    }
+                    const missingAttendants = nozzles.filter(n => !incomingAttendants[n.id])
+                    if (missingAttendants.length > 0) {
+                      toast.error("Please select an incoming attendant for each nozzle")
+                      return
+                    }
+                    setEndShiftStep(2)
+                  }} 
+                  disabled={shiftLoading}
+                >
+                  Next: Collections
+                </Button>
+              </>
+            )}
+            {shiftAction === "end" && endShiftStep === 2 && (
+              <>
+                <Button variant="outline" onClick={() => setEndShiftStep(1)}>Back</Button>
+                <Button onClick={handleEndShift} disabled={shiftLoading}>End Shift</Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
