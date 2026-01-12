@@ -528,7 +528,7 @@ function LoginPage() {
                                 children: [
                                     "flow360",
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("sup", {
-                                        className: "text-xs sm:text-sm relative -top-1 sm:-top-2",
+                                        className: "text-xs sm:text-sm relative -top-3 sm:-top-5",
                                         children: "™"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/login/page.tsx",
