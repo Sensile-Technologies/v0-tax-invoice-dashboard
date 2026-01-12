@@ -7532,6 +7532,12 @@
   }
 
   @media (min-width: 40rem) {
+    .sm\:-top-3 {
+      top: calc(var(--spacing) * -3);
+    }
+  }
+
+  @media (min-width: 40rem) {
     .sm\:top-auto {
       top: auto;
     }
@@ -7786,13 +7792,6 @@
     .sm\:text-base {
       font-size: var(--text-base);
       line-height: var(--tw-leading, var(--text-base--line-height));
-    }
-  }
-
-  @media (min-width: 40rem) {
-    .sm\:text-lg {
-      font-size: var(--text-lg);
-      line-height: var(--tw-leading, var(--text-lg--line-height));
     }
   }
 
