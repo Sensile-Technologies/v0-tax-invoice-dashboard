@@ -21,7 +21,17 @@ export async function GET(request: NextRequest) {
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
                n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
                d.dispenser_number, COALESCE(i.item_name, 'Unknown') as item_name, 
-               COALESCE(i.item_name, 'Unknown') as fuel_type
+               COALESCE(i.item_name, 'Unknown') as fuel_type,
+               COALESCE(
+                 (SELECT sr.closing_reading 
+                  FROM shift_readings sr 
+                  JOIN shifts s ON sr.shift_id = s.id 
+                  WHERE sr.nozzle_id = n.id AND s.status = 'completed' 
+                  ORDER BY s.end_time DESC NULLS LAST, s.created_at DESC 
+                  LIMIT 1), 
+                 n.initial_meter_reading, 
+                 0
+               ) as current_meter_reading
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
         LEFT JOIN items i ON n.item_id = i.id
@@ -32,7 +42,17 @@ export async function GET(request: NextRequest) {
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
                n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
                d.dispenser_number, COALESCE(i.item_name, 'Unknown') as item_name, 
-               COALESCE(i.item_name, 'Unknown') as fuel_type
+               COALESCE(i.item_name, 'Unknown') as fuel_type,
+               COALESCE(
+                 (SELECT sr.closing_reading 
+                  FROM shift_readings sr 
+                  JOIN shifts s ON sr.shift_id = s.id 
+                  WHERE sr.nozzle_id = n.id AND s.status = 'completed' 
+                  ORDER BY s.end_time DESC NULLS LAST, s.created_at DESC 
+                  LIMIT 1), 
+                 n.initial_meter_reading, 
+                 0
+               ) as current_meter_reading
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
         LEFT JOIN items i ON n.item_id = i.id
