@@ -235,7 +235,7 @@ export function DashboardHeader({
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-card px-3 md:px-6">
+    <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-3 md:px-6">
       <div className="flex flex-1 items-center gap-2 md:gap-4">
         {onMobileMenuToggle && (
           <Button
