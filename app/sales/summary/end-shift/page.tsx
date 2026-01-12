@@ -19,6 +19,7 @@ export default function EndShiftPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [step, setStep] = useState<1 | 2>(1)
 
@@ -73,8 +74,8 @@ export default function EndShiftPage() {
         }
         
         if (!currentBranchId) {
-          toast.error("No branch selected")
-          router.push('/sales/summary')
+          setLoadError("No branch selected. Please select a branch first.")
+          setLoading(false)
           return
         }
         
@@ -99,8 +100,8 @@ export default function EndShiftPage() {
         ])
 
         if (!shiftData.data) {
-          toast.error("No active shift to end")
-          router.push('/sales/summary')
+          setLoadError("No active shift to end. Please start a shift first.")
+          setLoading(false)
           return
         }
 
@@ -148,10 +149,9 @@ export default function EndShiftPage() {
         }
         setAttendantCollections(collections)
 
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error loading end shift data:", error)
-        toast.error("Failed to load shift data")
-        router.push('/sales/summary')
+        setLoadError(error?.message || "Failed to load shift data")
       } finally {
         setLoading(false)
       }
@@ -253,6 +253,25 @@ export default function EndShiftPage() {
     return (
       <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white items-center justify-center">
         <div className="text-white text-lg">Loading shift data...</div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle className="text-red-600">Error Loading End Shift</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-slate-600">{loadError}</p>
+            <Button onClick={() => router.push('/sales/summary')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Sales Summary
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }
