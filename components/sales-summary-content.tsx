@@ -815,7 +815,7 @@ export function SalesSummaryContent() {
               <DropdownMenuItem onClick={() => openShiftDialog("start")} disabled={!!currentShift}>
                 Start Shift
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push('/sales/summary/end-shift')} disabled={!currentShift}>
+              <DropdownMenuItem onClick={() => router.push(`/sales/summary/end-shift?branch=${currentBranchData?.id}`)} disabled={!currentShift}>
                 End Shift
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 export default function EndShiftPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -64,12 +65,19 @@ export default function EndShiftPage() {
         let currentBranchId = user.assigned_branch_id
         
         if (!isRestrictedRole) {
-          const stored = localStorage.getItem('selected_branch')
-          if (stored) {
-            try {
-              const parsed = JSON.parse(stored)
-              currentBranchId = parsed.id
-            } catch {}
+          // First check URL params
+          const urlBranchId = searchParams.get('branch')
+          if (urlBranchId) {
+            currentBranchId = urlBranchId
+          } else {
+            // Then check localStorage
+            const stored = localStorage.getItem('selected_branch')
+            if (stored) {
+              try {
+                const parsed = JSON.parse(stored)
+                currentBranchId = parsed.id
+              } catch {}
+            }
           }
         }
         
@@ -158,7 +166,7 @@ export default function EndShiftPage() {
     }
 
     loadData()
-  }, [router])
+  }, [router, searchParams])
 
   const validateStep1 = () => {
     const missingReadings = nozzles.filter(n => !nozzleReadings[n.id])
