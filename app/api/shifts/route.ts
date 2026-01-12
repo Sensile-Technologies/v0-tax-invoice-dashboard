@@ -248,7 +248,7 @@ export async function PATCH(request: NextRequest) {
   const client = await pool.connect()
   try {
     const body = await request.json()
-    const { id, end_time, closing_cash, total_sales, notes, status, nozzle_readings, tank_stocks } = body
+    const { id, end_time, total_sales, notes, status, nozzle_readings, tank_stocks, attendant_collections } = body
 
     if (!id) {
       client.release()
@@ -307,9 +307,12 @@ export async function PATCH(request: NextRequest) {
         )
 
         const activeNozzleIds = new Set(activeNozzlesResult.rows.map((n: any) => n.id))
+        
+        const isValidNumeric = (val: any) => val !== null && val !== undefined && val !== '' && !isNaN(Number(val))
+        
         const submittedNozzleIds = new Set(
           nozzle_readings
-            .filter((r: any) => r.nozzle_id && !isNaN(r.closing_reading))
+            .filter((r: any) => r.nozzle_id && isValidNumeric(r.closing_reading))
             .map((r: any) => r.nozzle_id)
         )
 
@@ -329,6 +332,27 @@ export async function PATCH(request: NextRequest) {
             { 
               error: `Cannot close shift: missing readings for ${missingNozzles.length} active nozzle(s): ${missingList}. Please enter closing readings for all nozzles.`,
               missingNozzles: missingNozzles.map((n: any) => ({ id: n.id, number: n.nozzle_number, fuel_type: n.fuel_type }))
+            },
+            { status: 400 }
+          )
+        }
+        
+        const nozzlesWithoutAttendants = nozzle_readings
+          .filter((r: any) => r.nozzle_id && isValidNumeric(r.closing_reading) && !r.incoming_attendant_id)
+        
+        if (nozzlesWithoutAttendants.length > 0) {
+          const missingAttendantNozzles = activeNozzlesResult.rows.filter(
+            (n: any) => nozzlesWithoutAttendants.some((r: any) => r.nozzle_id === n.id)
+          )
+          const missingList = missingAttendantNozzles
+            .map((n: any) => `Nozzle ${n.nozzle_number} (${n.fuel_type || 'Unknown'})`)
+            .join(', ')
+          
+          await client.query('ROLLBACK')
+          client.release()
+          return NextResponse.json(
+            { 
+              error: `Cannot close shift: missing incoming attendant for nozzle(s): ${missingList}. Please select an incoming attendant for each nozzle.`
             },
             { status: 400 }
           )
@@ -406,10 +430,10 @@ export async function PATCH(request: NextRequest) {
 
     const result = await client.query(
       `UPDATE shifts 
-       SET end_time = $1, closing_cash = $2, total_sales = $3, notes = $4, status = $5, updated_at = NOW()
-       WHERE id = $6
+       SET end_time = $1, total_sales = $2, notes = $3, status = $4, updated_at = NOW()
+       WHERE id = $5
        RETURNING *`,
-      [endTimeValue, closing_cash || 0, total_sales || 0, notes || null, status || 'completed', id]
+      [endTimeValue, total_sales || 0, notes || null, status || 'completed', id]
     )
 
     const shift = result.rows[0]
@@ -425,10 +449,11 @@ export async function PATCH(request: NextRequest) {
       for (const reading of nozzle_readings) {
         if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
           const openingReading = nozzleBaseReadings[reading.nozzle_id] || 0
+          const incomingAttendantId = reading.incoming_attendant_id || null
           await client.query(
-            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading)
-             VALUES ($1, $2, 'nozzle', $3, $4, $5)`,
-            [id, branchId, reading.nozzle_id, openingReading, reading.closing_reading]
+            `INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading, incoming_attendant_id)
+             VALUES ($1, $2, 'nozzle', $3, $4, $5, $6)`,
+            [id, branchId, reading.nozzle_id, openingReading, reading.closing_reading, incomingAttendantId]
           )
           savedNozzleReadings.push({
             nozzle_id: reading.nozzle_id,
@@ -473,11 +498,28 @@ export async function PATCH(request: NextRequest) {
       }
     }
 
+    await client.query(
+      `DELETE FROM attendant_collections WHERE shift_id = $1`,
+      [id]
+    )
+    
+    if (attendant_collections && attendant_collections.length > 0) {
+      for (const collection of attendant_collections) {
+        if (collection.staff_id && collection.payment_method && collection.amount > 0) {
+          await client.query(
+            `INSERT INTO attendant_collections (shift_id, branch_id, staff_id, payment_method, amount, is_app_payment)
+             VALUES ($1, $2, $3, $4, $5, false)`,
+            [id, branchId, collection.staff_id, collection.payment_method, collection.amount]
+          )
+        }
+      }
+    }
+
     const newShiftResult = await client.query(
       `INSERT INTO shifts (branch_id, start_time, status, opening_cash, notes, created_at)
-       VALUES ($1, $2, 'active', $3, NULL, NOW())
+       VALUES ($1, $2, 'active', 0, NULL, NOW())
        RETURNING *`,
-      [branchId, endTimeValue, closing_cash || 0]
+      [branchId, endTimeValue]
     )
     const newShift = newShiftResult.rows[0]
 

@@ -286,7 +286,7 @@ async function PATCH(request) {
     const client = await pool.connect();
     try {
         const body = await request.json();
-        const { id, end_time, closing_cash, total_sales, notes, status, nozzle_readings, tank_stocks } = body;
+        const { id, end_time, total_sales, notes, status, nozzle_readings, tank_stocks, attendant_collections } = body;
         if (!id) {
             client.release();
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -336,7 +336,8 @@ async function PATCH(request) {
                     shiftBranchId
                 ]);
                 const activeNozzleIds = new Set(activeNozzlesResult.rows.map((n)=>n.id));
-                const submittedNozzleIds = new Set(nozzle_readings.filter((r)=>r.nozzle_id && !isNaN(r.closing_reading)).map((r)=>r.nozzle_id));
+                const isValidNumeric = (val)=>val !== null && val !== undefined && val !== '' && !isNaN(Number(val));
+                const submittedNozzleIds = new Set(nozzle_readings.filter((r)=>r.nozzle_id && isValidNumeric(r.closing_reading)).map((r)=>r.nozzle_id));
                 // Find nozzles that are active but missing readings
                 const missingNozzles = activeNozzlesResult.rows.filter((n)=>!submittedNozzleIds.has(n.id));
                 if (missingNozzles.length > 0) {
@@ -350,6 +351,18 @@ async function PATCH(request) {
                                 number: n.nozzle_number,
                                 fuel_type: n.fuel_type
                             }))
+                    }, {
+                        status: 400
+                    });
+                }
+                const nozzlesWithoutAttendants = nozzle_readings.filter((r)=>r.nozzle_id && isValidNumeric(r.closing_reading) && !r.incoming_attendant_id);
+                if (nozzlesWithoutAttendants.length > 0) {
+                    const missingAttendantNozzles = activeNozzlesResult.rows.filter((n)=>nozzlesWithoutAttendants.some((r)=>r.nozzle_id === n.id));
+                    const missingList = missingAttendantNozzles.map((n)=>`Nozzle ${n.nozzle_number} (${n.fuel_type || 'Unknown'})`).join(', ');
+                    await client.query('ROLLBACK');
+                    client.release();
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                        error: `Cannot close shift: missing incoming attendant for nozzle(s): ${missingList}. Please select an incoming attendant for each nozzle.`
                     }, {
                         status: 400
                     });
@@ -416,11 +429,10 @@ async function PATCH(request) {
             }
         }
         const result = await client.query(`UPDATE shifts 
-       SET end_time = $1, closing_cash = $2, total_sales = $3, notes = $4, status = $5, updated_at = NOW()
-       WHERE id = $6
+       SET end_time = $1, total_sales = $2, notes = $3, status = $4, updated_at = NOW()
+       WHERE id = $5
        RETURNING *`, [
             endTimeValue,
-            closing_cash || 0,
             total_sales || 0,
             notes || null,
             status || 'completed',
@@ -435,13 +447,15 @@ async function PATCH(request) {
             for (const reading of nozzle_readings){
                 if (reading.nozzle_id && !isNaN(reading.closing_reading)) {
                     const openingReading = nozzleBaseReadings[reading.nozzle_id] || 0;
-                    await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading)
-             VALUES ($1, $2, 'nozzle', $3, $4, $5)`, [
+                    const incomingAttendantId = reading.incoming_attendant_id || null;
+                    await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading, incoming_attendant_id)
+             VALUES ($1, $2, 'nozzle', $3, $4, $5, $6)`, [
                         id,
                         branchId,
                         reading.nozzle_id,
                         openingReading,
-                        reading.closing_reading
+                        reading.closing_reading,
+                        incomingAttendantId
                     ]);
                     savedNozzleReadings.push({
                         nozzle_id: reading.nozzle_id,
@@ -487,12 +501,28 @@ async function PATCH(request) {
                 }
             }
         }
+        await client.query(`DELETE FROM attendant_collections WHERE shift_id = $1`, [
+            id
+        ]);
+        if (attendant_collections && attendant_collections.length > 0) {
+            for (const collection of attendant_collections){
+                if (collection.staff_id && collection.payment_method && collection.amount > 0) {
+                    await client.query(`INSERT INTO attendant_collections (shift_id, branch_id, staff_id, payment_method, amount, is_app_payment)
+             VALUES ($1, $2, $3, $4, $5, false)`, [
+                        id,
+                        branchId,
+                        collection.staff_id,
+                        collection.payment_method,
+                        collection.amount
+                    ]);
+                }
+            }
+        }
         const newShiftResult = await client.query(`INSERT INTO shifts (branch_id, start_time, status, opening_cash, notes, created_at)
-       VALUES ($1, $2, 'active', $3, NULL, NOW())
+       VALUES ($1, $2, 'active', 0, NULL, NOW())
        RETURNING *`, [
             branchId,
-            endTimeValue,
-            closing_cash || 0
+            endTimeValue
         ]);
         const newShift = newShiftResult.rows[0];
         await client.query('COMMIT');

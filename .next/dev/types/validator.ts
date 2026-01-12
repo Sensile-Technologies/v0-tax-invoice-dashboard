@@ -1721,6 +1721,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/api/shifts/attendants/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/shifts/attendants">> = Specific
+  const handler = {} as typeof import("../../../app/api/shifts/attendants/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/api/shifts/baselines/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/shifts/baselines">> = Specific

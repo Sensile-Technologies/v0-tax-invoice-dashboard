@@ -97,9 +97,15 @@ export function SalesContent() {
   const [shiftForm, setShiftForm] = useState({
     date: new Date().toISOString().split("T")[0],
     time: new Date().toTimeString().slice(0, 5),
-    closing_cash: "",
     notes: "",
   })
+
+  const [endShiftStep, setEndShiftStep] = useState<1 | 2>(1)
+  const [cashiers, setCashiers] = useState<Array<{ id: string; name: string }>>([])
+  const [incomingAttendants, setIncomingAttendants] = useState<Record<string, string>>({})
+  const [outgoingAttendants, setOutgoingAttendants] = useState<Array<{ id: string; name: string }>>([])
+  const [attendantCollections, setAttendantCollections] = useState<Record<string, Array<{ payment_method: string; amount: string }>>>({})
+  const [attendantAppPayments, setAttendantAppPayments] = useState<Record<string, number>>({})
 
   useEffect(() => {
     const storedBranch = localStorage.getItem("selectedBranch")
@@ -586,7 +592,6 @@ export function SalesContent() {
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
           time: new Date().toTimeString().slice(0, 5),
-          closing_cash: "",
           notes: "",
         })
       }
@@ -612,7 +617,8 @@ export function SalesContent() {
         .filter(([_, value]) => value !== "")
         .map(([nozzleId, reading]) => ({
           nozzle_id: nozzleId,
-          closing_reading: parseFloat(reading)
+          closing_reading: parseFloat(reading),
+          incoming_attendant_id: incomingAttendants[nozzleId] || null
         }))
       
       const tankStocksData = Object.entries(tankStocks)
@@ -623,6 +629,17 @@ export function SalesContent() {
           stock_received: parseFloat(tankStockReceived[tankId] || "0") || 0
         }))
       
+      const collectionsData = Object.entries(attendantCollections)
+        .flatMap(([staffId, payments]) => 
+          payments
+            .filter(p => p.amount && parseFloat(p.amount) > 0)
+            .map(p => ({
+              staff_id: staffId,
+              payment_method: p.payment_method,
+              amount: parseFloat(p.amount)
+            }))
+        )
+      
       const response = await fetch('/api/shifts', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -630,11 +647,11 @@ export function SalesContent() {
           id: currentShift.id,
           end_time: new Date().toISOString(),
           status: "completed",
-          closing_cash: shiftForm.closing_cash ? Number.parseFloat(shiftForm.closing_cash) : 0,
           total_sales: totalSales,
           notes: shiftForm.notes || null,
           nozzle_readings: nozzleReadingsData,
           tank_stocks: tankStocksData,
+          attendant_collections: collectionsData,
         })
       })
       
@@ -652,12 +669,15 @@ export function SalesContent() {
         setShiftForm({
           date: new Date().toISOString().split("T")[0],
           time: new Date().toTimeString().slice(0, 5),
-          closing_cash: "",
           notes: "",
         })
         setNozzleReadings({})
         setTankStocks({})
         setTankStockReceived({})
+        setIncomingAttendants({})
+        setAttendantCollections({})
+        setAttendantAppPayments({})
+        setEndShiftStep(1)
         fetchData()
       }
     } catch (error) {
@@ -671,17 +691,47 @@ export function SalesContent() {
   async function openShiftDialog(action: "start" | "end") {
     setShiftAction(action)
     setShowShiftDialog(true)
+    setEndShiftStep(1)
+    setIncomingAttendants({})
+    setAttendantCollections({})
+    setAttendantAppPayments({})
+    setOutgoingAttendants([])
+    setCashiers([])
     
     if (action === "end" && currentBranchData?.id) {
       try {
-        const res = await fetch(`/api/shifts/baselines?branch_id=${currentBranchData.id}`)
-        const data = await res.json()
-        if (data.success) {
-          setNozzleBaselines(data.nozzleBaselines || {})
-          setTankBaselines(data.tankBaselines || {})
+        const [baselinesRes, cashiersRes, outgoingRes] = await Promise.all([
+          fetch(`/api/shifts/baselines?branch_id=${currentBranchData.id}`),
+          fetch(`/api/staff/list?branch_id=${currentBranchData.id}`),
+          currentShift?.id ? fetch(`/api/shifts/attendants?shift_id=${currentShift.id}&branch_id=${currentBranchData.id}`) : Promise.resolve(null)
+        ])
+        
+        const baselinesData = await baselinesRes.json()
+        if (baselinesData.success) {
+          setNozzleBaselines(baselinesData.nozzleBaselines || {})
+          setTankBaselines(baselinesData.tankBaselines || {})
+        }
+        
+        const cashiersData = await cashiersRes.json()
+        const cashiersList = (cashiersData.staff || [])
+          .filter((s: any) => s.role?.toLowerCase() === 'cashier' && s.status === 'active')
+          .map((s: any) => ({ id: s.id, name: s.full_name || s.username }))
+        setCashiers(cashiersList)
+        
+        if (outgoingRes) {
+          const outgoingData = await outgoingRes.json()
+          if (outgoingData.success) {
+            setOutgoingAttendants(outgoingData.attendants || [])
+            setAttendantAppPayments(outgoingData.appPayments || {})
+            const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
+            for (const att of outgoingData.attendants || []) {
+              collections[att.id] = []
+            }
+            setAttendantCollections(collections)
+          }
         }
       } catch (error) {
-        console.error("Error fetching baselines:", error)
+        console.error("Error fetching shift data:", error)
       }
     }
   }
@@ -1667,9 +1717,14 @@ export function SalesContent() {
                 </div>
               </div>
             )}
-            {shiftAction === "end" && currentShift && (
+            {shiftAction === "end" && currentShift && endShiftStep === 1 && (
               <ScrollArea className="max-h-[60vh]">
                 <div className="space-y-4 pr-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant="default">Step 1 of 2</Badge>
+                    <span className="text-sm text-slate-600">Meter Readings & Handover</span>
+                  </div>
+                  
                   <div className="bg-slate-50 p-4 rounded-lg space-y-2">
                     <h4 className="font-semibold text-slate-700">Shift Summary</h4>
                     <div className="grid grid-cols-2 gap-2 text-sm">
@@ -1683,11 +1738,7 @@ export function SalesContent() {
                           {Math.round((Date.now() - new Date(currentShift.start_time).getTime()) / 3600000)}h
                         </span>
                       </div>
-                      <div>
-                        <span className="text-slate-500">Opening Cash:</span>
-                        <span className="ml-2 font-medium">KES {(currentShift.opening_cash || 0).toLocaleString()}</span>
-                      </div>
-                      <div>
+                      <div className="col-span-2">
                         <span className="text-slate-500">Total Sales:</span>
                         <span className="ml-2 font-medium text-green-600">
                           KES {sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0).toLocaleString()}
@@ -1698,14 +1749,14 @@ export function SalesContent() {
 
                   {nozzles.length > 0 && (
                     <div className="space-y-3">
-                      <h4 className="font-semibold text-slate-700">Nozzle Meter Readings</h4>
+                      <h4 className="font-semibold text-slate-700">Nozzle Meter Readings & Incoming Attendants</h4>
                       <div className="grid gap-3">
                         {nozzles.map((nozzle) => {
                           const dispenser = dispensers.find((d: any) => d.id === nozzle.dispenser_id)
                           const openingReading = nozzleBaselines[nozzle.id] || 0
                           return (
-                            <div key={nozzle.id} className="bg-slate-50 p-3 rounded-lg space-y-2">
-                              <div className="flex items-center gap-3">
+                            <div key={nozzle.id} className="bg-slate-50 p-3 rounded-lg space-y-3">
+                              <div className="flex items-center gap-2">
                                 <div className="flex-1">
                                   <p className="text-sm font-medium">
                                     {dispenser?.name || 'Dispenser'} - Nozzle {nozzle.nozzle_number}
@@ -1714,15 +1765,37 @@ export function SalesContent() {
                                     {nozzle.fuel_type} - Opening: {openingReading.toLocaleString()}
                                   </p>
                                 </div>
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  min={openingReading}
-                                  placeholder="Closing reading"
-                                  className="w-36"
-                                  value={nozzleReadings[nozzle.id] || ""}
-                                  onChange={(e) => setNozzleReadings({ ...nozzleReadings, [nozzle.id]: e.target.value })}
-                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-xs text-slate-500">Closing Reading</Label>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min={openingReading}
+                                    placeholder="Enter reading"
+                                    value={nozzleReadings[nozzle.id] || ""}
+                                    onChange={(e) => setNozzleReadings({ ...nozzleReadings, [nozzle.id]: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-slate-500">Incoming Attendant</Label>
+                                  <Select
+                                    value={incomingAttendants[nozzle.id] || ""}
+                                    onValueChange={(value) => setIncomingAttendants({ ...incomingAttendants, [nozzle.id]: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select cashier" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {cashiers.map((cashier) => (
+                                        <SelectItem key={cashier.id} value={cashier.id}>
+                                          {cashier.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
                               </div>
                               {nozzleReadings[nozzle.id] && parseFloat(nozzleReadings[nozzle.id]) < openingReading && (
                                 <p className="text-xs text-red-500">Closing reading cannot be less than opening ({openingReading})</p>
@@ -1779,20 +1852,114 @@ export function SalesContent() {
                       </div>
                     </div>
                   )}
+                </div>
+              </ScrollArea>
+            )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="closing_cash">Closing Cash Amount</Label>
-                    <Input
-                      id="closing_cash"
-                      type="number"
-                      step="0.01"
-                      placeholder="Enter actual cash in drawer"
-                      value={shiftForm.closing_cash}
-                      onChange={(e) => setShiftForm({ ...shiftForm, closing_cash: e.target.value })}
-                    />
-                    <p className="text-xs text-slate-500">Enter the actual cash amount in the drawer to calculate variance</p>
+            {shiftAction === "end" && currentShift && endShiftStep === 2 && (
+              <ScrollArea className="max-h-[60vh]">
+                <div className="space-y-4 pr-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge variant="default">Step 2 of 2</Badge>
+                    <span className="text-sm text-slate-600">Attendant Collections</span>
                   </div>
-                  <div className="space-y-2">
+
+                  <p className="text-sm text-slate-600 mb-4">
+                    Attribute payment collections to each outgoing attendant. App-based payments are auto-populated.
+                  </p>
+
+                  {outgoingAttendants.length > 0 ? (
+                    <div className="space-y-4">
+                      {outgoingAttendants.map((attendant) => {
+                        const appPaymentTotal = attendantAppPayments[attendant.id] || 0
+                        const collections = attendantCollections[attendant.id] || []
+                        const manualTotal = collections.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0)
+                        const grandTotal = appPaymentTotal + manualTotal
+                        
+                        return (
+                          <div key={attendant.id} className="bg-slate-50 p-4 rounded-lg space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-medium">{attendant.name}</p>
+                                {appPaymentTotal > 0 && (
+                                  <p className="text-xs text-green-600">App Payments: KES {appPaymentTotal.toLocaleString()}</p>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm text-slate-500">Total</p>
+                                <p className="font-semibold text-lg">KES {grandTotal.toLocaleString()}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              {collections.map((collection, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <Select
+                                    value={collection.payment_method}
+                                    onValueChange={(value) => {
+                                      const updated = [...collections]
+                                      updated[idx] = { ...updated[idx], payment_method: value }
+                                      setAttendantCollections({ ...attendantCollections, [attendant.id]: updated })
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-32">
+                                      <SelectValue placeholder="Method" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="cash">Cash</SelectItem>
+                                      <SelectItem value="mpesa">M-Pesa</SelectItem>
+                                      <SelectItem value="card">Card</SelectItem>
+                                      <SelectItem value="credit">Credit</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Amount"
+                                    className="flex-1"
+                                    value={collection.amount}
+                                    onChange={(e) => {
+                                      const updated = [...collections]
+                                      updated[idx] = { ...updated[idx], amount: e.target.value }
+                                      setAttendantCollections({ ...attendantCollections, [attendant.id]: updated })
+                                    }}
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const updated = collections.filter((_, i) => i !== idx)
+                                      setAttendantCollections({ ...attendantCollections, [attendant.id]: updated })
+                                    }}
+                                  >
+                                    ×
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full"
+                                onClick={() => {
+                                  const updated = [...collections, { payment_method: "cash", amount: "" }]
+                                  setAttendantCollections({ ...attendantCollections, [attendant.id]: updated })
+                                }}
+                              >
+                                <Plus className="h-4 w-4 mr-1" /> Add Payment Method
+                              </Button>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-slate-500">
+                      <p>No outgoing attendants found for this shift.</p>
+                      <p className="text-xs mt-1">Attendants are those who made sales during this shift.</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 pt-4 border-t">
                     <Label htmlFor="notes">Notes (Optional)</Label>
                     <Textarea
                       id="notes"
@@ -1816,13 +1983,52 @@ export function SalesContent() {
               </div>
             )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowShiftDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={shiftAction === "start" ? handleStartShift : handleEndShift} disabled={shiftLoading}>
-              {shiftAction === "start" ? "Start Shift" : "End Shift"}
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            {shiftAction === "start" && (
+              <>
+                <Button variant="outline" onClick={() => setShowShiftDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleStartShift} disabled={shiftLoading}>
+                  Start Shift
+                </Button>
+              </>
+            )}
+            {shiftAction === "end" && endShiftStep === 1 && (
+              <>
+                <Button variant="outline" onClick={() => setShowShiftDialog(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={() => {
+                    const missingReadings = nozzles.filter(n => !nozzleReadings[n.id])
+                    if (missingReadings.length > 0) {
+                      toast.error("Please enter closing readings for all nozzles")
+                      return
+                    }
+                    const missingAttendants = nozzles.filter(n => !incomingAttendants[n.id])
+                    if (missingAttendants.length > 0) {
+                      toast.error("Please select an incoming attendant for each nozzle")
+                      return
+                    }
+                    setEndShiftStep(2)
+                  }} 
+                  disabled={shiftLoading}
+                >
+                  Next: Collections
+                </Button>
+              </>
+            )}
+            {shiftAction === "end" && endShiftStep === 2 && (
+              <>
+                <Button variant="outline" onClick={() => setEndShiftStep(1)}>
+                  Back
+                </Button>
+                <Button onClick={handleEndShift} disabled={shiftLoading}>
+                  End Shift
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
