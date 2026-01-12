@@ -89,10 +89,15 @@ async function GET(request) {
         for (const n of nozzlesResult.rows){
             nozzleBaselines[n.id] = parseFloat(n.initial_meter_reading) || 0;
         }
-        const prevNozzleReadings = await pool.query(`SELECT DISTINCT ON (nozzle_id) nozzle_id, closing_reading 
-       FROM shift_readings 
-       WHERE branch_id = $1 AND reading_type = 'nozzle' AND nozzle_id IS NOT NULL
-       ORDER BY nozzle_id, created_at DESC`, [
+        // Get closing readings only from completed shifts (not from sales or other sources)
+        const prevNozzleReadings = await pool.query(`SELECT DISTINCT ON (sr.nozzle_id) sr.nozzle_id, sr.closing_reading 
+       FROM shift_readings sr
+       JOIN shifts s ON sr.shift_id = s.id
+       WHERE sr.branch_id = $1 
+         AND sr.reading_type = 'nozzle' 
+         AND sr.nozzle_id IS NOT NULL
+         AND s.status = 'completed'
+       ORDER BY sr.nozzle_id, s.end_time DESC NULLS LAST`, [
             branchId
         ]);
         for (const r of prevNozzleReadings.rows){
