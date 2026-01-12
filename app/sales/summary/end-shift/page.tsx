@@ -186,13 +186,16 @@ export default function EndShiftPage() {
   }, [router, searchParams])
 
   const validateStep1 = () => {
+    console.log("validateStep1 called", { nozzles, nozzleReadings, incomingAttendants })
     const missingReadings = nozzles.filter(n => !nozzleReadings[n.id])
     if (missingReadings.length > 0) {
+      console.log("Missing readings:", missingReadings.map(n => n.id))
       toast.error("Please enter closing readings for all nozzles")
       return false
     }
     const missingAttendants = nozzles.filter(n => !incomingAttendants[n.id])
     if (missingAttendants.length > 0) {
+      console.log("Missing attendants:", missingAttendants.map(n => n.id))
       toast.error("Please select an incoming attendant for each nozzle")
       return false
     }
