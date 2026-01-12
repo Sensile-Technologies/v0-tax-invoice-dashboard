@@ -81,7 +81,7 @@ export default function EndShiftPage() {
         setBranchId(currentBranchId)
 
         const [shiftRes, nozzlesRes, tanksRes, dispensersRes, cashiersRes, salesRes] = await Promise.all([
-          fetch(`/api/shifts?branch_id=${currentBranchId}`),
+          fetch(`/api/shifts?branch_id=${currentBranchId}&status=active`),
           fetch(`/api/nozzles?branch_id=${currentBranchId}`),
           fetch(`/api/tanks?branch_id=${currentBranchId}`),
           fetch(`/api/dispensers?branch_id=${currentBranchId}`),
@@ -98,26 +98,26 @@ export default function EndShiftPage() {
           salesRes.json(),
         ])
 
-        if (!shiftData.current) {
+        if (!shiftData.data) {
           toast.error("No active shift to end")
           router.push('/sales/summary')
           return
         }
 
-        setCurrentShift(shiftData.current)
+        setCurrentShift(shiftData.data)
         setNozzles(nozzlesData.data || [])
         setTanks(tanksData.data || [])
         setDispensers(dispensersData.data || [])
         setCashiers(cashiersData.cashiers || [])
         
         const shiftSales = (salesData.data || []).filter((s: any) => 
-          s.shift_id === shiftData.current.id
+          s.shift_id === shiftData.data.id
         )
         setSales(shiftSales)
 
         const baselines: Record<string, number> = {}
         for (const nozzle of nozzlesData.data || []) {
-          const readingRes = await fetch(`/api/shift-readings?nozzle_id=${nozzle.id}&shift_id=${shiftData.current.id}`)
+          const readingRes = await fetch(`/api/shift-readings?nozzle_id=${nozzle.id}&shift_id=${shiftData.data.id}`)
           const readingData = await readingRes.json()
           baselines[nozzle.id] = readingData.opening_reading || nozzle.current_meter_reading || 0
         }
@@ -125,7 +125,7 @@ export default function EndShiftPage() {
 
         const tankBl: Record<string, number> = {}
         for (const tank of tanksData.data || []) {
-          const stockRes = await fetch(`/api/tank-stocks?tank_id=${tank.id}&shift_id=${shiftData.current.id}`)
+          const stockRes = await fetch(`/api/tank-stocks?tank_id=${tank.id}&shift_id=${shiftData.data.id}`)
           const stockData = await stockRes.json()
           tankBl[tank.id] = stockData.opening_stock || tank.current_volume || 0
         }
