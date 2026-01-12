@@ -81,12 +81,12 @@ export default function EndShiftPage() {
         setBranchId(currentBranchId)
 
         const [shiftRes, nozzlesRes, tanksRes, dispensersRes, cashiersRes, salesRes] = await Promise.all([
-          fetch(`/api/shifts?branch_id=${currentBranchId}&status=active`),
-          fetch(`/api/nozzles?branch_id=${currentBranchId}`),
-          fetch(`/api/tanks?branch_id=${currentBranchId}`),
-          fetch(`/api/dispensers?branch_id=${currentBranchId}`),
-          fetch(`/api/shifts/attendants?branch_id=${currentBranchId}`),
-          fetch(`/api/sales?branch_id=${currentBranchId}&limit=1000`),
+          fetch(`/api/shifts?branch_id=${currentBranchId}&status=active`, { credentials: 'include' }),
+          fetch(`/api/nozzles?branch_id=${currentBranchId}`, { credentials: 'include' }),
+          fetch(`/api/tanks?branch_id=${currentBranchId}`, { credentials: 'include' }),
+          fetch(`/api/dispensers?branch_id=${currentBranchId}`, { credentials: 'include' }),
+          fetch(`/api/shifts/attendants?branch_id=${currentBranchId}`, { credentials: 'include' }),
+          fetch(`/api/sales?branch_id=${currentBranchId}&limit=1000`, { credentials: 'include' }),
         ])
 
         const [shiftData, nozzlesData, tanksData, dispensersData, cashiersData, salesData] = await Promise.all([
@@ -108,7 +108,7 @@ export default function EndShiftPage() {
         setNozzles(nozzlesData.data || [])
         setTanks(tanksData.data || [])
         setDispensers(dispensersData.data || [])
-        setCashiers(cashiersData.cashiers || [])
+        setCashiers(cashiersData.cashiers || cashiersData.data || [])
         
         const shiftSales = (salesData.data || []).filter((s: any) => 
           s.shift_id === shiftData.data.id
@@ -117,17 +117,13 @@ export default function EndShiftPage() {
 
         const baselines: Record<string, number> = {}
         for (const nozzle of nozzlesData.data || []) {
-          const readingRes = await fetch(`/api/shift-readings?nozzle_id=${nozzle.id}&shift_id=${shiftData.data.id}`)
-          const readingData = await readingRes.json()
-          baselines[nozzle.id] = readingData.opening_reading || nozzle.current_meter_reading || 0
+          baselines[nozzle.id] = nozzle.current_meter_reading || 0
         }
         setNozzleBaselines(baselines)
 
         const tankBl: Record<string, number> = {}
         for (const tank of tanksData.data || []) {
-          const stockRes = await fetch(`/api/tank-stocks?tank_id=${tank.id}&shift_id=${shiftData.data.id}`)
-          const stockData = await stockRes.json()
-          tankBl[tank.id] = stockData.opening_stock || tank.current_volume || 0
+          tankBl[tank.id] = tank.current_volume || 0
         }
         setTankBaselines(tankBl)
 
