@@ -116,7 +116,7 @@ export function DashboardSidebar({
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
             <Image src="/flow360-logo.png" alt="Flow360 Logo" width={32} height={32} className="rounded-lg" />
-            <span className="text-lg font-bold">Flow360</span>
+            <span className="text-lg font-bold">Flow360<sup className="text-[10px] ml-0.5">™</sup></span>
           </Link>
         )}
         {collapsed && (
