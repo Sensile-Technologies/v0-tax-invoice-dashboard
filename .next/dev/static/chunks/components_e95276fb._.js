@@ -163,7 +163,7 @@ const regularNavigationItems = [
         href: "/configuration/tax-service"
     }
 ];
-const headquartersNavigationItems = [
+const headOfficeNavigationItems = [
     {
         icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$layout$2d$dashboard$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__LayoutDashboard$3e$__["LayoutDashboard"],
         label: "Overview",
@@ -204,7 +204,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
     _s();
     const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["usePathname"])();
     const [openSections, setOpenSections] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].useState({});
-    const navigationItems = isHeadquarters ? headquartersNavigationItems : regularNavigationItems;
+    const navigationItems = isHeadquarters ? headOfficeNavigationItems : regularNavigationItems;
     const toggleSection = (section)=>{
         setOpenSections((prev)=>({
                 ...prev,
@@ -249,8 +249,18 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "text-lg font-bold",
-                                        children: "Flow360"
-                                    }, void 0, false, {
+                                        children: [
+                                            "Flow360",
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("sup", {
+                                                className: "text-[10px] ml-0.5",
+                                                children: "™"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/dashboard-sidebar.tsx",
+                                                lineNumber: 119,
+                                                columnNumber: 56
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
                                         lineNumber: 119,
                                         columnNumber: 13
