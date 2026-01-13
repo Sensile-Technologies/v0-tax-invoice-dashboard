@@ -469,8 +469,21 @@ async function POST(request) {
         }
         const totalAmount = Math.max(amount - discountAmount, 0);
         const quantity = totalAmount / unitPrice;
-        // Track meter reading - get current reading and calculate new reading after sale
-        const currentMeterReading = parseFloat(nozzle.initial_meter_reading) || 0;
+        // Get current meter reading from latest sale or previous shift's closing reading
+        const lastReadingResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT COALESCE(
+        (SELECT meter_reading_after FROM sales 
+         WHERE nozzle_id = $1 AND meter_reading_after IS NOT NULL 
+         ORDER BY created_at DESC LIMIT 1),
+        (SELECT sr.closing_reading FROM shift_readings sr 
+         JOIN shifts s ON sr.shift_id = s.id 
+         WHERE sr.nozzle_id = $1 AND s.status = 'completed' 
+         ORDER BY s.end_time DESC NULLS LAST LIMIT 1),
+        (SELECT initial_meter_reading FROM nozzles WHERE id = $1),
+        0
+      ) as last_reading`, [
+            nozzle_id
+        ]);
+        const currentMeterReading = parseFloat(lastReadingResult[0]?.last_reading) || 0;
         const meterReadingAfter = currentMeterReading + quantity;
         const kraBaseUrl = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$url$2d$helper$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["buildKraBaseUrl"])(branch.server_address, branch.server_port);
         const responses = {
@@ -682,11 +695,9 @@ async function POST(request) {
             kraData.sdcId || null,
             kraData.curRcptNo || null
         ]);
-        // Update nozzle meter reading to track progressive sales
-        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE nozzles SET initial_meter_reading = $1, updated_at = NOW() WHERE id = $2`, [
-            meterReadingAfter,
-            nozzle_id
-        ]);
+        // Note: We don't update nozzle's initial_meter_reading here
+        // The meter_reading_after is stored in the sales record
+        // Opening readings come from previous shift's closing reading in shift_readings table
         const splyAmt = Math.round(quantity * unitPrice * 100) / 100;
         const stockTaxAmt = Math.round(splyAmt * 0.16 * 100) / 100;
         const saveStockItemsPayload = {
