@@ -155,16 +155,18 @@ export default function EndShiftPage() {
         
         // Also get incoming attendants from previous shift (they should work this shift)
         let incomingAttendantIds: string[] = []
-        try {
-          const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${branchId}`)
-          if (prevShiftRes.ok) {
-            const prevData = await prevShiftRes.json()
-            if (prevData.incoming_attendant_ids) {
-              incomingAttendantIds = prevData.incoming_attendant_ids
+        if (branchId) {
+          try {
+            const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${branchId}`)
+            if (prevShiftRes.ok) {
+              const prevData = await prevShiftRes.json()
+              if (prevData.incoming_attendant_ids) {
+                incomingAttendantIds = prevData.incoming_attendant_ids
+              }
             }
+          } catch (e) {
+            console.error("Failed to fetch previous shift incoming attendants:", e)
           }
-        } catch (e) {
-          console.error("Failed to fetch previous shift incoming attendants:", e)
         }
         
         const allAttendantIds = [...new Set([...attendantIdsFromSales, ...incomingAttendantIds])]

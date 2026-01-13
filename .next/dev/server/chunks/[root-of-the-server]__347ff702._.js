@@ -488,7 +488,8 @@ async function PATCH(request) {
         }
         if (tank_stocks && tank_stocks.length > 0) {
             for (const stock of tank_stocks){
-                if (stock.tank_id && !isNaN(stock.closing_reading)) {
+                const closingStock = stock.closing_stock ?? stock.closing_reading;
+                if (stock.tank_id && !isNaN(closingStock)) {
                     const openingStock = tankBaseStocks[stock.tank_id] || 0;
                     const stockReceived = stock.stock_received || 0;
                     await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, opening_reading, closing_reading, stock_received)
@@ -497,11 +498,11 @@ async function PATCH(request) {
                         branchId,
                         stock.tank_id,
                         openingStock,
-                        stock.closing_reading,
+                        closingStock,
                         stockReceived
                     ]);
                     await client.query(`UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`, [
-                        stock.closing_reading,
+                        closingStock,
                         stock.tank_id
                     ]);
                 }
