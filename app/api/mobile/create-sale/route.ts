@@ -153,22 +153,29 @@ export async function POST(request: Request) {
       const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`
       const receiptNumber = `RCP-${Date.now().toString(36).toUpperCase()}`
 
+      // Get current meter reading from previous shift's closing reading (not from initial_meter_reading)
+      // The meter_reading_after is calculated based on the last known reading + quantity
       let meterReadingAfter = null
       if (nozzle_id && correctQuantity > 0) {
-        const nozzleResult = await client.query(
-          `SELECT initial_meter_reading FROM nozzles WHERE id = $1`,
+        // Get the latest meter reading from sales or shift_readings
+        const lastReadingResult = await client.query(
+          `SELECT COALESCE(
+            (SELECT meter_reading_after FROM sales 
+             WHERE nozzle_id = $1 AND meter_reading_after IS NOT NULL 
+             ORDER BY created_at DESC LIMIT 1),
+            (SELECT sr.closing_reading FROM shift_readings sr 
+             JOIN shifts s ON sr.shift_id = s.id 
+             WHERE sr.nozzle_id = $1 AND s.status = 'completed' 
+             ORDER BY s.end_time DESC NULLS LAST LIMIT 1),
+            (SELECT initial_meter_reading FROM nozzles WHERE id = $1),
+            0
+          ) as last_reading`,
           [nozzle_id]
         )
         
-        if (nozzleResult.rows.length > 0) {
-          const currentReading = parseFloat(nozzleResult.rows[0].initial_meter_reading) || 0
-          meterReadingAfter = currentReading + correctQuantity
-          
-          await client.query(
-            `UPDATE nozzles SET initial_meter_reading = $1, updated_at = NOW() WHERE id = $2`,
-            [meterReadingAfter, nozzle_id]
-          )
-        }
+        const currentReading = parseFloat(lastReadingResult.rows[0]?.last_reading) || 0
+        meterReadingAfter = currentReading + correctQuantity
+        // Note: We don't update nozzle's initial_meter_reading - it stays static
       }
 
       const saleResult = await client.query(
