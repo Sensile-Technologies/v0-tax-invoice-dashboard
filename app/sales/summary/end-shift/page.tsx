@@ -220,6 +220,12 @@ export default function EndShiftPage() {
         return false
       }
     }
+    // Tank closing reading is mandatory
+    const missingTankReadings = tanks.filter(t => !tankStocks[t.id])
+    if (missingTankReadings.length > 0) {
+      toast.error("Please enter closing stock for all tanks")
+      return false
+    }
     for (const tank of tanks) {
       const openingStock = tankBaselines[tank.id] || 0
       const closingStock = parseFloat(tankStocks[tank.id] || "0") || 0
@@ -234,6 +240,25 @@ export default function EndShiftPage() {
     return true
   }
 
+  const validateStep2 = () => {
+    // Mobile Money and Cash are mandatory for each attendant
+    for (const attendant of outgoingAttendants) {
+      const collections = attendantCollections[attendant.id] || []
+      const mobileMoneyEntry = collections.find(c => c.payment_method === 'mobile_money')
+      const cashEntry = collections.find(c => c.payment_method === 'cash')
+      
+      if (!mobileMoneyEntry || mobileMoneyEntry.amount === '') {
+        toast.error(`Please enter Mobile Money amount for ${attendant.name}`)
+        return false
+      }
+      if (!cashEntry || cashEntry.amount === '') {
+        toast.error(`Please enter Cash amount for ${attendant.name}`)
+        return false
+      }
+    }
+    return true
+  }
+
   const handleNextStep = () => {
     if (validateStep1()) {
       setStep(2)
@@ -242,6 +267,10 @@ export default function EndShiftPage() {
 
   const handleEndShift = async () => {
     if (!currentShift || !branchId) return
+
+    if (!validateStep2()) {
+      return
+    }
 
     setSubmitting(true)
     try {
