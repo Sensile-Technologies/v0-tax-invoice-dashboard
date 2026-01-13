@@ -151,9 +151,25 @@ export default function EndShiftPage() {
           setTankBaselines(tankBl)
         }
 
-        const attendantIds = [...new Set(shiftSales.map((s: any) => s.attendant_id || s.staff_id).filter(Boolean))]
+        const attendantIdsFromSales = [...new Set(shiftSales.map((s: any) => s.attendant_id || s.staff_id).filter(Boolean))]
+        
+        // Also get incoming attendants from previous shift (they should work this shift)
+        let incomingAttendantIds: string[] = []
+        try {
+          const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${branchId}`)
+          if (prevShiftRes.ok) {
+            const prevData = await prevShiftRes.json()
+            if (prevData.incoming_attendant_ids) {
+              incomingAttendantIds = prevData.incoming_attendant_ids
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch previous shift incoming attendants:", e)
+        }
+        
+        const allAttendantIds = [...new Set([...attendantIdsFromSales, ...incomingAttendantIds])]
         const outgoing = allStaff
-          .filter((s: any) => attendantIds.includes(s.id))
+          .filter((s: any) => allAttendantIds.includes(s.id))
           .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
         setOutgoingAttendants(outgoing)
 
