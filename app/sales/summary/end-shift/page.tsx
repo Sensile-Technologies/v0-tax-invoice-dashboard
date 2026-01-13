@@ -178,15 +178,13 @@ export default function EndShiftPage() {
         const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
         for (const att of outgoing) {
           const attSales = shiftSales.filter((s: any) => s.attendant_id === att.id)
-          const mpesaTotal = attSales.filter((s: any) => s.payment_method === 'mpesa').reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           const cardTotal = attSales.filter((s: any) => s.payment_method === 'card').reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
-          const mobileMoneyTotal = attSales.filter((s: any) => s.payment_method === 'mobile_money').reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
+          const mobileMoneyTotal = attSales.filter((s: any) => ['mpesa', 'mobile_money'].includes(s.payment_method)).reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           
           collections[att.id] = [
             { payment_method: 'cash', amount: '' },
-            { payment_method: 'mpesa', amount: mpesaTotal.toFixed(2) },
-            { payment_method: 'card', amount: cardTotal.toFixed(2) },
             { payment_method: 'mobile_money', amount: mobileMoneyTotal.toFixed(2) },
+            { payment_method: 'card', amount: cardTotal.toFixed(2) },
             { payment_method: 'credit', amount: '' },
           ]
         }
@@ -576,12 +574,12 @@ export default function EndShiftPage() {
                         outgoingAttendants.map((attendant) => (
                           <div key={attendant.id} className="bg-slate-50 p-4 rounded-lg space-y-4">
                             <h4 className="font-semibold text-slate-700">{attendant.name}</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                               {attendantCollections[attendant.id]?.map((payment, idx) => (
                                 <div key={payment.payment_method}>
                                   <Label className="text-xs text-slate-500 capitalize">
-                                    {payment.payment_method.replace('_', ' ')}
-                                    {['mpesa', 'card', 'mobile_money'].includes(payment.payment_method) && (
+                                    {payment.payment_method === 'mobile_money' ? 'Mobile Money' : payment.payment_method.replace('_', ' ')}
+                                    {['card', 'mobile_money'].includes(payment.payment_method) && (
                                       <span className="text-blue-500 ml-1">(auto)</span>
                                     )}
                                   </Label>
@@ -591,8 +589,8 @@ export default function EndShiftPage() {
                                     min="0"
                                     placeholder="0.00"
                                     value={payment.amount}
-                                    disabled={['mpesa', 'card', 'mobile_money'].includes(payment.payment_method)}
-                                    className={['mpesa', 'card', 'mobile_money'].includes(payment.payment_method) ? "bg-slate-100" : ""}
+                                    disabled={['card', 'mobile_money'].includes(payment.payment_method)}
+                                    className={['card', 'mobile_money'].includes(payment.payment_method) ? "bg-slate-100" : ""}
                                     onChange={(e) => {
                                       const newCollections = { ...attendantCollections }
                                       newCollections[attendant.id][idx].amount = e.target.value
