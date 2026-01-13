@@ -698,11 +698,11 @@ export function SalesSummaryContent() {
           })))
           const initialCollections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
           outgoingData.staffSummary.forEach((s: any) => {
+            const mobileMoneyTotal = (parseFloat(s.mpesa_total || 0) + parseFloat(s.mobile_money_total || 0)).toString()
             initialCollections[s.staff_id] = [
               { payment_method: 'cash', amount: '' },
-              { payment_method: 'mpesa', amount: (s.mpesa_total || 0).toString() },
+              { payment_method: 'mobile_money', amount: mobileMoneyTotal },
               { payment_method: 'card', amount: (s.card_total || 0).toString() },
-              { payment_method: 'mobile_money', amount: (s.mobile_money_total || 0).toString() },
               { payment_method: 'credit', amount: '' }
             ]
           })
@@ -1361,14 +1361,16 @@ export function SalesSummaryContent() {
                           <div className="grid grid-cols-2 gap-2">
                             {attendantCollections[attendant.id]?.map((payment, idx) => (
                               <div key={payment.payment_method}>
-                                <Label className="text-xs text-slate-500 capitalize">{payment.payment_method.replace('_', ' ')}</Label>
+                                <Label className="text-xs text-slate-500 capitalize">
+                                  {payment.payment_method === 'mobile_money' ? 'Mobile Money' : payment.payment_method.replace('_', ' ')}
+                                </Label>
                                 <Input
                                   type="number"
                                   step="0.01"
                                   min="0"
                                   placeholder="0.00"
                                   value={payment.amount}
-                                  disabled={['mpesa', 'card', 'mobile_money'].includes(payment.payment_method)}
+                                  disabled={['card', 'mobile_money'].includes(payment.payment_method)}
                                   onChange={(e) => {
                                     const newCollections = { ...attendantCollections }
                                     newCollections[attendant.id][idx].amount = e.target.value
@@ -1681,7 +1683,7 @@ export function SalesSummaryContent() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="mpesa">M-Pesa</SelectItem>
+                  <SelectItem value="mobile_money">Mobile Money</SelectItem>
                   <SelectItem value="card">Card</SelectItem>
                   <SelectItem value="credit">Credit</SelectItem>
                 </SelectContent>
