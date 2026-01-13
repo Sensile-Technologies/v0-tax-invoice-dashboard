@@ -2963,9 +2963,9 @@ function EndShiftPage() {
                 ];
                 // Also get incoming attendants from previous shift (they should work this shift)
                 let incomingAttendantIds = [];
-                if (branchId) {
+                if (currentBranchId) {
                     try {
-                        const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${branchId}`);
+                        const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${currentBranchId}`);
                         if (prevShiftRes.ok) {
                             const prevData = await prevShiftRes.json();
                             if (prevData.incoming_attendant_ids) {
