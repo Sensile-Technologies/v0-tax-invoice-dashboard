@@ -180,11 +180,11 @@ export default function EndShiftPage() {
           const branchItemsRes = await fetch(`/api/branch-items?branchId=${currentBranchId}`)
           if (branchItemsRes.ok) {
             const branchItemsData = await branchItemsRes.json()
-            const branchItems = branchItemsData.data || []
+            const branchItems = branchItemsData.items || branchItemsData.data || []
             for (const nozzle of nozzlesData.data || []) {
               const branchItem = branchItems.find((bi: any) => bi.item_id === nozzle.item_id)
-              if (branchItem?.sale_price) {
-                prices[nozzle.id] = parseFloat(branchItem.sale_price)
+              if (branchItem?.branch_sale_price || branchItem?.sale_price) {
+                prices[nozzle.id] = parseFloat(branchItem.branch_sale_price || branchItem.sale_price)
               }
             }
           }
