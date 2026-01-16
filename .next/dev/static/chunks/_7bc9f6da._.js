@@ -3190,7 +3190,7 @@ function EndShiftPage() {
                     const salesTotals = {};
                     for (const att of outgoing){
                         const attSales = shiftSales.filter({
-                            "EndShiftPage.useEffect.loadData.attSales": (s)=>s.attendant_id === att.id
+                            "EndShiftPage.useEffect.loadData.attSales": (s)=>s.attendant_id === att.id || s.staff_id === att.id
                         }["EndShiftPage.useEffect.loadData.attSales"]);
                         const cardTotal = attSales.filter({
                             "EndShiftPage.useEffect.loadData.cardTotal": (s)=>s.payment_method === 'card'

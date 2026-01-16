@@ -179,7 +179,7 @@ export default function EndShiftPage() {
         const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
         const salesTotals: Record<string, number> = {}
         for (const att of outgoing) {
-          const attSales = shiftSales.filter((s: any) => s.attendant_id === att.id)
+          const attSales = shiftSales.filter((s: any) => s.attendant_id === att.id || s.staff_id === att.id)
           const cardTotal = attSales.filter((s: any) => s.payment_method === 'card').reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           const mobileMoneyTotal = attSales.filter((s: any) => ['mpesa', 'mobile_money'].includes(s.payment_method)).reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           const totalSales = attSales.reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
