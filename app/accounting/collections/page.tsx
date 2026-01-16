@@ -150,7 +150,7 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-[#0e1a2d] via-[#162642] to-[#0e1a2d]">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardSidebar
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
