@@ -3178,13 +3178,13 @@ function EndShiftPage() {
                         const branchItemsRes = await fetch(`/api/branch-items?branchId=${currentBranchId}`);
                         if (branchItemsRes.ok) {
                             const branchItemsData = await branchItemsRes.json();
-                            const branchItems = branchItemsData.data || [];
+                            const branchItems = branchItemsData.items || branchItemsData.data || [];
                             for (const nozzle of nozzlesData.data || []){
                                 const branchItem = branchItems.find({
                                     "EndShiftPage.useEffect.loadData.branchItem": (bi)=>bi.item_id === nozzle.item_id
                                 }["EndShiftPage.useEffect.loadData.branchItem"]);
-                                if (branchItem?.sale_price) {
-                                    prices[nozzle.id] = parseFloat(branchItem.sale_price);
+                                if (branchItem?.branch_sale_price || branchItem?.sale_price) {
+                                    prices[nozzle.id] = parseFloat(branchItem.branch_sale_price || branchItem.sale_price);
                                 }
                             }
                         }
@@ -3293,25 +3293,16 @@ function EndShiftPage() {
     const calculateAttendantSales = (attendantId)=>{
         // Calculate total sales from meter readings for nozzles assigned to this attendant
         let totalSales = 0;
-        console.log('calculateAttendantSales for:', attendantId);
-        console.log('nozzles:', nozzles.map((n)=>n.id));
-        console.log('nozzleAttendantMap:', nozzleAttendantMap);
-        console.log('nozzleReadings:', nozzleReadings);
-        console.log('nozzlePrices:', nozzlePrices);
-        console.log('nozzleBaselines:', nozzleBaselines);
         for (const nozzle of nozzles){
             const assignedAttendant = nozzleAttendantMap[nozzle.id];
-            console.log(`Nozzle ${nozzle.id}: assigned=${assignedAttendant}, match=${assignedAttendant === attendantId}`);
             if (assignedAttendant === attendantId) {
                 const opening = nozzleBaselines[nozzle.id] || 0;
                 const closing = parseFloat(nozzleReadings[nozzle.id] || "0");
                 const unitPrice = nozzlePrices[nozzle.id] || 0;
                 const quantity = Math.max(0, closing - opening);
-                console.log(`  opening=${opening}, closing=${closing}, price=${unitPrice}, qty=${quantity}, subtotal=${quantity * unitPrice}`);
                 totalSales += quantity * unitPrice;
             }
         }
-        console.log('totalSales:', totalSales);
         return totalSales;
     };
     const calculateVariance = (attendantId)=>{
@@ -3414,12 +3405,12 @@ function EndShiftPage() {
                 children: "Loading shift data..."
             }, void 0, false, {
                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                lineNumber: 398,
+                lineNumber: 389,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-            lineNumber: 397,
+            lineNumber: 388,
             columnNumber: 7
         }, this);
     }
@@ -3435,12 +3426,12 @@ function EndShiftPage() {
                             children: "Error Loading End Shift"
                         }, void 0, false, {
                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                            lineNumber: 408,
+                            lineNumber: 399,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                        lineNumber: 407,
+                        lineNumber: 398,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3451,7 +3442,7 @@ function EndShiftPage() {
                                 children: loadError
                             }, void 0, false, {
                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                lineNumber: 411,
+                                lineNumber: 402,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3461,31 +3452,31 @@ function EndShiftPage() {
                                         className: "h-4 w-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                        lineNumber: 413,
+                                        lineNumber: 404,
                                         columnNumber: 15
                                     }, this),
                                     "Back to Sales Summary"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                lineNumber: 412,
+                                lineNumber: 403,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                        lineNumber: 410,
+                        lineNumber: 401,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                lineNumber: 406,
+                lineNumber: 397,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-            lineNumber: 405,
+            lineNumber: 396,
             columnNumber: 7
         }, this);
     }
@@ -3499,7 +3490,7 @@ function EndShiftPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                lineNumber: 424,
+                lineNumber: 415,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3511,7 +3502,7 @@ function EndShiftPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                            lineNumber: 433,
+                            lineNumber: 424,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -3533,14 +3524,14 @@ function EndShiftPage() {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 444,
+                                                                lineNumber: 435,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Back to Sales Summary"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 439,
+                                                        lineNumber: 430,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -3548,7 +3539,7 @@ function EndShiftPage() {
                                                         children: "End Current Shift"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 447,
+                                                        lineNumber: 438,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3556,13 +3547,13 @@ function EndShiftPage() {
                                                         children: "Complete the shift closure process"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 448,
+                                                        lineNumber: 439,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 438,
+                                                lineNumber: 429,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3573,7 +3564,7 @@ function EndShiftPage() {
                                                         children: "Step 1"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 451,
+                                                        lineNumber: 442,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3581,7 +3572,7 @@ function EndShiftPage() {
                                                         children: "→"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 452,
+                                                        lineNumber: 443,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -3589,19 +3580,19 @@ function EndShiftPage() {
                                                         children: "Step 2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 453,
+                                                        lineNumber: 444,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 450,
+                                                lineNumber: 441,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                        lineNumber: 437,
+                                        lineNumber: 428,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3618,7 +3609,7 @@ function EndShiftPage() {
                                                                 className: "h-5 w-5 text-blue-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 461,
+                                                                lineNumber: 452,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3628,7 +3619,7 @@ function EndShiftPage() {
                                                                         children: "Started"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 463,
+                                                                        lineNumber: 454,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3636,19 +3627,19 @@ function EndShiftPage() {
                                                                         children: shiftStartTime
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 464,
+                                                                        lineNumber: 455,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 462,
+                                                                lineNumber: 453,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 460,
+                                                        lineNumber: 451,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3658,7 +3649,7 @@ function EndShiftPage() {
                                                                 className: "h-5 w-5 text-blue-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 468,
+                                                                lineNumber: 459,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3668,7 +3659,7 @@ function EndShiftPage() {
                                                                         children: "Duration"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 470,
+                                                                        lineNumber: 461,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3679,19 +3670,19 @@ function EndShiftPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 471,
+                                                                        lineNumber: 462,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 469,
+                                                                lineNumber: 460,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 467,
+                                                        lineNumber: 458,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3701,7 +3692,7 @@ function EndShiftPage() {
                                                                 className: "h-5 w-5 text-green-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 475,
+                                                                lineNumber: 466,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3711,7 +3702,7 @@ function EndShiftPage() {
                                                                         children: "Total Sales"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 477,
+                                                                        lineNumber: 468,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3722,19 +3713,19 @@ function EndShiftPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 478,
+                                                                        lineNumber: 469,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 476,
+                                                                lineNumber: 467,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 474,
+                                                        lineNumber: 465,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3744,7 +3735,7 @@ function EndShiftPage() {
                                                                 className: "h-5 w-5 text-purple-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 482,
+                                                                lineNumber: 473,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3754,7 +3745,7 @@ function EndShiftPage() {
                                                                         children: "Transactions"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 484,
+                                                                        lineNumber: 475,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3762,35 +3753,35 @@ function EndShiftPage() {
                                                                         children: sales.length
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 485,
+                                                                        lineNumber: 476,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 483,
+                                                                lineNumber: 474,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 481,
+                                                        lineNumber: 472,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 459,
+                                                lineNumber: 450,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                            lineNumber: 458,
+                                            lineNumber: 449,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                        lineNumber: 457,
+                                        lineNumber: 448,
                                         columnNumber: 15
                                     }, this),
                                     step === 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3807,27 +3798,27 @@ function EndShiftPage() {
                                                                         className: "h-5 w-5"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 497,
+                                                                        lineNumber: 488,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     "Nozzle Meter Readings & Incoming Attendants"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 496,
+                                                                lineNumber: 487,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                 children: "Enter closing readings and select the cashier who will take over each nozzle"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 500,
+                                                                lineNumber: 491,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 495,
+                                                        lineNumber: 486,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3851,7 +3842,7 @@ function EndShiftPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                    lineNumber: 512,
+                                                                                    lineNumber: 503,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3863,18 +3854,18 @@ function EndShiftPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                    lineNumber: 515,
+                                                                                    lineNumber: 506,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                            lineNumber: 511,
+                                                                            lineNumber: 502,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 510,
+                                                                        lineNumber: 501,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3887,7 +3878,7 @@ function EndShiftPage() {
                                                                                         children: "Closing Reading *"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 522,
+                                                                                        lineNumber: 513,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3902,13 +3893,13 @@ function EndShiftPage() {
                                                                                             })
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 523,
+                                                                                        lineNumber: 514,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 521,
+                                                                                lineNumber: 512,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3918,7 +3909,7 @@ function EndShiftPage() {
                                                                                         children: "RTT (Litres)"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 533,
+                                                                                        lineNumber: 524,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3933,13 +3924,13 @@ function EndShiftPage() {
                                                                                             })
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 534,
+                                                                                        lineNumber: 525,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 532,
+                                                                                lineNumber: 523,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3949,7 +3940,7 @@ function EndShiftPage() {
                                                                                         children: "Self Fueling (L)"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 544,
+                                                                                        lineNumber: 535,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3964,13 +3955,13 @@ function EndShiftPage() {
                                                                                             })
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 545,
+                                                                                        lineNumber: 536,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 543,
+                                                                                lineNumber: 534,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3980,7 +3971,7 @@ function EndShiftPage() {
                                                                                         children: "Prepaid Sale (L)"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 555,
+                                                                                        lineNumber: 546,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3995,19 +3986,19 @@ function EndShiftPage() {
                                                                                             })
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 556,
+                                                                                        lineNumber: 547,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 554,
+                                                                                lineNumber: 545,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 520,
+                                                                        lineNumber: 511,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4017,7 +4008,7 @@ function EndShiftPage() {
                                                                                 children: "Incoming Attendant *"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 567,
+                                                                                lineNumber: 558,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4032,12 +4023,12 @@ function EndShiftPage() {
                                                                                             placeholder: "Select cashier taking over"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                            lineNumber: 573,
+                                                                                            lineNumber: 564,
                                                                                             columnNumber: 35
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 572,
+                                                                                        lineNumber: 563,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4046,24 +4037,24 @@ function EndShiftPage() {
                                                                                                 children: cashier.name
                                                                                             }, cashier.id, false, {
                                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                                lineNumber: 577,
+                                                                                                lineNumber: 568,
                                                                                                 columnNumber: 37
                                                                                             }, this))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 575,
+                                                                                        lineNumber: 566,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 568,
+                                                                                lineNumber: 559,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 566,
+                                                                        lineNumber: 557,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     nozzleReadings[nozzle.id] && parseFloat(nozzleReadings[nozzle.id]) < openingReading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4075,25 +4066,25 @@ function EndShiftPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 585,
+                                                                        lineNumber: 576,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, nozzle.id, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 509,
+                                                                lineNumber: 500,
                                                                 columnNumber: 27
                                                             }, this);
                                                         })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 504,
+                                                        lineNumber: 495,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 494,
+                                                lineNumber: 485,
                                                 columnNumber: 19
                                             }, this),
                                             tanks.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -4104,20 +4095,20 @@ function EndShiftPage() {
                                                                 children: "Tank Closing Stock"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 596,
+                                                                lineNumber: 587,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                 children: "Enter the closing stock levels for each tank"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 597,
+                                                                lineNumber: 588,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 595,
+                                                        lineNumber: 586,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4139,7 +4130,7 @@ function EndShiftPage() {
                                                                                         children: tank.tank_name
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 608,
+                                                                                        lineNumber: 599,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4152,13 +4143,13 @@ function EndShiftPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 609,
+                                                                                        lineNumber: 600,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 607,
+                                                                                lineNumber: 598,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4173,13 +4164,13 @@ function EndShiftPage() {
                                                                                     })
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 613,
+                                                                                lineNumber: 604,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 606,
+                                                                        lineNumber: 597,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     needsStockReceived && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4190,7 +4181,7 @@ function EndShiftPage() {
                                                                                 children: "Stock increased - enter fuel received:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 624,
+                                                                                lineNumber: 615,
                                                                                 columnNumber: 35
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4205,37 +4196,37 @@ function EndShiftPage() {
                                                                                     })
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 625,
+                                                                                lineNumber: 616,
                                                                                 columnNumber: 35
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 623,
+                                                                        lineNumber: 614,
                                                                         columnNumber: 33
                                                                     }, this)
                                                                 ]
                                                             }, tank.id, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 605,
+                                                                lineNumber: 596,
                                                                 columnNumber: 29
                                                             }, this);
                                                         })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 599,
+                                                        lineNumber: 590,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 594,
+                                                lineNumber: 585,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                        lineNumber: 493,
+                                        lineNumber: 484,
                                         columnNumber: 17
                                     }, this),
                                     step === 2 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4252,27 +4243,27 @@ function EndShiftPage() {
                                                                         className: "h-5 w-5"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 649,
+                                                                        lineNumber: 640,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     "Attendant Collections"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 648,
+                                                                lineNumber: 639,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                 children: "Enter payment amounts for each attendant. Mobile Money and Card are pre-filled from sales data."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 652,
+                                                                lineNumber: 643,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 647,
+                                                        lineNumber: 638,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4291,7 +4282,7 @@ function EndShiftPage() {
                                                                                 children: attendant.name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 664,
+                                                                                lineNumber: 655,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4308,19 +4299,19 @@ function EndShiftPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 666,
+                                                                                        lineNumber: 657,
                                                                                         columnNumber: 48
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 665,
+                                                                                lineNumber: 656,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 663,
+                                                                        lineNumber: 654,
                                                                         columnNumber: 31
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4333,7 +4324,7 @@ function EndShiftPage() {
                                                                                             children: payment.payment_method === 'mobile_money' ? 'Mobile Money' : payment.payment_method.replace('_', ' ')
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                            lineNumber: 672,
+                                                                                            lineNumber: 663,
                                                                                             columnNumber: 37
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4351,13 +4342,13 @@ function EndShiftPage() {
                                                                                             }
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                            lineNumber: 675,
+                                                                                            lineNumber: 666,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     ]
                                                                                 }, payment.payment_method, true, {
                                                                                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                    lineNumber: 671,
+                                                                                    lineNumber: 662,
                                                                                     columnNumber: 35
                                                                                 }, this)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4367,7 +4358,7 @@ function EndShiftPage() {
                                                                                         children: "Variance"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 690,
+                                                                                        lineNumber: 681,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4375,25 +4366,25 @@ function EndShiftPage() {
                                                                                         children: variance === 0 ? '0.00' : variance > 0 ? `-${variance.toFixed(2)}` : `+${Math.abs(variance).toFixed(2)}`
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                        lineNumber: 691,
+                                                                                        lineNumber: 682,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                                lineNumber: 689,
+                                                                                lineNumber: 680,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                        lineNumber: 669,
+                                                                        lineNumber: 660,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, attendant.id, true, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                                lineNumber: 662,
+                                                                lineNumber: 653,
                                                                 columnNumber: 29
                                                             }, this);
                                                         }) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4401,18 +4392,18 @@ function EndShiftPage() {
                                                             children: "No sales recorded during this shift"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                            lineNumber: 706,
+                                                            lineNumber: 697,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 656,
+                                                        lineNumber: 647,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 646,
+                                                lineNumber: 637,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -4422,12 +4413,12 @@ function EndShiftPage() {
                                                             children: "Shift Notes"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                            lineNumber: 715,
+                                                            lineNumber: 706,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 714,
+                                                        lineNumber: 705,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4438,24 +4429,24 @@ function EndShiftPage() {
                                                             rows: 3
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                            lineNumber: 718,
+                                                            lineNumber: 709,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                        lineNumber: 717,
+                                                        lineNumber: 708,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 713,
+                                                lineNumber: 704,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                        lineNumber: 645,
+                                        lineNumber: 636,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4468,7 +4459,7 @@ function EndShiftPage() {
                                                     children: "Cancel"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                    lineNumber: 732,
+                                                    lineNumber: 723,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4479,13 +4470,13 @@ function EndShiftPage() {
                                                             className: "h-4 w-4 ml-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                            lineNumber: 737,
+                                                            lineNumber: 728,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                    lineNumber: 735,
+                                                    lineNumber: 726,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
@@ -4499,14 +4490,14 @@ function EndShiftPage() {
                                                             className: "h-4 w-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                            lineNumber: 743,
+                                                            lineNumber: 734,
                                                             columnNumber: 23
                                                         }, this),
                                                         "Back"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                    lineNumber: 742,
+                                                    lineNumber: 733,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4515,14 +4506,14 @@ function EndShiftPage() {
                                                     children: submitting ? "Ending Shift..." : "End Shift"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                    lineNumber: 746,
+                                                    lineNumber: 737,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true)
                                     }, void 0, false, {
                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                        lineNumber: 729,
+                                        lineNumber: 720,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -4534,41 +4525,41 @@ function EndShiftPage() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                                lineNumber: 754,
+                                                lineNumber: 745,
                                                 columnNumber: 28
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                        lineNumber: 753,
+                                        lineNumber: 744,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                                lineNumber: 436,
+                                lineNumber: 427,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                            lineNumber: 435,
+                            lineNumber: 426,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                    lineNumber: 432,
+                    lineNumber: 423,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-                lineNumber: 431,
+                lineNumber: 422,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/sales/summary/end-shift/page.tsx",
-        lineNumber: 423,
+        lineNumber: 414,
         columnNumber: 5
     }, this);
 }
