@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Printer, Loader2, Fuel, AlertCircle, RefreshCw, Calendar, ArrowLeft } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
+import { ReportTabs } from "@/components/report-tabs"
 
 interface NozzleData {
   nozzle_id: string
@@ -245,6 +246,7 @@ function NozzleSalesReportContent() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-7xl space-y-6">
+              <ReportTabs />
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">

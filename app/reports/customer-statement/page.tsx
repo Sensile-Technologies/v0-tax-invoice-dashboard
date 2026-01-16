@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Printer, Download } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ReportTabs } from "@/components/report-tabs"
 
 export default function CustomerStatementPage() {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -81,6 +82,7 @@ export default function CustomerStatementPage() {
 
         <main className="flex-1 overflow-auto ml-6 mt-6 mb-6 mr-6">
           <div className="bg-white rounded-tl-3xl shadow-2xl p-8 min-h-full">
+            <ReportTabs />
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-3xl font-bold text-slate-900">Customer Statement</h1>

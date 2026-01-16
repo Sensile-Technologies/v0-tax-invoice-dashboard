@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Printer, Download, Loader2, Package } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
+import { ReportTabs } from "@/components/report-tabs"
 
 interface InventoryItem {
   code: string
@@ -128,6 +129,7 @@ export default function InventoryValuationPage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-3 md:p-6">
             <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
+              <ReportTabs />
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Inventory Valuation Report</h1>

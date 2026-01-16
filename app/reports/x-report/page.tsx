@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, Printer, Loader2, RefreshCw } from "lucide-react"
+import { ReportTabs } from "@/components/report-tabs"
 
 interface ReportData {
   reportNumber: string
@@ -122,6 +123,7 @@ export default function XReportPage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-4xl space-y-6">
+              <ReportTabs />
               <Card className="rounded-2xl shadow-lg print:shadow-none">
                 <CardHeader className="border-b pb-4 print:hidden">
                   <div>

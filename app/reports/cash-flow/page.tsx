@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, Printer } from "lucide-react"
 import { useCurrency } from "@/lib/currency-utils"
+import { ReportTabs } from "@/components/report-tabs"
 
 export default function CashFlowPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -55,6 +56,7 @@ export default function CashFlowPage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-7xl space-y-6">
+              <ReportTabs />
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Cash Flow Statement</h1>

@@ -55,7 +55,7 @@ const regularNavigationItems: NavigationItem[] = [
   { icon: Box, label: "Items", href: "/items", hasDropdown: true },
   { icon: Upload, label: "Imports", href: "/imports", hasDropdown: true },
   { icon: UserCog, label: "Staff", href: "/staff" },
-  { icon: FileText, label: "Reports", href: "/reports", hasDropdown: true },
+  { icon: FileText, label: "Reports", href: "/reports" },
   { icon: Settings, label: "Tax Service", href: "/configuration/tax-service" },
 ]
 
@@ -252,70 +252,6 @@ export function DashboardSidebar({
                       </Link>
                     </>
                   )}
-                  {item.label === "Reports" && (
-                    <div className="max-h-96 overflow-y-auto pr-2 space-y-1 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                      <Link href="/reports/daily-sales" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Daily Sales Report
-                      </Link>
-                      <Link href="/reports/shifts" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Shift Reports
-                      </Link>
-                      <Link href="/reports/x-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        X Report
-                      </Link>
-                      <Link href="/reports/z-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Z Report
-                      </Link>
-                      <Link href="/reports/sales-summary" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Sales Summary
-                      </Link>
-                      <Link href="/reports/purchase-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Purchase Report
-                      </Link>
-                      <Link href="/reports/inventory-valuation" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Inventory Valuation
-                      </Link>
-                      <Link href="/reports/profit-loss" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Profit & Loss
-                      </Link>
-                      <Link href="/reports/balance-sheet" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Balance Sheet
-                      </Link>
-                      <Link href="/reports/cash-flow" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Cash Flow
-                      </Link>
-                      <Link href="/reports/trial-balance" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Trial Balance
-                      </Link>
-                      <Link href="/reports/general-ledger" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        General Ledger
-                      </Link>
-                      <Link href="/reports/aged-receivables" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Aged Receivables
-                      </Link>
-                      <Link href="/reports/aged-payables" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Aged Payables
-                      </Link>
-                      <Link href="/reports/customer-statement" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Customer Statement
-                      </Link>
-                      <Link href="/reports/supplier-statement" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Supplier Statement
-                      </Link>
-                      <Link href="/reports/vat-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        VAT Report
-                      </Link>
-                      <Link href="/reports/excise-duty" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Excise Duty Report
-                      </Link>
-                      <Link href="/reports/withholding-tax" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Withholding Tax
-                      </Link>
-                      <Link href="/reports/expense-report" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20" onClick={handleLinkClick}>
-                        Expense Report
-                      </Link>
-                    </div>
-                  )}
                 </CollapsibleContent>
               </Collapsible>
             )
@@ -326,8 +262,7 @@ export function DashboardSidebar({
               item.label === "Customers" ||
               item.label === "Items" ||
               item.label === "Accounting" ||
-              item.label === "Imports" ||
-              item.label === "Reports") &&
+              item.label === "Imports") &&
             !collapsed
           ) {
             return null

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, FileText, Calendar } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ReportTabs } from "@/components/report-tabs"
 
 export default function TrialBalancePage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -67,6 +68,7 @@ export default function TrialBalancePage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-5xl space-y-6">
+              <ReportTabs />
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-balance">Trial Balance</h1>

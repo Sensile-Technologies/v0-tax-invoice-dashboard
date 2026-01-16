@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, Printer, RefreshCw, Clock, Fuel, ChevronLeft, ChevronRight } from "lucide-react"
+import { ReportTabs } from "@/components/report-tabs"
 import { useCurrency } from "@/lib/currency-utils"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
@@ -280,6 +281,7 @@ export default function ShiftsReportPage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-7xl space-y-6">
+              <ReportTabs />
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Shifts Report</h1>

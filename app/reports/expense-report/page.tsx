@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Printer, Download, ArrowUpDown } from "lucide-react"
+import { ReportTabs } from "@/components/report-tabs"
 
 export default function ExpenseReportPage() {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -92,6 +93,7 @@ export default function ExpenseReportPage() {
 
         <main className="flex-1 overflow-auto ml-6 mt-6 mb-6 mr-6">
           <div className="bg-white rounded-tl-3xl shadow-2xl p-8 min-h-full">
+            <ReportTabs />
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-3xl font-bold text-slate-900">Expense Report</h1>

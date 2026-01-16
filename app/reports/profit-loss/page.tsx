@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Download, Calendar } from "lucide-react"
+import { ReportTabs } from "@/components/report-tabs"
 
 export default function ProfitLossPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -73,6 +74,7 @@ export default function ProfitLossPage() {
 
           <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6">
             <div className="mx-auto max-w-4xl space-y-6">
+              <ReportTabs />
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-balance">Profit & Loss Statement</h1>
