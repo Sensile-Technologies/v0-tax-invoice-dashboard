@@ -314,6 +314,36 @@ export default function EndShiftPage() {
     return totalSales - totalCollected
   }
 
+  const calculateTankVolumeVariance = (tankId: string, tank: any) => {
+    const openingStock = tankBaselines[tankId] || 0
+    const closingStock = parseFloat(tankStocks[tankId] || "0") || 0
+    const offloaded = parseFloat(tankStockReceived[tankId] || "0") || 0
+    
+    // Find nozzles linked to this tank (matching item_id)
+    const linkedNozzles = nozzles.filter(n => n.item_id === tank.item_id)
+    
+    // Calculate total volume dispensed through linked nozzles
+    let totalNozzleSales = 0
+    for (const nozzle of linkedNozzles) {
+      const opening = nozzleBaselines[nozzle.id] || 0
+      const closing = parseFloat(nozzleReadings[nozzle.id] || "0")
+      const rtt = parseFloat(nozzleRtt[nozzle.id] || "0") || 0
+      const selfFueling = parseFloat(nozzleSelfFueling[nozzle.id] || "0") || 0
+      const prepaidSale = parseFloat(nozzlePrepaidSale[nozzle.id] || "0") || 0
+      // Net dispensed = meter difference - RTT (RTT goes back to tank)
+      const netDispensed = Math.max(0, closing - opening) - rtt + selfFueling + prepaidSale
+      totalNozzleSales += netDispensed
+    }
+    
+    // Expected closing stock = opening + offloaded - nozzle sales
+    const expectedClosing = openingStock + offloaded - totalNozzleSales
+    
+    // Variance = expected - actual (positive means more fuel than expected, negative means less)
+    const variance = expectedClosing - closingStock
+    
+    return { variance, totalNozzleSales, expectedClosing }
+  }
+
   const validateStep2 = () => {
     // Mobile Money and Cash are mandatory for each attendant
     for (const attendant of outgoingAttendants) {
@@ -638,6 +668,8 @@ export default function EndShiftPage() {
                           const openingStock = tankBaselines[tank.id] || 0
                           const closingStock = parseFloat(tankStocks[tank.id] || "0") || 0
                           const needsStockReceived = closingStock > openingStock
+                          const { variance, totalNozzleSales, expectedClosing } = calculateTankVolumeVariance(tank.id, tank)
+                          const hasClosingValue = tankStocks[tank.id] && tankStocks[tank.id] !== ""
                           return (
                             <div key={tank.id} className="bg-slate-50 p-4 rounded-lg space-y-3">
                               <div className="flex items-center justify-between">
@@ -667,6 +699,26 @@ export default function EndShiftPage() {
                                     value={tankStockReceived[tank.id] || ""}
                                     onChange={(e) => setTankStockReceived({ ...tankStockReceived, [tank.id]: e.target.value })}
                                   />
+                                </div>
+                              )}
+                              {hasClosingValue && (
+                                <div className="pt-2 border-t border-slate-200">
+                                  <div className="flex items-center justify-between text-sm">
+                                    <span className="text-slate-600">
+                                      Nozzle Sales: <span className="font-medium">{totalNozzleSales.toFixed(2)} L</span>
+                                      {" | "}
+                                      Expected: <span className="font-medium">{expectedClosing.toFixed(2)} L</span>
+                                    </span>
+                                    <div className={`px-3 py-1 rounded-md font-semibold text-sm ${
+                                      Math.abs(variance) < 0.5
+                                        ? 'bg-green-50 text-green-700 border border-green-200'
+                                        : variance > 0
+                                          ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                                          : 'bg-red-50 text-red-700 border border-red-200'
+                                    }`}>
+                                      Variance: {variance > 0 ? '+' : ''}{variance.toFixed(2)} L
+                                    </div>
+                                  </div>
                                 </div>
                               )}
                             </div>
