@@ -197,7 +197,7 @@ export default function DSSRPage() {
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">
                     <Fuel className="h-8 w-8 text-blue-600" />
-                    Daily Station Status Report (DSSR)
+                    Daily Sales Summary Report (DSSR)
                   </h1>
                   <p className="text-slate-600 mt-1">Comprehensive daily fuel station performance summary</p>
                 </div>

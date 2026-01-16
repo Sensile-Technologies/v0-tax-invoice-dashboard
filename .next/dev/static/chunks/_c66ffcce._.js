@@ -2785,7 +2785,7 @@ function DSSRPage() {
                                                                 lineNumber: 199,
                                                                 columnNumber: 21
                                                             }, this),
-                                                            "Daily Station Status Report (DSSR)"
+                                                            "Daily Sales Summary Report (DSSR)"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
