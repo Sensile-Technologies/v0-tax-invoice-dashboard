@@ -220,7 +220,7 @@ var _s = __turbopack_context__.k.signature();
 const reportTabs = [
     {
         id: "daily-sales",
-        label: "Daily Sales",
+        label: "DSSR",
         href: "/reports/daily-sales"
     },
     {
@@ -230,23 +230,8 @@ const reportTabs = [
     },
     {
         id: "x-report",
-        label: "X Report",
+        label: "X/Z Report",
         href: "/reports/x-report"
-    },
-    {
-        id: "z-report",
-        label: "Z Report",
-        href: "/reports/z-report"
-    },
-    {
-        id: "sales-summary",
-        label: "Sales Summary",
-        href: "/reports/sales-summary"
-    },
-    {
-        id: "nozzle-sales",
-        label: "Nozzle Sales",
-        href: "/reports/nozzle-sales"
     },
     {
         id: "purchase-report",
@@ -272,16 +257,6 @@ const reportTabs = [
         id: "cash-flow",
         label: "Cash Flow",
         href: "/reports/cash-flow"
-    },
-    {
-        id: "trial-balance",
-        label: "Trial Balance",
-        href: "/reports/trial-balance"
-    },
-    {
-        id: "general-ledger",
-        label: "General Ledger",
-        href: "/reports/general-ledger"
     },
     {
         id: "customer-statement",
@@ -313,13 +288,13 @@ function ReportTabs() {
                 children: tab.label
             }, tab.id, false, {
                 fileName: "[project]/components/report-tabs.tsx",
-                lineNumber: 34,
+                lineNumber: 29,
                 columnNumber: 11
             }, this);
         })
     }, void 0, false, {
         fileName: "[project]/components/report-tabs.tsx",
-        lineNumber: 30,
+        lineNumber: 25,
         columnNumber: 5
     }, this);
 }

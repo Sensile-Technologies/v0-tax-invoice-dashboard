@@ -8,22 +8,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
 const reportTabs = [
-  { id: "daily-sales", label: "Daily Sales", href: "/reports/daily-sales" },
-  { id: "shifts", label: "Shift Reports", href: "/reports/shifts" },
-  { id: "x-report", label: "X Report", href: "/reports/x-report" },
-  { id: "z-report", label: "Z Report", href: "/reports/z-report" },
-  { id: "sales-summary", label: "Sales Summary", href: "/reports/sales-summary" },
-  { id: "nozzle-sales", label: "Nozzle Sales", href: "/reports/nozzle-sales" },
-  { id: "purchase-report", label: "Purchase Report", href: "/reports/purchase-report" },
-  { id: "inventory-valuation", label: "Inventory Valuation", href: "/reports/inventory-valuation" },
+  { id: "daily-sales", label: "DSSR", href: "/reports/daily-sales" },
+  { id: "shifts", label: "Shifts", href: "/reports/shifts" },
+  { id: "x-report", label: "X/Z Report", href: "/reports/x-report" },
+  { id: "purchase-report", label: "Purchase", href: "/reports/purchase-report" },
+  { id: "inventory-valuation", label: "Inventory", href: "/reports/inventory-valuation" },
   { id: "profit-loss", label: "Profit & Loss", href: "/reports/profit-loss" },
   { id: "balance-sheet", label: "Balance Sheet", href: "/reports/balance-sheet" },
   { id: "cash-flow", label: "Cash Flow", href: "/reports/cash-flow" },
-  { id: "trial-balance", label: "Trial Balance", href: "/reports/trial-balance" },
-  { id: "general-ledger", label: "General Ledger", href: "/reports/general-ledger" },
   { id: "customer-statement", label: "Customer Statement", href: "/reports/customer-statement" },
   { id: "vat-report", label: "VAT Report", href: "/reports/vat-report" },
-  { id: "expense-report", label: "Expense Report", href: "/reports/expense-report" },
+  { id: "expense-report", label: "Expenses", href: "/reports/expense-report" },
 ]
 
 export default function ReportsPage() {
@@ -73,7 +68,7 @@ export default function ReportsPage() {
 
               <Card>
                 <CardContent className="p-8 text-center text-slate-500">
-                  <p>Redirecting to Daily Sales Report...</p>
+                  <p>Redirecting to DSSR...</p>
                 </CardContent>
               </Card>
             </div>

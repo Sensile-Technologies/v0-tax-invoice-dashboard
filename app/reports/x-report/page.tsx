@@ -127,7 +127,7 @@ export default function XReportPage() {
               <Card className="rounded-2xl shadow-lg print:shadow-none">
                 <CardHeader className="border-b pb-4 print:hidden">
                   <div>
-                    <h1 className="text-2xl md:text-3xl font-bold text-balance">X Report</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-balance">X/Z Report</h1>
                     <p className="text-muted-foreground">Current Session Report (Non-Fiscal)</p>
                   </div>
                 </CardHeader>
