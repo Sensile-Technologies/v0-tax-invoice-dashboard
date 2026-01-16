@@ -248,7 +248,7 @@ export async function PATCH(request: NextRequest) {
   const client = await pool.connect()
   try {
     const body = await request.json()
-    const { id, end_time, total_sales, notes, status, nozzle_readings, tank_stocks, attendant_collections, expenses } = body
+    const { id, end_time, total_sales, notes, status, nozzle_readings, tank_stocks, attendant_collections, expenses, banking } = body
 
     if (!id) {
       client.release()
@@ -556,6 +556,36 @@ export async function PATCH(request: NextRequest) {
             `INSERT INTO shift_expenses (shift_id, branch_id, expense_account_id, amount, description)
              VALUES ($1, $2, $3, $4, $5)`,
             [id, branchId, expense.expense_account_id, expense.amount, expense.description || null]
+          )
+        }
+      }
+    }
+
+    // Save shift banking entries with vendor validation
+    if (banking && banking.length > 0) {
+      // Get vendor_id for the branch to validate banking accounts
+      const branchVendorResultForBanking = await client.query(
+        'SELECT vendor_id FROM branches WHERE id = $1',
+        [branchId]
+      )
+      const vendorIdForBanking = branchVendorResultForBanking.rows[0]?.vendor_id
+
+      for (const entry of banking) {
+        if (entry.banking_account_id && entry.amount > 0) {
+          // Validate banking account belongs to the same vendor
+          const accountCheck = await client.query(
+            'SELECT id FROM banking_accounts WHERE id = $1 AND vendor_id = $2',
+            [entry.banking_account_id, vendorIdForBanking]
+          )
+          if (accountCheck.rows.length === 0) {
+            console.warn(`[Shift Banking] Skipping invalid banking account ${entry.banking_account_id} - not found for vendor`)
+            continue
+          }
+          
+          await client.query(
+            `INSERT INTO shift_banking (shift_id, banking_account_id, amount, notes)
+             VALUES ($1, $2, $3, $4)`,
+            [id, entry.banking_account_id, entry.amount, entry.notes || null]
           )
         }
       }

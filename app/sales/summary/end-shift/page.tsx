@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { ArrowLeft, ArrowRight, Clock, Fuel, Users, CreditCard, Receipt, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, ArrowRight, Clock, Fuel, Users, CreditCard, Receipt, Plus, Trash2, Landmark } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -48,6 +48,8 @@ export default function EndShiftPage() {
   const [notes, setNotes] = useState("")
   const [expenseAccounts, setExpenseAccounts] = useState<Array<{ id: string; account_name: string }>>([])
   const [shiftExpenses, setShiftExpenses] = useState<Array<{ expense_account_id: string; amount: string; description: string }>>([])
+  const [bankingAccounts, setBankingAccounts] = useState<Array<{ id: string; account_name: string; bank_name: string | null; is_default: boolean }>>([])
+  const [shiftBanking, setShiftBanking] = useState<Array<{ banking_account_id: string; amount: string; notes: string }>>([])
 
 
   useEffect(() => {
@@ -227,6 +229,18 @@ export default function EndShiftPage() {
           console.error("Failed to fetch expense accounts:", e)
         }
 
+        // Fetch banking accounts
+        try {
+          const bankingRes = await fetch('/api/banking-accounts')
+          if (bankingRes.ok) {
+            const bankingData = await bankingRes.json()
+            const activeAccounts = (bankingData.data || []).filter((a: any) => a.is_active)
+            setBankingAccounts(activeAccounts)
+          }
+        } catch (e) {
+          console.error("Failed to fetch banking accounts:", e)
+        }
+
       } catch (error: any) {
         console.error("Error loading end shift data:", error)
         setLoadError(error?.message || "Failed to load shift data")
@@ -365,6 +379,14 @@ export default function EndShiftPage() {
           description: e.description || null,
         }))
 
+      const bankingData = shiftBanking
+        .filter(b => b.banking_account_id && parseFloat(b.amount) > 0)
+        .map(b => ({
+          banking_account_id: b.banking_account_id,
+          amount: parseFloat(b.amount),
+          notes: b.notes || null,
+        }))
+
       const response = await fetch("/api/shifts", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -376,6 +398,7 @@ export default function EndShiftPage() {
           tank_stocks: tankData,
           attendant_collections: collectionsData,
           expenses: expensesData,
+          banking: bankingData,
         }),
       })
 
@@ -815,6 +838,103 @@ export default function EndShiftPage() {
                         <div className="text-center py-4 text-slate-500 text-sm">
                           <p>No expense accounts configured.</p>
                           <p className="text-xs mt-1">Create accounts in Accounting &gt; Collections to enable expense tracking.</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Landmark className="h-5 w-5" />
+                        Banking Summary
+                      </CardTitle>
+                      <CardDescription>
+                        Record any banking activity during this shift
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {shiftBanking.map((entry, idx) => (
+                        <div key={idx} className="grid grid-cols-12 gap-3 items-start bg-slate-50 p-3 rounded-lg">
+                          <div className="col-span-4">
+                            <Label className="text-xs text-slate-500">Banking Account</Label>
+                            <Select
+                              value={entry.banking_account_id}
+                              onValueChange={(value) => {
+                                const updated = [...shiftBanking]
+                                updated[idx].banking_account_id = value
+                                setShiftBanking(updated)
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select account..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {bankingAccounts.map((account) => (
+                                  <SelectItem key={account.id} value={account.id}>
+                                    {account.account_name}
+                                    {account.bank_name && ` (${account.bank_name})`}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-3">
+                            <Label className="text-xs text-slate-500">Amount (KES)</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={entry.amount}
+                              onChange={(e) => {
+                                const updated = [...shiftBanking]
+                                updated[idx].amount = e.target.value
+                                setShiftBanking(updated)
+                              }}
+                            />
+                          </div>
+                          <div className="col-span-4">
+                            <Label className="text-xs text-slate-500">Notes</Label>
+                            <Input
+                              type="text"
+                              placeholder="Optional notes..."
+                              value={entry.notes}
+                              onChange={(e) => {
+                                const updated = [...shiftBanking]
+                                updated[idx].notes = e.target.value
+                                setShiftBanking(updated)
+                              }}
+                            />
+                          </div>
+                          <div className="col-span-1 pt-5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setShiftBanking(shiftBanking.filter((_, i) => i !== idx))
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-slate-400" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {bankingAccounts.length > 0 ? (
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setShiftBanking([...shiftBanking, { banking_account_id: '', amount: '', notes: '' }])
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Banking Entry
+                        </Button>
+                      ) : (
+                        <div className="text-center py-4 text-slate-500 text-sm">
+                          <p>No banking accounts configured.</p>
+                          <p className="text-xs mt-1">Create accounts in Accounting &gt; Collections to enable banking tracking.</p>
                         </div>
                       )}
                     </CardContent>
