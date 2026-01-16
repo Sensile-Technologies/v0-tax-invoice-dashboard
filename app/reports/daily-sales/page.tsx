@@ -490,9 +490,6 @@ export default function DailySalesReportPage() {
                                 <span>{shift.cashier_name}</span>
                               </div>
                             </div>
-                            <Badge variant={shift.status === 'closed' ? 'secondary' : 'default'}>
-                              {shift.status === 'closed' ? 'Closed' : 'Open'}
-                            </Badge>
                           </div>
                           
                           {shift.items.length === 0 ? (
