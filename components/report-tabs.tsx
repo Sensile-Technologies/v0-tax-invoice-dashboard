@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 const reportTabs = [
   { id: "daily-sales", label: "DSSR", href: "/reports/daily-sales" },
   { id: "shifts", label: "Shifts", href: "/reports/shifts" },
+  { id: "bulk-sales", label: "Bulk Sales", href: "/reports/bulk-sales" },
   { id: "x-report", label: "X/Z Report", href: "/reports/x-report" },
   { id: "profit-loss", label: "Profit & Loss", href: "/reports/profit-loss" },
   { id: "balance-sheet", label: "Balance Sheet", href: "/reports/balance-sheet" },

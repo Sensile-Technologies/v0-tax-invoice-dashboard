@@ -46,6 +46,7 @@ interface Branch {
   server_port?: string
   kra_pin?: string
   trading_name?: string
+  bulk_sales_kra_percentage?: number
 }
 
 interface Invoice {
@@ -83,7 +84,8 @@ export default function MerchantsPage() {
     server_port: "",
     kra_pin: "",
     device_serial_number: "",
-    sr_number: ""
+    sr_number: "",
+    bulk_sales_kra_percentage: "100"
   })
   const [initializingBranch, setInitializingBranch] = useState(false)
 
@@ -177,7 +179,8 @@ export default function MerchantsPage() {
       server_port: branch.server_port || "",
       kra_pin: branch.kra_pin || "",
       device_serial_number: (branch as any).device_serial_number || "",
-      sr_number: (branch as any).sr_number?.toString() || ""
+      sr_number: (branch as any).sr_number?.toString() || "",
+      bulk_sales_kra_percentage: branch.bulk_sales_kra_percentage?.toString() || "100"
     })
     setBranchEditDialogOpen(true)
   }
@@ -637,6 +640,21 @@ export default function MerchantsPage() {
                   placeholder="SR number"
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="branch-bulk-percentage">Bulk Sales KRA Transmission (%)</Label>
+              <Input
+                id="branch-bulk-percentage"
+                type="number"
+                min="0"
+                max="100"
+                value={branchEditForm.bulk_sales_kra_percentage}
+                onChange={(e) => setBranchEditForm({ ...branchEditForm, bulk_sales_kra_percentage: e.target.value })}
+                placeholder="100"
+              />
+              <p className="text-xs text-muted-foreground">
+                Percentage of bulk sales to transmit to KRA (0-100). Default is 100%.
+              </p>
             </div>
             <div className="flex justify-between items-center gap-2 pt-4 border-t">
               <Button 

@@ -1625,6 +1625,10 @@
     margin-left: calc(var(--spacing) * 2);
   }
 
+  .ml-3 {
+    margin-left: calc(var(--spacing) * 3);
+  }
+
   .ml-4 {
     margin-left: calc(var(--spacing) * 4);
   }
@@ -2321,6 +2325,10 @@
 
   .min-w-\[100px\] {
     min-width: 100px;
+  }
+
+  .min-w-\[150px\] {
+    min-width: 150px;
   }
 
   .min-w-\[200px\] {
@@ -8413,6 +8421,12 @@
   @media print {
     .print\:p-2 {
       padding: calc(var(--spacing) * 2);
+    }
+  }
+
+  @media print {
+    .print\:pb-4 {
+      padding-bottom: calc(var(--spacing) * 4);
     }
   }
 
