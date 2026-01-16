@@ -457,58 +457,6 @@ export default function DSSRPage() {
                   <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg font-bold text-slate-800">
-                        DAILY CASH FLOW
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between py-2 border-b">
-                            <span className="font-medium">Opening Cash at Hand (Morning)</span>
-                            <span className="font-mono">{formatCurrency(data.daily_cash_flow.opening_cash)}</span>
-                          </div>
-                          <div className="flex justify-between py-2 border-b">
-                            <span className="font-medium">Cash Received - Day Shift</span>
-                            <span className="font-mono text-green-600">+{formatCurrency(data.daily_cash_flow.day_shift_cash)}</span>
-                          </div>
-                          <div className="flex justify-between py-2 border-b">
-                            <span className="font-medium">Cash Received - Night Shift</span>
-                            <span className="font-mono text-green-600">+{formatCurrency(data.daily_cash_flow.night_shift_cash)}</span>
-                          </div>
-                          <div className="flex justify-between py-2 border-b">
-                            <span className="font-medium">Cash Banked in the Day</span>
-                            <span className="font-mono text-red-600">-{formatCurrency(data.daily_cash_flow.cash_banked)}</span>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between py-2 border-b bg-slate-50 px-2 rounded">
-                            <span className="font-semibold">Expected Closing Cash</span>
-                            <span className="font-mono font-semibold">
-                              {formatCurrency(data.daily_cash_flow.opening_cash + data.daily_cash_flow.day_shift_cash + data.daily_cash_flow.night_shift_cash - data.daily_cash_flow.cash_banked)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between py-2 border-b">
-                            <span className="font-medium">Closing Cash At Hand (End of Night Shift)</span>
-                            <span className="font-mono">{formatCurrency(data.daily_cash_flow.closing_cash)}</span>
-                          </div>
-                          <div className="flex justify-between py-2 border-b">
-                            <span className="font-medium">Physical Cash Count</span>
-                            <span className="font-mono">{formatCurrency(data.daily_cash_flow.physical_count)}</span>
-                          </div>
-                          <div className={`flex justify-between py-2 px-2 rounded ${Math.abs(data.daily_cash_flow.difference) < 100 ? 'bg-green-100' : 'bg-red-100'}`}>
-                            <span className="font-bold">DIFFERENCE</span>
-                            <span className={`font-mono font-bold ${Math.abs(data.daily_cash_flow.difference) < 100 ? 'text-green-700' : 'text-red-700'}`}>
-                              {formatCurrency(data.daily_cash_flow.difference)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-bold text-slate-800">
                         COLLECTION SUMMARY
                       </CardTitle>
                     </CardHeader>
