@@ -43,7 +43,8 @@ export default function EndShiftPage() {
   const [nozzlePrepaidSale, setNozzlePrepaidSale] = useState<Record<string, string>>({})
   const [outgoingAttendants, setOutgoingAttendants] = useState<Array<{ id: string; name: string }>>([])
   const [attendantCollections, setAttendantCollections] = useState<Record<string, Array<{ payment_method: string; amount: string }>>>({})
-  const [attendantSalesTotals, setAttendantSalesTotals] = useState<Record<string, number>>({})
+  const [nozzleAttendantMap, setNozzleAttendantMap] = useState<Record<string, string>>({})
+  const [nozzlePrices, setNozzlePrices] = useState<Record<string, number>>({})
   const [notes, setNotes] = useState("")
 
   useEffect(() => {
@@ -152,10 +153,9 @@ export default function EndShiftPage() {
           setTankBaselines(tankBl)
         }
 
-        const attendantIdsFromSales = [...new Set(shiftSales.map((s: any) => s.staff_id).filter(Boolean))]
-        
-        // Also get incoming attendants from previous shift (they should work this shift)
+        // Get incoming attendants from previous shift (who worked during this shift)
         let incomingAttendantIds: string[] = []
+        let nozzleAttendantMapping: Record<string, string> = {}
         if (currentBranchId) {
           try {
             const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${currentBranchId}`)
@@ -164,27 +164,46 @@ export default function EndShiftPage() {
               if (prevData.incoming_attendant_ids) {
                 incomingAttendantIds = prevData.incoming_attendant_ids
               }
+              if (prevData.nozzle_attendant_map) {
+                nozzleAttendantMapping = prevData.nozzle_attendant_map
+                setNozzleAttendantMap(nozzleAttendantMapping)
+              }
             }
           } catch (e) {
             console.error("Failed to fetch previous shift incoming attendants:", e)
           }
         }
         
-        const allAttendantIds = [...new Set([...attendantIdsFromSales, ...incomingAttendantIds])]
+        // Build nozzle prices from branch_items
+        const prices: Record<string, number> = {}
+        try {
+          const branchItemsRes = await fetch(`/api/branch-items?branch_id=${currentBranchId}`)
+          if (branchItemsRes.ok) {
+            const branchItemsData = await branchItemsRes.json()
+            const branchItems = branchItemsData.data || []
+            for (const nozzle of nozzlesData.data || []) {
+              const branchItem = branchItems.find((bi: any) => bi.item_id === nozzle.item_id)
+              if (branchItem?.sale_price) {
+                prices[nozzle.id] = parseFloat(branchItem.sale_price)
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch branch items for pricing:", e)
+        }
+        setNozzlePrices(prices)
+        
         const outgoing = allStaff
-          .filter((s: any) => allAttendantIds.includes(s.id))
+          .filter((s: any) => incomingAttendantIds.includes(s.id))
           .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
         setOutgoingAttendants(outgoing)
 
         const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
-        const salesTotals: Record<string, number> = {}
         for (const att of outgoing) {
           const attSales = shiftSales.filter((s: any) => s.staff_id === att.id)
           const cardTotal = attSales.filter((s: any) => s.payment_method === 'card').reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           const mobileMoneyTotal = attSales.filter((s: any) => ['mpesa', 'mobile_money'].includes(s.payment_method)).reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
-          const totalSales = attSales.reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           
-          salesTotals[att.id] = totalSales
           collections[att.id] = [
             { payment_method: 'cash', amount: '' },
             { payment_method: 'mobile_money', amount: mobileMoneyTotal.toFixed(2) },
@@ -192,7 +211,6 @@ export default function EndShiftPage() {
             { payment_method: 'credit', amount: '' },
           ]
         }
-        setAttendantSalesTotals(salesTotals)
         setAttendantCollections(collections)
 
       } catch (error: any) {
@@ -245,8 +263,24 @@ export default function EndShiftPage() {
     return true
   }
 
+  const calculateAttendantSales = (attendantId: string) => {
+    // Calculate total sales from meter readings for nozzles assigned to this attendant
+    let totalSales = 0
+    for (const nozzle of nozzles) {
+      const assignedAttendant = nozzleAttendantMap[nozzle.id]
+      if (assignedAttendant === attendantId) {
+        const opening = nozzleBaselines[nozzle.id] || 0
+        const closing = parseFloat(nozzleReadings[nozzle.id] || "0")
+        const unitPrice = nozzlePrices[nozzle.id] || 0
+        const quantity = Math.max(0, closing - opening)
+        totalSales += quantity * unitPrice
+      }
+    }
+    return totalSales
+  }
+
   const calculateVariance = (attendantId: string) => {
-    const totalSales = attendantSalesTotals[attendantId] || 0
+    const totalSales = calculateAttendantSales(attendantId)
     const collections = attendantCollections[attendantId] || []
     const totalCollected = collections.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0)
     return totalSales - totalCollected
@@ -613,8 +647,8 @@ export default function EndShiftPage() {
                     <CardContent className="space-y-4">
                       {outgoingAttendants.length > 0 ? (
                         outgoingAttendants.map((attendant) => {
+                          const totalSales = calculateAttendantSales(attendant.id)
                           const variance = calculateVariance(attendant.id)
-                          const totalSales = attendantSalesTotals[attendant.id] || 0
                           return (
                             <div key={attendant.id} className="bg-slate-50 p-4 rounded-lg space-y-4">
                               <div className="flex justify-between items-center">
