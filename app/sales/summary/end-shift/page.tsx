@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { ArrowLeft, ArrowRight, Clock, Fuel, Users, CreditCard } from "lucide-react"
+import { ArrowLeft, ArrowRight, Clock, Fuel, Users, CreditCard, Receipt, Plus, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -46,6 +46,9 @@ export default function EndShiftPage() {
   const [nozzleAttendantMap, setNozzleAttendantMap] = useState<Record<string, string>>({})
   const [nozzlePrices, setNozzlePrices] = useState<Record<string, number>>({})
   const [notes, setNotes] = useState("")
+  const [expenseAccounts, setExpenseAccounts] = useState<Array<{ id: string; account_name: string }>>([])
+  const [shiftExpenses, setShiftExpenses] = useState<Array<{ expense_account_id: string; amount: string; description: string }>>([])
+
 
   useEffect(() => {
     async function loadData() {
@@ -213,6 +216,17 @@ export default function EndShiftPage() {
         }
         setAttendantCollections(collections)
 
+        // Fetch expense accounts
+        try {
+          const expenseRes = await fetch('/api/expense-accounts')
+          if (expenseRes.ok) {
+            const expenseData = await expenseRes.json()
+            setExpenseAccounts(expenseData.data || [])
+          }
+        } catch (e) {
+          console.error("Failed to fetch expense accounts:", e)
+        }
+
       } catch (error: any) {
         console.error("Error loading end shift data:", error)
         setLoadError(error?.message || "Failed to load shift data")
@@ -343,6 +357,14 @@ export default function EndShiftPage() {
         })),
       }))
 
+      const expensesData = shiftExpenses
+        .filter(e => e.expense_account_id && parseFloat(e.amount) > 0)
+        .map(e => ({
+          expense_account_id: e.expense_account_id,
+          amount: parseFloat(e.amount),
+          description: e.description || null,
+        }))
+
       const response = await fetch("/api/shifts", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -353,6 +375,7 @@ export default function EndShiftPage() {
           nozzle_readings: readings,
           tank_stocks: tankData,
           attendant_collections: collectionsData,
+          expenses: expensesData,
         }),
       })
 
@@ -696,6 +719,102 @@ export default function EndShiftPage() {
                       ) : (
                         <div className="text-center py-8 text-slate-500">
                           No sales recorded during this shift
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Receipt className="h-5 w-5" />
+                        Expenses
+                      </CardTitle>
+                      <CardDescription>
+                        Record any expenses incurred during this shift
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {shiftExpenses.map((expense, idx) => (
+                        <div key={idx} className="grid grid-cols-12 gap-3 items-start bg-slate-50 p-3 rounded-lg">
+                          <div className="col-span-4">
+                            <Label className="text-xs text-slate-500">Expense Type</Label>
+                            <Select
+                              value={expense.expense_account_id}
+                              onValueChange={(value) => {
+                                const updated = [...shiftExpenses]
+                                updated[idx].expense_account_id = value
+                                setShiftExpenses(updated)
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select type..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {expenseAccounts.filter(a => a.id).map((account) => (
+                                  <SelectItem key={account.id} value={account.id}>
+                                    {account.account_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="col-span-3">
+                            <Label className="text-xs text-slate-500">Amount (KES)</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={expense.amount}
+                              onChange={(e) => {
+                                const updated = [...shiftExpenses]
+                                updated[idx].amount = e.target.value
+                                setShiftExpenses(updated)
+                              }}
+                            />
+                          </div>
+                          <div className="col-span-4">
+                            <Label className="text-xs text-slate-500">Description</Label>
+                            <Input
+                              type="text"
+                              placeholder="Optional notes..."
+                              value={expense.description}
+                              onChange={(e) => {
+                                const updated = [...shiftExpenses]
+                                updated[idx].description = e.target.value
+                                setShiftExpenses(updated)
+                              }}
+                            />
+                          </div>
+                          <div className="col-span-1 pt-5">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setShiftExpenses(shiftExpenses.filter((_, i) => i !== idx))
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4 text-slate-400" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {expenseAccounts.length > 0 ? (
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setShiftExpenses([...shiftExpenses, { expense_account_id: '', amount: '', description: '' }])
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Expense
+                        </Button>
+                      ) : (
+                        <div className="text-center py-4 text-slate-500 text-sm">
+                          <p>No expense accounts configured.</p>
+                          <p className="text-xs mt-1">Create accounts in Accounting &gt; Collections to enable expense tracking.</p>
                         </div>
                       )}
                     </CardContent>

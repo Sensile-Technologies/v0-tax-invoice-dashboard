@@ -1154,6 +1154,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/api/expense-accounts/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/expense-accounts">> = Specific
+  const handler = {} as typeof import("../../../app/api/expense-accounts/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/api/flow360/dispensers/list/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/flow360/dispensers/list">> = Specific

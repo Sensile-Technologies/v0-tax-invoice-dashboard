@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 58, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/api/download-manual/route.ts"],"sourcesContent":["import { NextResponse } from 'next/server'\nimport fs from 'fs'\nimport path from 'path'\n\nexport async function GET() {\n  const filePath = path.join(process.cwd(), 'public', 'Flow360_User_Manual.doc')\n  \n  try {\n    const fileBuffer = fs.readFileSync(filePath)\n    \n    return new NextResponse(fileBuffer, {\n      headers: {\n        'Content-Type': 'application/msword',\n        'Content-Disposition': 'attachment; filename=\"Flow360_User_Manual.doc\"',\n      },\n    })\n  } catch (error) {\n    return NextResponse.json({ error: 'File not found' }, { status: 404 })\n  }\n}\n"],"names":[],"mappings":";;;;AAAA;AACA;AACA;;;;AAEO,eAAe;IACpB,MAAM,WAAW,4GAAI,CAAC,IAAI,CAAC,QAAQ,GAAG,IAAI,UAAU;IAEpD,IAAI;QACF,MAAM,aAAa,wGAAE,CAAC,YAAY,CAAC;QAEnC,OAAO,IAAI,gJAAY,CAAC,YAAY;YAClC,SAAS;gBACP,gBAAgB;gBAChB,uBAAuB;YACzB;QACF;IACF,EAAE,OAAO,OAAO;QACd,OAAO,gJAAY,CAAC,IAAI,CAAC;YAAE,OAAO;QAAiB,GAAG;YAAE,QAAQ;QAAI;IACtE;AACF"}}]
-}

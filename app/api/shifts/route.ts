@@ -248,7 +248,7 @@ export async function PATCH(request: NextRequest) {
   const client = await pool.connect()
   try {
     const body = await request.json()
-    const { id, end_time, total_sales, notes, status, nozzle_readings, tank_stocks, attendant_collections } = body
+    const { id, end_time, total_sales, notes, status, nozzle_readings, tank_stocks, attendant_collections, expenses } = body
 
     if (!id) {
       client.release()
@@ -514,6 +514,48 @@ export async function PATCH(request: NextRequest) {
             `INSERT INTO attendant_collections (shift_id, branch_id, staff_id, payment_method, amount, is_app_payment)
              VALUES ($1, $2, $3, $4, $5, false)`,
             [id, branchId, collection.staff_id, collection.payment_method, collection.amount]
+          )
+        }
+        // Handle nested payments format from frontend
+        if (collection.attendant_id && collection.payments && Array.isArray(collection.payments)) {
+          for (const payment of collection.payments) {
+            if (payment.payment_method && payment.amount > 0) {
+              await client.query(
+                `INSERT INTO attendant_collections (shift_id, branch_id, staff_id, payment_method, amount, is_app_payment)
+                 VALUES ($1, $2, $3, $4, $5, false)`,
+                [id, branchId, collection.attendant_id, payment.payment_method, payment.amount]
+              )
+            }
+          }
+        }
+      }
+    }
+
+    // Save shift expenses with vendor validation
+    if (expenses && expenses.length > 0) {
+      // Get vendor_id for the branch to validate expense accounts
+      const branchVendorResult = await client.query(
+        'SELECT vendor_id FROM branches WHERE id = $1',
+        [branchId]
+      )
+      const vendorId = branchVendorResult.rows[0]?.vendor_id
+
+      for (const expense of expenses) {
+        if (expense.expense_account_id && expense.amount > 0) {
+          // Validate expense account belongs to the same vendor
+          const accountCheck = await client.query(
+            'SELECT id FROM expense_accounts WHERE id = $1 AND vendor_id = $2',
+            [expense.expense_account_id, vendorId]
+          )
+          if (accountCheck.rows.length === 0) {
+            console.warn(`[Shift Expenses] Skipping invalid expense account ${expense.expense_account_id} - not found for vendor`)
+            continue
+          }
+          
+          await client.query(
+            `INSERT INTO shift_expenses (shift_id, branch_id, expense_account_id, amount, description)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [id, branchId, expense.expense_account_id, expense.amount, expense.description || null]
           )
         }
       }
