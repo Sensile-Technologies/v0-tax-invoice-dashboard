@@ -6,10 +6,14 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, Fuel, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react"
+import { Download, Printer, Loader2, Fuel, RefreshCw, AlertTriangle, CheckCircle, FileSpreadsheet, FileText } from "lucide-react"
 import { ReportTabs } from "@/components/report-tabs"
 import { useCurrency } from "@/lib/currency-utils"
 import { Label } from "@/components/ui/label"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
 
 interface NozzleReading {
   nozzle_id: string
@@ -152,40 +156,266 @@ export default function DSSRPage() {
     window.print()
   }
 
-  const handleExport = () => {
+  const handleExportPDF = () => {
     if (!data) return
 
-    let csv = `DAILY STATION STATUS REPORT (DSSR)\n`
-    csv += `Date: ${new Date(data.date).toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n`
-    csv += `Branch: ${data.branch_name}\n\n`
+    const doc = new jsPDF()
+    const reportDate = new Date(data.date).toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    
+    doc.setFontSize(18)
+    doc.setFont("helvetica", "bold")
+    doc.text("DAILY SALES SUMMARY REPORT (DSSR)", 14, 20)
+    
+    doc.setFontSize(11)
+    doc.setFont("helvetica", "normal")
+    doc.text(`Date: ${reportDate}`, 14, 28)
+    doc.text(`Branch: ${data.branch_name}`, 14, 34)
+    
+    let yPos = 44
 
-    csv += `SALES OF WHITE PRODUCTS IN LITRES\n`
-    csv += `Nozzle,Fuel Type,Closing Meter,Opening Meter,Throughput,RTT,Pump Sales\n`
-    for (const n of data.nozzle_readings) {
-      csv += `${n.nozzle_name},${n.fuel_type},${n.closing_meter.toFixed(2)},${n.opening_meter.toFixed(2)},${n.throughput.toFixed(2)},${n.rtt.toFixed(2)},${n.pump_sales.toFixed(2)}\n`
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "bold")
+    doc.text("1. SALES OF WHITE PRODUCTS IN LITRES", 14, yPos)
+    yPos += 4
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Nozzle', 'Fuel Type', 'Closing Meter', 'Opening Meter', 'Throughput', 'RTT', 'Pump Sales']],
+      body: data.nozzle_readings.map(n => [
+        n.nozzle_name,
+        n.fuel_type,
+        formatNumber(n.closing_meter),
+        formatNumber(n.opening_meter),
+        formatNumber(n.throughput),
+        formatNumber(n.rtt),
+        formatNumber(n.pump_sales)
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
+      bodyStyles: { fontSize: 8 },
+      margin: { left: 14, right: 14 }
+    })
+
+    yPos = (doc as any).lastAutoTable.finalY + 6
+    if (data.product_nozzle_totals.length > 0) {
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Product', 'Total Throughput', 'Total RTT', 'Total Pump Sales']],
+        body: data.product_nozzle_totals.map(p => [
+          p.product,
+          formatNumber(p.throughput),
+          formatNumber(p.rtt),
+          formatNumber(p.pump_sales)
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [52, 73, 94], fontSize: 8 },
+        bodyStyles: { fontSize: 8 },
+        margin: { left: 14, right: 14 }
+      })
+      yPos = (doc as any).lastAutoTable.finalY + 10
     }
 
-    csv += `\nWHITE PRODUCT MOVEMENT\n`
-    csv += `Product,Opening Stock,Offloaded,Closing Stock,Tank Sales,Pump Sales,Variance,Variance %\n`
-    for (const p of data.product_movement) {
-      csv += `${p.product},${p.opening_stock.toFixed(2)},${p.offloaded_volume.toFixed(2)},${p.closing_stock.toFixed(2)},${p.tank_sales.toFixed(2)},${p.pump_sales.toFixed(2)},${p.variance.toFixed(2)},${p.variance_percent.toFixed(2)}%\n`
+    if (yPos > 240) { doc.addPage(); yPos = 20 }
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "bold")
+    doc.text("2. WHITE PRODUCT MOVEMENT", 14, yPos)
+    yPos += 4
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Product', 'Opening', 'Offloaded', 'Closing', 'Tank Sales', 'Pump Sales', 'Variance', 'Var %']],
+      body: data.product_movement.map(p => [
+        p.product,
+        formatNumber(p.opening_stock),
+        formatNumber(p.offloaded_volume),
+        formatNumber(p.closing_stock),
+        formatNumber(p.tank_sales),
+        formatNumber(p.pump_sales),
+        formatNumber(p.variance),
+        `${formatNumber(p.variance_percent)}%`
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
+      bodyStyles: { fontSize: 8 },
+      margin: { left: 14, right: 14 }
+    })
+
+    yPos = (doc as any).lastAutoTable.finalY + 10
+    if (yPos > 240) { doc.addPage(); yPos = 20 }
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "bold")
+    doc.text("3. CASH FLOW SUMMARY", 14, yPos)
+    yPos += 4
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['Product', 'Total Sales (L)', 'Pump Price', 'Amount']],
+      body: data.product_cash_flow.map(p => [
+        p.product,
+        formatNumber(p.total_sales_litres),
+        formatCurrency(p.pump_price),
+        formatCurrency(p.amount)
+      ]),
+      foot: [['TOTAL', formatNumber(data.product_cash_flow.reduce((s, p) => s + p.total_sales_litres, 0)), '', formatCurrency(data.totals.total_sales_amount)]],
+      theme: 'striped',
+      headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
+      bodyStyles: { fontSize: 8 },
+      footStyles: { fillColor: [236, 240, 241], fontStyle: 'bold', fontSize: 8 },
+      margin: { left: 14, right: 14 }
+    })
+
+    yPos = (doc as any).lastAutoTable.finalY + 10
+    if (yPos > 240) { doc.addPage(); yPos = 20 }
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "bold")
+    doc.text("4. COLLECTION SUMMARY", 14, yPos)
+    yPos += 4
+
+    if (data.attendant_collections.length > 0) {
+      const collectionTotals = data.attendant_collections.reduce((acc, ac) => ({
+        cash: acc.cash + ac.cash,
+        mpesa: acc.mpesa + ac.mpesa,
+        card: acc.card + ac.card,
+        mobile_money: acc.mobile_money + ac.mobile_money,
+        credit: acc.credit + ac.credit,
+        total: acc.total + ac.total
+      }), { cash: 0, mpesa: 0, card: 0, mobile_money: 0, credit: 0, total: 0 })
+
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Attendant', 'Cash', 'MPESA', 'Card', 'Mobile Money', 'Credit', 'Total']],
+        body: data.attendant_collections.map(ac => [
+          ac.staff_name,
+          formatCurrency(ac.cash),
+          formatCurrency(ac.mpesa),
+          formatCurrency(ac.card),
+          formatCurrency(ac.mobile_money),
+          formatCurrency(ac.credit),
+          formatCurrency(ac.total)
+        ]),
+        foot: [['TOTAL', formatCurrency(collectionTotals.cash), formatCurrency(collectionTotals.mpesa), formatCurrency(collectionTotals.card), formatCurrency(collectionTotals.mobile_money), formatCurrency(collectionTotals.credit), formatCurrency(collectionTotals.total)]],
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
+        bodyStyles: { fontSize: 8 },
+        footStyles: { fillColor: [236, 240, 241], fontStyle: 'bold', fontSize: 8 },
+        margin: { left: 14, right: 14 }
+      })
+      yPos = (doc as any).lastAutoTable.finalY + 10
+    } else {
+      doc.setFontSize(9)
+      doc.setFont("helvetica", "italic")
+      doc.text("No collection records found for this date", 14, yPos + 4)
+      yPos += 14
     }
 
-    csv += `\nCASH FLOW SUMMARY\n`
-    csv += `Opening Cash,${data.daily_cash_flow.opening_cash.toFixed(2)}\n`
-    csv += `Day Shift Cash,${data.daily_cash_flow.day_shift_cash.toFixed(2)}\n`
-    csv += `Night Shift Cash,${data.daily_cash_flow.night_shift_cash.toFixed(2)}\n`
-    csv += `Cash Banked,${data.daily_cash_flow.cash_banked.toFixed(2)}\n`
-    csv += `Closing Cash,${data.daily_cash_flow.closing_cash.toFixed(2)}\n`
-    csv += `Difference,${data.daily_cash_flow.difference.toFixed(2)}\n`
+    if (yPos > 240) { doc.addPage(); yPos = 20 }
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "bold")
+    doc.text("5. BANKING SUMMARY", 14, yPos)
+    yPos += 4
 
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `DSSR_${data.branch_name}_${data.date}.csv`
-    a.click()
-    window.URL.revokeObjectURL(url)
+    if (data.banking_entries.length > 0) {
+      const totalBanked = data.banking_entries.reduce((sum, b) => sum + b.amount, 0)
+      autoTable(doc, {
+        startY: yPos,
+        head: [['Account', 'Bank', 'Amount', 'Notes']],
+        body: data.banking_entries.map(b => [
+          b.account_name,
+          b.bank_name || '-',
+          formatCurrency(b.amount),
+          b.notes || '-'
+        ]),
+        foot: [['TOTAL BANKED', '', formatCurrency(totalBanked), '']],
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
+        bodyStyles: { fontSize: 8 },
+        footStyles: { fillColor: [236, 240, 241], fontStyle: 'bold', fontSize: 8 },
+        margin: { left: 14, right: 14 }
+      })
+    } else {
+      doc.setFontSize(9)
+      doc.setFont("helvetica", "italic")
+      doc.text("No banking records found for this date", 14, yPos + 4)
+    }
+
+    doc.save(`DSSR_${data.branch_name}_${data.date}.pdf`)
+  }
+
+  const handleExportExcel = () => {
+    if (!data) return
+
+    const wb = XLSX.utils.book_new()
+    const reportDate = new Date(data.date).toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+    const nozzleData = [
+      ['DAILY SALES SUMMARY REPORT (DSSR)'],
+      [`Date: ${reportDate}`],
+      [`Branch: ${data.branch_name}`],
+      [],
+      ['1. SALES OF WHITE PRODUCTS IN LITRES'],
+      ['Nozzle', 'Fuel Type', 'Closing Meter', 'Opening Meter', 'Throughput', 'RTT', 'Pump Sales'],
+      ...data.nozzle_readings.map(n => [
+        n.nozzle_name, n.fuel_type, n.closing_meter, n.opening_meter, n.throughput, n.rtt, n.pump_sales
+      ]),
+      [],
+      ['Product Summary'],
+      ['Product', 'Total Throughput', 'Total RTT', 'Total Pump Sales'],
+      ...data.product_nozzle_totals.map(p => [p.product, p.throughput, p.rtt, p.pump_sales])
+    ]
+    const ws1 = XLSX.utils.aoa_to_sheet(nozzleData)
+    ws1['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 10 }, { wch: 12 }]
+    XLSX.utils.book_append_sheet(wb, ws1, 'Nozzle Sales')
+
+    const movementData = [
+      ['2. WHITE PRODUCT MOVEMENT'],
+      ['Product', 'Opening Stock', 'Offloaded', 'Closing Stock', 'Tank Sales', 'Pump Sales', 'Variance', 'Variance %'],
+      ...data.product_movement.map(p => [
+        p.product, p.opening_stock, p.offloaded_volume, p.closing_stock, p.tank_sales, p.pump_sales, p.variance, `${p.variance_percent.toFixed(2)}%`
+      ])
+    ]
+    const ws2 = XLSX.utils.aoa_to_sheet(movementData)
+    ws2['!cols'] = [{ wch: 15 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }]
+    XLSX.utils.book_append_sheet(wb, ws2, 'Product Movement')
+
+    const cashFlowData = [
+      ['3. CASH FLOW SUMMARY'],
+      ['Product', 'Total Sales (L)', 'Pump Price', 'Amount'],
+      ...data.product_cash_flow.map(p => [p.product, p.total_sales_litres, p.pump_price, p.amount]),
+      ['TOTAL', data.product_cash_flow.reduce((s, p) => s + p.total_sales_litres, 0), '', data.totals.total_sales_amount]
+    ]
+    const ws3 = XLSX.utils.aoa_to_sheet(cashFlowData)
+    ws3['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 15 }]
+    XLSX.utils.book_append_sheet(wb, ws3, 'Cash Flow')
+
+    const collectionTotals = data.attendant_collections.reduce((acc, ac) => ({
+      cash: acc.cash + ac.cash, mpesa: acc.mpesa + ac.mpesa, card: acc.card + ac.card,
+      mobile_money: acc.mobile_money + ac.mobile_money, credit: acc.credit + ac.credit, total: acc.total + ac.total
+    }), { cash: 0, mpesa: 0, card: 0, mobile_money: 0, credit: 0, total: 0 })
+
+    const collectionData = [
+      ['4. COLLECTION SUMMARY'],
+      ['Attendant', 'Cash', 'MPESA', 'Card', 'Mobile Money', 'Credit', 'Total'],
+      ...data.attendant_collections.map(ac => [
+        ac.staff_name, ac.cash, ac.mpesa, ac.card, ac.mobile_money, ac.credit, ac.total
+      ]),
+      ['TOTAL', collectionTotals.cash, collectionTotals.mpesa, collectionTotals.card, collectionTotals.mobile_money, collectionTotals.credit, collectionTotals.total]
+    ]
+    const ws4 = XLSX.utils.aoa_to_sheet(collectionData)
+    ws4['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }]
+    XLSX.utils.book_append_sheet(wb, ws4, 'Collections')
+
+    const totalBanked = data.banking_entries.reduce((sum, b) => sum + b.amount, 0)
+    const bankingData = [
+      ['5. BANKING SUMMARY'],
+      ['Account', 'Bank', 'Amount', 'Notes'],
+      ...data.banking_entries.map(b => [b.account_name, b.bank_name || '-', b.amount, b.notes || '-']),
+      ['TOTAL BANKED', '', totalBanked, '']
+    ]
+    const ws5 = XLSX.utils.aoa_to_sheet(bankingData)
+    ws5['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }]
+    XLSX.utils.book_append_sheet(wb, ws5, 'Banking')
+
+    XLSX.writeFile(wb, `DSSR_${data.branch_name}_${data.date}.xlsx`)
   }
 
   const getVarianceColor = (variance: number, variancePercent: number) => {
@@ -232,10 +462,24 @@ export default function DSSRPage() {
                     <Printer className="h-4 w-4 mr-2" />
                     Print
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExport} disabled={!data}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" disabled={!data}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleExportPDF}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export as PDF
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleExportExcel}>
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Export as Excel
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
 
