@@ -161,12 +161,12 @@ export default function CollectionsPage() {
         <DashboardHeader
           onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
         />
-        <main className="flex-1 p-4 lg:p-6 overflow-auto bg-gradient-to-b from-slate-900 via-blue-900 to-white min-h-screen">
+        <main className="flex-1 p-4 lg:p-6 overflow-auto">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-white">Collections</h1>
-                <p className="text-slate-300">Manage expense accounts and payment collections</p>
+                <h1 className="text-2xl font-bold">Collections</h1>
+                <p className="text-muted-foreground">Manage expense accounts and payment collections</p>
               </div>
             </div>
 
