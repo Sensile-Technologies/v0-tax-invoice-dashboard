@@ -5,6 +5,21 @@
     ],
     "[project]/app/page": [
       "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
+    ],
+    "[project]/app/reports/daily-sales/page": [
+      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
+    ],
+    "[project]/app/reports/page": [
+      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
+    ],
+    "[project]/app/reports/shifts/page": [
+      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
+    ],
+    "[project]/app/reports/x-report/page": [
+      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
+    ],
+    "[project]/app/sales/summary/page": [
+      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
     ]
   },
   "appUsingSizeAdjust": true,
