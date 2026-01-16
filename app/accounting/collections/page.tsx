@@ -157,12 +157,13 @@ export default function CollectionsPage() {
         mobileOpen={mobileMenuOpen}
         onMobileClose={() => setMobileMenuOpen(false)}
       />
-      <div className="flex-1 flex flex-col">
-        <DashboardHeader
-          onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
-        />
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">
-          <div className="space-y-6">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+          <DashboardHeader
+            onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
+          />
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-3 md:p-6">
+            <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold">Collections</h1>
@@ -307,8 +308,13 @@ export default function CollectionsPage() {
                 </Card>
               </TabsContent>
             </Tabs>
-          </div>
-        </main>
+
+              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
+                Powered by <span className="font-semibold text-foreground">Sensile Technologies East Africa Ltd</span>
+              </footer>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   )
