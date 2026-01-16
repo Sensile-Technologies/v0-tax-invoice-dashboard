@@ -595,7 +595,7 @@ export default function EndShiftPage() {
                         Attendant Collections
                       </CardTitle>
                       <CardDescription>
-                        Enter cash and credit amounts for each attendant. App payments are auto-calculated.
+                        Enter payment amounts for each attendant. Mobile Money and Card are pre-filled from sales data.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -608,9 +608,6 @@ export default function EndShiftPage() {
                                 <div key={payment.payment_method}>
                                   <Label className="text-xs text-slate-500 capitalize">
                                     {payment.payment_method === 'mobile_money' ? 'Mobile Money' : payment.payment_method.replace('_', ' ')}
-                                    {['card', 'mobile_money'].includes(payment.payment_method) && (
-                                      <span className="text-blue-500 ml-1">(auto)</span>
-                                    )}
                                   </Label>
                                   <Input
                                     type="number"
@@ -618,8 +615,6 @@ export default function EndShiftPage() {
                                     min="0"
                                     placeholder="0.00"
                                     value={payment.amount}
-                                    disabled={['card', 'mobile_money'].includes(payment.payment_method)}
-                                    className={['card', 'mobile_money'].includes(payment.payment_method) ? "bg-slate-100" : ""}
                                     onChange={(e) => {
                                       const newCollections = { ...attendantCollections }
                                       newCollections[attendant.id][idx].amount = e.target.value
