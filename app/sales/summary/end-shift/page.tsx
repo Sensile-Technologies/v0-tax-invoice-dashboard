@@ -43,6 +43,7 @@ export default function EndShiftPage() {
   const [nozzlePrepaidSale, setNozzlePrepaidSale] = useState<Record<string, string>>({})
   const [outgoingAttendants, setOutgoingAttendants] = useState<Array<{ id: string; name: string }>>([])
   const [attendantCollections, setAttendantCollections] = useState<Record<string, Array<{ payment_method: string; amount: string }>>>({})
+  const [attendantSalesTotals, setAttendantSalesTotals] = useState<Record<string, number>>({})
   const [notes, setNotes] = useState("")
 
   useEffect(() => {
@@ -176,11 +177,14 @@ export default function EndShiftPage() {
         setOutgoingAttendants(outgoing)
 
         const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
+        const salesTotals: Record<string, number> = {}
         for (const att of outgoing) {
           const attSales = shiftSales.filter((s: any) => s.attendant_id === att.id)
           const cardTotal = attSales.filter((s: any) => s.payment_method === 'card').reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           const mobileMoneyTotal = attSales.filter((s: any) => ['mpesa', 'mobile_money'].includes(s.payment_method)).reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
+          const totalSales = attSales.reduce((sum: number, s: any) => sum + parseFloat(s.total_amount || 0), 0)
           
+          salesTotals[att.id] = totalSales
           collections[att.id] = [
             { payment_method: 'cash', amount: '' },
             { payment_method: 'mobile_money', amount: mobileMoneyTotal.toFixed(2) },
@@ -188,6 +192,7 @@ export default function EndShiftPage() {
             { payment_method: 'credit', amount: '' },
           ]
         }
+        setAttendantSalesTotals(salesTotals)
         setAttendantCollections(collections)
 
       } catch (error: any) {
@@ -238,6 +243,13 @@ export default function EndShiftPage() {
       }
     }
     return true
+  }
+
+  const calculateVariance = (attendantId: string) => {
+    const totalSales = attendantSalesTotals[attendantId] || 0
+    const collections = attendantCollections[attendantId] || []
+    const totalCollected = collections.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0)
+    return totalSales - totalCollected
   }
 
   const validateStep2 = () => {
@@ -600,32 +612,53 @@ export default function EndShiftPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {outgoingAttendants.length > 0 ? (
-                        outgoingAttendants.map((attendant) => (
-                          <div key={attendant.id} className="bg-slate-50 p-4 rounded-lg space-y-4">
-                            <h4 className="font-semibold text-slate-700">{attendant.name}</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                              {attendantCollections[attendant.id]?.map((payment, idx) => (
-                                <div key={payment.payment_method}>
-                                  <Label className="text-xs text-slate-500 capitalize">
-                                    {payment.payment_method === 'mobile_money' ? 'Mobile Money' : payment.payment_method.replace('_', ' ')}
-                                  </Label>
-                                  <Input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    placeholder="0.00"
-                                    value={payment.amount}
-                                    onChange={(e) => {
-                                      const newCollections = { ...attendantCollections }
-                                      newCollections[attendant.id][idx].amount = e.target.value
-                                      setAttendantCollections(newCollections)
-                                    }}
-                                  />
+                        outgoingAttendants.map((attendant) => {
+                          const variance = calculateVariance(attendant.id)
+                          const totalSales = attendantSalesTotals[attendant.id] || 0
+                          return (
+                            <div key={attendant.id} className="bg-slate-50 p-4 rounded-lg space-y-4">
+                              <div className="flex justify-between items-center">
+                                <h4 className="font-semibold text-slate-700">{attendant.name}</h4>
+                                <div className="text-sm text-slate-600">
+                                  Total Sales: <span className="font-semibold">KES {totalSales.toLocaleString('en-KE', { minimumFractionDigits: 2 })}</span>
                                 </div>
-                              ))}
+                              </div>
+                              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                {attendantCollections[attendant.id]?.map((payment, idx) => (
+                                  <div key={payment.payment_method}>
+                                    <Label className="text-xs text-slate-500 capitalize">
+                                      {payment.payment_method === 'mobile_money' ? 'Mobile Money' : payment.payment_method.replace('_', ' ')}
+                                    </Label>
+                                    <Input
+                                      type="number"
+                                      step="0.01"
+                                      min="0"
+                                      placeholder="0.00"
+                                      value={payment.amount}
+                                      onChange={(e) => {
+                                        const newCollections = { ...attendantCollections }
+                                        newCollections[attendant.id][idx].amount = e.target.value
+                                        setAttendantCollections(newCollections)
+                                      }}
+                                    />
+                                  </div>
+                                ))}
+                                <div>
+                                  <Label className="text-xs text-slate-500">Variance</Label>
+                                  <div className={`h-10 flex items-center px-3 rounded-md border font-semibold ${
+                                    variance === 0 
+                                      ? 'bg-green-50 border-green-200 text-green-700' 
+                                      : variance > 0 
+                                        ? 'bg-red-50 border-red-200 text-red-700' 
+                                        : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                                  }`}>
+                                    {variance === 0 ? '0.00' : variance > 0 ? `-${variance.toFixed(2)}` : `+${Math.abs(variance).toFixed(2)}`}
+                                  </div>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        ))
+                          )
+                        })
                       ) : (
                         <div className="text-center py-8 text-slate-500">
                           No sales recorded during this shift
