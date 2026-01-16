@@ -281,13 +281,7 @@ async function GET(request) {
         let totalCollections = 0;
         if (shiftIds.length > 0) {
             const collectionsQuery = `
-        SELECT COALESCE(SUM(
-          COALESCE(ac.cash, 0) + 
-          COALESCE(ac.mpesa, 0) + 
-          COALESCE(ac.card, 0) + 
-          COALESCE(ac.mobile_money, 0) + 
-          COALESCE(ac.credit, 0)
-        ), 0) as total_collections
+        SELECT COALESCE(SUM(ac.amount), 0) as total_collections
         FROM attendant_collections ac
         WHERE ac.shift_id = ANY($1)
       `;
@@ -309,8 +303,8 @@ async function GET(request) {
             if (i === shiftsResult.rows.length - 1) {
                 closingCash = parseFloat(shift.closing_cash) || 0;
             }
-            const shiftCollections = await pool.query(`SELECT COALESCE(SUM(COALESCE(cash, 0)), 0) as cash_collected
-         FROM attendant_collections WHERE shift_id = $1`, [
+            const shiftCollections = await pool.query(`SELECT COALESCE(SUM(amount), 0) as cash_collected
+         FROM attendant_collections WHERE shift_id = $1 AND payment_method = 'cash'`, [
                 shift.id
             ]);
             const cashCollected = parseFloat(shiftCollections.rows[0]?.cash_collected) || 0;

@@ -267,12 +267,12 @@ export default function DSSRPage() {
                     </CardHeader>
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-sm table-auto">
                           <thead>
                             <tr className="bg-slate-100 border-y text-xs">
-                              <th className="text-left py-2 px-3 font-semibold">NOZZLES</th>
+                              <th className="text-left py-2 px-4 font-semibold whitespace-nowrap">NOZZLES</th>
                               {data.nozzle_readings.map(n => (
-                                <th key={n.nozzle_id} className="text-right py-2 px-2 font-semibold min-w-[80px]">
+                                <th key={n.nozzle_id} className="text-right py-2 px-4 font-semibold min-w-[100px] whitespace-nowrap">
                                   {n.nozzle_name}
                                 </th>
                               ))}
@@ -280,33 +280,33 @@ export default function DSSRPage() {
                           </thead>
                           <tbody>
                             <tr className="border-b">
-                              <td className="py-2 px-3 font-medium">A) Closing Meter</td>
+                              <td className="py-2 px-4 font-medium whitespace-nowrap">A) Closing Meter</td>
                               {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono">{formatNumber(n.closing_meter)}</td>
+                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">{formatNumber(n.closing_meter)}</td>
                               ))}
                             </tr>
                             <tr className="border-b">
-                              <td className="py-2 px-3 font-medium">B) Opening</td>
+                              <td className="py-2 px-4 font-medium whitespace-nowrap">B) Opening</td>
                               {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono">{formatNumber(n.opening_meter)}</td>
+                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">{formatNumber(n.opening_meter)}</td>
                               ))}
                             </tr>
                             <tr className="border-b bg-slate-50">
-                              <td className="py-2 px-3 font-medium">C) Thro'put (A-B)</td>
+                              <td className="py-2 px-4 font-medium whitespace-nowrap">C) Thro'put (A-B)</td>
                               {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono font-semibold">{formatNumber(n.throughput)}</td>
+                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold">{formatNumber(n.throughput)}</td>
                               ))}
                             </tr>
                             <tr className="border-b">
-                              <td className="py-2 px-3 font-medium">D) RTT</td>
+                              <td className="py-2 px-4 font-medium whitespace-nowrap">D) RTT</td>
                               {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono">{formatNumber(n.rtt)}</td>
+                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">{formatNumber(n.rtt)}</td>
                               ))}
                             </tr>
                             <tr className="border-b bg-blue-50">
-                              <td className="py-2 px-3 font-medium">E) Pump Sales (C-D)</td>
+                              <td className="py-2 px-4 font-medium whitespace-nowrap">E) Pump Sales (C-D)</td>
                               {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono font-semibold text-blue-700">{formatNumber(n.pump_sales)}</td>
+                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold text-blue-700">{formatNumber(n.pump_sales)}</td>
                               ))}
                             </tr>
                           </tbody>
