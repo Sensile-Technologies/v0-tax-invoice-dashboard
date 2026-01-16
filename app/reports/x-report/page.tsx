@@ -42,8 +42,9 @@ interface ReportData {
 export default function XReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [fromDate, setFromDate] = useState("")
-  const [toDate, setToDate] = useState("")
+  const today = new Date().toISOString().split("T")[0]
+  const [fromDate, setFromDate] = useState(today)
+  const [toDate, setToDate] = useState(today)
   const [fromTime, setFromTime] = useState("")
   const [toTime, setToTime] = useState("")
   const [loading, setLoading] = useState(true)

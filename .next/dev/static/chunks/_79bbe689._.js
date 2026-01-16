@@ -234,16 +234,6 @@ const reportTabs = [
         href: "/reports/x-report"
     },
     {
-        id: "purchase-report",
-        label: "Purchase",
-        href: "/reports/purchase-report"
-    },
-    {
-        id: "inventory-valuation",
-        label: "Inventory",
-        href: "/reports/inventory-valuation"
-    },
-    {
         id: "profit-loss",
         label: "Profit & Loss",
         href: "/reports/profit-loss"
@@ -288,13 +278,13 @@ function ReportTabs() {
                 children: tab.label
             }, tab.id, false, {
                 fileName: "[project]/components/report-tabs.tsx",
-                lineNumber: 29,
+                lineNumber: 27,
                 columnNumber: 11
             }, this);
         })
     }, void 0, false, {
         fileName: "[project]/components/report-tabs.tsx",
-        lineNumber: 25,
+        lineNumber: 23,
         columnNumber: 5
     }, this);
 }
