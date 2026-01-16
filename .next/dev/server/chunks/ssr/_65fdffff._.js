@@ -2960,7 +2960,7 @@ function EndShiftPage() {
                     setTankBaselines(tankBl);
                 }
                 const attendantIdsFromSales = [
-                    ...new Set(shiftSales.map((s)=>s.attendant_id || s.staff_id).filter(Boolean))
+                    ...new Set(shiftSales.map((s)=>s.staff_id).filter(Boolean))
                 ];
                 // Also get incoming attendants from previous shift (they should work this shift)
                 let incomingAttendantIds = [];
@@ -2991,7 +2991,7 @@ function EndShiftPage() {
                 const collections = {};
                 const salesTotals = {};
                 for (const att of outgoing){
-                    const attSales = shiftSales.filter((s)=>s.attendant_id === att.id || s.staff_id === att.id);
+                    const attSales = shiftSales.filter((s)=>s.staff_id === att.id);
                     const cardTotal = attSales.filter((s)=>s.payment_method === 'card').reduce((sum, s)=>sum + parseFloat(s.total_amount || 0), 0);
                     const mobileMoneyTotal = attSales.filter((s)=>[
                             'mpesa',

@@ -3153,7 +3153,7 @@ function EndShiftPage() {
                     }
                     const attendantIdsFromSales = [
                         ...new Set(shiftSales.map({
-                            "EndShiftPage.useEffect.loadData": (s)=>s.attendant_id || s.staff_id
+                            "EndShiftPage.useEffect.loadData": (s)=>s.staff_id
                         }["EndShiftPage.useEffect.loadData"]).filter(Boolean))
                     ];
                     // Also get incoming attendants from previous shift (they should work this shift)
@@ -3190,7 +3190,7 @@ function EndShiftPage() {
                     const salesTotals = {};
                     for (const att of outgoing){
                         const attSales = shiftSales.filter({
-                            "EndShiftPage.useEffect.loadData.attSales": (s)=>s.attendant_id === att.id || s.staff_id === att.id
+                            "EndShiftPage.useEffect.loadData.attSales": (s)=>s.staff_id === att.id
                         }["EndShiftPage.useEffect.loadData.attSales"]);
                         const cardTotal = attSales.filter({
                             "EndShiftPage.useEffect.loadData.cardTotal": (s)=>s.payment_method === 'card'
