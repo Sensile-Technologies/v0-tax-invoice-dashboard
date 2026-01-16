@@ -96,17 +96,25 @@ async function GET(request) {
             });
         }
         const prevShiftId = prevShiftResult.rows[0].id;
-        // Get incoming attendants from that shift's shift_readings
-        const attendantsResult = await pool.query(`SELECT DISTINCT incoming_attendant_id 
-       FROM shift_readings 
-       WHERE shift_id = $1 
-         AND incoming_attendant_id IS NOT NULL`, [
+        // Get incoming attendants from that shift's shift_readings with nozzle assignments
+        const attendantsResult = await pool.query(`SELECT sr.nozzle_id, sr.incoming_attendant_id 
+       FROM shift_readings sr
+       WHERE sr.shift_id = $1 
+         AND sr.incoming_attendant_id IS NOT NULL`, [
             prevShiftId
         ]);
-        const incoming_attendant_ids = attendantsResult.rows.map((r)=>r.incoming_attendant_id);
+        const incoming_attendant_ids = [
+            ...new Set(attendantsResult.rows.map((r)=>r.incoming_attendant_id))
+        ];
+        // Build nozzle-to-attendant mapping
+        const nozzleAttendantMap = {};
+        for (const row of attendantsResult.rows){
+            nozzleAttendantMap[row.nozzle_id] = row.incoming_attendant_id;
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
-            incoming_attendant_ids
+            incoming_attendant_ids,
+            nozzle_attendant_map: nozzleAttendantMap
         });
     } catch (error) {
         console.error("Error fetching incoming attendants:", error);

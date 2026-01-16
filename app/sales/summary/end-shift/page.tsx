@@ -177,7 +177,7 @@ export default function EndShiftPage() {
         // Build nozzle prices from branch_items
         const prices: Record<string, number> = {}
         try {
-          const branchItemsRes = await fetch(`/api/branch-items?branch_id=${currentBranchId}`)
+          const branchItemsRes = await fetch(`/api/branch-items?branchId=${currentBranchId}`)
           if (branchItemsRes.ok) {
             const branchItemsData = await branchItemsRes.json()
             const branchItems = branchItemsData.data || []
