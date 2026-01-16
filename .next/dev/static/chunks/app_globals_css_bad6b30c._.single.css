@@ -2267,10 +2267,6 @@
     max-width: 120px;
   }
 
-  .max-w-\[150px\] {
-    max-width: 150px;
-  }
-
   .max-w-\[200px\] {
     max-width: 200px;
   }
@@ -8057,12 +8053,6 @@
   @media (min-width: 48rem) {
     .md\:pt-6 {
       padding-top: calc(var(--spacing) * 6);
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:pb-3 {
-      padding-bottom: calc(var(--spacing) * 3);
     }
   }
 

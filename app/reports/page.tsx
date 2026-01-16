@@ -11,8 +11,6 @@ const reportTabs = [
   { id: "daily-sales", label: "DSSR", href: "/reports/daily-sales" },
   { id: "shifts", label: "Shifts", href: "/reports/shifts" },
   { id: "x-report", label: "X/Z Report", href: "/reports/x-report" },
-  { id: "purchase-report", label: "Purchase", href: "/reports/purchase-report" },
-  { id: "inventory-valuation", label: "Inventory", href: "/reports/inventory-valuation" },
   { id: "profit-loss", label: "Profit & Loss", href: "/reports/profit-loss" },
   { id: "balance-sheet", label: "Balance Sheet", href: "/reports/balance-sheet" },
   { id: "cash-flow", label: "Cash Flow", href: "/reports/cash-flow" },
