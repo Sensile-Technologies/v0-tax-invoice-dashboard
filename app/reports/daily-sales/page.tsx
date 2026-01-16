@@ -6,78 +6,87 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, BarChart3, Fuel, AlertCircle, Clock, User, Calendar, ChevronLeft, ChevronRight } from "lucide-react"
+import { Download, Printer, Loader2, Fuel, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react"
 import { ReportTabs } from "@/components/report-tabs"
-import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { Label } from "@/components/ui/label"
 
-const PAGE_SIZE = 20
-
-interface ShiftSaleItem {
+interface NozzleReading {
+  nozzle_id: string
+  nozzle_name: string
+  dispenser_number: number
+  nozzle_number: number
   fuel_type: string
-  claimed_quantity: number
-  claimed_amount: number
-  unclaimed_quantity: number
-  unclaimed_amount: number
+  closing_meter: number
+  opening_meter: number
+  throughput: number
+  rtt: number
+  pump_sales: number
 }
 
-interface ShiftSummary {
-  shift_id: string
-  cashier_name: string
-  start_time: string
-  end_time: string | null
-  status: string
-  items: ShiftSaleItem[]
+interface ProductNozzleTotal {
+  product: string
+  throughput: number
+  rtt: number
+  pump_sales: number
+}
+
+interface ProductMovement {
+  product: string
+  opening_stock: number
+  offloaded_volume: number
+  closing_stock: number
+  tank_sales: number
+  pump_sales: number
+  variance: number
+  variance_percent: number
+}
+
+interface ProductCashFlow {
+  product: string
+  total_sales_litres: number
+  pump_price: number
+  amount: number
+  actual_cash: number
+  difference: number
+}
+
+interface DailyCashFlow {
+  opening_cash: number
+  day_shift_cash: number
+  night_shift_cash: number
+  cash_banked: number
+  closing_cash: number
+  physical_count: number
+  difference: number
+}
+
+interface DSSRData {
+  date: string
+  branch_name: string
+  shifts: Array<{ id: string; start_time: string; end_time: string | null; cashier_name: string; shift_type: string }>
+  nozzle_readings: NozzleReading[]
+  product_nozzle_totals: ProductNozzleTotal[]
+  product_movement: ProductMovement[]
+  product_cash_flow: ProductCashFlow[]
+  daily_cash_flow: DailyCashFlow
   totals: {
-    claimed_quantity: number
-    claimed_amount: number
-    unclaimed_quantity: number
-    unclaimed_amount: number
+    total_sales_amount: number
+    total_collections: number
+    sales_vs_collections_diff: number
   }
 }
 
-interface NozzleData {
-  nozzle_id: string
-  nozzle_name: string
-  fuel_type: string
-  opening_reading: number
-  closing_reading: number
-  meter_difference: number
-  invoiced_quantity: number
-  invoiced_amount: number
-  variance: number
-}
-
-interface NozzleTotals {
-  total_meter_difference: number
-  total_invoiced_quantity: number
-  total_invoiced_amount: number
-  total_variance: number
-}
-
-export default function DailySalesReportPage() {
+export default function DSSRPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const today = new Date().toISOString().split("T")[0]
-  const [startDate, setStartDate] = useState(today)
-  const [endDate, setEndDate] = useState(today)
+  const [selectedDate, setSelectedDate] = useState(today)
   const [loading, setLoading] = useState(true)
-  const [shiftSummaries, setShiftSummaries] = useState<ShiftSummary[]>([])
-  const [productTotals, setProductTotals] = useState<ShiftSaleItem[]>([])
-  const [grandTotals, setGrandTotals] = useState({
-    claimed_quantity: 0,
-    claimed_amount: 0,
-    unclaimed_quantity: 0,
-    unclaimed_amount: 0,
-  })
+  const [data, setData] = useState<DSSRData | null>(null)
   const { formatCurrency } = useCurrency()
-  const [currentPage, setCurrentPage] = useState(1)
-  const [nozzleData, setNozzleData] = useState<NozzleData[]>([])
-  const [nozzleTotals, setNozzleTotals] = useState<NozzleTotals | null>(null)
-  const [nozzleLoading, setNozzleLoading] = useState(false)
 
-  const fetchDailySales = useCallback(async () => {
+  const fetchDSSR = useCallback(async () => {
     try {
       setLoading(true)
       const storedBranch = localStorage.getItem("selectedBranch")
@@ -89,150 +98,86 @@ export default function DailySalesReportPage() {
       }
 
       if (!branchId) {
-        setShiftSummaries([])
-        setProductTotals([])
-        setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
+        setData(null)
         return
       }
 
       const params = new URLSearchParams()
       params.append("branch_id", branchId)
-      params.append("start_date", startDate)
-      params.append("end_date", endDate)
+      params.append("date", selectedDate)
 
-      const response = await fetch(`/api/shifts/daily-summary?${params.toString()}`)
+      const response = await fetch(`/api/reports/dssr?${params.toString()}`)
       const result = await response.json()
 
       if (result.success && result.data) {
-        setShiftSummaries(result.data.shifts || [])
-        setProductTotals(result.data.productTotals || [])
-        setGrandTotals(result.data.grandTotals || { claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
+        setData(result.data)
       } else {
-        setShiftSummaries([])
-        setProductTotals([])
-        setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
+        setData(null)
       }
     } catch (error) {
-      console.error("Error fetching daily sales:", error)
-      setShiftSummaries([])
-      setProductTotals([])
-      setGrandTotals({ claimed_quantity: 0, claimed_amount: 0, unclaimed_quantity: 0, unclaimed_amount: 0 })
+      console.error("Error fetching DSSR:", error)
+      setData(null)
     } finally {
       setLoading(false)
     }
-  }, [startDate, endDate])
+  }, [selectedDate])
 
   useEffect(() => {
-    setCurrentPage(1)
-    fetchDailySales()
-  }, [fetchDailySales])
-
-  const fetchNozzleReport = useCallback(async () => {
-    try {
-      setNozzleLoading(true)
-      const storedBranch = localStorage.getItem("selectedBranch")
-      const userStr = localStorage.getItem("user")
-      let branchId = ""
-      let userId = ""
-      
-      if (storedBranch) {
-        const branch = JSON.parse(storedBranch)
-        branchId = branch.id
-      }
-      if (userStr) {
-        const user = JSON.parse(userStr)
-        userId = user.id
-      }
-
-      if (!branchId) {
-        setNozzleData([])
-        setNozzleTotals(null)
-        return
-      }
-
-      const params = new URLSearchParams()
-      params.append("branch_id", branchId)
-      params.append("date", startDate)
-      if (userId) params.append("user_id", userId)
-
-      const response = await fetch(`/api/shifts/nozzle-report?${params.toString()}`)
-      const result = await response.json()
-
-      if (result.success && result.data) {
-        setNozzleData(result.data.nozzles || [])
-        setNozzleTotals(result.data.totals || null)
-      } else {
-        setNozzleData([])
-        setNozzleTotals(null)
-      }
-    } catch (error) {
-      console.error("Error fetching nozzle report:", error)
-      setNozzleData([])
-      setNozzleTotals(null)
-    } finally {
-      setNozzleLoading(false)
-    }
-  }, [startDate])
-
-  useEffect(() => {
-    fetchNozzleReport()
-  }, [fetchNozzleReport])
+    fetchDSSR()
+  }, [fetchDSSR])
 
   const handlePrint = () => {
     window.print()
   }
 
   const handleExport = () => {
-    const rows: string[][] = [
-      ["Shift", "Cashier", "Fuel Type", "Claimed (L)", "Claimed Amount", "Unclaimed (L)", "Unclaimed Amount"]
-    ]
-    
-    shiftSummaries.forEach(shift => {
-      const time = new Date(shift.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-      shift.items.forEach(item => {
-        rows.push([
-          time,
-          shift.cashier_name,
-          item.fuel_type,
-          item.claimed_quantity.toFixed(2),
-          item.claimed_amount.toFixed(2),
-          item.unclaimed_quantity.toFixed(2),
-          item.unclaimed_amount.toFixed(2)
-        ])
-      })
-    })
-    
-    rows.push([
-      "TOTAL", "", "",
-      grandTotals.claimed_quantity.toFixed(2),
-      grandTotals.claimed_amount.toFixed(2),
-      grandTotals.unclaimed_quantity.toFixed(2),
-      grandTotals.unclaimed_amount.toFixed(2)
-    ])
+    if (!data) return
 
-    const csvContent = rows.map(row => row.join(",")).join("\n")
-    const blob = new Blob([csvContent], { type: "text/csv" })
+    let csv = `DAILY STATION STATUS REPORT (DSSR)\n`
+    csv += `Date: ${new Date(data.date).toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}\n`
+    csv += `Branch: ${data.branch_name}\n\n`
+
+    csv += `SALES OF WHITE PRODUCTS IN LITRES\n`
+    csv += `Nozzle,Fuel Type,Closing Meter,Opening Meter,Throughput,RTT,Pump Sales\n`
+    for (const n of data.nozzle_readings) {
+      csv += `${n.nozzle_name},${n.fuel_type},${n.closing_meter.toFixed(2)},${n.opening_meter.toFixed(2)},${n.throughput.toFixed(2)},${n.rtt.toFixed(2)},${n.pump_sales.toFixed(2)}\n`
+    }
+
+    csv += `\nWHITE PRODUCT MOVEMENT\n`
+    csv += `Product,Opening Stock,Offloaded,Closing Stock,Tank Sales,Pump Sales,Variance,Variance %\n`
+    for (const p of data.product_movement) {
+      csv += `${p.product},${p.opening_stock.toFixed(2)},${p.offloaded_volume.toFixed(2)},${p.closing_stock.toFixed(2)},${p.tank_sales.toFixed(2)},${p.pump_sales.toFixed(2)},${p.variance.toFixed(2)},${p.variance_percent.toFixed(2)}%\n`
+    }
+
+    csv += `\nCASH FLOW SUMMARY\n`
+    csv += `Opening Cash,${data.daily_cash_flow.opening_cash.toFixed(2)}\n`
+    csv += `Day Shift Cash,${data.daily_cash_flow.day_shift_cash.toFixed(2)}\n`
+    csv += `Night Shift Cash,${data.daily_cash_flow.night_shift_cash.toFixed(2)}\n`
+    csv += `Cash Banked,${data.daily_cash_flow.cash_banked.toFixed(2)}\n`
+    csv += `Closing Cash,${data.daily_cash_flow.closing_cash.toFixed(2)}\n`
+    csv += `Difference,${data.daily_cash_flow.difference.toFixed(2)}\n`
+
+    const blob = new Blob([csv], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
+    const a = document.createElement('a')
     a.href = url
-    a.download = `sales-report-${startDate}-to-${endDate}.csv`
+    a.download = `DSSR_${data.branch_name}_${data.date}.csv`
     a.click()
     window.URL.revokeObjectURL(url)
   }
 
-  const formatTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
-    })
+  const getVarianceColor = (variance: number, variancePercent: number) => {
+    if (Math.abs(variancePercent) <= 0.5) return "text-green-600"
+    if (variance > 0) return "text-amber-600"
+    return "text-red-600"
   }
 
-  const totalSales = grandTotals.claimed_amount + grandTotals.unclaimed_amount
-  const totalQuantity = grandTotals.claimed_quantity + grandTotals.unclaimed_quantity
+  const formatNumber = (num: number) => {
+    return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
 
   return (
-    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white">
+    <div className="flex min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-white print:bg-white">
       <DashboardSidebar 
         collapsed={sidebarCollapsed} 
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -240,467 +185,323 @@ export default function DailySalesReportPage() {
         onMobileClose={() => setMobileMenuOpen(false)}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6">
-        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-8 my-2 lg:my-6 mx-2 lg:mr-6 print:m-0">
+        <div className="bg-white rounded-2xl lg:rounded-tl-3xl shadow-2xl flex-1 flex flex-col overflow-hidden print:shadow-none print:rounded-none">
           <DashboardHeader onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-3 md:p-6">
-            <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 p-4 lg:p-6 print:bg-white print:p-2">
+            <div className="mx-auto max-w-7xl space-y-6">
               <ReportTabs />
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 md:mb-6">
+              
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:hidden">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Daily Sales Report</h1>
-                  <p className="text-sm text-slate-600 mt-1">Comprehensive daily sales breakdown by shift</p>
+                  <h1 className="text-2xl md:text-3xl font-bold text-slate-900 flex items-center gap-2">
+                    <Fuel className="h-8 w-8 text-blue-600" />
+                    Daily Station Status Report (DSSR)
+                  </h1>
+                  <p className="text-slate-600 mt-1">Comprehensive daily fuel station performance summary</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <Button variant="outline" size="sm" onClick={fetchDSSR} disabled={loading}>
+                    <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
                   <Button variant="outline" size="sm" onClick={handlePrint}>
-                    <Printer className="h-4 w-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">Print</span>
+                    <Printer className="h-4 w-4 mr-2" />
+                    Print
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExport}>
-                    <Download className="h-4 w-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">Export</span>
+                  <Button variant="outline" size="sm" onClick={handleExport} disabled={!data}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
                   </Button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
-                <Card className="rounded-2xl">
-                  <CardContent className="pt-4 md:pt-6">
-                    <p className="text-xs md:text-sm text-slate-600">Total Sales</p>
-                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(totalSales)}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="rounded-2xl">
-                  <CardContent className="pt-4 md:pt-6">
-                    <p className="text-xs md:text-sm text-slate-600">Claimed Sales</p>
-                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2 text-green-600">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(grandTotals.claimed_amount)}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="rounded-2xl">
-                  <CardContent className="pt-4 md:pt-6">
-                    <p className="text-xs md:text-sm text-slate-600">Unclaimed Sales</p>
-                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2 text-amber-600">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : formatCurrency(grandTotals.unclaimed_amount)}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="rounded-2xl">
-                  <CardContent className="pt-4 md:pt-6">
-                    <p className="text-xs md:text-sm text-slate-600">Total Volume (L)</p>
-                    <p className="text-lg md:text-2xl font-bold mt-1 md:mt-2">
-                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : totalQuantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <CardTitle className="text-lg md:text-xl flex items-center gap-2">
-                        <Calendar className="h-5 w-5 text-blue-500" />
-                        Date Range Filter
-                      </CardTitle>
+              <Card className="rounded-2xl print:hidden">
+                <CardContent className="p-4">
+                  <div className="flex flex-wrap gap-4 items-end">
+                    <div className="flex-1 min-w-[200px]">
+                      <Label htmlFor="date" className="text-sm font-medium text-slate-700">Report Date</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="mt-1"
+                      />
                     </div>
-                    <div className="flex flex-wrap items-end gap-3">
-                      <div className="flex flex-col gap-1">
-                        <Label className="text-xs text-slate-600">From</Label>
-                        <Input
-                          type="date"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-36 rounded-xl"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <Label className="text-xs text-slate-600">To</Label>
-                        <Input
-                          type="date"
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          className="w-36 rounded-xl"
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => { setStartDate(today); setEndDate(today); }}
-                        >
-                          Today
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            const weekAgo = new Date()
-                            weekAgo.setDate(weekAgo.getDate() - 7)
-                            setStartDate(weekAgo.toISOString().split("T")[0])
-                            setEndDate(today)
-                          }}
-                        >
-                          Last 7 Days
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            const monthAgo = new Date()
-                            monthAgo.setDate(monthAgo.getDate() - 30)
-                            setStartDate(monthAgo.toISOString().split("T")[0])
-                            setEndDate(today)
-                          }}
-                        >
-                          Last 30 Days
-                        </Button>
-                      </div>
-                    </div>
+                    <Button onClick={fetchDSSR} disabled={loading}>
+                      {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                      Generate Report
+                    </Button>
                   </div>
-                </CardHeader>
-              </Card>
-
-              {productTotals.length > 0 && (
-                <Card className="rounded-2xl">
-                  <CardHeader>
-                    <CardTitle className="text-lg md:text-xl flex items-center gap-2">
-                      <Fuel className="h-5 w-5 text-blue-500" />
-                      Product Summary
-                    </CardTitle>
-                    <p className="text-sm text-slate-600">
-                      Cumulative sales by product for the selected period
-                      {startDate !== endDate && ` (${startDate} to ${endDate})`}
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[600px]">
-                        <thead>
-                          <tr className="border-b text-xs md:text-sm bg-slate-50">
-                            <th className="text-left py-2 px-4 font-semibold text-slate-700">Product</th>
-                            <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed (L)</th>
-                            <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed Amount</th>
-                            <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed (L)</th>
-                            <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed Amount</th>
-                            <th className="text-right py-2 px-4 font-semibold text-slate-700">Total (L)</th>
-                            <th className="text-right py-2 px-4 font-semibold text-slate-700">Total Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {productTotals.map((item, idx) => (
-                            <tr key={idx} className="border-b hover:bg-slate-50 text-xs md:text-sm">
-                              <td className="py-2 px-4 font-medium">{item.fuel_type}</td>
-                              <td className="py-2 px-4 text-right text-green-700 font-mono">
-                                {item.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="py-2 px-4 text-right text-green-700 font-mono">
-                                {formatCurrency(item.claimed_amount)}
-                              </td>
-                              <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                                {item.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                                {formatCurrency(item.unclaimed_amount)}
-                              </td>
-                              <td className="py-2 px-4 text-right font-mono font-semibold">
-                                {(item.claimed_quantity + item.unclaimed_quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="py-2 px-4 text-right font-mono font-semibold">
-                                {formatCurrency(item.claimed_amount + item.unclaimed_amount)}
-                              </td>
-                            </tr>
-                          ))}
-                          <tr className="font-bold bg-slate-100 text-xs md:text-sm">
-                            <td className="py-2 px-4">TOTAL</td>
-                            <td className="py-2 px-4 text-right text-green-700 font-mono">
-                              {grandTotals.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </td>
-                            <td className="py-2 px-4 text-right text-green-700 font-mono">
-                              {formatCurrency(grandTotals.claimed_amount)}
-                            </td>
-                            <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                              {grandTotals.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </td>
-                            <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                              {formatCurrency(grandTotals.unclaimed_amount)}
-                            </td>
-                            <td className="py-2 px-4 text-right font-mono">
-                              {totalQuantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </td>
-                            <td className="py-2 px-4 text-right font-mono">
-                              {formatCurrency(totalSales)}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <CardTitle className="text-lg md:text-xl">Shift Details</CardTitle>
-                  <p className="text-sm text-slate-600">
-                    {shiftSummaries.length} shift{shiftSummaries.length !== 1 ? 's' : ''} in selected period
-                    {shiftSummaries.length > PAGE_SIZE && ` (showing ${(currentPage - 1) * PAGE_SIZE + 1}-${Math.min(currentPage * PAGE_SIZE, shiftSummaries.length)})`}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                      <span className="ml-2 text-muted-foreground">Loading sales data...</span>
-                    </div>
-                  ) : shiftSummaries.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No shifts recorded for this period</p>
-                      <p className="text-sm text-muted-foreground mt-1">Try selecting a different date range</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {shiftSummaries.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((shift) => (
-                        <div key={shift.shift_id} className="border rounded-xl overflow-hidden">
-                          <div className="bg-slate-100 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                            <div className="flex flex-wrap items-center gap-3">
-                              {startDate !== endDate && (
-                                <div className="flex items-center gap-1.5 text-sm">
-                                  <Calendar className="h-4 w-4 text-slate-500" />
-                                  <span className="font-medium">{new Date(shift.start_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                                </div>
-                              )}
-                              <div className="flex items-center gap-1.5 text-sm">
-                                <Clock className="h-4 w-4 text-slate-500" />
-                                <span className="font-medium">{formatTime(shift.start_time)}</span>
-                                {shift.end_time && (
-                                  <>
-                                    <span className="text-slate-400">-</span>
-                                    <span className="font-medium">{formatTime(shift.end_time)}</span>
-                                  </>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1.5 text-sm">
-                                <User className="h-4 w-4 text-slate-500" />
-                                <span>{shift.cashier_name}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {shift.items.length === 0 ? (
-                            <div className="p-4 text-center text-muted-foreground text-sm">
-                              No fuel sales recorded in this shift
-                            </div>
-                          ) : (
-                            <div className="overflow-x-auto">
-                              <table className="w-full min-w-[600px]">
-                                <thead>
-                                  <tr className="border-b text-xs md:text-sm bg-slate-50">
-                                    <th className="text-left py-2 px-4 font-semibold text-slate-700">Fuel Type</th>
-                                    <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed (L)</th>
-                                    <th className="text-right py-2 px-4 font-semibold text-green-700">Claimed Amount</th>
-                                    <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed (L)</th>
-                                    <th className="text-right py-2 px-4 font-semibold text-amber-700">Unclaimed Amount</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {shift.items.map((item, idx) => (
-                                    <tr key={idx} className="border-b hover:bg-slate-50 text-xs md:text-sm">
-                                      <td className="py-2 px-4 font-medium">{item.fuel_type}</td>
-                                      <td className="py-2 px-4 text-right text-green-700 font-mono">
-                                        {item.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                      </td>
-                                      <td className="py-2 px-4 text-right text-green-700 font-mono">
-                                        {formatCurrency(item.claimed_amount)}
-                                      </td>
-                                      <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                                        {item.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                      </td>
-                                      <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                                        {formatCurrency(item.unclaimed_amount)}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                  <tr className="font-bold bg-slate-50 text-xs md:text-sm">
-                                    <td className="py-2 px-4">Shift Total</td>
-                                    <td className="py-2 px-4 text-right text-green-700 font-mono">
-                                      {shift.totals.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="py-2 px-4 text-right text-green-700 font-mono">
-                                      {formatCurrency(shift.totals.claimed_amount)}
-                                    </td>
-                                    <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                                      {shift.totals.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    </td>
-                                    <td className="py-2 px-4 text-right text-amber-700 font-mono">
-                                      {formatCurrency(shift.totals.unclaimed_amount)}
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-
-                      <div className="bg-blue-50 rounded-xl p-4 mt-4">
-                        <h4 className="font-semibold text-blue-900 mb-3">Daily Grand Total</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <p className="text-blue-700">Claimed Volume</p>
-                            <p className="font-bold text-green-700">{grandTotals.claimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L</p>
-                          </div>
-                          <div>
-                            <p className="text-blue-700">Claimed Amount</p>
-                            <p className="font-bold text-green-700">{formatCurrency(grandTotals.claimed_amount)}</p>
-                          </div>
-                          <div>
-                            <p className="text-blue-700">Unclaimed Volume</p>
-                            <p className="font-bold text-amber-700">{grandTotals.unclaimed_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L</p>
-                          </div>
-                          <div>
-                            <p className="text-blue-700">Unclaimed Amount</p>
-                            <p className="font-bold text-amber-700">{formatCurrency(grandTotals.unclaimed_amount)}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-slate-100 rounded-lg p-3 md:p-4 text-xs">
-                        <h4 className="font-semibold text-slate-800 mb-2">Understanding this report:</h4>
-                        <ul className="text-slate-600 space-y-1">
-                          <li><span className="text-green-700 font-semibold">Claimed</span> = Sales invoiced through the APK (with receipt)</li>
-                          <li><span className="text-amber-700 font-semibold">Unclaimed</span> = Bulk sales from meter difference (dispensed but no invoice)</li>
-                        </ul>
-                      </div>
-
-                      {shiftSummaries.length > PAGE_SIZE && (
-                        <div className="flex items-center justify-between pt-4 border-t">
-                          <p className="text-sm text-slate-500">
-                            Showing {(currentPage - 1) * PAGE_SIZE + 1} to {Math.min(currentPage * PAGE_SIZE, shiftSummaries.length)} of {shiftSummaries.length} shifts
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                              disabled={currentPage === 1}
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="text-sm text-slate-600">
-                              Page {currentPage} of {Math.ceil(shiftSummaries.length / PAGE_SIZE)}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setCurrentPage(Math.min(Math.ceil(shiftSummaries.length / PAGE_SIZE), currentPage + 1))}
-                              disabled={currentPage === Math.ceil(shiftSummaries.length / PAGE_SIZE)}
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl">
-                <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <CardTitle className="text-lg md:text-xl flex items-center gap-2">
-                      <Fuel className="h-5 w-5 text-blue-500" />
-                      Nozzle Sales Report
-                    </CardTitle>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="ml-2 text-slate-600">Loading DSSR data...</span>
+                </div>
+              ) : !data ? (
+                <Card className="rounded-2xl">
+                  <CardContent className="p-8 text-center">
+                    <Fuel className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                    <p className="text-slate-600">No data available for the selected date</p>
+                    <p className="text-sm text-slate-500 mt-1">Try selecting a different date or ensure shifts have been recorded</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-6 print:space-y-4">
+                  <div className="text-center print:block hidden mb-4">
+                    <h1 className="text-xl font-bold">DAILY STATION STATUS REPORT (DSSR)</h1>
+                    <p className="text-sm">{data.branch_name}</p>
+                    <p className="text-sm">{new Date(data.date).toLocaleDateString('en-KE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   </div>
-                  <p className="text-sm text-slate-600">Station sales breakdown by nozzle with variance analysis</p>
-                </CardHeader>
-                <CardContent>
-                  {nozzleLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                      <span className="ml-2 text-muted-foreground">Loading nozzle data...</span>
-                    </div>
-                  ) : nozzleData.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12">
-                      <Fuel className="h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No nozzle readings for this date</p>
-                      <p className="text-sm text-muted-foreground mt-1">Nozzle data is recorded when shifts are completed</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="overflow-x-auto -mx-3 md:mx-0">
-                        <table className="w-full min-w-[700px]">
+
+                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-bold text-slate-800">
+                        SALES OF WHITE PRODUCTS IN LITRES
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
                           <thead>
-                            <tr className="border-b bg-slate-50 text-xs md:text-sm">
-                              <th className="text-left py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Nozzle</th>
-                              <th className="text-left py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Fuel Type</th>
-                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Opening</th>
-                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Closing</th>
-                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Meter Diff (L)</th>
-                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Invoiced (L)</th>
-                              <th className="text-right py-2 md:py-3 px-3 md:px-4 font-semibold text-slate-700">Variance (L)</th>
+                            <tr className="bg-slate-100 border-y text-xs">
+                              <th className="text-left py-2 px-3 font-semibold">NOZZLES</th>
+                              {data.nozzle_readings.map(n => (
+                                <th key={n.nozzle_id} className="text-right py-2 px-2 font-semibold min-w-[80px]">
+                                  {n.nozzle_name}
+                                </th>
+                              ))}
                             </tr>
                           </thead>
                           <tbody>
-                            {nozzleData.map((nozzle) => (
-                              <tr key={nozzle.nozzle_id} className="border-b hover:bg-slate-50 text-xs md:text-sm">
-                                <td className="py-2 md:py-3 px-3 md:px-4 font-medium">{nozzle.nozzle_name}</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4">
-                                  <Badge variant="outline">{nozzle.fuel_type}</Badge>
+                            <tr className="border-b">
+                              <td className="py-2 px-3 font-medium">A) Closing Meter</td>
+                              {data.nozzle_readings.map(n => (
+                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono">{formatNumber(n.closing_meter)}</td>
+                              ))}
+                            </tr>
+                            <tr className="border-b">
+                              <td className="py-2 px-3 font-medium">B) Opening</td>
+                              {data.nozzle_readings.map(n => (
+                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono">{formatNumber(n.opening_meter)}</td>
+                              ))}
+                            </tr>
+                            <tr className="border-b bg-slate-50">
+                              <td className="py-2 px-3 font-medium">C) Thro'put (A-B)</td>
+                              {data.nozzle_readings.map(n => (
+                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono font-semibold">{formatNumber(n.throughput)}</td>
+                              ))}
+                            </tr>
+                            <tr className="border-b">
+                              <td className="py-2 px-3 font-medium">D) RTT</td>
+                              {data.nozzle_readings.map(n => (
+                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono">{formatNumber(n.rtt)}</td>
+                              ))}
+                            </tr>
+                            <tr className="border-b bg-blue-50">
+                              <td className="py-2 px-3 font-medium">E) Pump Sales (C-D)</td>
+                              {data.nozzle_readings.map(n => (
+                                <td key={n.nozzle_id} className="text-right py-2 px-2 font-mono font-semibold text-blue-700">{formatNumber(n.pump_sales)}</td>
+                              ))}
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      
+                      {data.product_nozzle_totals.length > 0 && (
+                        <div className="border-t p-4">
+                          <p className="text-sm font-semibold text-slate-700 mb-2">F) TOTAL PER PRODUCT</p>
+                          <div className="flex flex-wrap gap-4">
+                            {data.product_nozzle_totals.map(p => (
+                              <div key={p.product} className="bg-slate-100 rounded-lg px-4 py-2">
+                                <span className="font-medium">{p.product}:</span>
+                                <span className="ml-2 font-mono font-semibold">{formatNumber(p.pump_sales)} L</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-bold text-slate-800">
+                        WHITE PRODUCT MOVEMENT
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-slate-100 border-y text-xs">
+                              <th className="text-left py-2 px-3 font-semibold">PRODUCT</th>
+                              <th className="text-right py-2 px-3 font-semibold">OPENING STOCK</th>
+                              <th className="text-right py-2 px-3 font-semibold">OFFLOADED VOLUME</th>
+                              <th className="text-right py-2 px-3 font-semibold">CLOSING STOCK</th>
+                              <th className="text-right py-2 px-3 font-semibold">TANK SALES</th>
+                              <th className="text-right py-2 px-3 font-semibold">PUMP SALES</th>
+                              <th className="text-right py-2 px-3 font-semibold">VARIANCE</th>
+                              <th className="text-right py-2 px-3 font-semibold">DAILY %</th>
+                              <th className="text-center py-2 px-3 font-semibold">STATUS</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {data.product_movement.map(p => (
+                              <tr key={p.product} className="border-b hover:bg-slate-50">
+                                <td className="py-2 px-3 font-medium">{p.product}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.opening_stock)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.offloaded_volume)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.closing_stock)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.tank_sales)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.pump_sales)}</td>
+                                <td className={`text-right py-2 px-3 font-mono font-semibold ${getVarianceColor(p.variance, p.variance_percent)}`}>
+                                  {formatNumber(p.variance)}
                                 </td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzle.opening_reading.toLocaleString()}</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzle.closing_reading.toLocaleString()}</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono font-semibold">{nozzle.meter_difference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzle.invoiced_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right">
-                                  <span className={`font-mono font-semibold ${nozzle.variance === 0 ? 'text-green-600' : nozzle.variance > 0 ? 'text-amber-600' : 'text-red-600'}`}>
-                                    {nozzle.variance > 0 ? '+' : ''}{nozzle.variance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                    {nozzle.variance !== 0 && <AlertCircle className="h-3 w-3 inline ml-1" />}
-                                  </span>
+                                <td className={`text-right py-2 px-3 font-mono ${getVarianceColor(p.variance, p.variance_percent)}`}>
+                                  {formatNumber(p.variance_percent)}%
+                                </td>
+                                <td className="text-center py-2 px-3">
+                                  {Math.abs(p.variance_percent) <= 0.5 ? (
+                                    <CheckCircle className="h-5 w-5 text-green-600 inline" />
+                                  ) : (
+                                    <AlertTriangle className={`h-5 w-5 inline ${p.variance > 0 ? 'text-amber-600' : 'text-red-600'}`} />
+                                  )}
                                 </td>
                               </tr>
                             ))}
-                          </tbody>
-                          {nozzleTotals && (
-                            <tfoot className="bg-slate-100">
-                              <tr className="font-bold text-xs md:text-sm">
-                                <td className="py-2 md:py-3 px-3 md:px-4" colSpan={4}>TOTAL STATION SALES</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzleTotals.total_meter_difference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right font-mono">{nozzleTotals.total_invoiced_quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td className="py-2 md:py-3 px-3 md:px-4 text-right">
-                                  <span className={`font-mono ${nozzleTotals.total_variance === 0 ? 'text-green-600' : nozzleTotals.total_variance > 0 ? 'text-amber-600' : 'text-red-600'}`}>
-                                    {nozzleTotals.total_variance > 0 ? '+' : ''}{nozzleTotals.total_variance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </span>
-                                </td>
+                            {data.product_movement.length > 0 && (
+                              <tr className="bg-slate-100 font-bold">
+                                <td className="py-2 px-3">TOTAL</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.opening_stock, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.offloaded_volume, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.closing_stock, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.tank_sales, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.pump_sales, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.variance, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">-</td>
+                                <td></td>
                               </tr>
-                            </tfoot>
-                          )}
+                            )}
+                          </tbody>
                         </table>
                       </div>
+                    </CardContent>
+                  </Card>
 
-                      <div className="bg-blue-50 rounded-lg p-3 md:p-4">
-                        <h4 className="font-semibold text-blue-900 mb-2 text-sm">How to read this report:</h4>
-                        <ul className="text-xs text-blue-800 space-y-1">
-                          <li><strong>Meter Difference</strong> = Closing - Opening (actual fuel dispensed)</li>
-                          <li><strong>Invoiced</strong> = Total quantity from invoices issued</li>
-                          <li><strong>Variance</strong> = Meter Difference - Invoiced</li>
-                          <li className="text-amber-700"><strong>Positive</strong> = More dispensed than invoiced (loss)</li>
-                          <li className="text-red-700"><strong>Negative</strong> = Less dispensed than invoiced (error)</li>
-                        </ul>
+                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-bold text-slate-800">
+                        CASH FLOW SUMMARY
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-slate-100 border-y text-xs">
+                              <th className="text-left py-2 px-3 font-semibold">PRODUCT</th>
+                              <th className="text-right py-2 px-3 font-semibold">TOTAL SALES (L)</th>
+                              <th className="text-right py-2 px-3 font-semibold">PUMP PRICE</th>
+                              <th className="text-right py-2 px-3 font-semibold">AMOUNT</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {data.product_cash_flow.map(p => (
+                              <tr key={p.product} className="border-b hover:bg-slate-50">
+                                <td className="py-2 px-3 font-medium">{p.product}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.total_sales_litres)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatCurrency(p.pump_price)}</td>
+                                <td className="text-right py-2 px-3 font-mono font-semibold">{formatCurrency(p.amount)}</td>
+                              </tr>
+                            ))}
+                            <tr className="bg-slate-100 font-bold">
+                              <td className="py-2 px-3">TOTAL</td>
+                              <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_cash_flow.reduce((s, p) => s + p.total_sales_litres, 0))}</td>
+                              <td></td>
+                              <td className="text-right py-2 px-3 font-mono">{formatCurrency(data.totals.total_sales_amount)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
 
-              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground">
+                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-bold text-slate-800">
+                        DAILY CASH FLOW
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between py-2 border-b">
+                            <span className="font-medium">Opening Cash at Hand (Morning)</span>
+                            <span className="font-mono">{formatCurrency(data.daily_cash_flow.opening_cash)}</span>
+                          </div>
+                          <div className="flex justify-between py-2 border-b">
+                            <span className="font-medium">Cash Received - Day Shift</span>
+                            <span className="font-mono text-green-600">+{formatCurrency(data.daily_cash_flow.day_shift_cash)}</span>
+                          </div>
+                          <div className="flex justify-between py-2 border-b">
+                            <span className="font-medium">Cash Received - Night Shift</span>
+                            <span className="font-mono text-green-600">+{formatCurrency(data.daily_cash_flow.night_shift_cash)}</span>
+                          </div>
+                          <div className="flex justify-between py-2 border-b">
+                            <span className="font-medium">Cash Banked in the Day</span>
+                            <span className="font-mono text-red-600">-{formatCurrency(data.daily_cash_flow.cash_banked)}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between py-2 border-b bg-slate-50 px-2 rounded">
+                            <span className="font-semibold">Expected Closing Cash</span>
+                            <span className="font-mono font-semibold">
+                              {formatCurrency(data.daily_cash_flow.opening_cash + data.daily_cash_flow.day_shift_cash + data.daily_cash_flow.night_shift_cash - data.daily_cash_flow.cash_banked)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between py-2 border-b">
+                            <span className="font-medium">Closing Cash At Hand (End of Night Shift)</span>
+                            <span className="font-mono">{formatCurrency(data.daily_cash_flow.closing_cash)}</span>
+                          </div>
+                          <div className="flex justify-between py-2 border-b">
+                            <span className="font-medium">Physical Cash Count</span>
+                            <span className="font-mono">{formatCurrency(data.daily_cash_flow.physical_count)}</span>
+                          </div>
+                          <div className={`flex justify-between py-2 px-2 rounded ${Math.abs(data.daily_cash_flow.difference) < 100 ? 'bg-green-100' : 'bg-red-100'}`}>
+                            <span className="font-bold">DIFFERENCE</span>
+                            <span className={`font-mono font-bold ${Math.abs(data.daily_cash_flow.difference) < 100 ? 'text-green-700' : 'text-red-700'}`}>
+                              {formatCurrency(data.daily_cash_flow.difference)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border bg-blue-50">
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold text-blue-900 mb-2">How to read this report:</h4>
+                      <ul className="text-sm text-blue-800 space-y-1">
+                        <li><strong>Throughput</strong> = Closing Meter - Opening Meter (total fuel through nozzle)</li>
+                        <li><strong>RTT</strong> = Return To Tank (fuel returned, not sold)</li>
+                        <li><strong>Pump Sales</strong> = Throughput - RTT (actual fuel sold)</li>
+                        <li><strong>Tank Sales</strong> = Opening Stock + Offloaded - Closing Stock</li>
+                        <li><strong>Variance</strong> = Pump Sales - Tank Sales (should be near zero)</li>
+                        <li className="text-amber-700"><strong>Positive variance</strong> = More fuel sold than expected (potential measurement error)</li>
+                        <li className="text-red-700"><strong>Negative variance</strong> = Less fuel sold than expected (potential loss)</li>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-muted-foreground print:hidden">
                 Powered by <span className="font-semibold text-navy-900">Sensile Technologies East Africa Ltd</span>
               </footer>
             </div>
