@@ -280,8 +280,16 @@ export default function EndShiftPage() {
     for (const tank of tanks) {
       const openingStock = tankBaselines[tank.id] || 0
       const closingStock = parseFloat(tankStocks[tank.id] || "0") || 0
-      if (closingStock > openingStock) {
-        const stockReceived = parseFloat(tankStockReceived[tank.id] || "0") || 0
+      const stockReceived = parseFloat(tankStockReceived[tank.id] || "0") || 0
+      
+      // Check if nozzle sales would cause negative stock without offload
+      const { requiresOffload } = calculateTankVolumeVariance(tank.id, tank)
+      if (requiresOffload && stockReceived <= 0) {
+        toast.error(`Please enter fuel offloaded for ${tank.tank_name || 'tank'} (nozzle sales exceed opening stock)`)
+        return false
+      }
+      
+      if (closingStock > openingStock && !requiresOffload) {
         if (stockReceived <= 0) {
           toast.error(`Please enter stock received for ${tank.tank_name || 'tank'} (closing stock is higher than opening)`)
           return false
@@ -335,13 +343,17 @@ export default function EndShiftPage() {
       totalNozzleSales += netDispensed
     }
     
-    // Expected closing stock = opening + offloaded - nozzle sales
-    const expectedClosing = openingStock + offloaded - totalNozzleSales
+    // Check if nozzle sales would draw stock to negative (requires offload)
+    const stockBeforeOffload = openingStock - totalNozzleSales
+    const requiresOffload = stockBeforeOffload < 0
     
-    // Variance = expected - actual (positive means more fuel than expected, negative means less)
-    const variance = expectedClosing - closingStock
+    // Expected closing stock = opening + offloaded - nozzle sales (minimum 0)
+    const expectedClosing = Math.max(0, openingStock + offloaded - totalNozzleSales)
     
-    return { variance, totalNozzleSales, expectedClosing }
+    // Variance = actual - expected (positive = gain/more than expected, negative = loss/less than expected)
+    const variance = closingStock - expectedClosing
+    
+    return { variance, totalNozzleSales, expectedClosing, requiresOffload, stockBeforeOffload }
   }
 
   const validateStep2 = () => {
@@ -668,8 +680,10 @@ export default function EndShiftPage() {
                           const openingStock = tankBaselines[tank.id] || 0
                           const closingStock = parseFloat(tankStocks[tank.id] || "0") || 0
                           const needsStockReceived = closingStock > openingStock
-                          const { variance, totalNozzleSales, expectedClosing } = calculateTankVolumeVariance(tank.id, tank)
+                          const { variance, totalNozzleSales, expectedClosing, requiresOffload, stockBeforeOffload } = calculateTankVolumeVariance(tank.id, tank)
                           const hasClosingValue = tankStocks[tank.id] && tankStocks[tank.id] !== ""
+                          const offloaded = parseFloat(tankStockReceived[tank.id] || "0") || 0
+                          const showOffloadWarning = requiresOffload && offloaded === 0
                           return (
                             <div key={tank.id} className="bg-slate-50 p-4 rounded-lg space-y-3">
                               <div className="flex items-center justify-between">
@@ -688,7 +702,23 @@ export default function EndShiftPage() {
                                   onChange={(e) => setTankStocks({ ...tankStocks, [tank.id]: e.target.value })}
                                 />
                               </div>
-                              {needsStockReceived && (
+                              {showOffloadWarning && (
+                                <div className="flex items-center gap-3 pt-2 border-t border-red-200 bg-red-50 -mx-4 px-4 py-2">
+                                  <span className="text-sm text-red-700 flex-1">
+                                    Nozzle sales ({totalNozzleSales.toFixed(2)} L) exceed opening stock ({openingStock.toFixed(2)} L). 
+                                    Enter fuel offloaded during this shift:
+                                  </span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Fuel offloaded (L)"
+                                    className="w-40 border-red-300"
+                                    value={tankStockReceived[tank.id] || ""}
+                                    onChange={(e) => setTankStockReceived({ ...tankStockReceived, [tank.id]: e.target.value })}
+                                  />
+                                </div>
+                              )}
+                              {!showOffloadWarning && needsStockReceived && (
                                 <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
                                   <span className="text-sm text-amber-600 flex-1">Stock increased - enter fuel received:</span>
                                   <Input
@@ -701,7 +731,20 @@ export default function EndShiftPage() {
                                   />
                                 </div>
                               )}
-                              {hasClosingValue && (
+                              {!showOffloadWarning && requiresOffload && offloaded > 0 && (
+                                <div className="flex items-center gap-3 pt-2 border-t border-slate-200">
+                                  <span className="text-sm text-blue-600 flex-1">Fuel offloaded during shift:</span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Fuel offloaded (L)"
+                                    className="w-40"
+                                    value={tankStockReceived[tank.id] || ""}
+                                    onChange={(e) => setTankStockReceived({ ...tankStockReceived, [tank.id]: e.target.value })}
+                                  />
+                                </div>
+                              )}
+                              {hasClosingValue && !showOffloadWarning && (
                                 <div className="pt-2 border-t border-slate-200">
                                   <div className="flex items-center justify-between text-sm">
                                     <span className="text-slate-600">
