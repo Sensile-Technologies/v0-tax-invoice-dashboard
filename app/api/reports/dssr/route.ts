@@ -48,6 +48,26 @@ interface DailyCashFlow {
   difference: number
 }
 
+interface AttendantCollection {
+  staff_id: string
+  staff_name: string
+  cash: number
+  mpesa: number
+  card: number
+  mobile_money: number
+  credit: number
+  total: number
+}
+
+interface BankingEntry {
+  id: string
+  account_name: string
+  bank_name: string
+  amount: number
+  notes: string | null
+  created_at: string
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -327,6 +347,67 @@ export async function GET(request: NextRequest) {
       difference: (openingCash + dayShiftCash + nightShiftCash - cashBanked) - closingCash
     }
 
+    const attendantCollections: AttendantCollection[] = []
+    if (shiftIds.length > 0) {
+      const collectionsDetailQuery = `
+        SELECT 
+          ac.staff_id,
+          COALESCE(st.full_name, 'Unknown') as staff_name,
+          COALESCE(SUM(CASE WHEN ac.payment_method = 'cash' THEN ac.amount ELSE 0 END), 0) as cash,
+          COALESCE(SUM(CASE WHEN ac.payment_method = 'mpesa' THEN ac.amount ELSE 0 END), 0) as mpesa,
+          COALESCE(SUM(CASE WHEN ac.payment_method = 'card' THEN ac.amount ELSE 0 END), 0) as card,
+          COALESCE(SUM(CASE WHEN ac.payment_method = 'mobile_money' THEN ac.amount ELSE 0 END), 0) as mobile_money,
+          COALESCE(SUM(CASE WHEN ac.payment_method = 'credit' THEN ac.amount ELSE 0 END), 0) as credit,
+          COALESCE(SUM(ac.amount), 0) as total
+        FROM attendant_collections ac
+        LEFT JOIN staff st ON ac.staff_id = st.id
+        WHERE ac.shift_id = ANY($1)
+        GROUP BY ac.staff_id, st.full_name
+        ORDER BY st.full_name
+      `
+      const collectionsDetailResult = await pool.query(collectionsDetailQuery, [shiftIds])
+      for (const row of collectionsDetailResult.rows) {
+        attendantCollections.push({
+          staff_id: row.staff_id,
+          staff_name: row.staff_name,
+          cash: parseFloat(row.cash) || 0,
+          mpesa: parseFloat(row.mpesa) || 0,
+          card: parseFloat(row.card) || 0,
+          mobile_money: parseFloat(row.mobile_money) || 0,
+          credit: parseFloat(row.credit) || 0,
+          total: parseFloat(row.total) || 0
+        })
+      }
+    }
+
+    const bankingEntries: BankingEntry[] = []
+    if (shiftIds.length > 0) {
+      const bankingDetailQuery = `
+        SELECT 
+          sb.id,
+          ba.account_name,
+          ba.bank_name,
+          sb.amount,
+          sb.notes,
+          sb.created_at
+        FROM shift_banking sb
+        LEFT JOIN banking_accounts ba ON sb.banking_account_id = ba.id
+        WHERE sb.shift_id = ANY($1)
+        ORDER BY sb.created_at
+      `
+      const bankingDetailResult = await pool.query(bankingDetailQuery, [shiftIds])
+      for (const row of bankingDetailResult.rows) {
+        bankingEntries.push({
+          id: row.id,
+          account_name: row.account_name || 'Unknown Account',
+          bank_name: row.bank_name || '',
+          amount: parseFloat(row.amount) || 0,
+          notes: row.notes,
+          created_at: row.created_at
+        })
+      }
+    }
+
     const branchQuery = `SELECT name FROM branches WHERE id = $1`
     const branchResult = await pool.query(branchQuery, [branchId])
     const branchName = branchResult.rows[0]?.name || 'Unknown Branch'
@@ -354,6 +435,8 @@ export async function GET(request: NextRequest) {
         product_movement: productMovement,
         product_cash_flow: productCashFlow,
         daily_cash_flow: dailyCashFlow,
+        attendant_collections: attendantCollections,
+        banking_entries: bankingEntries,
         totals: {
           total_sales_amount: totalSalesAmount,
           total_collections: totalCollections,

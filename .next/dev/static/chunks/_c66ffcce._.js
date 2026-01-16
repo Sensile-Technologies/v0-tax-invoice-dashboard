@@ -2745,7 +2745,7 @@ function DSSRPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                lineNumber: 181,
+                lineNumber: 203,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2757,7 +2757,7 @@ function DSSRPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                            lineNumber: 190,
+                            lineNumber: 212,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2767,7 +2767,7 @@ function DSSRPage() {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$report$2d$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReportTabs"], {}, void 0, false, {
                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                        lineNumber: 194,
+                                        lineNumber: 216,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2782,14 +2782,14 @@ function DSSRPage() {
                                                                 className: "h-8 w-8 text-blue-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 199,
+                                                                lineNumber: 221,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Daily Sales Summary Report (DSSR)"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 198,
+                                                        lineNumber: 220,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2797,13 +2797,13 @@ function DSSRPage() {
                                                         children: "Comprehensive daily fuel station performance summary"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 202,
+                                                        lineNumber: 224,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 197,
+                                                lineNumber: 219,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2819,14 +2819,14 @@ function DSSRPage() {
                                                                 className: `h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 206,
+                                                                lineNumber: 228,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Refresh"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 205,
+                                                        lineNumber: 227,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2838,14 +2838,14 @@ function DSSRPage() {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 210,
+                                                                lineNumber: 232,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Print"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 209,
+                                                        lineNumber: 231,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2858,26 +2858,26 @@ function DSSRPage() {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 214,
+                                                                lineNumber: 236,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Export"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 213,
+                                                        lineNumber: 235,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 204,
+                                                lineNumber: 226,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                        lineNumber: 196,
+                                        lineNumber: 218,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2896,7 +2896,7 @@ function DSSRPage() {
                                                                 children: "Report Date"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 224,
+                                                                lineNumber: 246,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2907,13 +2907,13 @@ function DSSRPage() {
                                                                 className: "mt-1"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 225,
+                                                                lineNumber: 247,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 223,
+                                                        lineNumber: 245,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2924,30 +2924,30 @@ function DSSRPage() {
                                                                 className: "h-4 w-4 mr-2 animate-spin"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 234,
+                                                                lineNumber: 256,
                                                                 columnNumber: 34
                                                             }, this) : null,
                                                             "Generate Report"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 233,
+                                                        lineNumber: 255,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 222,
+                                                lineNumber: 244,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                            lineNumber: 221,
+                                            lineNumber: 243,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                        lineNumber: 220,
+                                        lineNumber: 242,
                                         columnNumber: 15
                                     }, this),
                                     loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2957,7 +2957,7 @@ function DSSRPage() {
                                                 className: "h-8 w-8 animate-spin text-blue-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 243,
+                                                lineNumber: 265,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2965,13 +2965,13 @@ function DSSRPage() {
                                                 children: "Loading DSSR data..."
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 244,
+                                                lineNumber: 266,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                        lineNumber: 242,
+                                        lineNumber: 264,
                                         columnNumber: 17
                                     }, this) : !data ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                                         className: "rounded-2xl",
@@ -2982,7 +2982,7 @@ function DSSRPage() {
                                                     className: "h-12 w-12 text-slate-300 mx-auto mb-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                    lineNumber: 249,
+                                                    lineNumber: 271,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2990,7 +2990,7 @@ function DSSRPage() {
                                                     children: "No data available for the selected date"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                    lineNumber: 250,
+                                                    lineNumber: 272,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2998,18 +2998,18 @@ function DSSRPage() {
                                                     children: "Try selecting a different date or ensure shifts have been recorded"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                    lineNumber: 251,
+                                                    lineNumber: 273,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                            lineNumber: 248,
+                                            lineNumber: 270,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                        lineNumber: 247,
+                                        lineNumber: 269,
                                         columnNumber: 17
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "space-y-6 print:space-y-4",
@@ -3022,7 +3022,7 @@ function DSSRPage() {
                                                         children: "DAILY STATION STATUS REPORT (DSSR)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 257,
+                                                        lineNumber: 279,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3030,7 +3030,7 @@ function DSSRPage() {
                                                         children: data.branch_name
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 258,
+                                                        lineNumber: 280,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3043,13 +3043,13 @@ function DSSRPage() {
                                                         })
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 259,
+                                                        lineNumber: 281,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 256,
+                                                lineNumber: 278,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3062,12 +3062,12 @@ function DSSRPage() {
                                                             children: "SALES OF WHITE PRODUCTS IN LITRES"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 264,
+                                                            lineNumber: 286,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 263,
+                                                        lineNumber: 285,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3087,7 +3087,7 @@ function DSSRPage() {
                                                                                         children: "NOZZLES"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 273,
+                                                                                        lineNumber: 295,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     data.nozzle_readings.map((n)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3095,18 +3095,18 @@ function DSSRPage() {
                                                                                             children: n.nozzle_name
                                                                                         }, n.nozzle_id, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 275,
+                                                                                            lineNumber: 297,
                                                                                             columnNumber: 33
                                                                                         }, this))
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                lineNumber: 272,
+                                                                                lineNumber: 294,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 271,
+                                                                            lineNumber: 293,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3119,7 +3119,7 @@ function DSSRPage() {
                                                                                             children: "A) Closing Meter"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 283,
+                                                                                            lineNumber: 305,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         data.nozzle_readings.map((n)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3127,13 +3127,13 @@ function DSSRPage() {
                                                                                                 children: formatNumber(n.closing_meter)
                                                                                             }, n.nozzle_id, false, {
                                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                                lineNumber: 285,
+                                                                                                lineNumber: 307,
                                                                                                 columnNumber: 33
                                                                                             }, this))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 282,
+                                                                                    lineNumber: 304,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3144,7 +3144,7 @@ function DSSRPage() {
                                                                                             children: "B) Opening"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 289,
+                                                                                            lineNumber: 311,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         data.nozzle_readings.map((n)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3152,13 +3152,13 @@ function DSSRPage() {
                                                                                                 children: formatNumber(n.opening_meter)
                                                                                             }, n.nozzle_id, false, {
                                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                                lineNumber: 291,
+                                                                                                lineNumber: 313,
                                                                                                 columnNumber: 33
                                                                                             }, this))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 288,
+                                                                                    lineNumber: 310,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3169,7 +3169,7 @@ function DSSRPage() {
                                                                                             children: "C) Thro'put (A-B)"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 295,
+                                                                                            lineNumber: 317,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         data.nozzle_readings.map((n)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3177,13 +3177,13 @@ function DSSRPage() {
                                                                                                 children: formatNumber(n.throughput)
                                                                                             }, n.nozzle_id, false, {
                                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                                lineNumber: 297,
+                                                                                                lineNumber: 319,
                                                                                                 columnNumber: 33
                                                                                             }, this))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 294,
+                                                                                    lineNumber: 316,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3194,7 +3194,7 @@ function DSSRPage() {
                                                                                             children: "D) RTT"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 301,
+                                                                                            lineNumber: 323,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         data.nozzle_readings.map((n)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3202,13 +3202,13 @@ function DSSRPage() {
                                                                                                 children: formatNumber(n.rtt)
                                                                                             }, n.nozzle_id, false, {
                                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                                lineNumber: 303,
+                                                                                                lineNumber: 325,
                                                                                                 columnNumber: 33
                                                                                             }, this))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 300,
+                                                                                    lineNumber: 322,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3219,7 +3219,7 @@ function DSSRPage() {
                                                                                             children: "E) Pump Sales (C-D)"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 307,
+                                                                                            lineNumber: 329,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         data.nozzle_readings.map((n)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3227,30 +3227,30 @@ function DSSRPage() {
                                                                                                 children: formatNumber(n.pump_sales)
                                                                                             }, n.nozzle_id, false, {
                                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                                lineNumber: 309,
+                                                                                                lineNumber: 331,
                                                                                                 columnNumber: 33
                                                                                             }, this))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 306,
+                                                                                    lineNumber: 328,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 281,
+                                                                            lineNumber: 303,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 270,
+                                                                    lineNumber: 292,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 269,
+                                                                lineNumber: 291,
                                                                 columnNumber: 23
                                                             }, this),
                                                             data.product_nozzle_totals.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3261,7 +3261,7 @@ function DSSRPage() {
                                                                         children: "F) TOTAL PER PRODUCT"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                        lineNumber: 318,
+                                                                        lineNumber: 340,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3277,7 +3277,7 @@ function DSSRPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 322,
+                                                                                        lineNumber: 344,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3288,36 +3288,36 @@ function DSSRPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 323,
+                                                                                        lineNumber: 345,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, p.product, true, {
                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                lineNumber: 321,
+                                                                                lineNumber: 343,
                                                                                 columnNumber: 31
                                                                             }, this))
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                        lineNumber: 319,
+                                                                        lineNumber: 341,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 317,
+                                                                lineNumber: 339,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 268,
+                                                        lineNumber: 290,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 262,
+                                                lineNumber: 284,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3330,12 +3330,12 @@ function DSSRPage() {
                                                             children: "WHITE PRODUCT MOVEMENT"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 334,
+                                                            lineNumber: 356,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 333,
+                                                        lineNumber: 355,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3354,7 +3354,7 @@ function DSSRPage() {
                                                                                     children: "PRODUCT"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 343,
+                                                                                    lineNumber: 365,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3362,7 +3362,7 @@ function DSSRPage() {
                                                                                     children: "OPENING STOCK"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 344,
+                                                                                    lineNumber: 366,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3370,7 +3370,7 @@ function DSSRPage() {
                                                                                     children: "OFFLOADED VOLUME"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 345,
+                                                                                    lineNumber: 367,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3378,7 +3378,7 @@ function DSSRPage() {
                                                                                     children: "CLOSING STOCK"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 346,
+                                                                                    lineNumber: 368,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3386,7 +3386,7 @@ function DSSRPage() {
                                                                                     children: "TANK SALES"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 347,
+                                                                                    lineNumber: 369,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3394,7 +3394,7 @@ function DSSRPage() {
                                                                                     children: "PUMP SALES"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 348,
+                                                                                    lineNumber: 370,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3402,7 +3402,7 @@ function DSSRPage() {
                                                                                     children: "VARIANCE"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 349,
+                                                                                    lineNumber: 371,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3410,7 +3410,7 @@ function DSSRPage() {
                                                                                     children: "DAILY %"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 350,
+                                                                                    lineNumber: 372,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3418,18 +3418,18 @@ function DSSRPage() {
                                                                                     children: "STATUS"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 351,
+                                                                                    lineNumber: 373,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 342,
+                                                                            lineNumber: 364,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                        lineNumber: 341,
+                                                                        lineNumber: 363,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3442,7 +3442,7 @@ function DSSRPage() {
                                                                                             children: p.product
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 357,
+                                                                                            lineNumber: 379,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3450,7 +3450,7 @@ function DSSRPage() {
                                                                                             children: formatNumber(p.opening_stock)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 358,
+                                                                                            lineNumber: 380,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3458,7 +3458,7 @@ function DSSRPage() {
                                                                                             children: formatNumber(p.offloaded_volume)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 359,
+                                                                                            lineNumber: 381,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3466,7 +3466,7 @@ function DSSRPage() {
                                                                                             children: formatNumber(p.closing_stock)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 360,
+                                                                                            lineNumber: 382,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3474,7 +3474,7 @@ function DSSRPage() {
                                                                                             children: formatNumber(p.tank_sales)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 361,
+                                                                                            lineNumber: 383,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3482,7 +3482,7 @@ function DSSRPage() {
                                                                                             children: formatNumber(p.pump_sales)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 362,
+                                                                                            lineNumber: 384,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3490,7 +3490,7 @@ function DSSRPage() {
                                                                                             children: formatNumber(p.variance)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 363,
+                                                                                            lineNumber: 385,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3501,7 +3501,7 @@ function DSSRPage() {
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 366,
+                                                                                            lineNumber: 388,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3510,24 +3510,24 @@ function DSSRPage() {
                                                                                                 className: "h-5 w-5 text-green-600 inline"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                                lineNumber: 371,
+                                                                                                lineNumber: 393,
                                                                                                 columnNumber: 37
                                                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__["AlertTriangle"], {
                                                                                                 className: `h-5 w-5 inline ${p.variance > 0 ? 'text-amber-600' : 'text-red-600'}`
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                                lineNumber: 373,
+                                                                                                lineNumber: 395,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 369,
+                                                                                            lineNumber: 391,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     ]
                                                                                 }, p.product, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 356,
+                                                                                    lineNumber: 378,
                                                                                     columnNumber: 31
                                                                                 }, this)),
                                                                             data.product_movement.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3538,7 +3538,7 @@ function DSSRPage() {
                                                                                         children: "TOTAL"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 380,
+                                                                                        lineNumber: 402,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3546,7 +3546,7 @@ function DSSRPage() {
                                                                                         children: formatNumber(data.product_movement.reduce((s, p)=>s + p.opening_stock, 0))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 381,
+                                                                                        lineNumber: 403,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3554,7 +3554,7 @@ function DSSRPage() {
                                                                                         children: formatNumber(data.product_movement.reduce((s, p)=>s + p.offloaded_volume, 0))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 382,
+                                                                                        lineNumber: 404,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3562,7 +3562,7 @@ function DSSRPage() {
                                                                                         children: formatNumber(data.product_movement.reduce((s, p)=>s + p.closing_stock, 0))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 383,
+                                                                                        lineNumber: 405,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3570,7 +3570,7 @@ function DSSRPage() {
                                                                                         children: formatNumber(data.product_movement.reduce((s, p)=>s + p.tank_sales, 0))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 384,
+                                                                                        lineNumber: 406,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3578,7 +3578,7 @@ function DSSRPage() {
                                                                                         children: formatNumber(data.product_movement.reduce((s, p)=>s + p.pump_sales, 0))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 385,
+                                                                                        lineNumber: 407,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3586,7 +3586,7 @@ function DSSRPage() {
                                                                                         children: formatNumber(data.product_movement.reduce((s, p)=>s + p.variance, 0))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 386,
+                                                                                        lineNumber: 408,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3594,46 +3594,46 @@ function DSSRPage() {
                                                                                         children: "-"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 387,
+                                                                                        lineNumber: 409,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {}, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 388,
+                                                                                        lineNumber: 410,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                lineNumber: 379,
+                                                                                lineNumber: 401,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                        lineNumber: 354,
+                                                                        lineNumber: 376,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 340,
+                                                                lineNumber: 362,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 339,
+                                                            lineNumber: 361,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 338,
+                                                        lineNumber: 360,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 332,
+                                                lineNumber: 354,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3646,12 +3646,12 @@ function DSSRPage() {
                                                             children: "CASH FLOW SUMMARY"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 399,
+                                                            lineNumber: 421,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 398,
+                                                        lineNumber: 420,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3670,7 +3670,7 @@ function DSSRPage() {
                                                                                     children: "PRODUCT"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 408,
+                                                                                    lineNumber: 430,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3678,7 +3678,7 @@ function DSSRPage() {
                                                                                     children: "TOTAL SALES (L)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 409,
+                                                                                    lineNumber: 431,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3686,7 +3686,7 @@ function DSSRPage() {
                                                                                     children: "PUMP PRICE"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 410,
+                                                                                    lineNumber: 432,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3694,18 +3694,18 @@ function DSSRPage() {
                                                                                     children: "AMOUNT"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 411,
+                                                                                    lineNumber: 433,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 407,
+                                                                            lineNumber: 429,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                        lineNumber: 406,
+                                                                        lineNumber: 428,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3718,7 +3718,7 @@ function DSSRPage() {
                                                                                             children: p.product
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 417,
+                                                                                            lineNumber: 439,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3726,7 +3726,7 @@ function DSSRPage() {
                                                                                             children: formatNumber(p.total_sales_litres)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 418,
+                                                                                            lineNumber: 440,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3734,7 +3734,7 @@ function DSSRPage() {
                                                                                             children: formatCurrency(p.pump_price)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 419,
+                                                                                            lineNumber: 441,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3742,13 +3742,13 @@ function DSSRPage() {
                                                                                             children: formatCurrency(p.amount)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                            lineNumber: 420,
+                                                                                            lineNumber: 442,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     ]
                                                                                 }, p.product, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 416,
+                                                                                    lineNumber: 438,
                                                                                     columnNumber: 31
                                                                                 }, this)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3759,7 +3759,7 @@ function DSSRPage() {
                                                                                         children: "TOTAL"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 424,
+                                                                                        lineNumber: 446,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3767,12 +3767,12 @@ function DSSRPage() {
                                                                                         children: formatNumber(data.product_cash_flow.reduce((s, p)=>s + p.total_sales_litres, 0))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 425,
+                                                                                        lineNumber: 447,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {}, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 426,
+                                                                                        lineNumber: 448,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3780,41 +3780,41 @@ function DSSRPage() {
                                                                                         children: formatCurrency(data.totals.total_sales_amount)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                        lineNumber: 427,
+                                                                                        lineNumber: 449,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                lineNumber: 423,
+                                                                                lineNumber: 445,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                        lineNumber: 414,
+                                                                        lineNumber: 436,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                lineNumber: 405,
+                                                                lineNumber: 427,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 404,
+                                                            lineNumber: 426,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 403,
+                                                        lineNumber: 425,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 397,
+                                                lineNumber: 419,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3827,12 +3827,12 @@ function DSSRPage() {
                                                             children: "DAILY CASH FLOW"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 437,
+                                                            lineNumber: 459,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 436,
+                                                        lineNumber: 458,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3850,7 +3850,7 @@ function DSSRPage() {
                                                                                     children: "Opening Cash at Hand (Morning)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 445,
+                                                                                    lineNumber: 467,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3858,13 +3858,13 @@ function DSSRPage() {
                                                                                     children: formatCurrency(data.daily_cash_flow.opening_cash)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 446,
+                                                                                    lineNumber: 468,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 444,
+                                                                            lineNumber: 466,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3875,7 +3875,7 @@ function DSSRPage() {
                                                                                     children: "Cash Received - Day Shift"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 449,
+                                                                                    lineNumber: 471,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3886,13 +3886,13 @@ function DSSRPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 450,
+                                                                                    lineNumber: 472,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 448,
+                                                                            lineNumber: 470,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3903,7 +3903,7 @@ function DSSRPage() {
                                                                                     children: "Cash Received - Night Shift"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 453,
+                                                                                    lineNumber: 475,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3914,13 +3914,13 @@ function DSSRPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 454,
+                                                                                    lineNumber: 476,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 452,
+                                                                            lineNumber: 474,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3931,7 +3931,7 @@ function DSSRPage() {
                                                                                     children: "Cash Banked in the Day"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 457,
+                                                                                    lineNumber: 479,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3942,19 +3942,19 @@ function DSSRPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 458,
+                                                                                    lineNumber: 480,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 456,
+                                                                            lineNumber: 478,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 443,
+                                                                    lineNumber: 465,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3968,7 +3968,7 @@ function DSSRPage() {
                                                                                     children: "Expected Closing Cash"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 463,
+                                                                                    lineNumber: 485,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3976,13 +3976,13 @@ function DSSRPage() {
                                                                                     children: formatCurrency(data.daily_cash_flow.opening_cash + data.daily_cash_flow.day_shift_cash + data.daily_cash_flow.night_shift_cash - data.daily_cash_flow.cash_banked)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 464,
+                                                                                    lineNumber: 486,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 462,
+                                                                            lineNumber: 484,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3993,7 +3993,7 @@ function DSSRPage() {
                                                                                     children: "Closing Cash At Hand (End of Night Shift)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 469,
+                                                                                    lineNumber: 491,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4001,13 +4001,13 @@ function DSSRPage() {
                                                                                     children: formatCurrency(data.daily_cash_flow.closing_cash)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 470,
+                                                                                    lineNumber: 492,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 468,
+                                                                            lineNumber: 490,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4018,7 +4018,7 @@ function DSSRPage() {
                                                                                     children: "Physical Cash Count"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 473,
+                                                                                    lineNumber: 495,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4026,13 +4026,13 @@ function DSSRPage() {
                                                                                     children: formatCurrency(data.daily_cash_flow.physical_count)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 474,
+                                                                                    lineNumber: 496,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 472,
+                                                                            lineNumber: 494,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4043,7 +4043,7 @@ function DSSRPage() {
                                                                                     children: "DIFFERENCE"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 477,
+                                                                                    lineNumber: 499,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4051,36 +4051,480 @@ function DSSRPage() {
                                                                                     children: formatCurrency(data.daily_cash_flow.difference)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                                    lineNumber: 478,
+                                                                                    lineNumber: 500,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 476,
+                                                                            lineNumber: 498,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 461,
+                                                                    lineNumber: 483,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 442,
+                                                            lineNumber: 464,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                        lineNumber: 441,
+                                                        lineNumber: 463,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 435,
+                                                lineNumber: 457,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                                className: "rounded-2xl print:rounded-none print:shadow-none print:border",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
+                                                        className: "pb-2",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
+                                                            className: "text-lg font-bold text-slate-800",
+                                                            children: "COLLECTION SUMMARY"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                            lineNumber: 511,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                        lineNumber: 510,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                                                        className: "p-0",
+                                                        children: data.attendant_collections.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "overflow-x-auto",
+                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
+                                                                className: "w-full text-sm",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
+                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                                                            className: "bg-slate-100 border-y text-xs",
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-left py-2 px-4 font-semibold",
+                                                                                    children: "ATTENDANT"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 521,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-right py-2 px-4 font-semibold",
+                                                                                    children: "CASH"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 522,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-right py-2 px-4 font-semibold",
+                                                                                    children: "MPESA"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 523,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-right py-2 px-4 font-semibold",
+                                                                                    children: "CARD"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 524,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-right py-2 px-4 font-semibold",
+                                                                                    children: "MOBILE MONEY"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 525,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-right py-2 px-4 font-semibold",
+                                                                                    children: "CREDIT"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 526,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-right py-2 px-4 font-semibold",
+                                                                                    children: "TOTAL"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 527,
+                                                                                    columnNumber: 33
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                            lineNumber: 520,
+                                                                            columnNumber: 31
+                                                                        }, this)
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                        lineNumber: 519,
+                                                                        columnNumber: 29
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
+                                                                        children: [
+                                                                            data.attendant_collections.map((ac)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                                                                    className: "border-b hover:bg-slate-50",
+                                                                                    children: [
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "py-2 px-4 font-medium",
+                                                                                            children: ac.staff_name
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 533,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "text-right py-2 px-4 font-mono",
+                                                                                            children: formatCurrency(ac.cash)
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 534,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "text-right py-2 px-4 font-mono",
+                                                                                            children: formatCurrency(ac.mpesa)
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 535,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "text-right py-2 px-4 font-mono",
+                                                                                            children: formatCurrency(ac.card)
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 536,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "text-right py-2 px-4 font-mono",
+                                                                                            children: formatCurrency(ac.mobile_money)
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 537,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "text-right py-2 px-4 font-mono",
+                                                                                            children: formatCurrency(ac.credit)
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 538,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "text-right py-2 px-4 font-mono font-semibold text-blue-700",
+                                                                                            children: formatCurrency(ac.total)
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 539,
+                                                                                            columnNumber: 35
+                                                                                        }, this)
+                                                                                    ]
+                                                                                }, ac.staff_id, true, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 532,
+                                                                                    columnNumber: 33
+                                                                                }, this)),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                                                                className: "bg-slate-100 font-bold",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "py-2 px-4",
+                                                                                        children: "TOTAL"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 543,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "text-right py-2 px-4 font-mono",
+                                                                                        children: formatCurrency(data.attendant_collections.reduce((s, ac)=>s + ac.cash, 0))
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 544,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "text-right py-2 px-4 font-mono",
+                                                                                        children: formatCurrency(data.attendant_collections.reduce((s, ac)=>s + ac.mpesa, 0))
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 545,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "text-right py-2 px-4 font-mono",
+                                                                                        children: formatCurrency(data.attendant_collections.reduce((s, ac)=>s + ac.card, 0))
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 546,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "text-right py-2 px-4 font-mono",
+                                                                                        children: formatCurrency(data.attendant_collections.reduce((s, ac)=>s + ac.mobile_money, 0))
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 547,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "text-right py-2 px-4 font-mono",
+                                                                                        children: formatCurrency(data.attendant_collections.reduce((s, ac)=>s + ac.credit, 0))
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 548,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "text-right py-2 px-4 font-mono font-semibold text-blue-700",
+                                                                                        children: formatCurrency(data.attendant_collections.reduce((s, ac)=>s + ac.total, 0))
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 549,
+                                                                                        columnNumber: 33
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                lineNumber: 542,
+                                                                                columnNumber: 31
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                        lineNumber: 530,
+                                                                        columnNumber: 29
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                lineNumber: 518,
+                                                                columnNumber: 27
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                            lineNumber: 517,
+                                                            columnNumber: 25
+                                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "p-4 text-center text-slate-500",
+                                                            children: "No collection records found for this date"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                            lineNumber: 555,
+                                                            columnNumber: 25
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                        lineNumber: 515,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                lineNumber: 509,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                                className: "rounded-2xl print:rounded-none print:shadow-none print:border",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardHeader"], {
+                                                        className: "pb-2",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
+                                                            className: "text-lg font-bold text-slate-800",
+                                                            children: "BANKING SUMMARY"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                            lineNumber: 564,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                        lineNumber: 563,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                                                        className: "p-0",
+                                                        children: data.banking_entries.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "overflow-x-auto",
+                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("table", {
+                                                                className: "w-full text-sm",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
+                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                                                            className: "bg-slate-100 border-y text-xs",
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-left py-2 px-4 font-semibold",
+                                                                                    children: "ACCOUNT"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 574,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-left py-2 px-4 font-semibold",
+                                                                                    children: "BANK"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 575,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-right py-2 px-4 font-semibold",
+                                                                                    children: "AMOUNT"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 576,
+                                                                                    columnNumber: 33
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
+                                                                                    className: "text-left py-2 px-4 font-semibold",
+                                                                                    children: "NOTES"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 577,
+                                                                                    columnNumber: 33
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                            lineNumber: 573,
+                                                                            columnNumber: 31
+                                                                        }, this)
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                        lineNumber: 572,
+                                                                        columnNumber: 29
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
+                                                                        children: [
+                                                                            data.banking_entries.map((be)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                                                                    className: "border-b hover:bg-slate-50",
+                                                                                    children: [
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "py-2 px-4 font-medium",
+                                                                                            children: be.account_name
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 583,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "py-2 px-4 text-slate-600",
+                                                                                            children: be.bank_name
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 584,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "text-right py-2 px-4 font-mono",
+                                                                                            children: formatCurrency(be.amount)
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 585,
+                                                                                            columnNumber: 35
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                            className: "py-2 px-4 text-slate-600",
+                                                                                            children: be.notes || '-'
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                            lineNumber: 586,
+                                                                                            columnNumber: 35
+                                                                                        }, this)
+                                                                                    ]
+                                                                                }, be.id, true, {
+                                                                                    fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                    lineNumber: 582,
+                                                                                    columnNumber: 33
+                                                                                }, this)),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
+                                                                                className: "bg-slate-100 font-bold",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "py-2 px-4",
+                                                                                        colSpan: 2,
+                                                                                        children: "TOTAL BANKED"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 590,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                                                                        className: "text-right py-2 px-4 font-mono",
+                                                                                        children: formatCurrency(data.banking_entries.reduce((s, be)=>s + be.amount, 0))
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 591,
+                                                                                        columnNumber: 33
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {}, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                        lineNumber: 592,
+                                                                                        columnNumber: 33
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                                lineNumber: 589,
+                                                                                columnNumber: 31
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                        lineNumber: 580,
+                                                                        columnNumber: 29
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                                lineNumber: 571,
+                                                                columnNumber: 27
+                                                            }, this)
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                            lineNumber: 570,
+                                                            columnNumber: 25
+                                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "p-4 text-center text-slate-500",
+                                                            children: "No banking records found for this date"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                            lineNumber: 598,
+                                                            columnNumber: 25
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                        lineNumber: 568,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/reports/daily-sales/page.tsx",
+                                                lineNumber: 562,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -4093,7 +4537,7 @@ function DSSRPage() {
                                                             children: "How to read this report:"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 489,
+                                                            lineNumber: 607,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -4105,14 +4549,14 @@ function DSSRPage() {
                                                                             children: "Throughput"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 491,
+                                                                            lineNumber: 609,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         " = Closing Meter - Opening Meter (total fuel through nozzle)"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 491,
+                                                                    lineNumber: 609,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -4121,14 +4565,14 @@ function DSSRPage() {
                                                                             children: "RTT"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 492,
+                                                                            lineNumber: 610,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         " = Return To Tank (fuel returned, not sold)"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 492,
+                                                                    lineNumber: 610,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -4137,14 +4581,14 @@ function DSSRPage() {
                                                                             children: "Pump Sales"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 493,
+                                                                            lineNumber: 611,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         " = Throughput - RTT (actual fuel sold)"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 493,
+                                                                    lineNumber: 611,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -4153,14 +4597,14 @@ function DSSRPage() {
                                                                             children: "Tank Sales"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 494,
+                                                                            lineNumber: 612,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         " = Opening Stock + Offloaded - Closing Stock"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 494,
+                                                                    lineNumber: 612,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -4169,14 +4613,14 @@ function DSSRPage() {
                                                                             children: "Variance"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 495,
+                                                                            lineNumber: 613,
                                                                             columnNumber: 29
                                                                         }, this),
                                                                         " = Pump Sales - Tank Sales (should be near zero)"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 495,
+                                                                    lineNumber: 613,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -4186,14 +4630,14 @@ function DSSRPage() {
                                                                             children: "Positive variance"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 496,
+                                                                            lineNumber: 614,
                                                                             columnNumber: 56
                                                                         }, this),
                                                                         " = More fuel sold than expected (potential measurement error)"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 496,
+                                                                    lineNumber: 614,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -4203,37 +4647,37 @@ function DSSRPage() {
                                                                             children: "Negative variance"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                            lineNumber: 497,
+                                                                            lineNumber: 615,
                                                                             columnNumber: 54
                                                                         }, this),
                                                                         " = Less fuel sold than expected (potential loss)"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                                    lineNumber: 497,
+                                                                    lineNumber: 615,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                            lineNumber: 490,
+                                                            lineNumber: 608,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                    lineNumber: 488,
+                                                    lineNumber: 606,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 487,
+                                                lineNumber: 605,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                        lineNumber: 255,
+                                        lineNumber: 277,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -4245,41 +4689,41 @@ function DSSRPage() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                                lineNumber: 505,
+                                                lineNumber: 623,
                                                 columnNumber: 28
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                        lineNumber: 504,
+                                        lineNumber: 622,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                                lineNumber: 193,
+                                lineNumber: 215,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/reports/daily-sales/page.tsx",
-                            lineNumber: 192,
+                            lineNumber: 214,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/reports/daily-sales/page.tsx",
-                    lineNumber: 189,
+                    lineNumber: 211,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/reports/daily-sales/page.tsx",
-                lineNumber: 188,
+                lineNumber: 210,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/reports/daily-sales/page.tsx",
-        lineNumber: 180,
+        lineNumber: 202,
         columnNumber: 5
     }, this);
 }

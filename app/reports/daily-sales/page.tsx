@@ -61,6 +61,26 @@ interface DailyCashFlow {
   difference: number
 }
 
+interface AttendantCollection {
+  staff_id: string
+  staff_name: string
+  cash: number
+  mpesa: number
+  card: number
+  mobile_money: number
+  credit: number
+  total: number
+}
+
+interface BankingEntry {
+  id: string
+  account_name: string
+  bank_name: string
+  amount: number
+  notes: string | null
+  created_at: string
+}
+
 interface DSSRData {
   date: string
   branch_name: string
@@ -70,6 +90,8 @@ interface DSSRData {
   product_movement: ProductMovement[]
   product_cash_flow: ProductCashFlow[]
   daily_cash_flow: DailyCashFlow
+  attendant_collections: AttendantCollection[]
+  banking_entries: BankingEntry[]
   totals: {
     total_sales_amount: number
     total_collections: number
@@ -481,6 +503,102 @@ export default function DSSRPage() {
                           </div>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-bold text-slate-800">
+                        COLLECTION SUMMARY
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      {data.attendant_collections.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="bg-slate-100 border-y text-xs">
+                                <th className="text-left py-2 px-4 font-semibold">ATTENDANT</th>
+                                <th className="text-right py-2 px-4 font-semibold">CASH</th>
+                                <th className="text-right py-2 px-4 font-semibold">MPESA</th>
+                                <th className="text-right py-2 px-4 font-semibold">CARD</th>
+                                <th className="text-right py-2 px-4 font-semibold">MOBILE MONEY</th>
+                                <th className="text-right py-2 px-4 font-semibold">CREDIT</th>
+                                <th className="text-right py-2 px-4 font-semibold">TOTAL</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {data.attendant_collections.map(ac => (
+                                <tr key={ac.staff_id} className="border-b hover:bg-slate-50">
+                                  <td className="py-2 px-4 font-medium">{ac.staff_name}</td>
+                                  <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.cash)}</td>
+                                  <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.mpesa)}</td>
+                                  <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.card)}</td>
+                                  <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.mobile_money)}</td>
+                                  <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.credit)}</td>
+                                  <td className="text-right py-2 px-4 font-mono font-semibold text-blue-700">{formatCurrency(ac.total)}</td>
+                                </tr>
+                              ))}
+                              <tr className="bg-slate-100 font-bold">
+                                <td className="py-2 px-4">TOTAL</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.cash, 0))}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.mpesa, 0))}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.card, 0))}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.mobile_money, 0))}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.credit, 0))}</td>
+                                <td className="text-right py-2 px-4 font-mono font-semibold text-blue-700">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.total, 0))}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-slate-500">
+                          No collection records found for this date
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg font-bold text-slate-800">
+                        BANKING SUMMARY
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      {data.banking_entries.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="bg-slate-100 border-y text-xs">
+                                <th className="text-left py-2 px-4 font-semibold">ACCOUNT</th>
+                                <th className="text-left py-2 px-4 font-semibold">BANK</th>
+                                <th className="text-right py-2 px-4 font-semibold">AMOUNT</th>
+                                <th className="text-left py-2 px-4 font-semibold">NOTES</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {data.banking_entries.map(be => (
+                                <tr key={be.id} className="border-b hover:bg-slate-50">
+                                  <td className="py-2 px-4 font-medium">{be.account_name}</td>
+                                  <td className="py-2 px-4 text-slate-600">{be.bank_name}</td>
+                                  <td className="text-right py-2 px-4 font-mono">{formatCurrency(be.amount)}</td>
+                                  <td className="py-2 px-4 text-slate-600">{be.notes || '-'}</td>
+                                </tr>
+                              ))}
+                              <tr className="bg-slate-100 font-bold">
+                                <td className="py-2 px-4" colSpan={2}>TOTAL BANKED</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.banking_entries.reduce((s, be) => s + be.amount, 0))}</td>
+                                <td></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-slate-500">
+                          No banking records found for this date
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
