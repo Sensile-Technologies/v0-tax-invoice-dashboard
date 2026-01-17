@@ -371,6 +371,13 @@ export default function EndShiftPage() {
         toast.error(`Please enter Cash amount for ${attendant.name}`)
         return false
       }
+      
+      // Check variance - cannot close shift if variance > 1000
+      const variance = calculateVariance(attendant.id)
+      if (Math.abs(variance) > 1000) {
+        toast.error(`Variance for ${attendant.name} is KES ${Math.abs(variance).toFixed(2)}. Cannot close shift with variance greater than KES 1,000.`)
+        return false
+      }
     }
     return true
   }
@@ -810,6 +817,7 @@ export default function EndShiftPage() {
                                       min="0"
                                       placeholder="0.00"
                                       value={payment.amount}
+                                      onFocus={(e) => e.target.select()}
                                       onChange={(e) => {
                                         const newCollections = { ...attendantCollections }
                                         newCollections[attendant.id][idx].amount = e.target.value
@@ -885,6 +893,7 @@ export default function EndShiftPage() {
                               min="0"
                               placeholder="0.00"
                               value={expense.amount}
+                              onFocus={(e) => e.target.select()}
                               onChange={(e) => {
                                 const updated = [...shiftExpenses]
                                 updated[idx].amount = e.target.value
@@ -982,6 +991,7 @@ export default function EndShiftPage() {
                               min="0"
                               placeholder="0.00"
                               value={entry.amount}
+                              onFocus={(e) => e.target.select()}
                               onChange={(e) => {
                                 const updated = [...shiftBanking]
                                 updated[idx].amount = e.target.value
