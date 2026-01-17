@@ -6,10 +6,11 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, RefreshCw, Fuel, FileSpreadsheet, FileText, TrendingUp, Package, DollarSign, BarChart3 } from "lucide-react"
+import { Download, Printer, Loader2, RefreshCw, Fuel, FileSpreadsheet, FileText, TrendingUp, Package, DollarSign, BarChart3, AlertTriangle, Router } from "lucide-react"
 import { ReportTabs } from "@/components/report-tabs"
 import { useCurrency } from "@/lib/currency-utils"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
@@ -56,6 +57,8 @@ interface BulkSalesData {
   summary: ProductSummary[]
   branch_name: string
   kra_percentage: number
+  has_controller: boolean
+  controller_id: string | null
   totals: {
     total_meter_difference: number
     total_invoiced: number
@@ -73,6 +76,7 @@ export default function BulkSalesReportPage() {
   const [dateTo, setDateTo] = useState(today)
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<BulkSalesData | null>(null)
+  const [splitDenominations, setSplitDenominations] = useState(true)
   const { formatCurrency } = useCurrency()
 
   const fetchBulkSales = useCallback(async () => {
@@ -320,6 +324,24 @@ export default function BulkSalesReportPage() {
                 </div>
               </div>
 
+              {data?.has_controller && (
+                <Card className="rounded-2xl border-blue-200 bg-blue-50 print:hidden">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Router className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-blue-900">Pump Controller Connected</p>
+                        <p className="text-sm text-blue-700 mt-1">
+                          This branch has a pump controller (PTS ID: {data.controller_id}). Bulk sales are automatically captured by the controller, so manual bulk sales computation is not required.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               <Card className="rounded-2xl print:hidden">
                 <CardContent className="p-4">
                   <div className="flex flex-wrap gap-4 items-end">
@@ -343,6 +365,18 @@ export default function BulkSalesReportPage() {
                         className="mt-1"
                       />
                     </div>
+                    {!data?.has_controller && (
+                      <div className="flex items-center gap-2 min-w-[200px]">
+                        <Switch
+                          id="split-denominations"
+                          checked={splitDenominations}
+                          onCheckedChange={setSplitDenominations}
+                        />
+                        <Label htmlFor="split-denominations" className="text-sm text-slate-700">
+                          Split into Denominations
+                        </Label>
+                      </div>
+                    )}
                     <Button onClick={fetchBulkSales} disabled={loading}>
                       {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
                       Generate Report

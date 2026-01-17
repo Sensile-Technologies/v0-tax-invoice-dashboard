@@ -62,14 +62,14 @@ export async function POST(request: NextRequest) {
     const { user_id, vendor_id, branch_id: userBranchId } = session
 
     const body = await request.json()
-    const { shift_id, nozzle_ids } = body
+    const { shift_id, nozzle_ids, split_denominations = true } = body
 
     if (!shift_id) {
       return NextResponse.json({ error: "shift_id is required" }, { status: 400 })
     }
 
     const shiftResult = await client.query(
-      `SELECT s.id, s.branch_id, s.staff_id, s.status, b.name as branch_name, b.vendor_id
+      `SELECT s.id, s.branch_id, s.staff_id, s.status, b.name as branch_name, b.vendor_id, b.controller_id
        FROM shifts s
        JOIN branches b ON s.branch_id = b.id
        WHERE s.id = $1`,
@@ -84,6 +84,14 @@ export async function POST(request: NextRequest) {
 
     if (vendor_id && shift.vendor_id !== vendor_id) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
+    }
+
+    if (shift.controller_id) {
+      return NextResponse.json({ 
+        error: "Bulk sales computation is not required for branches with a pump controller. Sales are captured automatically by the controller.",
+        has_controller: true,
+        controller_id: shift.controller_id
+      }, { status: 400 })
     }
 
     let nozzleQuery = `
@@ -137,7 +145,9 @@ export async function POST(request: NextRequest) {
       }
 
       const nozzleTotalAmount = meterDifference * unitPrice
-      const amountDenominations = splitIntoAmountDenominations(Math.floor(nozzleTotalAmount))
+      const amountDenominations = split_denominations 
+        ? splitIntoAmountDenominations(Math.floor(nozzleTotalAmount))
+        : [Math.floor(nozzleTotalAmount)]
 
       for (const invoiceAmount of amountDenominations) {
         const quantity = parseFloat((invoiceAmount / unitPrice).toFixed(2))

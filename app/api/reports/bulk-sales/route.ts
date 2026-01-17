@@ -79,16 +79,21 @@ export async function GET(request: NextRequest) {
     `, params)
 
     const branch = await query(`
-      SELECT name, bulk_sales_kra_percentage FROM branches WHERE id = $1
+      SELECT name, bulk_sales_kra_percentage, controller_id FROM branches WHERE id = $1
     `, [branchId])
+
+    const branchData = branch[0] || {}
+    const hasController = !!branchData.controller_id
 
     return NextResponse.json({
       success: true,
       data: {
         bulk_sales: bulkSales,
         summary,
-        branch_name: branch[0]?.name || "Unknown Branch",
-        kra_percentage: branch[0]?.bulk_sales_kra_percentage || 100,
+        branch_name: branchData.name || "Unknown Branch",
+        kra_percentage: branchData.bulk_sales_kra_percentage || 100,
+        has_controller: hasController,
+        controller_id: branchData.controller_id || null,
         totals: {
           total_meter_difference: bulkSales.reduce((sum: number, bs: any) => sum + Number(bs.meter_difference || 0), 0),
           total_invoiced: bulkSales.reduce((sum: number, bs: any) => sum + Number(bs.invoiced_quantity || 0), 0),
