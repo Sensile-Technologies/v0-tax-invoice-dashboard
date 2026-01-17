@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { RefreshCw, Trash2, Download, Filter, Building2 } from "lucide-react"
+import { RefreshCw, Trash2, Download, Filter, ArrowLeft } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -29,42 +30,39 @@ interface Branch {
 }
 
 export default function BranchLogsPage() {
+  const router = useRouter()
   const [logs, setLogs] = useState<BranchLog[]>([])
-  const [branches, setBranches] = useState<Branch[]>([])
+  const [currentBranch, setCurrentBranch] = useState<Branch | null>(null)
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("all")
   const [logTypeFilter, setLogTypeFilter] = useState("all")
-  const [branchFilter, setBranchFilter] = useState("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedLog, setSelectedLog] = useState<BranchLog | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const fetchBranches = async () => {
-    try {
-      const userStr = localStorage.getItem("flow360_user")
-      if (userStr) {
-        const user = JSON.parse(userStr)
-        const response = await fetch(`/api/branches/list?user_id=${user.id}`)
-        const data = await response.json()
-        setBranches(data.branches || [])
+  useEffect(() => {
+    const branchStr = localStorage.getItem("flow360_selected_branch")
+    if (branchStr) {
+      try {
+        const branch = JSON.parse(branchStr)
+        setCurrentBranch(branch)
+      } catch (e) {
+        console.error("Error parsing branch:", e)
       }
-    } catch (error) {
-      console.error("Error fetching branches:", error)
     }
-  }
+  }, [])
 
   const fetchLogs = async () => {
+    if (!currentBranch?.id) return
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (branchFilter && branchFilter !== "all") {
-        params.append("branch_id", branchFilter)
-      }
+      params.append("branch_id", currentBranch.id)
       if (logTypeFilter && logTypeFilter !== "all") {
         params.append("log_type", logTypeFilter)
       }
-      const response = await fetch(`/api/logs${params.toString() ? '?' + params.toString() : ''}`)
+      const response = await fetch(`/api/logs?${params.toString()}`)
       const data = await response.json()
       setLogs(data.logs || [])
     } catch (error) {
@@ -75,12 +73,10 @@ export default function BranchLogsPage() {
   }
 
   useEffect(() => {
-    fetchBranches()
-  }, [])
-
-  useEffect(() => {
-    fetchLogs()
-  }, [branchFilter, logTypeFilter])
+    if (currentBranch?.id) {
+      fetchLogs()
+    }
+  }, [currentBranch?.id, logTypeFilter])
 
   const filteredLogs = logs.filter((log) => {
     const matchesFilter =
@@ -168,11 +164,17 @@ export default function BranchLogsPage() {
             <Card>
               <CardHeader>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <CardTitle>KRA API Logs</CardTitle>
-                    <CardDescription>
-                      Track all KRA eTIMS API calls including sales, stock sync, and item registration
-                    </CardDescription>
+                  <div className="flex items-center gap-4">
+                    <Button variant="ghost" size="sm" onClick={() => router.push("/vendor/branch/profile")}>
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back
+                    </Button>
+                    <div>
+                      <CardTitle>API Logs</CardTitle>
+                      <CardDescription>
+                        {currentBranch?.name ? `${currentBranch.name} - ` : ""}Track all backend API calls with payloads, responses, and performance metrics
+                      </CardDescription>
+                    </div>
                   </div>
                   <div className="flex gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
@@ -199,20 +201,6 @@ export default function BranchLogsPage() {
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
-                  <Select value={branchFilter} onValueChange={setBranchFilter}>
-                    <SelectTrigger className="w-[200px]">
-                      <Building2 className="h-4 w-4 mr-2" />
-                      <SelectValue placeholder="Filter by branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Branches</SelectItem>
-                      {branches.map((branch) => (
-                        <SelectItem key={branch.id} value={branch.id}>
-                          {branch.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <Select value={logTypeFilter} onValueChange={setLogTypeFilter}>
                     <SelectTrigger className="w-[180px]">
                       <Filter className="h-4 w-4 mr-2" />

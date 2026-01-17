@@ -666,8 +666,8 @@ async function POST(request) {
         ]);
         const activeShiftId = activeShiftResult.length > 0 ? activeShiftResult[0].id : null;
         const kraData = responses.saveSales?.data || {};
-        // Use intrlData as CU invoice number (this is what KRA returns as the unique invoice identifier)
-        const cuInvNo = kraData.intrlData || kraData.curRcptNo || null;
+        // CU invoice number is formatted as sdcId/rcptNo (e.g., KRACU0300003796/378)
+        const cuInvNo = kraData.sdcId && kraData.rcptNo ? `${kraData.sdcId}/${kraData.rcptNo}` : null;
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO sales (
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, customer_pin,
