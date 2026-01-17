@@ -208,6 +208,31 @@ export async function GET(request: NextRequest) {
     `
     const kraTransmittedResult = await pool.query(kraTransmittedQuery, params)
     const kraData = kraTransmittedResult.rows[0] || {}
+
+    // Product/Item breakdown for the day
+    const productBreakdownQuery = `
+      SELECT 
+        COALESCE(i.name, s.fuel_type, 'Unknown') as product_name,
+        COUNT(*) as sale_count,
+        COALESCE(SUM(s.quantity), 0) as total_quantity,
+        COALESCE(SUM(s.total_amount), 0) as total_amount,
+        COALESCE(AVG(s.unit_price), 0) as avg_price
+      FROM sales s
+      LEFT JOIN items i ON s.item_id = i.id
+      WHERE s.branch_id = $1 
+        AND NOT COALESCE(s.is_credit_note, false)
+        ${dateFilter}
+      GROUP BY COALESCE(i.name, s.fuel_type, 'Unknown')
+      ORDER BY total_amount DESC
+    `
+    const productBreakdownResult = await pool.query(productBreakdownQuery, params)
+    const productBreakdown = productBreakdownResult.rows.map(row => ({
+      productName: row.product_name,
+      saleCount: parseInt(row.sale_count) || 0,
+      totalQuantity: parseFloat(row.total_quantity) || 0,
+      totalAmount: parseFloat(row.total_amount) || 0,
+      avgPrice: parseFloat(row.avg_price) || 0
+    }))
     
     const kraTransmittedSales = {
       count: parseInt(kraData.kra_count) || 0,
