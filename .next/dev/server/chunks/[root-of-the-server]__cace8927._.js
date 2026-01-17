@@ -129,7 +129,7 @@ const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$exter
 async function POST(request) {
     try {
         const body = await request.json();
-        const { sale_id, branch_id } = body;
+        const { sale_id, branch_id, is_copy = false, mark_original_printed = false } = body;
         if (!sale_id || !branch_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "Missing sale_id or branch_id"
@@ -190,8 +190,23 @@ async function POST(request) {
                 }
                 y += 3;
             };
+            // If printing original, mark it as printed
+            if (mark_original_printed && !sale.original_printed) {
+                await client.query(`UPDATE sales SET original_printed = TRUE WHERE id = $1`, [
+                    sale_id
+                ]);
+            }
             doc.setFontSize(12);
             doc.setFont("helvetica", "bold");
+            // Add INVOICE COPY header if this is a copy
+            if (is_copy) {
+                doc.setTextColor(128, 128, 128);
+                doc.text("*** INVOICE COPY ***", pageWidth / 2, y, {
+                    align: "center"
+                });
+                y += 5;
+                doc.setTextColor(0, 0, 0);
+            }
             doc.text(isCreditNote ? "CREDIT NOTE" : "TAX INVOICE", pageWidth / 2, y, {
                 align: "center"
             });

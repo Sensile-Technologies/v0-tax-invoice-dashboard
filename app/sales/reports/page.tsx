@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
-import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical, Printer, Download, FileSpreadsheet } from "lucide-react"
+import { ChevronLeft, ChevronRight, FileText, CreditCard, MoreVertical, Printer, Download, FileSpreadsheet, RefreshCw } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -407,6 +407,49 @@ export default function SalesReportsPage() {
     }
   }
 
+  async function handleResubmitToKra(sale: any) {
+    if (sale.kra_status === 'success' || sale.kra_status === 'transmitted') {
+      toast.error("This invoice has already been transmitted to KRA")
+      return
+    }
+    
+    try {
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (!currentBranch) {
+        toast.error("No branch selected")
+        return
+      }
+      const branchData = JSON.parse(currentBranch)
+      
+      toast.loading("Resubmitting to KRA...")
+      
+      const response = await fetch('/api/sales/resubmit-kra', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sale_id: sale.id,
+          branch_id: branchData.id
+        })
+      })
+      
+      const result = await response.json()
+      toast.dismiss()
+      
+      if (result.success) {
+        setSales(prev => prev.map(s => 
+          s.id === sale.id ? { ...s, kra_status: 'success', transmission_status: 'transmitted' } : s
+        ))
+        toast.success('Invoice successfully transmitted to KRA')
+      } else {
+        toast.error(result.error || 'Failed to transmit to KRA')
+      }
+    } catch (error: any) {
+      toast.dismiss()
+      console.error('Error resubmitting to KRA:', error)
+      toast.error('Failed to resubmit invoice to KRA')
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-gradient-to-b from-slate-900 via-blue-900 to-white">
       <DashboardSidebar 
@@ -654,6 +697,12 @@ export default function SalesReportsPage() {
                                           <FileText className="h-4 w-4 mr-2" />
                                           Print Copy
                                         </DropdownMenuItem>
+                                        {(sale.kra_status === 'failed' || sale.kra_status === 'pending' || (!sale.kra_status && sale.transmission_status !== 'transmitted')) && (
+                                          <DropdownMenuItem onClick={() => handleResubmitToKra(sale)}>
+                                            <RefreshCw className="h-4 w-4 mr-2" />
+                                            Resubmit to KRA
+                                          </DropdownMenuItem>
+                                        )}
                                         {!sale.is_credit_note && (
                                           <DropdownMenuItem 
                                             onClick={() => openCreditNoteDialog(sale)}
