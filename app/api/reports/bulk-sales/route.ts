@@ -45,15 +45,16 @@ export async function GET(request: NextRequest) {
         bs.generated_invoices,
         bs.status,
         bs.created_at,
-        n.name AS nozzle_name,
-        n.dispenser_number,
+        CONCAT('D', d.dispenser_number, '-N', n.nozzle_number) AS nozzle_name,
+        d.dispenser_number,
         n.nozzle_number,
         s.start_time AS shift_start,
         s.end_time AS shift_end,
         st.full_name AS cashier_name,
-        i.name AS item_name
+        i.item_name AS item_name
       FROM bulk_sales bs
       LEFT JOIN nozzles n ON bs.nozzle_id = n.id
+      LEFT JOIN dispensers d ON n.dispenser_id = d.id
       LEFT JOIN shifts s ON bs.shift_id = s.id
       LEFT JOIN staff st ON s.staff_id = st.id
       LEFT JOIN items i ON bs.item_id = i.id
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
     const summary = await query(`
       SELECT 
         bs.fuel_type,
-        COALESCE(i.name, bs.fuel_type) AS product_name,
+        COALESCE(i.item_name, bs.fuel_type) AS product_name,
         SUM(bs.meter_difference) AS total_meter_difference,
         SUM(bs.invoiced_quantity) AS total_invoiced,
         SUM(bs.bulk_quantity) AS total_bulk,
@@ -74,8 +75,8 @@ export async function GET(request: NextRequest) {
       FROM bulk_sales bs
       LEFT JOIN items i ON bs.item_id = i.id
       ${whereClause}
-      GROUP BY bs.fuel_type, i.name
-      ORDER BY i.name
+      GROUP BY bs.fuel_type, i.item_name
+      ORDER BY i.item_name
     `, params)
 
     const branch = await query(`
