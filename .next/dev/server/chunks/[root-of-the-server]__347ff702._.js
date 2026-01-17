@@ -429,7 +429,7 @@ async function PATCH(request) {
             }
         }
         const result = await client.query(`UPDATE shifts 
-       SET end_time = $1, total_sales = $2, notes = $3, status = $4, updated_at = NOW()
+       SET end_time = $1, total_sales = $2, notes = $3, status = $4, reconciliation_status = 'pending', updated_at = NOW()
        WHERE id = $5
        RETURNING *`, [
             endTimeValue,

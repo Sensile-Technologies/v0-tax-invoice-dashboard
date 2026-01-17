@@ -1811,10 +1811,37 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/api/shifts/readings/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/shifts/readings">> = Specific
+  const handler = {} as typeof import("../../../app/api/shifts/readings/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/shifts/reconcile/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/shifts/reconcile">> = Specific
+  const handler = {} as typeof import("../../../app/api/shifts/reconcile/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/api/shifts/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/shifts">> = Specific
   const handler = {} as typeof import("../../../app/api/shifts/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/shifts/unreconciled/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/shifts/unreconciled">> = Specific
+  const handler = {} as typeof import("../../../app/api/shifts/unreconciled/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

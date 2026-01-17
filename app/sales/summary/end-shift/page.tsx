@@ -23,6 +23,8 @@ export default function EndShiftPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [step, setStep] = useState<1 | 2>(1)
+  const [unreconciledShift, setUnreconciledShift] = useState<any | null>(null)
+  const [isReconcileMode, setIsReconcileMode] = useState(false)
 
   const [currentShift, setCurrentShift] = useState<any | null>(null)
   const [nozzles, setNozzles] = useState<any[]>([])
@@ -96,6 +98,21 @@ export default function EndShiftPage() {
         
         setBranchId(currentBranchId)
 
+        let hasUnreconciled = false
+        let unreconciledShiftData: any = null
+        const unreconciledRes = await fetch(`/api/shifts/unreconciled?branch_id=${currentBranchId}`, { credentials: 'include' })
+        if (unreconciledRes.ok) {
+          const unreconciledData = await unreconciledRes.json()
+          if (unreconciledData.has_unreconciled && unreconciledData.shift) {
+            hasUnreconciled = true
+            unreconciledShiftData = unreconciledData.shift
+            setUnreconciledShift(unreconciledData.shift)
+            setCurrentShift(unreconciledData.shift)
+            setIsReconcileMode(true)
+            setStep(2)
+          }
+        }
+
         const [shiftRes, nozzlesRes, tanksRes, dispensersRes, staffRes, salesRes, baselinesRes] = await Promise.all([
           fetch(`/api/shifts?branch_id=${currentBranchId}&status=active`, { credentials: 'include' }),
           fetch(`/api/nozzles?branch_id=${currentBranchId}`, { credentials: 'include' }),
@@ -116,13 +133,15 @@ export default function EndShiftPage() {
           baselinesRes.json(),
         ])
 
-        if (!shiftData.data) {
+        if (!shiftData.data && !hasUnreconciled) {
           setLoadError("No active shift to end. Please start a shift first.")
           setLoading(false)
           return
         }
 
-        setCurrentShift(shiftData.data)
+        if (!hasUnreconciled && shiftData.data) {
+          setCurrentShift(shiftData.data)
+        }
         setNozzles(nozzlesData.data || [])
         setTanks(tanksData.data || [])
         setDispensers(dispensersData.data || [])
@@ -133,8 +152,9 @@ export default function EndShiftPage() {
           .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
         setCashiers(branchCashiers)
         
+        const activeShiftId = hasUnreconciled ? unreconciledShiftData?.id : shiftData.data?.id
         const shiftSales = (salesData.data || []).filter((s: any) => 
-          s.shift_id === shiftData.data.id
+          s.shift_id === activeShiftId
         )
         setSales(shiftSales)
 
@@ -158,10 +178,29 @@ export default function EndShiftPage() {
           setTankBaselines(tankBl)
         }
 
-        // Get incoming attendants from previous shift (who worked during this shift)
         let incomingAttendantIds: string[] = []
         let nozzleAttendantMapping: Record<string, string> = {}
-        if (currentBranchId) {
+        
+        if (hasUnreconciled && unreconciledShiftData) {
+          try {
+            const shiftReadingsRes = await fetch(`/api/shifts/readings?shift_id=${unreconciledShiftData.id}`)
+            if (shiftReadingsRes.ok) {
+              const readingsData = await shiftReadingsRes.json()
+              const readings = readingsData.data || []
+              const attendantIds = new Set<string>()
+              for (const r of readings) {
+                if (r.incoming_attendant_id) {
+                  attendantIds.add(r.incoming_attendant_id)
+                  nozzleAttendantMapping[r.nozzle_id] = r.incoming_attendant_id
+                }
+              }
+              incomingAttendantIds = Array.from(attendantIds)
+              setNozzleAttendantMap(nozzleAttendantMapping)
+            }
+          } catch (e) {
+            console.error("Failed to fetch shift readings for reconciliation:", e)
+          }
+        } else if (currentBranchId) {
           try {
             const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${currentBranchId}`)
             if (prevShiftRes.ok) {
@@ -382,18 +421,9 @@ export default function EndShiftPage() {
     return true
   }
 
-  const handleNextStep = () => {
-    if (validateStep1()) {
-      setStep(2)
-    }
-  }
-
-  const handleEndShift = async () => {
+  const handleEndShiftAndStartNext = async () => {
+    if (!validateStep1()) return
     if (!currentShift || !branchId) return
-
-    if (!validateStep2()) {
-      return
-    }
 
     setSubmitting(true)
     try {
@@ -412,6 +442,68 @@ export default function EndShiftPage() {
         stock_received: parseFloat(tankStockReceived[tank.id] || "0") || 0,
       }))
 
+      const response = await fetch("/api/shifts", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: currentShift.id,
+          status: "completed",
+          notes: "",
+          nozzle_readings: readings,
+          tank_stocks: tankData,
+          attendant_collections: [],
+          expenses: [],
+          banking: [],
+        }),
+      })
+
+      const responseText = await response.text()
+      let result
+      try {
+        result = responseText ? JSON.parse(responseText) : {}
+      } catch {
+        console.error("Response was not valid JSON:", responseText)
+        throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}`)
+      }
+      
+      if (!response.ok) {
+        throw new Error(result.error || `Failed to end shift: ${response.status}`)
+      }
+
+      toast.success("Shift ended successfully. Next shift started. Please complete reconciliation.")
+      setUnreconciledShift(result.data)
+      setCurrentShift(result.data)
+      setIsReconcileMode(true)
+      setStep(2)
+    } catch (error) {
+      console.error("Error ending shift:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to end shift")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleReconcile = async () => {
+    const shiftToReconcile = unreconciledShift || currentShift
+    if (!shiftToReconcile || !branchId) return
+
+    if (!validateStep2()) {
+      return
+    }
+
+    if (shiftBanking.length === 0) {
+      toast.error("Banking summary is mandatory. Please add at least one banking entry.")
+      return
+    }
+
+    const hasBankingWithAmount = shiftBanking.some(b => b.banking_account_id && parseFloat(b.amount) > 0)
+    if (!hasBankingWithAmount) {
+      toast.error("Please enter a valid banking amount.")
+      return
+    }
+
+    setSubmitting(true)
+    try {
       const collectionsData = Object.entries(attendantCollections).map(([attendantId, payments]) => ({
         attendant_id: attendantId,
         payments: payments.map(p => ({
@@ -436,18 +528,15 @@ export default function EndShiftPage() {
           notes: b.notes || null,
         }))
 
-      const response = await fetch("/api/shifts", {
-        method: "PATCH",
+      const response = await fetch("/api/shifts/reconcile", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: currentShift.id,
-          status: "completed",
-          notes,
-          nozzle_readings: readings,
-          tank_stocks: tankData,
+          shift_id: shiftToReconcile.id,
           attendant_collections: collectionsData,
           expenses: expensesData,
           banking: bankingData,
+          notes,
         }),
       })
 
@@ -461,14 +550,14 @@ export default function EndShiftPage() {
       }
       
       if (!response.ok) {
-        throw new Error(result.error || `Failed to end shift: ${response.status}`)
+        throw new Error(result.error || `Failed to reconcile shift: ${response.status}`)
       }
 
-      toast.success("Shift ended successfully")
+      toast.success("Shift reconciled successfully")
       router.push('/sales/summary')
     } catch (error) {
-      console.error("Error ending shift:", error)
-      toast.error(error instanceof Error ? error.message : "Failed to end shift")
+      console.error("Error reconciling shift:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to reconcile shift")
     } finally {
       setSubmitting(false)
     }
@@ -530,13 +619,19 @@ export default function EndShiftPage() {
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Sales Summary
                   </Button>
-                  <h1 className="text-2xl font-bold text-slate-900">End Current Shift</h1>
-                  <p className="text-slate-600">Complete the shift closure process</p>
+                  <h1 className="text-2xl font-bold text-slate-900">
+                    {isReconcileMode ? "Shift Reconciliation" : "End Current Shift"}
+                  </h1>
+                  <p className="text-slate-600">
+                    {isReconcileMode 
+                      ? "Complete the reconciliation for the previous shift" 
+                      : "Complete the shift closure process"}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={step === 1 ? "default" : "secondary"}>Step 1</Badge>
+                  <Badge variant={step === 1 ? "default" : "secondary"}>Step 1: End Shift</Badge>
                   <span className="text-slate-400">→</span>
-                  <Badge variant={step === 2 ? "default" : "secondary"}>Step 2</Badge>
+                  <Badge variant={step === 2 ? "default" : "secondary"}>Step 2: Reconciliation</Badge>
                 </div>
               </div>
 
@@ -782,6 +877,23 @@ export default function EndShiftPage() {
 
               {step === 2 && (
                 <div className="space-y-6">
+                  {isReconcileMode && (
+                    <Card className="bg-amber-50 border-amber-300">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-amber-100 rounded-full">
+                            <Receipt className="h-5 w-5 text-amber-600" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-amber-800">Reconciliation Required</p>
+                            <p className="text-sm text-amber-700">
+                              The previous shift has ended. You must complete the reconciliation by entering attendant collections and banking summary before proceeding.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -1062,24 +1174,31 @@ export default function EndShiftPage() {
               )}
 
               <div className="flex justify-between pt-4 border-t">
-                {step === 1 ? (
+                {step === 1 && !isReconcileMode ? (
                   <>
                     <Button variant="outline" onClick={() => router.push('/sales/summary')}>
                       Cancel
                     </Button>
-                    <Button onClick={handleNextStep}>
-                      Next: Collections
+                    <Button onClick={handleEndShiftAndStartNext} disabled={submitting}>
+                      {submitting ? "Ending Shift..." : "End Shift: Reconciliation"}
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" onClick={() => setStep(1)}>
-                      <ArrowLeft className="h-4 w-4 mr-2" />
-                      Back
-                    </Button>
-                    <Button onClick={handleEndShift} disabled={submitting}>
-                      {submitting ? "Ending Shift..." : "End Shift"}
+                    {!isReconcileMode && (
+                      <Button variant="outline" onClick={() => setStep(1)}>
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back
+                      </Button>
+                    )}
+                    {isReconcileMode && (
+                      <Button variant="outline" onClick={() => router.push('/sales/summary')} disabled>
+                        Cannot leave - Reconciliation required
+                      </Button>
+                    )}
+                    <Button onClick={handleReconcile} disabled={submitting}>
+                      {submitting ? "Reconciling..." : "Reconcile"}
                     </Button>
                   </>
                 )}
