@@ -1274,10 +1274,17 @@ async function signIn(identifier, password) {
             localStorage.setItem("currentUser", JSON.stringify(data.user));
             localStorage.setItem("user", JSON.stringify(data.user));
         }
+        // Store must_change_password flag
+        if (data.must_change_password) {
+            localStorage.setItem("must_change_password", "true");
+        } else {
+            localStorage.removeItem("must_change_password");
+        }
     }
     return {
         data,
-        error: data.error || null
+        error: data.error || null,
+        mustChangePassword: data.must_change_password || false
     };
 }
 async function signOut() {
@@ -2667,6 +2674,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$dollar$2d$sign$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__DollarSign$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/dollar-sign.js [app-client] (ecmascript) <export default as DollarSign>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chart$2d$column$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__BarChart3$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/chart-column.js [app-client] (ecmascript) <export default as BarChart3>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$router$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Router$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/router.js [app-client] (ecmascript) <export default as Router>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/check.js [app-client] (ecmascript) <export default as Check>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$percent$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Percent$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/percent.js [app-client] (ecmascript) <export default as Percent>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$report$2d$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/report-tabs.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$currency$2d$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/currency-utils.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/label.tsx [app-client] (ecmascript)");
@@ -2703,6 +2712,9 @@ function BulkSalesReportPage() {
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [data, setData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [splitDenominations, setSplitDenominations] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [intermittencyRate, setIntermittencyRate] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(100);
+    const [savingRate, setSavingRate] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [rateMessage, setRateMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const { formatCurrency } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$currency$2d$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCurrency"])();
     const fetchBulkSales = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "BulkSalesReportPage.useCallback[fetchBulkSales]": async ()=>{
@@ -2726,6 +2738,7 @@ function BulkSalesReportPage() {
                 const result = await response.json();
                 if (result.success && result.data) {
                     setData(result.data);
+                    setIntermittencyRate(result.data.kra_percentage || 100);
                 } else {
                     setData(null);
                 }
@@ -2747,6 +2760,45 @@ function BulkSalesReportPage() {
     }["BulkSalesReportPage.useEffect"], [
         fetchBulkSales
     ]);
+    const handleSaveIntermittencyRate = async ()=>{
+        try {
+            setSavingRate(true);
+            setRateMessage(null);
+            const storedBranch = localStorage.getItem("selectedBranch");
+            if (!storedBranch) {
+                setRateMessage("No branch selected");
+                return;
+            }
+            const branch = JSON.parse(storedBranch);
+            const response = await fetch(`/api/branches/${branch.id}/intermittency-rate`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    intermittency_rate: intermittencyRate
+                })
+            });
+            const result = await response.json();
+            if (result.success) {
+                setRateMessage(`Saved! ${intermittencyRate}% of bulk sales will be transmitted to KRA.`);
+                if (data) {
+                    setData({
+                        ...data,
+                        kra_percentage: intermittencyRate
+                    });
+                }
+                setTimeout(()=>setRateMessage(null), 3000);
+            } else {
+                setRateMessage(result.error || "Failed to save");
+            }
+        } catch (error) {
+            console.error("Error saving intermittency rate:", error);
+            setRateMessage("Failed to save intermittency rate");
+        } finally{
+            setSavingRate(false);
+        }
+    };
     const handlePrint = ()=>{
         window.print();
     };
@@ -3052,7 +3104,7 @@ function BulkSalesReportPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                lineNumber: 274,
+                lineNumber: 316,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3064,7 +3116,7 @@ function BulkSalesReportPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                            lineNumber: 283,
+                            lineNumber: 325,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -3074,7 +3126,7 @@ function BulkSalesReportPage() {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$report$2d$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReportTabs"], {}, void 0, false, {
                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                        lineNumber: 287,
+                                        lineNumber: 329,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3089,14 +3141,14 @@ function BulkSalesReportPage() {
                                                                 className: "h-8 w-8 text-blue-600"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 292,
+                                                                lineNumber: 334,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Bulk Sales Report"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 291,
+                                                        lineNumber: 333,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3104,13 +3156,13 @@ function BulkSalesReportPage() {
                                                         children: "Meter difference and bulk fuel sales analysis"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 295,
+                                                        lineNumber: 337,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                lineNumber: 290,
+                                                lineNumber: 332,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3126,14 +3178,14 @@ function BulkSalesReportPage() {
                                                                 className: `h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 299,
+                                                                lineNumber: 341,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Refresh"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 298,
+                                                        lineNumber: 340,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3145,14 +3197,14 @@ function BulkSalesReportPage() {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 303,
+                                                                lineNumber: 345,
                                                                 columnNumber: 21
                                                             }, this),
                                                             "Print"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 302,
+                                                        lineNumber: 344,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -3168,19 +3220,19 @@ function BulkSalesReportPage() {
                                                                             className: "h-4 w-4 mr-2"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 309,
+                                                                            lineNumber: 351,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         "Export"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                    lineNumber: 308,
+                                                                    lineNumber: 350,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 307,
+                                                                lineNumber: 349,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -3193,14 +3245,14 @@ function BulkSalesReportPage() {
                                                                                 className: "h-4 w-4 mr-2"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 315,
+                                                                                lineNumber: 357,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Export as PDF"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 314,
+                                                                        lineNumber: 356,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -3210,38 +3262,38 @@ function BulkSalesReportPage() {
                                                                                 className: "h-4 w-4 mr-2"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 319,
+                                                                                lineNumber: 361,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Export as Excel"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 318,
+                                                                        lineNumber: 360,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 313,
+                                                                lineNumber: 355,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 306,
+                                                        lineNumber: 348,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                lineNumber: 297,
+                                                lineNumber: 339,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                        lineNumber: 289,
+                                        lineNumber: 331,
                                         columnNumber: 15
                                     }, this),
                                     data?.has_controller && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3257,12 +3309,12 @@ function BulkSalesReportPage() {
                                                             className: "h-5 w-5 text-blue-600"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 332,
+                                                            lineNumber: 374,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 331,
+                                                        lineNumber: 373,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3272,7 +3324,7 @@ function BulkSalesReportPage() {
                                                                 children: "Pump Controller Connected"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 335,
+                                                                lineNumber: 377,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3284,29 +3336,29 @@ function BulkSalesReportPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 336,
+                                                                lineNumber: 378,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 334,
+                                                        lineNumber: 376,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                lineNumber: 330,
+                                                lineNumber: 372,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                            lineNumber: 329,
+                                            lineNumber: 371,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                        lineNumber: 328,
+                                        lineNumber: 370,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3325,7 +3377,7 @@ function BulkSalesReportPage() {
                                                                 children: "From Date"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 349,
+                                                                lineNumber: 391,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3336,13 +3388,13 @@ function BulkSalesReportPage() {
                                                                 className: "mt-1"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 350,
+                                                                lineNumber: 392,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 348,
+                                                        lineNumber: 390,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3354,7 +3406,7 @@ function BulkSalesReportPage() {
                                                                 children: "To Date"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 359,
+                                                                lineNumber: 401,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3365,13 +3417,13 @@ function BulkSalesReportPage() {
                                                                 className: "mt-1"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 360,
+                                                                lineNumber: 402,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 358,
+                                                        lineNumber: 400,
                                                         columnNumber: 21
                                                     }, this),
                                                     !data?.has_controller && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3383,7 +3435,7 @@ function BulkSalesReportPage() {
                                                                 onCheckedChange: setSplitDenominations
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 370,
+                                                                lineNumber: 412,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -3392,13 +3444,13 @@ function BulkSalesReportPage() {
                                                                 children: "Split into Denominations"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 375,
+                                                                lineNumber: 417,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 369,
+                                                        lineNumber: 411,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -3409,36 +3461,182 @@ function BulkSalesReportPage() {
                                                                 className: "h-4 w-4 animate-spin mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 381,
+                                                                lineNumber: 423,
                                                                 columnNumber: 34
                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
                                                                 className: "h-4 w-4 mr-2"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 381,
+                                                                lineNumber: 423,
                                                                 columnNumber: 86
                                                             }, this),
                                                             "Generate Report"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 380,
+                                                        lineNumber: 422,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                lineNumber: 347,
+                                                lineNumber: 389,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                            lineNumber: 346,
+                                            lineNumber: 388,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                        lineNumber: 345,
+                                        lineNumber: 387,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                        className: "rounded-2xl border-amber-200 bg-amber-50/50 print:hidden",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
+                                            className: "p-4",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "flex flex-col md:flex-row items-start md:items-center gap-4",
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-start gap-3 flex-1",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0",
+                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$percent$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Percent$3e$__["Percent"], {
+                                                                        className: "h-5 w-5 text-amber-600"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                        lineNumber: 435,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                    lineNumber: 434,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                            className: "font-medium text-amber-900",
+                                                                            children: "KRA Intermittency Rate"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                            lineNumber: 438,
+                                                                            columnNumber: 25
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                            className: "text-sm text-amber-700 mt-0.5",
+                                                                            children: "Set the percentage of bulk sales to validate with KRA per shift. 100% means all sales are transmitted, 0% means none."
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                            lineNumber: 439,
+                                                                            columnNumber: 25
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                    lineNumber: 437,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                            lineNumber: 433,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                            className: "flex items-center gap-2",
+                                                            children: [
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "relative",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                                            type: "number",
+                                                                            min: "0",
+                                                                            max: "100",
+                                                                            value: intermittencyRate,
+                                                                            onChange: (e)=>setIntermittencyRate(Math.min(100, Math.max(0, parseInt(e.target.value) || 0))),
+                                                                            className: "w-20 pr-6 text-center font-medium"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                            lineNumber: 447,
+                                                                            columnNumber: 25
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                            className: "absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 text-sm",
+                                                                            children: "%"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                            lineNumber: 455,
+                                                                            columnNumber: 25
+                                                                        }, this)
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                    lineNumber: 446,
+                                                                    columnNumber: 23
+                                                                }, this),
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                    onClick: handleSaveIntermittencyRate,
+                                                                    disabled: savingRate || intermittencyRate === data?.kra_percentage,
+                                                                    size: "sm",
+                                                                    className: "bg-amber-600 hover:bg-amber-700",
+                                                                    children: savingRate ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
+                                                                        className: "h-4 w-4 animate-spin"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                        lineNumber: 464,
+                                                                        columnNumber: 27
+                                                                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$check$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Check$3e$__["Check"], {
+                                                                                className: "h-4 w-4 mr-1"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                                lineNumber: 467,
+                                                                                columnNumber: 29
+                                                                            }, this),
+                                                                            "Save"
+                                                                        ]
+                                                                    }, void 0, true)
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                                    lineNumber: 457,
+                                                                    columnNumber: 23
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                            lineNumber: 445,
+                                                            columnNumber: 21
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                    lineNumber: 432,
+                                                    columnNumber: 19
+                                                }, this),
+                                                rateMessage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: `mt-3 text-sm ${rateMessage.includes('Failed') ? 'text-red-600' : 'text-green-600'}`,
+                                                    children: rateMessage
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                                    lineNumber: 475,
+                                                    columnNumber: 21
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                            lineNumber: 431,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/reports/bulk-sales/page.tsx",
+                                        lineNumber: 430,
                                         columnNumber: 15
                                     }, this),
                                     loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3450,7 +3648,7 @@ function BulkSalesReportPage() {
                                                     className: "h-8 w-8 animate-spin text-blue-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                    lineNumber: 391,
+                                                    lineNumber: 485,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3458,18 +3656,18 @@ function BulkSalesReportPage() {
                                                     children: "Loading bulk sales data..."
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                    lineNumber: 392,
+                                                    lineNumber: 486,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                            lineNumber: 390,
+                                            lineNumber: 484,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                        lineNumber: 389,
+                                        lineNumber: 483,
                                         columnNumber: 17
                                     }, this) : !data ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                                         className: "rounded-2xl",
@@ -3480,7 +3678,7 @@ function BulkSalesReportPage() {
                                                     className: "h-12 w-12 text-slate-400 mx-auto mb-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                    lineNumber: 398,
+                                                    lineNumber: 492,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3488,7 +3686,7 @@ function BulkSalesReportPage() {
                                                     children: "No data available for the selected period"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                    lineNumber: 399,
+                                                    lineNumber: 493,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3496,18 +3694,18 @@ function BulkSalesReportPage() {
                                                     children: "Try selecting a different date range"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                    lineNumber: 400,
+                                                    lineNumber: 494,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                            lineNumber: 397,
+                                            lineNumber: 491,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                        lineNumber: 396,
+                                        lineNumber: 490,
                                         columnNumber: 17
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "space-y-6",
@@ -3528,12 +3726,12 @@ function BulkSalesReportPage() {
                                                                             className: "h-5 w-5 text-blue-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 410,
+                                                                            lineNumber: 504,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 409,
+                                                                        lineNumber: 503,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3543,7 +3741,7 @@ function BulkSalesReportPage() {
                                                                                 children: "Meter Difference"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 413,
+                                                                                lineNumber: 507,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3554,29 +3752,29 @@ function BulkSalesReportPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 414,
+                                                                                lineNumber: 508,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 412,
+                                                                        lineNumber: 506,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 408,
+                                                                lineNumber: 502,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 407,
+                                                            lineNumber: 501,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 406,
+                                                        lineNumber: 500,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3592,12 +3790,12 @@ function BulkSalesReportPage() {
                                                                             className: "h-5 w-5 text-green-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 423,
+                                                                            lineNumber: 517,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 422,
+                                                                        lineNumber: 516,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3607,7 +3805,7 @@ function BulkSalesReportPage() {
                                                                                 children: "Invoiced"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 426,
+                                                                                lineNumber: 520,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3618,29 +3816,29 @@ function BulkSalesReportPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 427,
+                                                                                lineNumber: 521,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 425,
+                                                                        lineNumber: 519,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 421,
+                                                                lineNumber: 515,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 420,
+                                                            lineNumber: 514,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 419,
+                                                        lineNumber: 513,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3656,12 +3854,12 @@ function BulkSalesReportPage() {
                                                                             className: "h-5 w-5 text-amber-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 436,
+                                                                            lineNumber: 530,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 435,
+                                                                        lineNumber: 529,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3671,7 +3869,7 @@ function BulkSalesReportPage() {
                                                                                 children: "Bulk Sales"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 439,
+                                                                                lineNumber: 533,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3682,29 +3880,29 @@ function BulkSalesReportPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 440,
+                                                                                lineNumber: 534,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 438,
+                                                                        lineNumber: 532,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 434,
+                                                                lineNumber: 528,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 433,
+                                                            lineNumber: 527,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 432,
+                                                        lineNumber: 526,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3720,12 +3918,12 @@ function BulkSalesReportPage() {
                                                                             className: "h-5 w-5 text-purple-600"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 449,
+                                                                            lineNumber: 543,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 448,
+                                                                        lineNumber: 542,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3735,7 +3933,7 @@ function BulkSalesReportPage() {
                                                                                 children: "Total Amount"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 452,
+                                                                                lineNumber: 546,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3743,35 +3941,35 @@ function BulkSalesReportPage() {
                                                                                 children: formatCurrency(data.totals.total_amount)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 453,
+                                                                                lineNumber: 547,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 451,
+                                                                        lineNumber: 545,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 447,
+                                                                lineNumber: 541,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 446,
+                                                            lineNumber: 540,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 445,
+                                                        lineNumber: 539,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                lineNumber: 405,
+                                                lineNumber: 499,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3787,7 +3985,7 @@ function BulkSalesReportPage() {
                                                                     children: "SUMMARY BY PRODUCT"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                    lineNumber: 463,
+                                                                    lineNumber: 557,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3802,24 +4000,24 @@ function BulkSalesReportPage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 467,
+                                                                            lineNumber: 561,
                                                                             columnNumber: 37
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                    lineNumber: 466,
+                                                                    lineNumber: 560,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 462,
+                                                            lineNumber: 556,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 461,
+                                                        lineNumber: 555,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3838,7 +4036,7 @@ function BulkSalesReportPage() {
                                                                                     children: "PRODUCT"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 476,
+                                                                                    lineNumber: 570,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3846,7 +4044,7 @@ function BulkSalesReportPage() {
                                                                                     children: "METER DIFF (L)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 477,
+                                                                                    lineNumber: 571,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3854,7 +4052,7 @@ function BulkSalesReportPage() {
                                                                                     children: "INVOICED (L)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 478,
+                                                                                    lineNumber: 572,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3862,7 +4060,7 @@ function BulkSalesReportPage() {
                                                                                     children: "BULK (L)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 479,
+                                                                                    lineNumber: 573,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3870,7 +4068,7 @@ function BulkSalesReportPage() {
                                                                                     children: "AMOUNT"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 480,
+                                                                                    lineNumber: 574,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3878,18 +4076,18 @@ function BulkSalesReportPage() {
                                                                                     children: "INVOICES"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 481,
+                                                                                    lineNumber: 575,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 475,
+                                                                            lineNumber: 569,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 474,
+                                                                        lineNumber: 568,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3902,7 +4100,7 @@ function BulkSalesReportPage() {
                                                                                             children: s.product_name || s.fuel_type
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                            lineNumber: 487,
+                                                                                            lineNumber: 581,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3910,7 +4108,7 @@ function BulkSalesReportPage() {
                                                                                             children: formatNumber(Number(s.total_meter_difference))
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                            lineNumber: 488,
+                                                                                            lineNumber: 582,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3918,7 +4116,7 @@ function BulkSalesReportPage() {
                                                                                             children: formatNumber(Number(s.total_invoiced))
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                            lineNumber: 489,
+                                                                                            lineNumber: 583,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3926,7 +4124,7 @@ function BulkSalesReportPage() {
                                                                                             children: formatNumber(Number(s.total_bulk))
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                            lineNumber: 490,
+                                                                                            lineNumber: 584,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3934,7 +4132,7 @@ function BulkSalesReportPage() {
                                                                                             children: formatCurrency(Number(s.total_amount))
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                            lineNumber: 491,
+                                                                                            lineNumber: 585,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3942,13 +4140,13 @@ function BulkSalesReportPage() {
                                                                                             children: Number(s.total_invoices)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                            lineNumber: 492,
+                                                                                            lineNumber: 586,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     ]
                                                                                 }, idx, true, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 486,
+                                                                                    lineNumber: 580,
                                                                                     columnNumber: 31
                                                                                 }, this)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -3959,7 +4157,7 @@ function BulkSalesReportPage() {
                                                                                         children: "TOTAL"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 496,
+                                                                                        lineNumber: 590,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3967,7 +4165,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatNumber(data.totals.total_meter_difference)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 497,
+                                                                                        lineNumber: 591,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3975,7 +4173,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatNumber(data.totals.total_invoiced)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 498,
+                                                                                        lineNumber: 592,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3983,7 +4181,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatNumber(data.totals.total_bulk)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 499,
+                                                                                        lineNumber: 593,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3991,7 +4189,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatCurrency(data.totals.total_amount)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 500,
+                                                                                        lineNumber: 594,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3999,41 +4197,41 @@ function BulkSalesReportPage() {
                                                                                         children: data.totals.total_entries
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 501,
+                                                                                        lineNumber: 595,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 495,
+                                                                                lineNumber: 589,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 484,
+                                                                        lineNumber: 578,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 473,
+                                                                lineNumber: 567,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 472,
+                                                            lineNumber: 566,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 471,
+                                                        lineNumber: 565,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                lineNumber: 460,
+                                                lineNumber: 554,
                                                 columnNumber: 19
                                             }, this),
                                             data.bulk_sales.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -4046,12 +4244,12 @@ function BulkSalesReportPage() {
                                                             children: "DETAILED ENTRIES"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 512,
+                                                            lineNumber: 606,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 511,
+                                                        lineNumber: 605,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4070,7 +4268,7 @@ function BulkSalesReportPage() {
                                                                                     children: "DATE"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 521,
+                                                                                    lineNumber: 615,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4078,7 +4276,7 @@ function BulkSalesReportPage() {
                                                                                     children: "NOZZLE"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 522,
+                                                                                    lineNumber: 616,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4086,7 +4284,7 @@ function BulkSalesReportPage() {
                                                                                     children: "PRODUCT"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 523,
+                                                                                    lineNumber: 617,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4094,7 +4292,7 @@ function BulkSalesReportPage() {
                                                                                     children: "METER DIFF"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 524,
+                                                                                    lineNumber: 618,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4102,7 +4300,7 @@ function BulkSalesReportPage() {
                                                                                     children: "INVOICED"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 525,
+                                                                                    lineNumber: 619,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4110,7 +4308,7 @@ function BulkSalesReportPage() {
                                                                                     children: "BULK"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 526,
+                                                                                    lineNumber: 620,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4118,7 +4316,7 @@ function BulkSalesReportPage() {
                                                                                     children: "AMOUNT"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 527,
+                                                                                    lineNumber: 621,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4126,18 +4324,18 @@ function BulkSalesReportPage() {
                                                                                     children: "CASHIER"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                    lineNumber: 528,
+                                                                                    lineNumber: 622,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                            lineNumber: 520,
+                                                                            lineNumber: 614,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 519,
+                                                                        lineNumber: 613,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4149,7 +4347,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatDate(bs.created_at)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 534,
+                                                                                        lineNumber: 628,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4157,7 +4355,7 @@ function BulkSalesReportPage() {
                                                                                         children: bs.nozzle_name || `D${bs.dispenser_number}-N${bs.nozzle_number}`
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 535,
+                                                                                        lineNumber: 629,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4165,7 +4363,7 @@ function BulkSalesReportPage() {
                                                                                         children: bs.item_name || bs.fuel_type
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 536,
+                                                                                        lineNumber: 630,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4173,7 +4371,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatNumber(Number(bs.meter_difference))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 537,
+                                                                                        lineNumber: 631,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4181,7 +4379,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatNumber(Number(bs.invoiced_quantity))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 538,
+                                                                                        lineNumber: 632,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4189,7 +4387,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatNumber(Number(bs.bulk_quantity))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 539,
+                                                                                        lineNumber: 633,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4197,7 +4395,7 @@ function BulkSalesReportPage() {
                                                                                         children: formatCurrency(Number(bs.total_amount))
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 540,
+                                                                                        lineNumber: 634,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4205,78 +4403,78 @@ function BulkSalesReportPage() {
                                                                                         children: bs.cashier_name || '-'
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                        lineNumber: 541,
+                                                                                        lineNumber: 635,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, bs.id, true, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                                lineNumber: 533,
+                                                                                lineNumber: 627,
                                                                                 columnNumber: 33
                                                                             }, this))
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                        lineNumber: 531,
+                                                                        lineNumber: 625,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                                lineNumber: 518,
+                                                                lineNumber: 612,
                                                                 columnNumber: 27
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                            lineNumber: 517,
+                                                            lineNumber: 611,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                        lineNumber: 516,
+                                                        lineNumber: 610,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                                lineNumber: 510,
+                                                lineNumber: 604,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                        lineNumber: 404,
+                                        lineNumber: 498,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                                lineNumber: 286,
+                                lineNumber: 328,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                            lineNumber: 285,
+                            lineNumber: 327,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                    lineNumber: 282,
+                    lineNumber: 324,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
-                lineNumber: 281,
+                lineNumber: 323,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/reports/bulk-sales/page.tsx",
-        lineNumber: 273,
+        lineNumber: 315,
         columnNumber: 5
     }, this);
 }
-_s(BulkSalesReportPage, "6A9AiOVX0ytDJxU90nwrX+fYC9w=", false, function() {
+_s(BulkSalesReportPage, "87lO9IxmIV7uOUF4uulfP+BIjyg=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$currency$2d$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCurrency"]
     ];

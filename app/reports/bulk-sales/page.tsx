@@ -6,7 +6,7 @@ import DashboardHeader from "@/components/dashboard-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, Loader2, RefreshCw, Fuel, FileSpreadsheet, FileText, TrendingUp, Package, DollarSign, BarChart3, AlertTriangle, Router } from "lucide-react"
+import { Download, Printer, Loader2, RefreshCw, Fuel, FileSpreadsheet, FileText, TrendingUp, Package, DollarSign, BarChart3, AlertTriangle, Router, Settings, Check, Percent } from "lucide-react"
 import { ReportTabs } from "@/components/report-tabs"
 import { useCurrency } from "@/lib/currency-utils"
 import { Label } from "@/components/ui/label"
@@ -77,6 +77,9 @@ export default function BulkSalesReportPage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<BulkSalesData | null>(null)
   const [splitDenominations, setSplitDenominations] = useState(true)
+  const [intermittencyRate, setIntermittencyRate] = useState<number>(100)
+  const [savingRate, setSavingRate] = useState(false)
+  const [rateMessage, setRateMessage] = useState<string | null>(null)
   const { formatCurrency } = useCurrency()
 
   const fetchBulkSales = useCallback(async () => {
@@ -105,6 +108,7 @@ export default function BulkSalesReportPage() {
 
       if (result.success && result.data) {
         setData(result.data)
+        setIntermittencyRate(result.data.kra_percentage || 100)
       } else {
         setData(null)
       }
@@ -119,6 +123,44 @@ export default function BulkSalesReportPage() {
   useEffect(() => {
     fetchBulkSales()
   }, [fetchBulkSales])
+
+  const handleSaveIntermittencyRate = async () => {
+    try {
+      setSavingRate(true)
+      setRateMessage(null)
+      
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (!storedBranch) {
+        setRateMessage("No branch selected")
+        return
+      }
+      
+      const branch = JSON.parse(storedBranch)
+      
+      const response = await fetch(`/api/branches/${branch.id}/intermittency-rate`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intermittency_rate: intermittencyRate })
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        setRateMessage(`Saved! ${intermittencyRate}% of bulk sales will be transmitted to KRA.`)
+        if (data) {
+          setData({ ...data, kra_percentage: intermittencyRate })
+        }
+        setTimeout(() => setRateMessage(null), 3000)
+      } else {
+        setRateMessage(result.error || "Failed to save")
+      }
+    } catch (error) {
+      console.error("Error saving intermittency rate:", error)
+      setRateMessage("Failed to save intermittency rate")
+    } finally {
+      setSavingRate(false)
+    }
+  }
 
   const handlePrint = () => {
     window.print()
@@ -382,6 +424,58 @@ export default function BulkSalesReportPage() {
                       Generate Report
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl border-amber-200 bg-amber-50/50 print:hidden">
+                <CardContent className="p-4">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Percent className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-amber-900">KRA Intermittency Rate</p>
+                        <p className="text-sm text-amber-700 mt-0.5">
+                          Set the percentage of bulk sales to validate with KRA per shift. 
+                          100% means all sales are transmitted, 0% means none.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={intermittencyRate}
+                          onChange={(e) => setIntermittencyRate(Math.min(100, Math.max(0, parseInt(e.target.value) || 0)))}
+                          className="w-20 pr-6 text-center font-medium"
+                        />
+                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 text-sm">%</span>
+                      </div>
+                      <Button 
+                        onClick={handleSaveIntermittencyRate} 
+                        disabled={savingRate || intermittencyRate === data?.kra_percentage}
+                        size="sm"
+                        className="bg-amber-600 hover:bg-amber-700"
+                      >
+                        {savingRate ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Check className="h-4 w-4 mr-1" />
+                            Save
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  {rateMessage && (
+                    <div className={`mt-3 text-sm ${rateMessage.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>
+                      {rateMessage}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

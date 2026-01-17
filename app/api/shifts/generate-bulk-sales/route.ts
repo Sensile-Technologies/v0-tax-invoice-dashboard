@@ -94,6 +94,12 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    const branchConfigResult = await client.query(
+      `SELECT bulk_sales_kra_percentage FROM branches WHERE id = $1`,
+      [shift.branch_id]
+    )
+    const intermittencyRate = branchConfigResult.rows[0]?.bulk_sales_kra_percentage ?? 100
+
     let nozzleQuery = `
       SELECT 
         sr.nozzle_id,
@@ -200,22 +206,68 @@ export async function POST(request: NextRequest) {
     // This ensures database records exist before external API calls
     await client.query('COMMIT')
 
-    // DISABLED: Bulk sales KRA submission
-    // Bulk sales are stored locally but not sent to KRA - batch update for performance
-    console.log(`[BULK SALES] Created ${salesCreated.length} invoices locally (KRA submission disabled)`)
-    const saleIds = salesCreated.map(s => s.id)
-    if (saleIds.length > 0) {
+    // Apply intermittency rate: determine which sales to send to KRA
+    const totalSales = salesCreated.length
+    const salesToTransmit = Math.round((intermittencyRate / 100) * totalSales)
+    
+    // Shuffle and select sales to transmit based on intermittency rate
+    const shuffledSales = [...salesCreated].sort(() => Math.random() - 0.5)
+    const kraTransmitSales = shuffledSales.slice(0, salesToTransmit)
+    const kraSkipSales = shuffledSales.slice(salesToTransmit)
+    
+    const kraTransmitIds = kraTransmitSales.map(s => s.id)
+    const kraSkipIds = kraSkipSales.map(s => s.id)
+
+    console.log(`[BULK SALES] Created ${totalSales} invoices. Intermittency rate: ${intermittencyRate}%. Transmitting ${salesToTransmit} to KRA, skipping ${totalSales - salesToTransmit}.`)
+
+    // Mark sales to be transmitted as pending
+    if (kraTransmitIds.length > 0) {
       await pool.query(
         `UPDATE sales SET 
           kra_status = 'pending',
+          transmission_status = 'pending',
+          updated_at = NOW()
+        WHERE id = ANY($1)`,
+        [kraTransmitIds]
+      )
+      
+      // Submit to KRA asynchronously (fire and forget for performance)
+      for (const sale of kraTransmitSales) {
+        callKraSaveSales({
+          branch_id: sale.branch_id,
+          invoice_number: sale.invoice_number,
+          receipt_number: sale.receipt_number,
+          fuel_type: sale.fuel_type,
+          quantity: sale.quantity,
+          unit_price: sale.unit_price,
+          total_amount: sale.total_amount,
+          payment_method: 'cash',
+          sale_date: new Date().toISOString()
+        }).catch(err => {
+          console.error(`[BULK SALES] KRA submission failed for sale ${sale.id}:`, err.message)
+        })
+      }
+    }
+    
+    // Mark skipped sales as not_sent (not transmitted per intermittency rate)
+    if (kraSkipIds.length > 0) {
+      await pool.query(
+        `UPDATE sales SET 
+          kra_status = 'skipped_intermittency',
           transmission_status = 'not_sent',
           updated_at = NOW()
         WHERE id = ANY($1)`,
-        [saleIds]
+        [kraSkipIds]
       )
     }
-    for (const sale of salesCreated) {
+
+    // Update local sales objects with their status
+    for (const sale of kraTransmitSales) {
       sale.kra_status = 'pending'
+      sale.transmission_status = 'pending'
+    }
+    for (const sale of kraSkipSales) {
+      sale.kra_status = 'skipped_intermittency'
       sale.transmission_status = 'not_sent'
     }
 
@@ -224,11 +276,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Generated ${salesCreated.length} invoices from meter difference`,
+      message: `Generated ${salesCreated.length} invoices from meter difference. ${salesToTransmit} transmitted to KRA (${intermittencyRate}% rate).`,
       summary: {
         total_invoices: salesCreated.length,
         total_quantity: totalQuantity,
-        total_amount: totalAmount
+        total_amount: totalAmount,
+        kra_transmitted: salesToTransmit,
+        kra_skipped: totalSales - salesToTransmit,
+        intermittency_rate: intermittencyRate
       },
       sales: salesCreated
     })
