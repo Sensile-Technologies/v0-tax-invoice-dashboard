@@ -162,12 +162,46 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const vendorId = searchParams.get('vendorId')
+    let vendorId = searchParams.get('vendorId')
     const branchId = searchParams.get('branchId')
     const catalogOnly = searchParams.get('catalog') === 'true'
 
-    // For HQ catalog items (branch_id IS NULL), use vendorId + catalog=true
-    if (catalogOnly && vendorId) {
+    // For HQ catalog items, prefer server-side session for vendor_id (more reliable than client localStorage)
+    if (catalogOnly) {
+      // Try to get vendor_id from server-side session first
+      const cookieStore = await cookies()
+      const sessionCookie = cookieStore.get("user_session")
+      if (sessionCookie?.value) {
+        try {
+          const session = JSON.parse(sessionCookie.value)
+          if (session.id) {
+            // Get vendor_id from database (same logic as HQ items API)
+            const userResult = await pool.query(
+              `SELECT COALESCE(v.id, b.vendor_id) as vendor_id
+               FROM users u
+               LEFT JOIN vendors v ON v.email = u.email
+               LEFT JOIN staff s ON s.user_id = u.id
+               LEFT JOIN branches b ON b.id = s.branch_id
+               WHERE u.id = $1`,
+              [session.id]
+            )
+            if (userResult.rows.length > 0 && userResult.rows[0].vendor_id) {
+              vendorId = userResult.rows[0].vendor_id
+            }
+          }
+        } catch {
+          // Fall back to client-provided vendorId
+        }
+      }
+      
+      if (!vendorId) {
+        return NextResponse.json({
+          success: false,
+          error: "Vendor ID not found. Please log out and log back in.",
+          items: []
+        }, { status: 400 })
+      }
+      
       const result = await pool.query(
         `SELECT * FROM items WHERE vendor_id = $1 AND branch_id IS NULL ORDER BY item_name ASC`,
         [vendorId]
