@@ -547,25 +547,55 @@ export default function DSSRPage() {
                             </tr>
                             <tr className="border-b bg-slate-100">
                               <td className="py-2 px-4 font-medium whitespace-nowrap">F) Total Volume Per Product</td>
-                              {data.nozzle_readings.map(n => {
-                                const productTotal = data.product_nozzle_totals.find(p => p.product === n.fuel_type)
-                                return (
-                                  <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold">
-                                    {productTotal ? `${formatNumber(productTotal.pump_sales)} L` : '-'}
-                                  </td>
-                                )
-                              })}
+                              {(() => {
+                                const seenProducts = new Set<string>()
+                                return data.nozzle_readings.map((n, idx) => {
+                                  if (seenProducts.has(n.fuel_type)) {
+                                    if (idx === data.nozzle_readings.length - 1) {
+                                      const totalVolume = data.product_nozzle_totals.reduce((sum, p) => sum + p.pump_sales, 0)
+                                      return (
+                                        <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-bold bg-slate-200">
+                                          {formatNumber(totalVolume)} L
+                                        </td>
+                                      )
+                                    }
+                                    return <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">-</td>
+                                  }
+                                  seenProducts.add(n.fuel_type)
+                                  const productTotal = data.product_nozzle_totals.find(p => p.product === n.fuel_type)
+                                  return (
+                                    <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold">
+                                      {productTotal ? `${formatNumber(productTotal.pump_sales)} L` : '-'}
+                                    </td>
+                                  )
+                                })
+                              })()}
                             </tr>
                             <tr className="border-b bg-green-50">
                               <td className="py-2 px-4 font-medium whitespace-nowrap">G) Amount Per Product</td>
-                              {data.nozzle_readings.map(n => {
-                                const productTotal = data.product_nozzle_totals.find(p => p.product === n.fuel_type)
-                                return (
-                                  <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold text-green-700">
-                                    {productTotal ? `KES ${formatNumber(productTotal.amount)}` : '-'}
-                                  </td>
-                                )
-                              })}
+                              {(() => {
+                                const seenProducts = new Set<string>()
+                                return data.nozzle_readings.map((n, idx) => {
+                                  if (seenProducts.has(n.fuel_type)) {
+                                    if (idx === data.nozzle_readings.length - 1) {
+                                      const totalAmount = data.product_nozzle_totals.reduce((sum, p) => sum + p.amount, 0)
+                                      return (
+                                        <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-bold text-green-800 bg-green-100">
+                                          KES {formatNumber(totalAmount)}
+                                        </td>
+                                      )
+                                    }
+                                    return <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">-</td>
+                                  }
+                                  seenProducts.add(n.fuel_type)
+                                  const productTotal = data.product_nozzle_totals.find(p => p.product === n.fuel_type)
+                                  return (
+                                    <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold text-green-700">
+                                      {productTotal ? `KES ${formatNumber(productTotal.amount)}` : '-'}
+                                    </td>
+                                  )
+                                })
+                              })()}
                             </tr>
                           </tbody>
                         </table>
