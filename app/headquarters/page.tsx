@@ -187,11 +187,16 @@ export default function HeadquartersPage() {
           manager: branch.manager,
           phone: branch.phone,
           email: branch.email,
+          address: branch.address,
+          county: branch.county,
+          local_tax_office: branch.local_tax_office,
+          kra_pin: branch.kra_pin,
           bhfId: branch.bhf_id,
           tankConfig: branch.tank_config || {},
           storageIndices: branch.storage_indices || [],
           device_token: branch.device_token,
           vendor_id: branch.vendor_id,
+          controller_id: branch.controller_id,
         }))
         setBranches(formattedBranches)
       } else {

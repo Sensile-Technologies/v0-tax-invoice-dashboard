@@ -194,7 +194,7 @@ async function GET(request) {
       FROM bulk_sales bs
       LEFT JOIN nozzles n ON bs.nozzle_id = n.id
       LEFT JOIN shifts s ON bs.shift_id = s.id
-      LEFT JOIN staff st ON s.cashier_id = st.id
+      LEFT JOIN staff st ON s.staff_id = st.id
       LEFT JOIN items i ON bs.item_id = i.id
       ${whereClause}
       ORDER BY bs.created_at DESC
