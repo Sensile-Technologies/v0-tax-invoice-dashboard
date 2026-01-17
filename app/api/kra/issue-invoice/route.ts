@@ -385,6 +385,8 @@ export async function POST(request: NextRequest) {
     const activeShiftId = activeShiftResult.length > 0 ? activeShiftResult[0].id : null
 
     const kraData = responses.saveSales?.data || {}
+    // Use intrlData as CU invoice number (this is what KRA returns as the unique invoice identifier)
+    const cuInvNo = kraData.intrlData || kraData.curRcptNo || null
     await query(
       `INSERT INTO sales (
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
@@ -392,8 +394,8 @@ export async function POST(request: NextRequest) {
         invoice_number, transmission_status, meter_reading_after,
         is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, 
         sale_date, created_at,
-        kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW(), $17, $18, $19, $20)`,
+        kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv, kra_internal_data
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW(), $17, $18, $19, $20, $21)`,
       [
         branch_id,
         activeShiftId,
@@ -414,7 +416,8 @@ export async function POST(request: NextRequest) {
         'success',
         kraData.rcptSign || null,
         kraData.sdcId || null,
-        kraData.curRcptNo || null
+        cuInvNo,
+        kraData.intrlData || null
       ]
     )
     

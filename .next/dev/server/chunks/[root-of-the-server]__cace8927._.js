@@ -144,7 +144,8 @@ async function POST(request) {
                 n.nozzle_number, d.dispenser_number,
                 i.item_name, i.item_code,
                 st.full_name as served_by_name,
-                orig.kra_cu_inv as original_cu_invoice
+                orig.kra_cu_inv as original_cu_invoice,
+                orig.invoice_number as original_invoice_number
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
@@ -240,13 +241,14 @@ async function POST(request) {
             drawLine();
             doc.setFontSize(7);
             doc.setFont("helvetica", "normal");
-            if (isCreditNote && sale.original_cu_invoice) {
+            if (isCreditNote) {
+                const originalCuInv = sale.original_cu_invoice || sale.original_kra_cu_inv || sale.original_invoice_number || "N/A";
                 doc.text("REFERENCING ORIGINAL CU INVOICE NO.#:", pageWidth / 2, y, {
                     align: "center"
                 });
                 y += 3;
                 doc.setFont("helvetica", "bold");
-                doc.text(sale.original_cu_invoice, pageWidth / 2, y, {
+                doc.text(String(originalCuInv), pageWidth / 2, y, {
                     align: "center"
                 });
                 doc.setFont("helvetica", "normal");
