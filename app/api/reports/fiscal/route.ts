@@ -193,6 +193,29 @@ export async function GET(request: NextRequest) {
     const cumulativeResult = await pool.query(cumulativeQuery, [branchId])
     const cumulativeSales = parseFloat(cumulativeResult.rows[0]?.cumulative_sales) || 0
 
+    const kraTransmittedQuery = `
+      SELECT 
+        COUNT(*) as kra_count,
+        COALESCE(SUM(s.total_amount), 0) as kra_gross,
+        COALESCE(SUM(CASE WHEN COALESCE(i.tax_type, 'B') = 'B' THEN s.total_amount / 1.16 ELSE s.total_amount END), 0) as kra_net,
+        COALESCE(SUM(CASE WHEN COALESCE(i.tax_type, 'B') = 'B' THEN s.total_amount - (s.total_amount / 1.16) ELSE 0 END), 0) as kra_vat
+      FROM sales s
+      LEFT JOIN items i ON s.item_id = i.id
+      WHERE s.branch_id = $1 
+        AND NOT COALESCE(s.is_credit_note, false)
+        AND (s.kra_status = 'sent' OR s.transmission_status = 'success')
+        ${dateFilter}
+    `
+    const kraTransmittedResult = await pool.query(kraTransmittedQuery, params)
+    const kraData = kraTransmittedResult.rows[0] || {}
+    
+    const kraTransmittedSales = {
+      count: parseInt(kraData.kra_count) || 0,
+      gross: parseFloat(kraData.kra_gross) || 0,
+      net: parseFloat(kraData.kra_net) || 0,
+      vat: parseFloat(kraData.kra_vat) || 0
+    }
+
     const reportData = {
       reportType: reportType.toUpperCase(),
       reportNumber,
@@ -232,7 +255,9 @@ export async function GET(request: NextRequest) {
         totalTransactions: parseInt(salesData.transaction_count) || 0,
         voidedTransactions: parseInt(salesData.voided_count) || 0,
         cumulativeSales
-      }
+      },
+
+      kraTransmittedSales
     }
 
     return NextResponse.json({ success: true, data: reportData })

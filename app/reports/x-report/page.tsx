@@ -37,6 +37,12 @@ interface ReportData {
   transactionCount: number
   voidedTransactions: number
   voidedAmount: number
+  kraTransmittedSales?: {
+    count: number
+    gross: number
+    net: number
+    vat: number
+  }
 }
 
 export default function XReportPage() {
@@ -283,6 +289,30 @@ export default function XReportPage() {
                           </div>
                         </div>
                       </div>
+
+                      {reportData.kraTransmittedSales && (
+                        <div className="border-b pb-4 bg-green-50 -mx-4 md:-mx-8 px-4 md:px-8 py-4">
+                          <h3 className="font-bold mb-3 text-green-800">KRA TRANSMITTED SALES</h3>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span>Invoices Transmitted:</span>
+                              <span className="font-semibold">{reportData.kraTransmittedSales.count}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Net Sales (Excl. VAT):</span>
+                              <span className="font-semibold">KES {reportData.kraTransmittedSales.net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>VAT Amount (16%):</span>
+                              <span className="font-semibold">KES {reportData.kraTransmittedSales.vat.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                            <div className="flex justify-between text-lg font-bold pt-2 border-t border-green-200">
+                              <span className="text-green-800">Gross Sales (Incl. VAT):</span>
+                              <span className="text-green-800">KES {reportData.kraTransmittedSales.gross.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div>
                         <h3 className="font-bold mb-3">TRANSACTION STATISTICS</h3>

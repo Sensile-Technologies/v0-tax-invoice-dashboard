@@ -7863,6 +7863,12 @@
   }
 
   @media (min-width: 48rem) {
+    .md\:-mx-8 {
+      margin-inline: calc(var(--spacing) * -8);
+    }
+  }
+
+  @media (min-width: 48rem) {
     .md\:mx-0 {
       margin-inline: calc(var(--spacing) * 0);
     }
