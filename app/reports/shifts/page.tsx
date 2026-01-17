@@ -205,14 +205,11 @@ export default function ShiftsReportPage() {
       return
     }
 
-    const headers = ['Branch', 'Cashier', 'Started', 'Status', 'Opening Reading', 'Closing Reading', 'Meter Diff', 'Total Sales']
+    const headers = ['Branch', 'Started', 'Status', 'Total Volume', 'Total Sales']
     const rows = shifts.map(s => [
       s.branch_name,
-      s.cashier,
       formatDateTime(s.start_time),
       s.status,
-      s.total_opening_reading?.toFixed(2) || '0.00',
-      s.total_closing_reading?.toFixed(2) || '0.00',
       ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)).toFixed(2),
       s.total_sales?.toFixed(2) || '0.00'
     ])
@@ -355,7 +352,7 @@ export default function ShiftsReportPage() {
                         <Fuel className="h-6 w-6 text-amber-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-slate-500">Total Meter Diff</p>
+                        <p className="text-sm text-slate-500">Total Volume</p>
                         <p className="text-2xl font-bold">{summary.totalMeterDiff.toFixed(2)} L</p>
                       </div>
                     </div>
@@ -382,11 +379,8 @@ export default function ShiftsReportPage() {
                         <thead>
                           <tr className="border-b">
                             <th className="py-3 px-4 text-left font-medium text-slate-500">Branch</th>
-                            <th className="py-3 px-4 text-left font-medium text-slate-500">Starter</th>
                             <th className="py-3 px-4 text-left font-medium text-slate-500">Started</th>
-                            <th className="py-3 px-4 text-right font-medium text-slate-500">Opening</th>
-                            <th className="py-3 px-4 text-right font-medium text-slate-500">Closing</th>
-                            <th className="py-3 px-4 text-right font-medium text-slate-500">Meter Diff</th>
+                            <th className="py-3 px-4 text-right font-medium text-slate-500">Total Volume</th>
                             <th className="py-3 px-4 text-right font-medium text-slate-500">Total Sales</th>
                             <th className="py-3 px-4 text-center font-medium text-slate-500">Status</th>
                             <th className="py-3 px-4 text-center font-medium text-slate-500">Actions</th>
@@ -396,10 +390,7 @@ export default function ShiftsReportPage() {
                           {shifts.map((shift) => (
                             <tr key={shift.id} className="border-b hover:bg-slate-50">
                               <td className="py-3 px-4 font-medium">{shift.branch_name}</td>
-                              <td className="py-3 px-4">{shift.cashier}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
-                              <td className="py-3 px-4 text-right">{(shift.total_opening_reading || 0).toFixed(2)}</td>
-                              <td className="py-3 px-4 text-right">{(shift.total_closing_reading || 0).toFixed(2)}</td>
                               <td className="py-3 px-4 text-right font-medium">
                                 {((shift.total_closing_reading || 0) - (shift.total_opening_reading || 0)).toFixed(2)} L
                               </td>
