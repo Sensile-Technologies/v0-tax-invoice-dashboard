@@ -1,0 +1,12 @@
+{
+  "name": "flow360-http-proxy",
+  "version": "1.0.0",
+  "description": "HTTP proxy for pump controllers that don't support HTTPS",
+  "main": "proxy.js",
+  "scripts": {
+    "start": "node proxy.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
