@@ -9,11 +9,13 @@ const DashboardHeader = dynamic(() => import("@/components/dashboard-header"), {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Download, Printer, RefreshCw, Clock, Fuel, ChevronLeft, ChevronRight } from "lucide-react"
+import { Download, Printer, RefreshCw, Clock, Fuel, ChevronLeft, ChevronRight, Eye, X } from "lucide-react"
 import { ReportTabs } from "@/components/report-tabs"
 import { useCurrency } from "@/lib/currency-utils"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface Shift {
   id: string
@@ -31,6 +33,16 @@ interface Shift {
   variance: number
   total_opening_reading: number
   total_closing_reading: number
+}
+
+interface ShiftDetails {
+  shift: any
+  nozzleReadings: any[]
+  tankReadings: any[]
+  collections: any[]
+  expenses: any[]
+  banking: any[]
+  salesSummary: { count: number; total_amount: number; total_quantity: number }
 }
 
 
@@ -60,6 +72,11 @@ export default function ShiftsReportPage() {
 
   const [userId, setUserId] = useState<string | null>(null)
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null)
+  
+  // Shift details state
+  const [selectedShiftId, setSelectedShiftId] = useState<string | null>(null)
+  const [shiftDetails, setShiftDetails] = useState<ShiftDetails | null>(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
 
   // Get the current selected branch from localStorage
   function getSelectedBranchId(): string | null {
@@ -242,6 +259,25 @@ export default function ShiftsReportPage() {
     }
   }
 
+  async function fetchShiftDetails(shiftId: string) {
+    setSelectedShiftId(shiftId)
+    setDetailsLoading(true)
+    try {
+      const response = await fetch(`/api/shifts/${shiftId}/details`)
+      const data = await response.json()
+      if (data.success) {
+        setShiftDetails(data)
+      } else {
+        toast.error(data.error || 'Failed to fetch shift details')
+      }
+    } catch (error) {
+      console.error('Error fetching shift details:', error)
+      toast.error('Failed to fetch shift details')
+    } finally {
+      setDetailsLoading(false)
+    }
+  }
+
   function formatDateTime(dateString: string | null) {
     if (!dateString) return '-'
     const date = new Date(dateString)
@@ -388,14 +424,24 @@ export default function ShiftsReportPage() {
                                 {getStatusBadge(shift.status)}
                               </td>
                               <td className="py-3 px-4 text-center">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => router.push(`/reports/nozzle-sales?shift_id=${shift.id}`)}
-                                >
-                                  <Fuel className="h-4 w-4 mr-1" />
-                                  Nozzles
-                                </Button>
+                                <div className="flex gap-2 justify-center">
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => fetchShiftDetails(shift.id)}
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    View
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => router.push(`/reports/nozzle-sales?shift_id=${shift.id}`)}
+                                  >
+                                    <Fuel className="h-4 w-4 mr-1" />
+                                    Nozzles
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           ))}
@@ -441,6 +487,183 @@ export default function ShiftsReportPage() {
         </div>
       </div>
 
+      {/* Shift Details Dialog */}
+      <Dialog open={!!selectedShiftId} onOpenChange={(open: boolean) => !open && setSelectedShiftId(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Shift Details</DialogTitle>
+          </DialogHeader>
+          
+          {detailsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <RefreshCw className="h-8 w-8 animate-spin text-slate-400" />
+              <span className="ml-2 text-slate-500">Loading details...</span>
+            </div>
+          ) : shiftDetails ? (
+            <div className="mt-6 space-y-6">
+              {/* Shift Summary */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
+                <div>
+                  <p className="text-sm text-slate-500">Branch</p>
+                  <p className="font-medium">{shiftDetails.shift.branch_name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500">Started By</p>
+                  <p className="font-medium">{shiftDetails.shift.cashier}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500">Start Time</p>
+                  <p className="font-medium">{formatDateTime(shiftDetails.shift.start_time)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500">End Time</p>
+                  <p className="font-medium">{formatDateTime(shiftDetails.shift.end_time)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500">Invoices</p>
+                  <p className="font-medium">{shiftDetails.salesSummary.count}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500">Total Sales</p>
+                  <p className="font-medium">{formatCurrency(shiftDetails.salesSummary.total_amount)}</p>
+                </div>
+              </div>
+
+              <Tabs defaultValue="nozzles" className="w-full">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="nozzles">Nozzles</TabsTrigger>
+                  <TabsTrigger value="collections">Collections</TabsTrigger>
+                  <TabsTrigger value="expenses">Expenses</TabsTrigger>
+                  <TabsTrigger value="banking">Banking</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="nozzles" className="mt-4">
+                  <div className="space-y-3">
+                    {shiftDetails.nozzleReadings.length === 0 ? (
+                      <p className="text-slate-500 text-center py-4">No nozzle readings recorded</p>
+                    ) : (
+                      shiftDetails.nozzleReadings.map((reading: any) => (
+                        <div key={reading.id} className="p-3 border rounded-lg">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <span className="font-medium">{reading.dispenser_name || 'Dispenser'} - Nozzle {reading.nozzle_number}</span>
+                              <Badge className="ml-2" variant="outline">{reading.fuel_type}</Badge>
+                            </div>
+                            <span className="font-bold text-lg">{reading.meter_difference.toFixed(2)} L</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-sm text-slate-600">
+                            <div>Opening: {reading.opening_reading.toFixed(2)}</div>
+                            <div>Closing: {reading.closing_reading.toFixed(2)}</div>
+                            {reading.rtt > 0 && <div>RTT: {reading.rtt.toFixed(2)} L</div>}
+                            {reading.self_fueling > 0 && <div>Self Fueling: {reading.self_fueling.toFixed(2)} L</div>}
+                            {reading.prepaid_sale > 0 && <div>Prepaid: {reading.prepaid_sale.toFixed(2)} L</div>}
+                            {reading.incoming_attendant_name && <div className="col-span-2">Incoming: {reading.incoming_attendant_name}</div>}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="collections" className="mt-4">
+                  <div className="space-y-3">
+                    {shiftDetails.collections.length === 0 ? (
+                      <p className="text-slate-500 text-center py-4">No collections recorded</p>
+                    ) : (
+                      shiftDetails.collections.map((collection: any) => (
+                        <div key={collection.staff_id} className="p-3 border rounded-lg">
+                          <div className="font-medium mb-2">{collection.staff_name}</div>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {collection.payments.cash > 0 && (
+                              <div className="flex justify-between">
+                                <span>Cash:</span>
+                                <span className="font-medium">{formatCurrency(collection.payments.cash)}</span>
+                              </div>
+                            )}
+                            {collection.payments.mpesa > 0 && (
+                              <div className="flex justify-between">
+                                <span>Mpesa:</span>
+                                <span className="font-medium">{formatCurrency(collection.payments.mpesa)}</span>
+                              </div>
+                            )}
+                            {collection.payments.mobile_money > 0 && (
+                              <div className="flex justify-between">
+                                <span>Mobile Money:</span>
+                                <span className="font-medium">{formatCurrency(collection.payments.mobile_money)}</span>
+                              </div>
+                            )}
+                            {collection.payments.card > 0 && (
+                              <div className="flex justify-between">
+                                <span>Card:</span>
+                                <span className="font-medium">{formatCurrency(collection.payments.card)}</span>
+                              </div>
+                            )}
+                            {collection.payments.credit > 0 && (
+                              <div className="flex justify-between">
+                                <span>Credit:</span>
+                                <span className="font-medium">{formatCurrency(collection.payments.credit)}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="expenses" className="mt-4">
+                  <div className="space-y-3">
+                    {shiftDetails.expenses.length === 0 ? (
+                      <p className="text-slate-500 text-center py-4">No expenses recorded</p>
+                    ) : (
+                      shiftDetails.expenses.map((expense: any) => (
+                        <div key={expense.id} className="p-3 border rounded-lg flex justify-between">
+                          <div>
+                            <div className="font-medium">{expense.expense_account_name}</div>
+                            {expense.description && <div className="text-sm text-slate-500">{expense.description}</div>}
+                          </div>
+                          <div className="font-bold">{formatCurrency(expense.amount)}</div>
+                        </div>
+                      ))
+                    )}
+                    {shiftDetails.expenses.length > 0 && (
+                      <div className="p-3 bg-slate-100 rounded-lg flex justify-between font-bold">
+                        <span>Total Expenses</span>
+                        <span>{formatCurrency(shiftDetails.expenses.reduce((sum: number, e: any) => sum + e.amount, 0))}</span>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="banking" className="mt-4">
+                  <div className="space-y-3">
+                    {shiftDetails.banking.length === 0 ? (
+                      <p className="text-slate-500 text-center py-4">No banking entries recorded</p>
+                    ) : (
+                      shiftDetails.banking.map((entry: any) => (
+                        <div key={entry.id} className="p-3 border rounded-lg flex justify-between">
+                          <div>
+                            <div className="font-medium">{entry.account_name}</div>
+                            <div className="text-sm text-slate-500">{entry.bank_name} - {entry.account_number}</div>
+                            {entry.notes && <div className="text-sm text-slate-400">{entry.notes}</div>}
+                          </div>
+                          <div className="font-bold">{formatCurrency(entry.amount)}</div>
+                        </div>
+                      ))
+                    )}
+                    {shiftDetails.banking.length > 0 && (
+                      <div className="p-3 bg-slate-100 rounded-lg flex justify-between font-bold">
+                        <span>Total Banking</span>
+                        <span>{formatCurrency(shiftDetails.banking.reduce((sum: number, b: any) => sum + b.amount, 0))}</span>
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
