@@ -59,10 +59,16 @@ export async function PUT(
     }
     
     const session = JSON.parse(sessionCookie.value)
-    const { vendor_id, role } = session
+    const { user_id, vendor_id } = session
     const { id: branchId } = await params
 
-    if (!['supervisor', 'manager', 'director', 'vendor'].includes(role)) {
+    const userResult = await pool.query(
+      `SELECT role FROM staff WHERE id = $1`,
+      [user_id]
+    )
+    const userRole = userResult.rows[0]?.role
+
+    if (!['supervisor', 'manager', 'director', 'vendor'].includes(userRole)) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
