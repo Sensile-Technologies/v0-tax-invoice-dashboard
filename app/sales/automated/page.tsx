@@ -54,37 +54,45 @@ export default function AutomatedSalesPage() {
   })
 
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null)
+  const [branchControllerId, setBranchControllerId] = useState<string | null>(null)
+  const [dataSource, setDataSource] = useState<"sales" | "controller">("sales")
 
   useEffect(() => {
-    const getBranchId = () => {
+    const getBranchData = () => {
       const currentBranch = localStorage.getItem("selectedBranch")
       if (currentBranch) {
         try {
           const branchData = JSON.parse(currentBranch)
-          return branchData.id
+          return { id: branchData.id, controller_id: branchData.controller_id }
         } catch {
-          return null
+          return { id: null, controller_id: null }
         }
       }
-      return null
+      return { id: null, controller_id: null }
     }
 
-    const branchId = getBranchId()
-    setCurrentBranchId(branchId)
+    const branchData = getBranchData()
+    setCurrentBranchId(branchData.id)
+    setBranchControllerId(branchData.controller_id)
+    setDataSource(branchData.controller_id ? "controller" : "sales")
 
     const handleStorageChange = () => {
-      const newBranchId = getBranchId()
-      if (newBranchId !== currentBranchId) {
-        setCurrentBranchId(newBranchId)
+      const newBranchData = getBranchData()
+      if (newBranchData.id !== currentBranchId) {
+        setCurrentBranchId(newBranchData.id)
+        setBranchControllerId(newBranchData.controller_id)
+        setDataSource(newBranchData.controller_id ? "controller" : "sales")
       }
     }
 
     window.addEventListener('storage', handleStorageChange)
     
     const interval = setInterval(() => {
-      const newBranchId = getBranchId()
-      if (newBranchId && newBranchId !== currentBranchId) {
-        setCurrentBranchId(newBranchId)
+      const newBranchData = getBranchData()
+      if (newBranchData.id && newBranchData.id !== currentBranchId) {
+        setCurrentBranchId(newBranchData.id)
+        setBranchControllerId(newBranchData.controller_id)
+        setDataSource(newBranchData.controller_id ? "controller" : "sales")
       }
     }, 1000)
 
@@ -98,7 +106,7 @@ export default function AutomatedSalesPage() {
     if (currentBranchId) {
       fetchData()
     }
-  }, [currentPage, filters, currentBranchId])
+  }, [currentPage, filters, currentBranchId, dataSource])
 
   async function fetchData() {
     try {
@@ -110,9 +118,11 @@ export default function AutomatedSalesPage() {
       }
 
       let branchId: string
+      let controllerId: string | null = null
       try {
         const branchData = JSON.parse(currentBranch)
         branchId = branchData.id
+        controllerId = branchData.controller_id
       } catch {
         toast.error("Invalid branch selection. Please reselect your branch.")
         return
@@ -123,32 +133,86 @@ export default function AutomatedSalesPage() {
         return
       }
 
-      const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
-        fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
-        fetch(`/api/dispensers?branch_id=${branchId}`),
-        fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}&page=${currentPage}&limit=${PAGE_SIZE}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}${filters.fuelType !== 'all' ? `&fuel_type=${filters.fuelType}` : ''}${filters.nozzle !== 'all' ? `&nozzle_id=${filters.nozzle}` : ''}${filters.paymentMethod !== 'all' ? `&payment_method=${filters.paymentMethod}` : ''}`)
-      ])
-      
-      const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
-        nozzlesRes.json(),
-        dispensersRes.json(),
-        salesRes.json()
-      ])
+      // For branches with controller_id, fetch from controller-logs endpoint
+      if (controllerId) {
+        const params = new URLSearchParams()
+        params.append("branch_id", branchId)
+        params.append("limit", String(PAGE_SIZE))
+        params.append("offset", String((currentPage - 1) * PAGE_SIZE))
+        if (filters.startDate) params.append("start_date", filters.startDate)
+        if (filters.endDate) params.append("end_date", filters.endDate)
 
-      setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
-      setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
+        const [nozzlesRes, dispensersRes, controllerRes] = await Promise.all([
+          fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+          fetch(`/api/dispensers?branch_id=${branchId}`),
+          fetch(`/api/controller-logs?${params.toString()}`)
+        ])
 
-      const salesData = salesResult.success ? salesResult.data || [] : []
-      setTotalCount(salesResult.totalCount || salesData.length)
+        const [nozzlesResult, dispensersResult, controllerResult] = await Promise.all([
+          nozzlesRes.json(),
+          dispensersRes.json(),
+          controllerRes.json()
+        ])
 
-      const processedSales = salesData.map((sale: any) => ({
-        ...sale,
-        quantity: Number(sale.quantity) || 0,
-        unit_price: Number(sale.unit_price) || 0,
-        total_amount: Number(sale.total_amount) || 0,
-        meter_reading_after: Number(sale.meter_reading_after) || 0,
-      }))
-      setSales(processedSales)
+        setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
+        setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
+
+        // Transform controller log data to match sales format
+        const controllerLogs = controllerResult.logs || []
+        setTotalCount(controllerResult.total || controllerLogs.length)
+
+        const processedSales = controllerLogs.map((log: any) => ({
+          id: log.id,
+          sale_id: log.sale_id,
+          fuel_type: log.fuel_grade_name,
+          quantity: Number(log.volume) || 0,
+          unit_price: Number(log.price) || 0,
+          total_amount: Number(log.amount) || 0,
+          sale_date: log.transaction_end || log.created_at,
+          invoice_number: log.sale_id ? `PTS-${log.transaction_id}` : null,
+          transmission_status: log.processed ? "transmitted" : "pending",
+          is_automated: true,
+          is_credit_note: false,
+          is_loyalty_sale: false,
+          payment_method: "cash",
+          nozzle_id: null,
+          pump_number: log.pump_number,
+          nozzle_number: log.nozzle_number,
+          pts_id: log.pts_id,
+          transaction_id: log.transaction_id,
+          source_system: "pts",
+          processed: log.processed
+        }))
+        setSales(processedSales)
+      } else {
+        // For branches without controller_id, fetch from sales endpoint
+        const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
+          fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+          fetch(`/api/dispensers?branch_id=${branchId}`),
+          fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}&page=${currentPage}&limit=${PAGE_SIZE}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}${filters.fuelType !== 'all' ? `&fuel_type=${filters.fuelType}` : ''}${filters.nozzle !== 'all' ? `&nozzle_id=${filters.nozzle}` : ''}${filters.paymentMethod !== 'all' ? `&payment_method=${filters.paymentMethod}` : ''}`)
+        ])
+        
+        const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
+          nozzlesRes.json(),
+          dispensersRes.json(),
+          salesRes.json()
+        ])
+
+        setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : [])
+        setDispensers(dispensersResult.success ? dispensersResult.data || [] : [])
+
+        const salesData = salesResult.success ? salesResult.data || [] : []
+        setTotalCount(salesResult.totalCount || salesData.length)
+
+        const processedSales = salesData.map((sale: any) => ({
+          ...sale,
+          quantity: Number(sale.quantity) || 0,
+          unit_price: Number(sale.unit_price) || 0,
+          total_amount: Number(sale.total_amount) || 0,
+          meter_reading_after: Number(sale.meter_reading_after) || 0,
+        }))
+        setSales(processedSales)
+      }
     } catch (error) {
       console.error("Error fetching data:", error)
       toast.error("Failed to load automated sales data")

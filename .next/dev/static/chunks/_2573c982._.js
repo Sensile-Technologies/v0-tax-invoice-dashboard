@@ -1274,10 +1274,17 @@ async function signIn(identifier, password) {
             localStorage.setItem("currentUser", JSON.stringify(data.user));
             localStorage.setItem("user", JSON.stringify(data.user));
         }
+        // Store must_change_password flag
+        if (data.must_change_password) {
+            localStorage.setItem("must_change_password", "true");
+        } else {
+            localStorage.removeItem("must_change_password");
+        }
     }
     return {
         data,
-        error: data.error || null
+        error: data.error || null,
+        mustChangePassword: data.must_change_password || false
     };
 }
 async function signOut() {
@@ -3284,38 +3291,55 @@ function AutomatedSalesPage() {
         notes: ""
     });
     const [currentBranchId, setCurrentBranchId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [branchControllerId, setBranchControllerId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [dataSource, setDataSource] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("sales");
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AutomatedSalesPage.useEffect": ()=>{
-            const getBranchId = {
-                "AutomatedSalesPage.useEffect.getBranchId": ()=>{
+            const getBranchData = {
+                "AutomatedSalesPage.useEffect.getBranchData": ()=>{
                     const currentBranch = localStorage.getItem("selectedBranch");
                     if (currentBranch) {
                         try {
                             const branchData = JSON.parse(currentBranch);
-                            return branchData.id;
+                            return {
+                                id: branchData.id,
+                                controller_id: branchData.controller_id
+                            };
                         } catch  {
-                            return null;
+                            return {
+                                id: null,
+                                controller_id: null
+                            };
                         }
                     }
-                    return null;
+                    return {
+                        id: null,
+                        controller_id: null
+                    };
                 }
-            }["AutomatedSalesPage.useEffect.getBranchId"];
-            const branchId = getBranchId();
-            setCurrentBranchId(branchId);
+            }["AutomatedSalesPage.useEffect.getBranchData"];
+            const branchData = getBranchData();
+            setCurrentBranchId(branchData.id);
+            setBranchControllerId(branchData.controller_id);
+            setDataSource(branchData.controller_id ? "controller" : "sales");
             const handleStorageChange = {
                 "AutomatedSalesPage.useEffect.handleStorageChange": ()=>{
-                    const newBranchId = getBranchId();
-                    if (newBranchId !== currentBranchId) {
-                        setCurrentBranchId(newBranchId);
+                    const newBranchData = getBranchData();
+                    if (newBranchData.id !== currentBranchId) {
+                        setCurrentBranchId(newBranchData.id);
+                        setBranchControllerId(newBranchData.controller_id);
+                        setDataSource(newBranchData.controller_id ? "controller" : "sales");
                     }
                 }
             }["AutomatedSalesPage.useEffect.handleStorageChange"];
             window.addEventListener('storage', handleStorageChange);
             const interval = setInterval({
                 "AutomatedSalesPage.useEffect.interval": ()=>{
-                    const newBranchId = getBranchId();
-                    if (newBranchId && newBranchId !== currentBranchId) {
-                        setCurrentBranchId(newBranchId);
+                    const newBranchData = getBranchData();
+                    if (newBranchData.id && newBranchData.id !== currentBranchId) {
+                        setCurrentBranchId(newBranchData.id);
+                        setBranchControllerId(newBranchData.controller_id);
+                        setDataSource(newBranchData.controller_id ? "controller" : "sales");
                     }
                 }
             }["AutomatedSalesPage.useEffect.interval"], 1000);
@@ -3338,7 +3362,8 @@ function AutomatedSalesPage() {
     }["AutomatedSalesPage.useEffect"], [
         currentPage,
         filters,
-        currentBranchId
+        currentBranchId,
+        dataSource
     ]);
     async function fetchData() {
         try {
@@ -3349,9 +3374,11 @@ function AutomatedSalesPage() {
                 return;
             }
             let branchId;
+            let controllerId = null;
             try {
                 const branchData = JSON.parse(currentBranch);
                 branchId = branchData.id;
+                controllerId = branchData.controller_id;
             } catch  {
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Invalid branch selection. Please reselect your branch.");
                 return;
@@ -3360,28 +3387,77 @@ function AutomatedSalesPage() {
                 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Please select a specific branch to view automated sales.");
                 return;
             }
-            const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
-                fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
-                fetch(`/api/dispensers?branch_id=${branchId}`),
-                fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}&page=${currentPage}&limit=${PAGE_SIZE}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}${filters.fuelType !== 'all' ? `&fuel_type=${filters.fuelType}` : ''}${filters.nozzle !== 'all' ? `&nozzle_id=${filters.nozzle}` : ''}${filters.paymentMethod !== 'all' ? `&payment_method=${filters.paymentMethod}` : ''}`)
-            ]);
-            const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
-                nozzlesRes.json(),
-                dispensersRes.json(),
-                salesRes.json()
-            ]);
-            setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : []);
-            setDispensers(dispensersResult.success ? dispensersResult.data || [] : []);
-            const salesData = salesResult.success ? salesResult.data || [] : [];
-            setTotalCount(salesResult.totalCount || salesData.length);
-            const processedSales = salesData.map((sale)=>({
-                    ...sale,
-                    quantity: Number(sale.quantity) || 0,
-                    unit_price: Number(sale.unit_price) || 0,
-                    total_amount: Number(sale.total_amount) || 0,
-                    meter_reading_after: Number(sale.meter_reading_after) || 0
-                }));
-            setSales(processedSales);
+            // For branches with controller_id, fetch from controller-logs endpoint
+            if (controllerId) {
+                const params = new URLSearchParams();
+                params.append("branch_id", branchId);
+                params.append("limit", String(PAGE_SIZE));
+                params.append("offset", String((currentPage - 1) * PAGE_SIZE));
+                if (filters.startDate) params.append("start_date", filters.startDate);
+                if (filters.endDate) params.append("end_date", filters.endDate);
+                const [nozzlesRes, dispensersRes, controllerRes] = await Promise.all([
+                    fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+                    fetch(`/api/dispensers?branch_id=${branchId}`),
+                    fetch(`/api/controller-logs?${params.toString()}`)
+                ]);
+                const [nozzlesResult, dispensersResult, controllerResult] = await Promise.all([
+                    nozzlesRes.json(),
+                    dispensersRes.json(),
+                    controllerRes.json()
+                ]);
+                setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : []);
+                setDispensers(dispensersResult.success ? dispensersResult.data || [] : []);
+                // Transform controller log data to match sales format
+                const controllerLogs = controllerResult.logs || [];
+                setTotalCount(controllerResult.total || controllerLogs.length);
+                const processedSales = controllerLogs.map((log)=>({
+                        id: log.id,
+                        sale_id: log.sale_id,
+                        fuel_type: log.fuel_grade_name,
+                        quantity: Number(log.volume) || 0,
+                        unit_price: Number(log.price) || 0,
+                        total_amount: Number(log.amount) || 0,
+                        sale_date: log.transaction_end || log.created_at,
+                        invoice_number: log.sale_id ? `PTS-${log.transaction_id}` : null,
+                        transmission_status: log.processed ? "transmitted" : "pending",
+                        is_automated: true,
+                        is_credit_note: false,
+                        is_loyalty_sale: false,
+                        payment_method: "cash",
+                        nozzle_id: null,
+                        pump_number: log.pump_number,
+                        nozzle_number: log.nozzle_number,
+                        pts_id: log.pts_id,
+                        transaction_id: log.transaction_id,
+                        source_system: "pts",
+                        processed: log.processed
+                    }));
+                setSales(processedSales);
+            } else {
+                // For branches without controller_id, fetch from sales endpoint
+                const [nozzlesRes, dispensersRes, salesRes] = await Promise.all([
+                    fetch(`/api/nozzles?branch_id=${branchId}&status=active`),
+                    fetch(`/api/dispensers?branch_id=${branchId}`),
+                    fetch(`/api/sales?branch_id=${branchId}&is_automated=true&start_date=${filters.startDate}&end_date=${filters.endDate}&page=${currentPage}&limit=${PAGE_SIZE}${filters.status !== 'all' ? `&transmission_status=${filters.status}` : ''}${filters.fuelType !== 'all' ? `&fuel_type=${filters.fuelType}` : ''}${filters.nozzle !== 'all' ? `&nozzle_id=${filters.nozzle}` : ''}${filters.paymentMethod !== 'all' ? `&payment_method=${filters.paymentMethod}` : ''}`)
+                ]);
+                const [nozzlesResult, dispensersResult, salesResult] = await Promise.all([
+                    nozzlesRes.json(),
+                    dispensersRes.json(),
+                    salesRes.json()
+                ]);
+                setNozzles(nozzlesResult.success ? nozzlesResult.data || [] : []);
+                setDispensers(dispensersResult.success ? dispensersResult.data || [] : []);
+                const salesData = salesResult.success ? salesResult.data || [] : [];
+                setTotalCount(salesResult.totalCount || salesData.length);
+                const processedSales = salesData.map((sale)=>({
+                        ...sale,
+                        quantity: Number(sale.quantity) || 0,
+                        unit_price: Number(sale.unit_price) || 0,
+                        total_amount: Number(sale.total_amount) || 0,
+                        meter_reading_after: Number(sale.meter_reading_after) || 0
+                    }));
+                setSales(processedSales);
+            }
         } catch (error) {
             console.error("Error fetching data:", error);
             __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$sonner$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["toast"].error("Failed to load automated sales data");
@@ -3537,7 +3613,7 @@ function AutomatedSalesPage() {
                     children: "Synced"
                 }, void 0, false, {
                     fileName: "[project]/app/sales/automated/page.tsx",
-                    lineNumber: 315,
+                    lineNumber: 379,
                     columnNumber: 16
                 }, this);
             case 'pending':
@@ -3546,7 +3622,7 @@ function AutomatedSalesPage() {
                     children: "Pending"
                 }, void 0, false, {
                     fileName: "[project]/app/sales/automated/page.tsx",
-                    lineNumber: 317,
+                    lineNumber: 381,
                     columnNumber: 16
                 }, this);
             case 'failed':
@@ -3555,7 +3631,7 @@ function AutomatedSalesPage() {
                     children: "Failed"
                 }, void 0, false, {
                     fileName: "[project]/app/sales/automated/page.tsx",
-                    lineNumber: 319,
+                    lineNumber: 383,
                     columnNumber: 16
                 }, this);
             default:
@@ -3564,7 +3640,7 @@ function AutomatedSalesPage() {
                     children: status
                 }, void 0, false, {
                     fileName: "[project]/app/sales/automated/page.tsx",
-                    lineNumber: 321,
+                    lineNumber: 385,
                     columnNumber: 16
                 }, this);
         }
@@ -3579,7 +3655,7 @@ function AutomatedSalesPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/sales/automated/page.tsx",
-                lineNumber: 327,
+                lineNumber: 391,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3591,7 +3667,7 @@ function AutomatedSalesPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/sales/automated/page.tsx",
-                            lineNumber: 336,
+                            lineNumber: 400,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -3609,7 +3685,7 @@ function AutomatedSalesPage() {
                                                         children: "Automated Sales"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 342,
+                                                        lineNumber: 406,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3617,13 +3693,13 @@ function AutomatedSalesPage() {
                                                         children: "Sales transactions posted automatically from external systems"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 343,
+                                                        lineNumber: 407,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 341,
+                                                lineNumber: 405,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3637,25 +3713,25 @@ function AutomatedSalesPage() {
                                                             className: `h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 347,
+                                                            lineNumber: 411,
                                                             columnNumber: 21
                                                         }, this),
                                                         "Refresh"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                    lineNumber: 346,
+                                                    lineNumber: 410,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 345,
+                                                lineNumber: 409,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                        lineNumber: 340,
+                                        lineNumber: 404,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3672,19 +3748,19 @@ function AutomatedSalesPage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 357,
+                                                                    lineNumber: 421,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 "Total Automated"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 356,
+                                                            lineNumber: 420,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 355,
+                                                        lineNumber: 419,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3694,7 +3770,7 @@ function AutomatedSalesPage() {
                                                                 children: totalCount
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 362,
+                                                                lineNumber: 426,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3705,19 +3781,19 @@ function AutomatedSalesPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 363,
+                                                                lineNumber: 427,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 361,
+                                                        lineNumber: 425,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 354,
+                                                lineNumber: 418,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3731,19 +3807,19 @@ function AutomatedSalesPage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 369,
+                                                                    lineNumber: 433,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 "Transmitted"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 368,
+                                                            lineNumber: 432,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 367,
+                                                        lineNumber: 431,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3753,7 +3829,7 @@ function AutomatedSalesPage() {
                                                                 children: transmittedCount
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 374,
+                                                                lineNumber: 438,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3761,19 +3837,19 @@ function AutomatedSalesPage() {
                                                                 children: "Successfully sent"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 375,
+                                                                lineNumber: 439,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 373,
+                                                        lineNumber: 437,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 366,
+                                                lineNumber: 430,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3787,19 +3863,19 @@ function AutomatedSalesPage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 381,
+                                                                    lineNumber: 445,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 "Pending"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 380,
+                                                            lineNumber: 444,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 379,
+                                                        lineNumber: 443,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3809,7 +3885,7 @@ function AutomatedSalesPage() {
                                                                 children: pendingCount
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 386,
+                                                                lineNumber: 450,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3817,19 +3893,19 @@ function AutomatedSalesPage() {
                                                                 children: "Awaiting transmission"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 387,
+                                                                lineNumber: 451,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 385,
+                                                        lineNumber: 449,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 378,
+                                                lineNumber: 442,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3843,19 +3919,19 @@ function AutomatedSalesPage() {
                                                                     className: "h-4 w-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 393,
+                                                                    lineNumber: 457,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 "Flagged"
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 392,
+                                                            lineNumber: 456,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 391,
+                                                        lineNumber: 455,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3865,7 +3941,7 @@ function AutomatedSalesPage() {
                                                                 children: flaggedCount
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 398,
+                                                                lineNumber: 462,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3873,25 +3949,25 @@ function AutomatedSalesPage() {
                                                                 children: "Requires attention"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 399,
+                                                                lineNumber: 463,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 397,
+                                                        lineNumber: 461,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 390,
+                                                lineNumber: 454,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                        lineNumber: 353,
+                                        lineNumber: 417,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3907,20 +3983,20 @@ function AutomatedSalesPage() {
                                                                     children: "Automated Sales Log"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 408,
+                                                                    lineNumber: 472,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                     children: "Transactions automatically posted from external systems"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 409,
+                                                                    lineNumber: 473,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 407,
+                                                            lineNumber: 471,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3935,7 +4011,7 @@ function AutomatedSalesPage() {
                                                                             children: "From:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 413,
+                                                                            lineNumber: 477,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3949,13 +4025,13 @@ function AutomatedSalesPage() {
                                                                             className: "w-36 h-9"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 414,
+                                                                            lineNumber: 478,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 412,
+                                                                    lineNumber: 476,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3967,7 +4043,7 @@ function AutomatedSalesPage() {
                                                                             children: "To:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 423,
+                                                                            lineNumber: 487,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3981,13 +4057,13 @@ function AutomatedSalesPage() {
                                                                             className: "w-36 h-9"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 424,
+                                                                            lineNumber: 488,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 422,
+                                                                    lineNumber: 486,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3999,7 +4075,7 @@ function AutomatedSalesPage() {
                                                                             children: "Status:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 433,
+                                                                            lineNumber: 497,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4016,12 +4092,12 @@ function AutomatedSalesPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 436,
+                                                                                        lineNumber: 500,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 435,
+                                                                                    lineNumber: 499,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4031,7 +4107,7 @@ function AutomatedSalesPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 439,
+                                                                                            lineNumber: 503,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4039,7 +4115,7 @@ function AutomatedSalesPage() {
                                                                                             children: "Transmitted"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 440,
+                                                                                            lineNumber: 504,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4047,7 +4123,7 @@ function AutomatedSalesPage() {
                                                                                             children: "Pending"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 441,
+                                                                                            lineNumber: 505,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4055,25 +4131,25 @@ function AutomatedSalesPage() {
                                                                                             children: "Flagged"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 442,
+                                                                                            lineNumber: 506,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 438,
+                                                                                    lineNumber: 502,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 434,
+                                                                            lineNumber: 498,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 432,
+                                                                    lineNumber: 496,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4085,7 +4161,7 @@ function AutomatedSalesPage() {
                                                                             children: "Fuel:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 447,
+                                                                            lineNumber: 511,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4102,12 +4178,12 @@ function AutomatedSalesPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 450,
+                                                                                        lineNumber: 514,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 449,
+                                                                                    lineNumber: 513,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4117,7 +4193,7 @@ function AutomatedSalesPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 453,
+                                                                                            lineNumber: 517,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         uniqueFuelTypes.map((type)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4125,25 +4201,25 @@ function AutomatedSalesPage() {
                                                                                                 children: type
                                                                                             }, type, false, {
                                                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                lineNumber: 455,
+                                                                                                lineNumber: 519,
                                                                                                 columnNumber: 31
                                                                                             }, this))
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 452,
+                                                                                    lineNumber: 516,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 448,
+                                                                            lineNumber: 512,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 446,
+                                                                    lineNumber: 510,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4155,7 +4231,7 @@ function AutomatedSalesPage() {
                                                                             children: "Nozzle:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 461,
+                                                                            lineNumber: 525,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4172,12 +4248,12 @@ function AutomatedSalesPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 464,
+                                                                                        lineNumber: 528,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 463,
+                                                                                    lineNumber: 527,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4187,7 +4263,7 @@ function AutomatedSalesPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 467,
+                                                                                            lineNumber: 531,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         uniqueNozzles.map((nozzleId)=>{
@@ -4198,26 +4274,26 @@ function AutomatedSalesPage() {
                                                                                                 children: dispenser && nozzle ? `D${dispenser.dispenser_number}N${nozzle.nozzle_number}` : "Unknown"
                                                                                             }, nozzleId, false, {
                                                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                lineNumber: 472,
+                                                                                                lineNumber: 536,
                                                                                                 columnNumber: 33
                                                                                             }, this);
                                                                                         })
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 466,
+                                                                                    lineNumber: 530,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 462,
+                                                                            lineNumber: 526,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 460,
+                                                                    lineNumber: 524,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4229,7 +4305,7 @@ function AutomatedSalesPage() {
                                                                             children: "Payment:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 481,
+                                                                            lineNumber: 545,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4246,12 +4322,12 @@ function AutomatedSalesPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 484,
+                                                                                        lineNumber: 548,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 483,
+                                                                                    lineNumber: 547,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4261,7 +4337,7 @@ function AutomatedSalesPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 487,
+                                                                                            lineNumber: 551,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4269,7 +4345,7 @@ function AutomatedSalesPage() {
                                                                                             children: "Cash"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 488,
+                                                                                            lineNumber: 552,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4277,7 +4353,7 @@ function AutomatedSalesPage() {
                                                                                             children: "Mobile Money"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 489,
+                                                                                            lineNumber: 553,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4285,7 +4361,7 @@ function AutomatedSalesPage() {
                                                                                             children: "Card"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 490,
+                                                                                            lineNumber: 554,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4293,25 +4369,25 @@ function AutomatedSalesPage() {
                                                                                             children: "Credit"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 491,
+                                                                                            lineNumber: 555,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 486,
+                                                                                    lineNumber: 550,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 482,
+                                                                            lineNumber: 546,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 480,
+                                                                    lineNumber: 544,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4323,7 +4399,7 @@ function AutomatedSalesPage() {
                                                                             children: "Type:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 496,
+                                                                            lineNumber: 560,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4340,12 +4416,12 @@ function AutomatedSalesPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 499,
+                                                                                        lineNumber: 563,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 498,
+                                                                                    lineNumber: 562,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4355,7 +4431,7 @@ function AutomatedSalesPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 502,
+                                                                                            lineNumber: 566,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4363,7 +4439,7 @@ function AutomatedSalesPage() {
                                                                                             children: "Invoices"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 503,
+                                                                                            lineNumber: 567,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4371,25 +4447,25 @@ function AutomatedSalesPage() {
                                                                                             children: "Credit Notes"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 504,
+                                                                                            lineNumber: 568,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 501,
+                                                                                    lineNumber: 565,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 497,
+                                                                            lineNumber: 561,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 495,
+                                                                    lineNumber: 559,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4401,7 +4477,7 @@ function AutomatedSalesPage() {
                                                                             children: "Loyalty:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 509,
+                                                                            lineNumber: 573,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -4418,12 +4494,12 @@ function AutomatedSalesPage() {
                                                                                         placeholder: "All"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 512,
+                                                                                        lineNumber: 576,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 511,
+                                                                                    lineNumber: 575,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -4433,7 +4509,7 @@ function AutomatedSalesPage() {
                                                                                             children: "All"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 515,
+                                                                                            lineNumber: 579,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4441,7 +4517,7 @@ function AutomatedSalesPage() {
                                                                                             children: "Loyalty Only"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 516,
+                                                                                            lineNumber: 580,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -4449,25 +4525,25 @@ function AutomatedSalesPage() {
                                                                                             children: "Walk-in"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 517,
+                                                                                            lineNumber: 581,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 514,
+                                                                                    lineNumber: 578,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 510,
+                                                                            lineNumber: 574,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 508,
+                                                                    lineNumber: 572,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4479,7 +4555,7 @@ function AutomatedSalesPage() {
                                                                             children: "Invoice:"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 522,
+                                                                            lineNumber: 586,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4494,13 +4570,13 @@ function AutomatedSalesPage() {
                                                                             className: "w-28 h-9"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 523,
+                                                                            lineNumber: 587,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 521,
+                                                                    lineNumber: 585,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4521,24 +4597,24 @@ function AutomatedSalesPage() {
                                                                     children: "Clear"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 532,
+                                                                    lineNumber: 596,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 411,
+                                                            lineNumber: 475,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                    lineNumber: 406,
+                                                    lineNumber: 470,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 405,
+                                                lineNumber: 469,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4552,7 +4628,7 @@ function AutomatedSalesPage() {
                                                                     className: "h-12 w-12 mx-auto text-slate-300 mb-4"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 550,
+                                                                    lineNumber: 614,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4560,7 +4636,7 @@ function AutomatedSalesPage() {
                                                                     children: "No automated sales found"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 551,
+                                                                    lineNumber: 615,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4568,13 +4644,13 @@ function AutomatedSalesPage() {
                                                                     children: "Automated sales appear here when they are posted from external systems like POS terminals or fuel management systems."
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 552,
+                                                                    lineNumber: 616,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 549,
+                                                            lineNumber: 613,
                                                             columnNumber: 23
                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                             className: "overflow-x-auto",
@@ -4589,7 +4665,7 @@ function AutomatedSalesPage() {
                                                                                     children: "Date"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 561,
+                                                                                    lineNumber: 625,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4597,7 +4673,7 @@ function AutomatedSalesPage() {
                                                                                     children: "Invoice No."
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 562,
+                                                                                    lineNumber: 626,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4605,7 +4681,7 @@ function AutomatedSalesPage() {
                                                                                     children: "Source"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 563,
+                                                                                    lineNumber: 627,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4613,7 +4689,7 @@ function AutomatedSalesPage() {
                                                                                     children: "Fuel Type"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 564,
+                                                                                    lineNumber: 628,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4621,7 +4697,7 @@ function AutomatedSalesPage() {
                                                                                     children: "Quantity (L)"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 565,
+                                                                                    lineNumber: 629,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4629,7 +4705,7 @@ function AutomatedSalesPage() {
                                                                                     children: "Total"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 566,
+                                                                                    lineNumber: 630,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4637,7 +4713,7 @@ function AutomatedSalesPage() {
                                                                                     children: "Transmission"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 567,
+                                                                                    lineNumber: 631,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4645,7 +4721,7 @@ function AutomatedSalesPage() {
                                                                                     children: "KRA Status"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 568,
+                                                                                    lineNumber: 632,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4653,18 +4729,18 @@ function AutomatedSalesPage() {
                                                                                     children: "Actions"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                    lineNumber: 569,
+                                                                                    lineNumber: 633,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 560,
+                                                                            lineNumber: 624,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                        lineNumber: 559,
+                                                                        lineNumber: 623,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -4682,7 +4758,7 @@ function AutomatedSalesPage() {
                                                                                         })
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 576,
+                                                                                        lineNumber: 640,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4690,7 +4766,7 @@ function AutomatedSalesPage() {
                                                                                         children: sale.invoice_number || sale.receipt_number
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 584,
+                                                                                        lineNumber: 648,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4700,12 +4776,12 @@ function AutomatedSalesPage() {
                                                                                             children: sale.source_system || "External"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 588,
+                                                                                            lineNumber: 652,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 587,
+                                                                                        lineNumber: 651,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4713,7 +4789,7 @@ function AutomatedSalesPage() {
                                                                                         children: sale.fuel_type
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 590,
+                                                                                        lineNumber: 654,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4721,7 +4797,7 @@ function AutomatedSalesPage() {
                                                                                         children: Number(sale.quantity).toFixed(2)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 591,
+                                                                                        lineNumber: 655,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4729,7 +4805,7 @@ function AutomatedSalesPage() {
                                                                                         children: formatCurrency(sale.total_amount)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 592,
+                                                                                        lineNumber: 656,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4740,12 +4816,12 @@ function AutomatedSalesPage() {
                                                                                             children: sale.transmission_status || "pending"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 594,
+                                                                                            lineNumber: 658,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 593,
+                                                                                        lineNumber: 657,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4753,7 +4829,7 @@ function AutomatedSalesPage() {
                                                                                         children: getKraStatusBadge(sale)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 598,
+                                                                                        lineNumber: 662,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -4769,17 +4845,17 @@ function AutomatedSalesPage() {
                                                                                                             className: "h-4 w-4"
                                                                                                         }, void 0, false, {
                                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                            lineNumber: 605,
+                                                                                                            lineNumber: 669,
                                                                                                             columnNumber: 43
                                                                                                         }, this)
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                        lineNumber: 604,
+                                                                                                        lineNumber: 668,
                                                                                                         columnNumber: 41
                                                                                                     }, this)
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                    lineNumber: 603,
+                                                                                                    lineNumber: 667,
                                                                                                     columnNumber: 39
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -4792,14 +4868,14 @@ function AutomatedSalesPage() {
                                                                                                                     className: "h-4 w-4 mr-2"
                                                                                                                 }, void 0, false, {
                                                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                                    lineNumber: 610,
+                                                                                                                    lineNumber: 674,
                                                                                                                     columnNumber: 43
                                                                                                                 }, this),
                                                                                                                 "Print KRA Receipt"
                                                                                                             ]
                                                                                                         }, void 0, true, {
                                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                            lineNumber: 609,
+                                                                                                            lineNumber: 673,
                                                                                                             columnNumber: 41
                                                                                                         }, this),
                                                                                                         !sale.is_credit_note && !sale.has_credit_note && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -4809,14 +4885,14 @@ function AutomatedSalesPage() {
                                                                                                                     className: "h-4 w-4 mr-2"
                                                                                                                 }, void 0, false, {
                                                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                                    lineNumber: 615,
+                                                                                                                    lineNumber: 679,
                                                                                                                     columnNumber: 45
                                                                                                                 }, this),
                                                                                                                 "Generate Credit Note"
                                                                                                             ]
                                                                                                         }, void 0, true, {
                                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                            lineNumber: 614,
+                                                                                                            lineNumber: 678,
                                                                                                             columnNumber: 43
                                                                                                         }, this),
                                                                                                         (sale.transmission_status === "pending" || sale.transmission_status === "flagged") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -4826,54 +4902,54 @@ function AutomatedSalesPage() {
                                                                                                                     className: "h-4 w-4 mr-2"
                                                                                                                 }, void 0, false, {
                                                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                                    lineNumber: 621,
+                                                                                                                    lineNumber: 685,
                                                                                                                     columnNumber: 45
                                                                                                                 }, this),
                                                                                                                 "Retry Transmission"
                                                                                                             ]
                                                                                                         }, void 0, true, {
                                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                            lineNumber: 620,
+                                                                                                            lineNumber: 684,
                                                                                                             columnNumber: 43
                                                                                                         }, this)
                                                                                                     ]
                                                                                                 }, void 0, true, {
                                                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                                    lineNumber: 608,
+                                                                                                    lineNumber: 672,
                                                                                                     columnNumber: 39
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                            lineNumber: 602,
+                                                                                            lineNumber: 666,
                                                                                             columnNumber: 37
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                        lineNumber: 601,
+                                                                                        lineNumber: 665,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, sale.id, true, {
                                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                lineNumber: 575,
+                                                                                lineNumber: 639,
                                                                                 columnNumber: 33
                                                                             }, this);
                                                                         })
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                                        lineNumber: 572,
+                                                                        lineNumber: 636,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                lineNumber: 558,
+                                                                lineNumber: 622,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 557,
+                                                            lineNumber: 621,
                                                             columnNumber: 23
                                                         }, this),
                                                         totalPages > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4892,7 +4968,7 @@ function AutomatedSalesPage() {
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 638,
+                                                                    lineNumber: 702,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4907,12 +4983,12 @@ function AutomatedSalesPage() {
                                                                                 className: "h-4 w-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                lineNumber: 648,
+                                                                                lineNumber: 712,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 642,
+                                                                            lineNumber: 706,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4925,7 +5001,7 @@ function AutomatedSalesPage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 650,
+                                                                            lineNumber: 714,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4937,41 +5013,41 @@ function AutomatedSalesPage() {
                                                                                 className: "h-4 w-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                                                lineNumber: 659,
+                                                                                lineNumber: 723,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                                            lineNumber: 653,
+                                                                            lineNumber: 717,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                                    lineNumber: 641,
+                                                                    lineNumber: 705,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 637,
+                                                            lineNumber: 701,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                    lineNumber: 547,
+                                                    lineNumber: 611,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 546,
+                                                lineNumber: 610,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                        lineNumber: 404,
+                                        lineNumber: 468,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -4983,35 +5059,35 @@ function AutomatedSalesPage() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                                lineNumber: 669,
+                                                lineNumber: 733,
                                                 columnNumber: 28
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                        lineNumber: 668,
+                                        lineNumber: 732,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/sales/automated/page.tsx",
-                                lineNumber: 339,
+                                lineNumber: 403,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/sales/automated/page.tsx",
-                            lineNumber: 338,
+                            lineNumber: 402,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/sales/automated/page.tsx",
-                    lineNumber: 335,
+                    lineNumber: 399,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/sales/automated/page.tsx",
-                lineNumber: 334,
+                lineNumber: 398,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -5026,7 +5102,7 @@ function AutomatedSalesPage() {
                                     children: "Issue Credit Note"
                                 }, void 0, false, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 679,
+                                    lineNumber: 743,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -5036,13 +5112,13 @@ function AutomatedSalesPage() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 680,
+                                    lineNumber: 744,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/sales/automated/page.tsx",
-                            lineNumber: 678,
+                            lineNumber: 742,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5055,7 +5131,7 @@ function AutomatedSalesPage() {
                                             children: "Refund Type"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 687,
+                                            lineNumber: 751,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$radio$2d$group$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RadioGroup"], {
@@ -5073,7 +5149,7 @@ function AutomatedSalesPage() {
                                                             id: "full"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 695,
+                                                            lineNumber: 759,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -5081,13 +5157,13 @@ function AutomatedSalesPage() {
                                                             children: "Full Refund"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 696,
+                                                            lineNumber: 760,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                    lineNumber: 694,
+                                                    lineNumber: 758,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5098,7 +5174,7 @@ function AutomatedSalesPage() {
                                                             id: "partial"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 699,
+                                                            lineNumber: 763,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Label"], {
@@ -5106,25 +5182,25 @@ function AutomatedSalesPage() {
                                                             children: "Partial Refund"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 700,
+                                                            lineNumber: 764,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                    lineNumber: 698,
+                                                    lineNumber: 762,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 688,
+                                            lineNumber: 752,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 686,
+                                    lineNumber: 750,
                                     columnNumber: 13
                                 }, this),
                                 creditNoteForm.refundType === "partial" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5135,7 +5211,7 @@ function AutomatedSalesPage() {
                                             children: "Partial Amount"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 707,
+                                            lineNumber: 771,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -5149,13 +5225,13 @@ function AutomatedSalesPage() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 708,
+                                            lineNumber: 772,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 706,
+                                    lineNumber: 770,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5166,7 +5242,7 @@ function AutomatedSalesPage() {
                                             children: "Reason Code"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 721,
+                                            lineNumber: 785,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -5182,12 +5258,12 @@ function AutomatedSalesPage() {
                                                         placeholder: "Select reason"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/sales/automated/page.tsx",
-                                                        lineNumber: 729,
+                                                        lineNumber: 793,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                    lineNumber: 728,
+                                                    lineNumber: 792,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -5197,7 +5273,7 @@ function AutomatedSalesPage() {
                                                             children: "Pricing Error"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 732,
+                                                            lineNumber: 796,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5205,7 +5281,7 @@ function AutomatedSalesPage() {
                                                             children: "Quality Issues"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 733,
+                                                            lineNumber: 797,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5213,7 +5289,7 @@ function AutomatedSalesPage() {
                                                             children: "Wrong Product"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 734,
+                                                            lineNumber: 798,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5221,7 +5297,7 @@ function AutomatedSalesPage() {
                                                             children: "Customer Return"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 735,
+                                                            lineNumber: 799,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -5229,25 +5305,25 @@ function AutomatedSalesPage() {
                                                             children: "Other"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                                            lineNumber: 736,
+                                                            lineNumber: 800,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                                    lineNumber: 731,
+                                                    lineNumber: 795,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 722,
+                                            lineNumber: 786,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 720,
+                                    lineNumber: 784,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5258,7 +5334,7 @@ function AutomatedSalesPage() {
                                             children: "Notes"
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 742,
+                                            lineNumber: 806,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -5271,19 +5347,19 @@ function AutomatedSalesPage() {
                                                 })
                                         }, void 0, false, {
                                             fileName: "[project]/app/sales/automated/page.tsx",
-                                            lineNumber: 743,
+                                            lineNumber: 807,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 741,
+                                    lineNumber: 805,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/sales/automated/page.tsx",
-                            lineNumber: 685,
+                            lineNumber: 749,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -5294,7 +5370,7 @@ function AutomatedSalesPage() {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 755,
+                                    lineNumber: 819,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -5303,34 +5379,34 @@ function AutomatedSalesPage() {
                                     children: issuingCreditNote ? "Issuing..." : "Issue Credit Note"
                                 }, void 0, false, {
                                     fileName: "[project]/app/sales/automated/page.tsx",
-                                    lineNumber: 758,
+                                    lineNumber: 822,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/sales/automated/page.tsx",
-                            lineNumber: 754,
+                            lineNumber: 818,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/sales/automated/page.tsx",
-                    lineNumber: 677,
+                    lineNumber: 741,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/sales/automated/page.tsx",
-                lineNumber: 676,
+                lineNumber: 740,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/sales/automated/page.tsx",
-        lineNumber: 326,
+        lineNumber: 390,
         columnNumber: 5
     }, this);
 }
-_s(AutomatedSalesPage, "cXIKhEyofXDrAPkTlIuMCrZT7Sc=", false, function() {
+_s(AutomatedSalesPage, "ICAs3W6taZKRHWOkcFk8OheFM1c=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$currency$2d$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCurrency"]
     ];
