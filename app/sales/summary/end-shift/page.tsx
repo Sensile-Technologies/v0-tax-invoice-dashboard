@@ -905,7 +905,7 @@ export default function EndShiftPage() {
                         Attendant Collections
                       </CardTitle>
                       <CardDescription>
-                        Enter payment amounts for each attendant. Mobile Money and Card are pre-filled from sales data.
+                        Enter payment amounts collected by each attendant during the shift.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">

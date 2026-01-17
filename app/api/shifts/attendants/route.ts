@@ -45,13 +45,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
+    // Get attendants from shift_readings (staff assigned to nozzles during this shift)
+    // NOT from sales - reconciliation should be independent of sales records
     const attendantsResult = await pool.query(
-      `SELECT DISTINCT s.staff_id, st.id, st.full_name, st.username
-       FROM sales s
+      `SELECT DISTINCT sr.staff_id, st.id, st.full_name, st.username
+       FROM shift_readings sr
+       JOIN staff st ON sr.staff_id = st.id
+       WHERE sr.shift_id = $1 AND sr.staff_id IS NOT NULL
+       UNION
+       SELECT DISTINCT s.staff_id, st.id, st.full_name, st.username
+       FROM shifts s
        JOIN staff st ON s.staff_id = st.id
-       WHERE s.shift_id = $1 AND s.branch_id = $2 AND s.staff_id IS NOT NULL
-       ORDER BY st.full_name`,
-      [shiftId, branchId]
+       WHERE s.id = $1 AND s.staff_id IS NOT NULL
+       ORDER BY full_name`,
+      [shiftId]
     )
 
     const attendants = attendantsResult.rows.map((row) => ({
@@ -59,20 +66,8 @@ export async function GET(request: NextRequest) {
       name: row.full_name || row.username || "Unknown"
     }))
 
-    const appPaymentsResult = await pool.query(
-      `SELECT staff_id, SUM(total_amount) as total
-       FROM sales
-       WHERE shift_id = $1 AND branch_id = $2 
-         AND staff_id IS NOT NULL
-         AND payment_method IN ('mpesa', 'card', 'mobile_money')
-       GROUP BY staff_id`,
-      [shiftId, branchId]
-    )
-
+    // No auto-population of payments from sales - reconciliation is manual entry only
     const appPayments: Record<string, number> = {}
-    for (const row of appPaymentsResult.rows) {
-      appPayments[row.staff_id] = parseFloat(row.total) || 0
-    }
 
     return NextResponse.json({
       success: true,
