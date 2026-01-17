@@ -43,15 +43,14 @@ export async function GET(request: NextRequest) {
         s.invoice_number,
         s.fuel_type,
         s.quantity,
-        s.total_price as amount,
+        s.total_amount as amount,
         s.payment_method,
-        s.status,
         b.name as branch_name
       FROM sales s
       LEFT JOIN branches b ON s.branch_id = b.id
-      WHERE (s.customer_id = $1 OR s.customer_pin = $2 OR s.customer_name = $3)
+      WHERE (s.customer_pin = $1 OR s.customer_name = $2)
     `
-    const params: any[] = [customerId, customer.cust_tin, customer.cust_nm]
+    const params: any[] = [customer.cust_tin, customer.cust_nm]
 
     if (branchId) {
       params.push(branchId)

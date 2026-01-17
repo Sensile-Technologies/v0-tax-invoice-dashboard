@@ -60,7 +60,9 @@ __turbopack_context__.s([
     "GET",
     ()=>GET,
     "POST",
-    ()=>POST
+    ()=>POST,
+    "PUT",
+    ()=>PUT
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__ = __turbopack_context__.i("[externals]/pg [external] (pg, esm_import)");
@@ -207,6 +209,55 @@ async function POST(request) {
         });
     } finally{
         client.release();
+    }
+}
+async function PUT(request) {
+    try {
+        const body = await request.json();
+        const { id, cust_nm, cust_tin, tel_no, email, adrs } = body;
+        if (!id) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Customer ID is required"
+            }, {
+                status: 400
+            });
+        }
+        const result = await pool.query(`UPDATE customers 
+       SET cust_nm = COALESCE($1, cust_nm),
+           cust_tin = COALESCE($2, cust_tin),
+           tel_no = COALESCE($3, tel_no),
+           email = COALESCE($4, email),
+           adrs = COALESCE($5, adrs),
+           updated_at = NOW()
+       WHERE id = $6
+       RETURNING *`, [
+            cust_nm,
+            cust_tin,
+            tel_no,
+            email,
+            adrs,
+            id
+        ]);
+        if (result.rows.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Customer not found"
+            }, {
+                status: 404
+            });
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            success: true,
+            message: "Customer updated successfully",
+            data: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Error updating customer:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Failed to update customer",
+            details: error.message
+        }, {
+            status: 500
+        });
     }
 }
 __turbopack_async_result__();

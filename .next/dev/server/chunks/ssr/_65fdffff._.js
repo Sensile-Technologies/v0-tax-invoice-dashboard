@@ -1184,10 +1184,17 @@ async function signIn(identifier, password) {
             localStorage.setItem("currentUser", JSON.stringify(data.user));
             localStorage.setItem("user", JSON.stringify(data.user));
         }
+        // Store must_change_password flag
+        if (data.must_change_password) {
+            localStorage.setItem("must_change_password", "true");
+        } else {
+            localStorage.removeItem("must_change_password");
+        }
     }
     return {
         data,
-        error: data.error || null
+        error: data.error || null,
+        mustChangePassword: data.must_change_password || false
     };
 }
 async function signOut() {
@@ -4203,7 +4210,7 @@ function EndShiftPage() {
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
-                                                                children: "Enter payment amounts for each attendant. Mobile Money and Card are pre-filled from sales data."
+                                                                children: "Enter payment amounts collected by each attendant during the shift."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/sales/summary/end-shift/page.tsx",
                                                                 lineNumber: 907,
