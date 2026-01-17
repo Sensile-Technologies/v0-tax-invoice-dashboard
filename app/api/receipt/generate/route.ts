@@ -24,13 +24,15 @@ export async function POST(request: Request) {
                 b.phone as branch_phone,
                 n.nozzle_number, d.dispenser_number,
                 i.item_name, i.item_code,
-                st.full_name as served_by_name
+                st.full_name as served_by_name,
+                orig.kra_cu_inv as original_cu_invoice
          FROM sales s
          LEFT JOIN branches b ON s.branch_id = b.id
          LEFT JOIN nozzles n ON s.nozzle_id = n.id
          LEFT JOIN dispensers d ON n.dispenser_id = d.id
          LEFT JOIN items i ON s.item_id = i.id
          LEFT JOIN staff st ON s.staff_id = st.id
+         LEFT JOIN sales orig ON s.original_sale_id = orig.id
          WHERE s.id = $1`,
         [sale_id]
       )
@@ -117,7 +119,16 @@ export async function POST(request: Request) {
 
       doc.setFontSize(7)
       doc.setFont("helvetica", "normal")
-      doc.text("Welcome to our shop", pageWidth / 2, y, { align: "center" })
+      
+      if (isCreditNote && sale.original_cu_invoice) {
+        doc.text("REFERENCING ORIGINAL CU INVOICE NO.#:", pageWidth / 2, y, { align: "center" })
+        y += 3
+        doc.setFont("helvetica", "bold")
+        doc.text(sale.original_cu_invoice, pageWidth / 2, y, { align: "center" })
+        doc.setFont("helvetica", "normal")
+      } else {
+        doc.text("Welcome to our shop", pageWidth / 2, y, { align: "center" })
+      }
       y += 4
 
       drawLine()

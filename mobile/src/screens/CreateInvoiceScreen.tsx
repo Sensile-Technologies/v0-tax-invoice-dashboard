@@ -350,6 +350,10 @@ export default function CreateInvoiceScreen({ navigation }: any) {
           console.log('[CreateInvoice] Print result:', printResult)
           if (printResult.success) {
             printMessage = ' - Receipt printed'
+            try {
+              await api.post('/api/sales/mark-printed', { sale_id: saleResponse.sale_id })
+            } catch (e) {
+            }
           } else {
             printMessage = ` - ${printResult.message}`
           }

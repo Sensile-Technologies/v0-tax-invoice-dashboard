@@ -139,6 +139,11 @@ export default function InvoicesScreen({ navigation }: any) {
       const result = await sunmiPrinter.printInvoice(invoiceData)
       if (!result.success) {
         Alert.alert('Print Error', result.message)
+      } else {
+        try {
+          await api.post('/api/sales/mark-printed', { sale_id: invoice.id })
+        } catch (e) {
+        }
       }
     } catch (error: any) {
       Alert.alert('Error', error?.message || 'Failed to print receipt')
