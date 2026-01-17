@@ -216,17 +216,21 @@ async function GET(request) {
       ORDER BY i.name
     `, params);
         const branch = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT name, bulk_sales_kra_percentage FROM branches WHERE id = $1
+      SELECT name, bulk_sales_kra_percentage, controller_id FROM branches WHERE id = $1
     `, [
             branchId
         ]);
+        const branchData = branch[0] || {};
+        const hasController = !!branchData.controller_id;
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: {
                 bulk_sales: bulkSales,
                 summary,
-                branch_name: branch[0]?.name || "Unknown Branch",
-                kra_percentage: branch[0]?.bulk_sales_kra_percentage || 100,
+                branch_name: branchData.name || "Unknown Branch",
+                kra_percentage: branchData.bulk_sales_kra_percentage || 100,
+                has_controller: hasController,
+                controller_id: branchData.controller_id || null,
                 totals: {
                     total_meter_difference: bulkSales.reduce((sum, bs)=>sum + Number(bs.meter_difference || 0), 0),
                     total_invoiced: bulkSales.reduce((sum, bs)=>sum + Number(bs.invoiced_quantity || 0), 0),
