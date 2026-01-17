@@ -270,6 +270,8 @@ export async function POST(request: NextRequest) {
 
         if (kraResult.success && kraResult.kraResponse?.data) {
           const kraData = kraResult.kraResponse.data
+          // Use intrlData as CU invoice number (this is what KRA returns as the unique invoice identifier)
+          const cuInvNo = kraData.intrlData || (kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null)
           await query(
             `UPDATE sales SET 
               kra_status = 'success',
@@ -282,7 +284,7 @@ export async function POST(request: NextRequest) {
             [
               kraData.rcptSign || '',
               kraData.sdcId || '',
-              `${kraData.sdcId}/${kraData.rcptNo}`,
+              cuInvNo,
               kraData.intrlData || '',
               sale.id
             ]
@@ -290,7 +292,7 @@ export async function POST(request: NextRequest) {
           sale.kra_status = 'success'
           sale.kra_rcpt_sign = kraData.rcptSign
           sale.kra_scu_id = kraData.sdcId
-          sale.kra_cu_inv = `${kraData.sdcId}/${kraData.rcptNo}`
+          sale.kra_cu_inv = cuInvNo
           sale.kra_internal_data = kraData.intrlData
         } else if (!kraResult.success) {
           await query(

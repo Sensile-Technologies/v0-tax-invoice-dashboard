@@ -332,6 +332,8 @@ export async function POST(request: Request) {
 
       const kraData = kraResult.kraResponse?.data || {}
       const kraStatus = kraResult.success ? 'success' : 'failed'
+      // Use intrlData as CU invoice number (this is what KRA returns as the unique invoice identifier)
+      const cuInvNo = kraData.intrlData || (kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null)
       
       await client.query(
         `UPDATE sales SET 
@@ -348,7 +350,7 @@ export async function POST(request: Request) {
           kraStatus,
           kraData.rcptSign || null,
           kraData.sdcId || null,
-          kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
+          cuInvNo,
           kraData.intrlData || null,
           sale.id,
           effectiveCustomerPin || null
@@ -364,10 +366,10 @@ export async function POST(request: Request) {
         kra_response: kraResult.kraResponse,
         kra_success: kraResult.success,
         print_data: {
-          invoice_number: kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : invoiceNumber,
+          invoice_number: cuInvNo || invoiceNumber,
           receipt_no: kraData.rcptNo?.toString() || null,
           cu_serial_number: kraData.sdcId || null,
-          cu_invoice_no: kraData.rcptNo ? `${kraData.sdcId || ''}/${kraData.rcptNo}` : null,
+          cu_invoice_no: cuInvNo,
           intrl_data: kraData.intrlData || null,
           branch_name: branchData.name || null,
           branch_address: branchData.address || null,
