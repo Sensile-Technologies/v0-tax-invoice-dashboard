@@ -220,12 +220,12 @@ export async function POST(request: NextRequest) {
 
     console.log(`[BULK SALES] Created ${totalSales} invoices. Intermittency rate: ${intermittencyRate}%. Transmitting ${salesToTransmit} to KRA, skipping ${totalSales - salesToTransmit}.`)
 
-    // Mark sales to be transmitted as pending
+    // Mark sales transmitted to KRA
     if (kraTransmitIds.length > 0) {
       await pool.query(
         `UPDATE sales SET 
-          kra_status = 'pending',
-          transmission_status = 'pending',
+          kra_status = 'transmitted',
+          transmission_status = 'sent',
           updated_at = NOW()
         WHERE id = ANY($1)`,
         [kraTransmitIds]
@@ -249,11 +249,11 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Mark skipped sales as not_sent (not transmitted per intermittency rate)
+    // Mark skipped sales as pending (not transmitted per intermittency rate)
     if (kraSkipIds.length > 0) {
       await pool.query(
         `UPDATE sales SET 
-          kra_status = 'skipped_intermittency',
+          kra_status = 'pending',
           transmission_status = 'not_sent',
           updated_at = NOW()
         WHERE id = ANY($1)`,
@@ -263,11 +263,11 @@ export async function POST(request: NextRequest) {
 
     // Update local sales objects with their status
     for (const sale of kraTransmitSales) {
-      sale.kra_status = 'pending'
-      sale.transmission_status = 'pending'
+      sale.kra_status = 'transmitted'
+      sale.transmission_status = 'sent'
     }
     for (const sale of kraSkipSales) {
-      sale.kra_status = 'skipped_intermittency'
+      sale.kra_status = 'pending'
       sale.transmission_status = 'not_sent'
     }
 
