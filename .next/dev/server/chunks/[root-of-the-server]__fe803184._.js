@@ -113,6 +113,19 @@ async function GET(request) {
         const shiftIds = shiftsResult.rows.map((s)=>s.id);
         const nozzleReadings = [];
         const productNozzleTotals = new Map();
+        const branchItemPricesQuery = `
+      SELECT i.item_name, bi.sale_price
+      FROM branch_items bi
+      JOIN items i ON bi.item_id = i.id
+      WHERE bi.branch_id = $1 AND bi.is_available = true
+    `;
+        const branchItemPricesResult = await pool.query(branchItemPricesQuery, [
+            branchId
+        ]);
+        const productPrices = new Map();
+        for (const row of branchItemPricesResult.rows){
+            productPrices.set(row.item_name, parseFloat(row.sale_price) || 0);
+        }
         if (shiftIds.length > 0) {
             const nozzleQuery = `
         SELECT 
@@ -172,14 +185,19 @@ async function GET(request) {
                     rtt: data.total_rtt,
                     pump_sales: pump_sales
                 });
+                const pricePerLitre = productPrices.get(data.fuel_type) || 0;
                 const existing = productNozzleTotals.get(data.fuel_type) || {
                     throughput: 0,
                     rtt: 0,
-                    pump_sales: 0
+                    pump_sales: 0,
+                    price_per_litre: pricePerLitre,
+                    amount: 0
                 };
                 existing.throughput += throughput;
                 existing.rtt += data.total_rtt;
                 existing.pump_sales += pump_sales;
+                existing.price_per_litre = pricePerLitre;
+                existing.amount = existing.pump_sales * pricePerLitre;
                 productNozzleTotals.set(data.fuel_type, existing);
             }
         }

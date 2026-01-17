@@ -33,6 +33,8 @@ interface ProductNozzleTotal {
   throughput: number
   rtt: number
   pump_sales: number
+  price_per_litre: number
+  amount: number
 }
 
 interface ProductMovement {
@@ -175,7 +177,7 @@ export default function DSSRPage() {
 
     doc.setFontSize(12)
     doc.setFont("helvetica", "bold")
-    doc.text("1. SALES OF WHITE PRODUCTS IN LITRES", 14, yPos)
+    doc.text("1. WHITE PRODUCT METER SALES", 14, yPos)
     yPos += 4
 
     autoTable(doc, {
@@ -326,15 +328,19 @@ export default function DSSRPage() {
       [`Date: ${reportDate}`],
       [`Branch: ${data.branch_name}`],
       [],
-      ['1. SALES OF WHITE PRODUCTS IN LITRES'],
+      ['1. WHITE PRODUCT METER SALES'],
       ['Nozzle', 'Fuel Type', 'Closing Meter', 'Opening Meter', 'Throughput', 'RTT', 'Pump Sales'],
       ...data.nozzle_readings.map(n => [
         n.nozzle_name, n.fuel_type, n.closing_meter, n.opening_meter, n.throughput, n.rtt, n.pump_sales
       ]),
       [],
-      ['Product Summary'],
-      ['Product', 'Total Throughput', 'Total RTT', 'Total Pump Sales'],
-      ...data.product_nozzle_totals.map(p => [p.product, p.throughput, p.rtt, p.pump_sales])
+      ['F) TOTAL VOLUME PER PRODUCT'],
+      ['Product', 'Total Throughput', 'Total RTT', 'Total Pump Sales (L)'],
+      ...data.product_nozzle_totals.map(p => [p.product, p.throughput, p.rtt, p.pump_sales]),
+      [],
+      ['G) AMOUNT PER PRODUCT'],
+      ['Product', 'Volume (L)', 'Price/L (KES)', 'Amount (KES)'],
+      ...data.product_nozzle_totals.map(p => [p.product, p.pump_sales, p.price_per_litre || 0, p.amount || (p.pump_sales * (p.price_per_litre || 0))])
     ]
     const ws1 = XLSX.utils.aoa_to_sheet(nozzleData)
     ws1['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 10 }, { wch: 12 }]
@@ -492,7 +498,7 @@ export default function DSSRPage() {
                   <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg font-bold text-slate-800">
-                        SALES OF WHITE PRODUCTS IN LITRES
+                        WHITE PRODUCT METER SALES
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -544,15 +550,33 @@ export default function DSSRPage() {
                       </div>
                       
                       {data.product_nozzle_totals.length > 0 && (
-                        <div className="border-t p-4">
-                          <p className="text-sm font-semibold text-slate-700 mb-2">F) TOTAL PER PRODUCT</p>
-                          <div className="flex flex-wrap gap-4">
-                            {data.product_nozzle_totals.map(p => (
-                              <div key={p.product} className="bg-slate-100 rounded-lg px-4 py-2">
-                                <span className="font-medium">{p.product}:</span>
-                                <span className="ml-2 font-mono font-semibold">{formatNumber(p.pump_sales)} L</span>
-                              </div>
-                            ))}
+                        <div className="border-t p-4 space-y-3">
+                          <div>
+                            <p className="text-sm font-semibold text-slate-700 mb-2">F) TOTAL VOLUME PER PRODUCT</p>
+                            <div className="flex flex-wrap gap-4">
+                              {data.product_nozzle_totals.map(p => (
+                                <div key={p.product} className="bg-slate-100 rounded-lg px-4 py-2">
+                                  <span className="font-medium">{p.product}:</span>
+                                  <span className="ml-2 font-mono font-semibold">{formatNumber(p.pump_sales)} L</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-700 mb-2">G) AMOUNT PER PRODUCT (Volume x Price/L)</p>
+                            <div className="flex flex-wrap gap-4">
+                              {data.product_nozzle_totals.map(p => (
+                                <div key={p.product} className="bg-green-50 rounded-lg px-4 py-2">
+                                  <span className="font-medium">{p.product}:</span>
+                                  <span className="ml-2 font-mono font-semibold text-green-700">
+                                    KES {formatNumber(p.amount || (p.pump_sales * (p.price_per_litre || 0)))}
+                                  </span>
+                                  <span className="ml-1 text-xs text-slate-500">
+                                    (@{formatNumber(p.price_per_litre || 0)}/L)
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
                       )}
