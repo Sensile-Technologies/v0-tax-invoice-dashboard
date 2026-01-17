@@ -5,11 +5,14 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Search, MoreVertical, FileText, Edit, Trash2, Loader2 } from "lucide-react"
+import { Search, MoreVertical, FileText, Edit, Trash2, Loader2, Download, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useCurrency } from "@/lib/currency-utils"
 
 interface Customer {
   id: string
@@ -22,6 +25,37 @@ interface Customer {
   branch_id: string
 }
 
+interface Transaction {
+  id: string
+  date: string
+  invoice_number: string
+  fuel_type: string
+  quantity: number
+  amount: number
+  payment_method: string
+  branch_name: string
+}
+
+interface StatementData {
+  customer: {
+    id: string
+    name: string
+    pin: string
+    phone: string
+    email: string
+    address: string
+  }
+  transactions: Transaction[]
+  summary: {
+    totalTransactions: number
+    totalAmount: number
+    totalQuantity: number
+    paymentBreakdown: Record<string, number>
+    periodStart: string | null
+    periodEnd: string | null
+  }
+}
+
 export default function CustomersPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -30,16 +64,29 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true)
   const [currentBranch, setCurrentBranch] = useState<any>(null)
   const { toast } = useToast()
+  const { formatCurrency } = useCurrency()
+
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [editForm, setEditForm] = useState({
+    cust_nm: "",
+    cust_tin: "",
+    tel_no: "",
+    email: "",
+    adrs: ""
+  })
+  const [saving, setSaving] = useState(false)
+
+  // Statement dialog state
+  const [statementDialogOpen, setStatementDialogOpen] = useState(false)
+  const [statementData, setStatementData] = useState<StatementData | null>(null)
+  const [statementLoading, setStatementLoading] = useState(false)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   useEffect(() => {
     fetchCurrentBranch()
-    const interval = setInterval(() => {
-      fetchCurrentBranch()
-      if (currentBranch) {
-        fetchCustomers()
-      }
-    }, 2000)
-    return () => clearInterval(interval)
   }, [])
 
   useEffect(() => {
@@ -89,6 +136,170 @@ export default function CustomersPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleEditCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer)
+    setEditForm({
+      cust_nm: customer.cust_nm || "",
+      cust_tin: customer.cust_tin || customer.tin || "",
+      tel_no: customer.tel_no || "",
+      email: customer.email || "",
+      adrs: customer.adrs || ""
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleSaveCustomer = async () => {
+    if (!selectedCustomer) return
+
+    setSaving(true)
+    try {
+      const response = await fetch('/api/customers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedCustomer.id,
+          ...editForm
+        })
+      })
+
+      const result = await response.json()
+
+      if (!result.success) throw new Error(result.error)
+
+      toast({
+        title: "Success",
+        description: "Customer updated successfully.",
+      })
+
+      setEditDialogOpen(false)
+      fetchCustomers()
+    } catch (error) {
+      console.error("Error updating customer:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update customer.",
+        variant: "destructive",
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleGenerateStatement = async (customer: Customer) => {
+    setSelectedCustomer(customer)
+    setStatementData(null)
+    setStartDate("")
+    setEndDate("")
+    setStatementDialogOpen(true)
+  }
+
+  const fetchStatement = async () => {
+    if (!selectedCustomer) return
+
+    setStatementLoading(true)
+    try {
+      let url = `/api/customers/statement?customer_id=${selectedCustomer.id}&branch_id=${currentBranch?.id || ''}`
+      if (startDate) url += `&start_date=${startDate}`
+      if (endDate) url += `&end_date=${endDate}`
+
+      const response = await fetch(url)
+      const result = await response.json()
+
+      if (!result.success) throw new Error(result.error)
+
+      setStatementData(result.data)
+    } catch (error) {
+      console.error("Error fetching statement:", error)
+      toast({
+        title: "Error",
+        description: "Failed to generate statement.",
+        variant: "destructive",
+      })
+    } finally {
+      setStatementLoading(false)
+    }
+  }
+
+  const handlePrintStatement = () => {
+    if (!statementData) return
+    
+    const printWindow = window.open('', '_blank')
+    if (!printWindow) return
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Customer Statement - ${statementData.customer.name}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { color: #1e40af; }
+          .header { margin-bottom: 20px; }
+          .customer-info { margin-bottom: 20px; padding: 10px; background: #f3f4f6; border-radius: 8px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background: #1e40af; color: white; }
+          tr:nth-child(even) { background: #f9fafb; }
+          .summary { margin-top: 20px; padding: 15px; background: #e0f2fe; border-radius: 8px; }
+          .total { font-size: 1.2em; font-weight: bold; }
+          @media print { body { padding: 0; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Customer Statement</h1>
+          <p>Generated: ${new Date().toLocaleString()}</p>
+          ${statementData.summary.periodStart ? `<p>Period: ${statementData.summary.periodStart} to ${statementData.summary.periodEnd || 'Present'}</p>` : ''}
+        </div>
+        
+        <div class="customer-info">
+          <h3>${statementData.customer.name}</h3>
+          <p>PIN: ${statementData.customer.pin || 'N/A'}</p>
+          <p>Phone: ${statementData.customer.phone || 'N/A'}</p>
+          <p>Email: ${statementData.customer.email || 'N/A'}</p>
+        </div>
+
+        <h3>Transaction History</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Invoice</th>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Amount</th>
+              <th>Payment</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${statementData.transactions.map(t => `
+              <tr>
+                <td>${new Date(t.date).toLocaleDateString()}</td>
+                <td>${t.invoice_number || 'N/A'}</td>
+                <td>${t.fuel_type || 'N/A'}</td>
+                <td>${t.quantity || 0} L</td>
+                <td>KES ${parseFloat(String(t.amount || 0)).toLocaleString()}</td>
+                <td>${t.payment_method || 'N/A'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="summary">
+          <h3>Summary</h3>
+          <p>Total Transactions: ${statementData.summary.totalTransactions}</p>
+          <p>Total Quantity: ${statementData.summary.totalQuantity.toLocaleString()} L</p>
+          <p class="total">Total Amount: KES ${statementData.summary.totalAmount.toLocaleString()}</p>
+        </div>
+      </body>
+      </html>
+    `
+
+    printWindow.document.write(html)
+    printWindow.document.close()
+    printWindow.print()
   }
 
   const handleDeleteCustomer = async (customerId: string, customerName: string) => {
@@ -194,11 +405,17 @@ export default function CustomersPage() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="rounded-xl">
-                                  <DropdownMenuItem className="gap-2 cursor-pointer rounded-lg">
+                                  <DropdownMenuItem 
+                                    className="gap-2 cursor-pointer rounded-lg"
+                                    onClick={() => handleGenerateStatement(customer)}
+                                  >
                                     <FileText className="h-4 w-4" />
                                     Generate Statement
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem className="gap-2 cursor-pointer rounded-lg">
+                                  <DropdownMenuItem 
+                                    className="gap-2 cursor-pointer rounded-lg"
+                                    onClick={() => handleEditCustomer(customer)}
+                                  >
                                     <Edit className="h-4 w-4" />
                                     Edit Customer
                                   </DropdownMenuItem>
@@ -227,6 +444,194 @@ export default function CustomersPage() {
           </footer>
         </div>
       </div>
+
+      {/* Edit Customer Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Customer</DialogTitle>
+            <DialogDescription>Update customer information</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="cust_nm">Customer Name</Label>
+              <Input
+                id="cust_nm"
+                value={editForm.cust_nm}
+                onChange={(e) => setEditForm({ ...editForm, cust_nm: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cust_tin">PIN/TIN</Label>
+              <Input
+                id="cust_tin"
+                value={editForm.cust_tin}
+                onChange={(e) => setEditForm({ ...editForm, cust_tin: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tel_no">Phone Number</Label>
+              <Input
+                id="tel_no"
+                value={editForm.tel_no}
+                onChange={(e) => setEditForm({ ...editForm, tel_no: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={editForm.email}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="adrs">Address</Label>
+              <Input
+                id="adrs"
+                value={editForm.adrs}
+                onChange={(e) => setEditForm({ ...editForm, adrs: e.target.value })}
+                className="rounded-xl"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)} className="rounded-xl">
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCustomer} disabled={saving} className="rounded-xl">
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Statement Dialog */}
+      <Dialog open={statementDialogOpen} onOpenChange={setStatementDialogOpen}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Customer Statement</DialogTitle>
+            <DialogDescription>
+              {selectedCustomer?.cust_nm || "Customer"} - Transaction History
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-4 items-end">
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="rounded-xl w-40"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>End Date</Label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="rounded-xl w-40"
+                />
+              </div>
+              <Button onClick={fetchStatement} disabled={statementLoading} className="rounded-xl">
+                {statementLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Generate
+              </Button>
+              {statementData && (
+                <Button variant="outline" onClick={handlePrintStatement} className="rounded-xl gap-2">
+                  <Download className="h-4 w-4" />
+                  Print/Download
+                </Button>
+              )}
+            </div>
+
+            {statementLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : statementData ? (
+              <div className="space-y-4">
+                <Card className="rounded-xl">
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-2">Customer Details</h3>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>Name: {statementData.customer.name}</div>
+                      <div>PIN: {statementData.customer.pin || "N/A"}</div>
+                      <div>Phone: {statementData.customer.phone || "N/A"}</div>
+                      <div>Email: {statementData.customer.email || "N/A"}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-xl">
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-2">Summary</h3>
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <div className="text-2xl font-bold">{statementData.summary.totalTransactions}</div>
+                        <div className="text-sm text-muted-foreground">Transactions</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{statementData.summary.totalQuantity.toLocaleString()} L</div>
+                        <div className="text-sm text-muted-foreground">Total Quantity</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-primary">{formatCurrency(statementData.summary.totalAmount)}</div>
+                        <div className="text-sm text-muted-foreground">Total Amount</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {statementData.transactions.length > 0 ? (
+                  <div className="rounded-xl border overflow-hidden overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Invoice</TableHead>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Payment</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {statementData.transactions.map((t) => (
+                          <TableRow key={t.id}>
+                            <TableCell>{new Date(t.date).toLocaleDateString()}</TableCell>
+                            <TableCell>{t.invoice_number || "N/A"}</TableCell>
+                            <TableCell>{t.fuel_type || "N/A"}</TableCell>
+                            <TableCell>{t.quantity || 0} L</TableCell>
+                            <TableCell>{formatCurrency(t.amount || 0)}</TableCell>
+                            <TableCell className="capitalize">{t.payment_method || "N/A"}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No transactions found for the selected period
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                Select a date range and click Generate to view the statement
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

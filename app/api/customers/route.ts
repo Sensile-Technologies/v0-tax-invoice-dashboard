@@ -152,3 +152,50 @@ export async function POST(request: NextRequest) {
     client.release()
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { id, cust_nm, cust_tin, tel_no, email, adrs } = body
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Customer ID is required" },
+        { status: 400 }
+      )
+    }
+
+    const result = await pool.query(
+      `UPDATE customers 
+       SET cust_nm = COALESCE($1, cust_nm),
+           cust_tin = COALESCE($2, cust_tin),
+           tel_no = COALESCE($3, tel_no),
+           email = COALESCE($4, email),
+           adrs = COALESCE($5, adrs),
+           updated_at = NOW()
+       WHERE id = $6
+       RETURNING *`,
+      [cust_nm, cust_tin, tel_no, email, adrs, id]
+    )
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Customer not found" },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Customer updated successfully",
+      data: result.rows[0]
+    })
+
+  } catch (error: any) {
+    console.error("Error updating customer:", error)
+    return NextResponse.json(
+      { error: "Failed to update customer", details: error.message },
+      { status: 500 }
+    )
+  }
+}

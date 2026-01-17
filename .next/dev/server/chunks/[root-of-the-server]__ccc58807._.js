@@ -193,9 +193,10 @@ async function POST(request) {
                 }
             }
             if (email) {
-                const result = await client.query(`SELECT u.id, u.email, u.username, u.password_hash, 
+                const result = await client.query(`SELECT u.id, u.email, u.username, u.password_hash, u.must_change_password,
            COALESCE(s.role, u.role) as role,
-           v.id as vendor_id, v.name as vendor_name,
+           COALESCE(v.id, b.vendor_id) as vendor_id, 
+           COALESCE(v.name, sv.name) as vendor_name,
            COALESCE(s.branch_id, vb.id) as branch_id, 
            COALESCE(b.name, vb.name) as branch_name,
            COALESCE(b.bhf_id, vb.bhf_id) as bhf_id
@@ -203,15 +204,17 @@ async function POST(request) {
            LEFT JOIN vendors v ON v.email = u.email 
            LEFT JOIN staff s ON s.user_id = u.id
            LEFT JOIN branches b ON b.id = s.branch_id
+           LEFT JOIN vendors sv ON sv.id = b.vendor_id
            LEFT JOIN branches vb ON vb.vendor_id = v.id AND vb.is_main = true
            WHERE u.email = $1`, [
                     email
                 ]);
                 user = result.rows[0];
             } else {
-                const result = await client.query(`SELECT u.id, u.email, u.username, u.password_hash, 
+                const result = await client.query(`SELECT u.id, u.email, u.username, u.password_hash, u.must_change_password,
            COALESCE(s.role, u.role) as role,
-           v.id as vendor_id, v.name as vendor_name,
+           COALESCE(v.id, b.vendor_id) as vendor_id, 
+           COALESCE(v.name, sv.name) as vendor_name,
            COALESCE(s.branch_id, vb.id) as branch_id, 
            COALESCE(b.name, vb.name) as branch_name,
            COALESCE(b.bhf_id, vb.bhf_id) as bhf_id
@@ -219,6 +222,7 @@ async function POST(request) {
            LEFT JOIN vendors v ON v.email = u.email 
            LEFT JOIN staff s ON s.user_id = u.id
            LEFT JOIN branches b ON b.id = s.branch_id
+           LEFT JOIN vendors sv ON sv.id = b.vendor_id
            LEFT JOIN branches vb ON vb.vendor_id = v.id AND vb.is_main = true
            WHERE u.username = $1`, [
                     username
@@ -285,6 +289,7 @@ async function POST(request) {
             const response = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 access_token: token,
                 refresh_token: refreshToken,
+                must_change_password: user.must_change_password || false,
                 user: {
                     id: user.id,
                     email: user.email,
