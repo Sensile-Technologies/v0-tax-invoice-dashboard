@@ -1,18 +1,6 @@
 {
-  "/api/auth/session/route": "app/api/auth/session/route.js",
-  "/api/auth/signin/route": "app/api/auth/signin/route.js",
-  "/api/branch-items/route": "app/api/branch-items/route.js",
-  "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/customers/route": "app/api/customers/route.js",
-  "/api/dispensers/route": "app/api/dispensers/route.js",
-  "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
-  "/api/nozzles/route": "app/api/nozzles/route.js",
-  "/api/sales/route": "app/api/sales/route.js",
-  "/api/shifts/route": "app/api/shifts/route.js",
-  "/api/tanks/route": "app/api/tanks/route.js",
-  "/auth/login/page": "app/auth/login/page.js",
   "/headquarters/page": "app/headquarters/page.js",
-  "/page": "app/page.js",
-  "/sales/summary/page": "app/sales/summary/page.js"
+  "/page": "app/page.js"
 }

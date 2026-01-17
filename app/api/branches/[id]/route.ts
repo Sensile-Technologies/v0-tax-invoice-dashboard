@@ -36,46 +36,25 @@ export async function PUT(
     const body = await request.json()
 
     const {
-      name,
-      location,
       manager,
       email,
       phone,
-      address,
-      county,
-      localTaxOffice,
-      storageIndices,
-      kraPin,
       controllerId,
     } = body
 
     const rows = await query(
       `UPDATE branches SET
-        name = COALESCE($1, name),
-        location = COALESCE($2, location),
-        manager = COALESCE($3, manager),
-        email = COALESCE($4, email),
-        phone = COALESCE($5, phone),
-        address = COALESCE($6, address),
-        county = COALESCE($7, county),
-        local_tax_office = COALESCE($8, local_tax_office),
-        storage_indices = COALESCE($9, storage_indices),
-        kra_pin = COALESCE($10, kra_pin),
-        controller_id = COALESCE($11, controller_id),
+        manager = COALESCE($1, manager),
+        email = COALESCE($2, email),
+        phone = COALESCE($3, phone),
+        controller_id = COALESCE($4, controller_id),
         updated_at = NOW()
-      WHERE id = $12
+      WHERE id = $5
       RETURNING *`,
       [
-        name,
-        location,
         manager,
         email,
         phone,
-        address,
-        county,
-        localTaxOffice,
-        storageIndices ? JSON.stringify(storageIndices) : null,
-        kraPin || null,
         controllerId || null,
         id,
       ]

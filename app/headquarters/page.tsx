@@ -1566,56 +1566,79 @@ export default function HeadquartersPage() {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-branch-name">Branch Name *</Label>
+                <Label htmlFor="edit-branch-name" className="text-muted-foreground">Branch Name</Label>
                 <Input
                   id="edit-branch-name"
-                  placeholder="e.g., Nairobi Branch"
                   value={branchForm.name}
-                  onChange={(e) => setBranchForm({ ...branchForm, name: e.target.value })}
-                  className="rounded-xl"
+                  disabled
+                  className="rounded-xl bg-slate-100 cursor-not-allowed"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-location">Location *</Label>
+                <Label htmlFor="edit-location" className="text-muted-foreground">Location</Label>
                 <Input
                   id="edit-location"
-                  placeholder="e.g., Nairobi, Kenya"
                   value={branchForm.location}
-                  onChange={(e) => setBranchForm({ ...branchForm, location: e.target.value })}
-                  className="rounded-xl"
+                  disabled
+                  className="rounded-xl bg-slate-100 cursor-not-allowed"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-address">Physical Address</Label>
+              <Label htmlFor="edit-address" className="text-muted-foreground">Physical Address</Label>
               <Input
                 id="edit-address"
-                placeholder="Street address, building, floor"
                 value={branchForm.address}
-                onChange={(e) => setBranchForm({ ...branchForm, address: e.target.value })}
-                className="rounded-xl"
+                disabled
+                className="rounded-xl bg-slate-100 cursor-not-allowed"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-county">County *</Label>
+                <Label htmlFor="edit-county" className="text-muted-foreground">County</Label>
                 <Input
                   id="edit-county"
-                  placeholder="e.g., Nairobi"
                   value={branchForm.county}
-                  onChange={(e) => setBranchForm({ ...branchForm, county: e.target.value })}
-                  className="rounded-xl"
+                  disabled
+                  className="rounded-xl bg-slate-100 cursor-not-allowed"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-local-tax-office">Local Tax Office *</Label>
+                <Label htmlFor="edit-local-tax-office" className="text-muted-foreground">Local Tax Office</Label>
                 <Input
                   id="edit-local-tax-office"
-                  placeholder="e.g., Nairobi CBD"
                   value={branchForm.localTaxOffice}
-                  onChange={(e) => setBranchForm({ ...branchForm, localTaxOffice: e.target.value })}
-                  className="rounded-xl"
+                  disabled
+                  className="rounded-xl bg-slate-100 cursor-not-allowed"
                 />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-kra-pin" className="text-muted-foreground">KRA PIN</Label>
+              <Input
+                id="edit-kra-pin"
+                value={branchForm.kraPin}
+                disabled
+                className="rounded-xl bg-slate-100 cursor-not-allowed font-mono"
+              />
+              <p className="text-xs text-muted-foreground">
+                KRA PIN is set during signup and cannot be changed.
+              </p>
+            </div>
+            <div className="border-t pt-4 mt-2">
+              <h3 className="text-sm font-medium text-slate-700 mb-3">Editable Fields</h3>
+              <div className="space-y-2">
+                <Label htmlFor="edit-controller-id">Controller ID (PTS ID)</Label>
+                <Input
+                  id="edit-controller-id"
+                  placeholder="e.g., 003A003A..."
+                  value={branchForm.controllerId}
+                  onChange={(e) => setBranchForm({ ...branchForm, controllerId: e.target.value })}
+                  className="rounded-xl font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Unique identifier for the pump controller. Used to match pump callbacks to this branch.
+                </p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
@@ -1651,32 +1674,6 @@ export default function HeadquartersPage() {
                   className="rounded-xl"
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-kra-pin">KRA PIN</Label>
-              <Input
-                id="edit-kra-pin"
-                placeholder="e.g., P000000000X"
-                value={branchForm.kraPin}
-                onChange={(e) => setBranchForm({ ...branchForm, kraPin: e.target.value })}
-                className="rounded-xl"
-              />
-              <p className="text-xs text-muted-foreground">
-                Required for KRA TIMS integration. Sales will fail without this.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="edit-controller-id">Controller ID (PTS ID)</Label>
-              <Input
-                id="edit-controller-id"
-                placeholder="e.g., 003A003A..."
-                value={branchForm.controllerId}
-                onChange={(e) => setBranchForm({ ...branchForm, controllerId: e.target.value })}
-                className="rounded-xl font-mono text-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                Unique identifier for the pump controller. Used to match pump callbacks to this branch.
-              </p>
             </div>
           </div>
           <div className="space-y-4 border-t pt-4">
