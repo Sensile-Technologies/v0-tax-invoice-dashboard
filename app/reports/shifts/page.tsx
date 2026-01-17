@@ -154,21 +154,22 @@ export default function ShiftsReportPage() {
       if (fromDate) params.append('date_from', fromDate)
       if (toDate) params.append('date_to', toDate)
       
-      const response = await fetch(`/api/reports/shifts?${params.toString()}`)
+      const response = await fetch(`/api/shifts/list?${params.toString()}`)
       const data = await response.json()
       
       if (data.success) {
-        setShifts(data.shifts || [])
+        const shiftsData = data.data || []
+        setShifts(shiftsData)
         setTotalShiftsCount(data.pagination?.total || 0)
         setHasMore(data.pagination?.hasMore || false)
         
-        const totalSales = data.shifts?.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0) || 0
-        const totalMeterDiff = data.shifts?.reduce((sum: number, s: Shift) => sum + ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)), 0) || 0
+        const totalSales = shiftsData.reduce((sum: number, s: Shift) => sum + (s.total_sales || 0), 0)
+        const totalMeterDiff = shiftsData.reduce((sum: number, s: Shift) => sum + ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)), 0)
         
         setSummary({
-          totalShifts: data.pagination?.total || data.shifts?.length || 0,
+          totalShifts: data.pagination?.total || shiftsData.length,
           totalSales,
-          averagePerShift: data.shifts?.length ? totalSales / data.shifts.length : 0,
+          averagePerShift: shiftsData.length ? totalSales / shiftsData.length : 0,
           totalMeterDiff
         })
       } else {
