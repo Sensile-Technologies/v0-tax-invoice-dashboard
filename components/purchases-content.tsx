@@ -302,11 +302,26 @@ export function PurchasesContent() {
   const handleSubmitAcceptance = async () => {
     if (!selectedPO) return
 
-    // Check if at least one bowser volume is entered
-    const hasAnyBowserVolume = poItemEntries.some(item => parseFloat(item.bowser_volume) > 0)
-    if (!hasAnyBowserVolume) {
-      toast.error("Please enter bowser volume for at least one product")
+    // Validate all bowser volumes are entered
+    const missingBowserVolumes = poItemEntries.filter(item => !item.bowser_volume || parseFloat(item.bowser_volume) <= 0)
+    if (missingBowserVolumes.length > 0) {
+      const missingNames = missingBowserVolumes.map(item => item.item_name).join(", ")
+      toast.error(`Please enter bowser volume for: ${missingNames}`)
       return
+    }
+
+    // Validate all tank readings have volume_after entered
+    if (tankReadings.length > 0) {
+      const tanksWithNoChange = tankReadings.filter(tank => {
+        const volBefore = parseFloat(String(tank.volume_before)) || 0
+        const volAfter = parseFloat(String(tank.volume_after)) || 0
+        return volAfter === volBefore
+      })
+      
+      if (tanksWithNoChange.length === tankReadings.length) {
+        toast.error("Please update 'Volume After' for at least one tank to reflect the delivery")
+        return
+      }
     }
 
     // Check if any tank exceeds capacity
@@ -314,6 +329,16 @@ export function PurchasesContent() {
       const volumeAfter = parseFloat(String(tank.volume_after)) || 0
       if (tank.capacity > 0 && volumeAfter > tank.capacity) {
         toast.error(`${tank.tank_name}: Volume after (${volumeAfter}L) exceeds capacity (${tank.capacity}L)`)
+        return
+      }
+    }
+
+    // Validate volume_after is not less than volume_before (can't lose fuel during delivery)
+    for (const tank of tankReadings) {
+      const volBefore = parseFloat(String(tank.volume_before)) || 0
+      const volAfter = parseFloat(String(tank.volume_after)) || 0
+      if (volAfter < volBefore) {
+        toast.error(`${tank.tank_name}: Volume after (${volAfter}L) cannot be less than volume before (${volBefore}L)`)
         return
       }
     }
