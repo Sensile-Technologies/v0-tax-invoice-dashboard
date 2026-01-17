@@ -188,7 +188,7 @@ export function PurchasesContent() {
           tank_name: t.tank_name,
           capacity: t.capacity || 0,
           volume_before: t.current_stock || 0,
-          volume_after: 0
+          volume_after: t.current_stock || 0
         })))
       }
 
@@ -263,8 +263,8 @@ export function PurchasesContent() {
           tank_id: t.id,
           tank_name: t.tank_name,
           capacity: parseFloat(t.capacity) || 0,
-          volume_before: t.current_stock || 0,
-          volume_after: 0
+          volume_before: parseFloat(t.current_stock) || 0,
+          volume_after: parseFloat(t.current_stock) || 0
         })))
         
         setDispensers(result.dispensers || [])

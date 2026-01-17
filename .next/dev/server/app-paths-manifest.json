@@ -1,12 +1,7 @@
 {
   "/api/auth/session/route": "app/api/auth/session/route.js",
-  "/api/branch-items/route": "app/api/branch-items/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/headquarters/purchase-orders/route": "app/api/headquarters/purchase-orders/route.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
-  "/api/vendors/partners/route": "app/api/vendors/partners/route.js",
   "/headquarters/page": "app/headquarters/page.js",
-  "/headquarters/purchase-orders/create/page": "app/headquarters/purchase-orders/create/page.js",
-  "/headquarters/purchase-orders/page": "app/headquarters/purchase-orders/page.js",
   "/page": "app/page.js"
 }
