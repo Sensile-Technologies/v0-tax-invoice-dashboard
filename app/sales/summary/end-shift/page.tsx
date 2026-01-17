@@ -98,22 +98,22 @@ export default function EndShiftPage() {
         
         setBranchId(currentBranchId)
 
-        let hasUnreconciled = false
-        let unreconciledShiftData: any = null
-        const unreconciledRes = await fetch(`/api/shifts/unreconciled?branch_id=${currentBranchId}`, { credentials: 'include' })
-        if (unreconciledRes.ok) {
-          const unreconciledData = await unreconciledRes.json()
-          if (unreconciledData.has_unreconciled && unreconciledData.shift) {
-            hasUnreconciled = true
-            unreconciledShiftData = unreconciledData.shift
-            setUnreconciledShift(unreconciledData.shift)
-            setCurrentShift(unreconciledData.shift)
-            setIsReconcileMode(true)
-            setStep(2)
-          }
-        }
-
-        const [shiftRes, nozzlesRes, tanksRes, dispensersRes, staffRes, salesRes, baselinesRes] = await Promise.all([
+        // Fetch all data in parallel for faster loading
+        const [
+          unreconciledRes,
+          shiftRes, 
+          nozzlesRes, 
+          tanksRes, 
+          dispensersRes, 
+          staffRes, 
+          salesRes, 
+          baselinesRes,
+          prevShiftRes,
+          branchItemsRes,
+          expenseRes,
+          bankingRes
+        ] = await Promise.all([
+          fetch(`/api/shifts/unreconciled?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/shifts?branch_id=${currentBranchId}&status=active`, { credentials: 'include' }),
           fetch(`/api/nozzles?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/tanks?branch_id=${currentBranchId}`, { credentials: 'include' }),
@@ -121,9 +121,27 @@ export default function EndShiftPage() {
           fetch(`/api/staff/list?branch_id=${currentBranchId}`, { credentials: 'include' }),
           fetch(`/api/sales?branch_id=${currentBranchId}&limit=1000`, { credentials: 'include' }),
           fetch(`/api/shifts/baselines?branch_id=${currentBranchId}`, { credentials: 'include' }),
+          fetch(`/api/shifts/incoming-attendants?branch_id=${currentBranchId}`, { credentials: 'include' }),
+          fetch(`/api/branch-items?branchId=${currentBranchId}`, { credentials: 'include' }),
+          fetch('/api/expense-accounts', { credentials: 'include' }),
+          fetch('/api/banking-accounts', { credentials: 'include' }),
         ])
 
-        const [shiftData, nozzlesData, tanksData, dispensersData, staffData, salesData, baselinesData] = await Promise.all([
+        const [
+          unreconciledData,
+          shiftData, 
+          nozzlesData, 
+          tanksData, 
+          dispensersData, 
+          staffData, 
+          salesData, 
+          baselinesData,
+          prevShiftData,
+          branchItemsData,
+          expenseData,
+          bankingData
+        ] = await Promise.all([
+          unreconciledRes.ok ? unreconciledRes.json() : { has_unreconciled: false },
           shiftRes.json(),
           nozzlesRes.json(),
           tanksRes.json(),
@@ -131,7 +149,28 @@ export default function EndShiftPage() {
           staffRes.json(),
           salesRes.json(),
           baselinesRes.json(),
+          prevShiftRes.ok ? prevShiftRes.json() : { incoming_attendant_ids: null, nozzle_attendant_map: null },
+          branchItemsRes.ok ? branchItemsRes.json() : { items: [] },
+          expenseRes.ok ? expenseRes.json() : { data: [] },
+          bankingRes.ok ? bankingRes.json() : { data: [] },
         ])
+
+        // Process unreconciled shift data
+        let hasUnreconciled = false
+        let unreconciledShiftData: any = null
+        if (unreconciledData.has_unreconciled && unreconciledData.shift) {
+          hasUnreconciled = true
+          unreconciledShiftData = unreconciledData.shift
+          setUnreconciledShift(unreconciledData.shift)
+          setCurrentShift(unreconciledData.shift)
+          setIsReconcileMode(true)
+          setStep(2)
+        }
+
+        // Set expense and banking accounts early
+        setExpenseAccounts(expenseData.data || [])
+        const activeAccounts = (bankingData.data || []).filter((a: any) => a.is_active)
+        setBankingAccounts(activeAccounts)
 
         if (!shiftData.data && !hasUnreconciled) {
           setLoadError("No active shift to end. Please start a shift first.")
@@ -182,6 +221,7 @@ export default function EndShiftPage() {
         let nozzleAttendantMapping: Record<string, string> = {}
         
         if (hasUnreconciled && unreconciledShiftData) {
+          // For reconcile mode, fetch shift readings (this one needs the shift ID so can't be fully parallelized)
           try {
             const shiftReadingsRes = await fetch(`/api/shifts/readings?shift_id=${unreconciledShiftData.id}`)
             if (shiftReadingsRes.ok) {
@@ -200,40 +240,25 @@ export default function EndShiftPage() {
           } catch (e) {
             console.error("Failed to fetch shift readings for reconciliation:", e)
           }
-        } else if (currentBranchId) {
-          try {
-            const prevShiftRes = await fetch(`/api/shifts/incoming-attendants?branch_id=${currentBranchId}`)
-            if (prevShiftRes.ok) {
-              const prevData = await prevShiftRes.json()
-              if (prevData.incoming_attendant_ids) {
-                incomingAttendantIds = prevData.incoming_attendant_ids
-              }
-              if (prevData.nozzle_attendant_map) {
-                nozzleAttendantMapping = prevData.nozzle_attendant_map
-                setNozzleAttendantMap(nozzleAttendantMapping)
-              }
-            }
-          } catch (e) {
-            console.error("Failed to fetch previous shift incoming attendants:", e)
+        } else {
+          // Use prefetched previous shift data
+          if (prevShiftData?.incoming_attendant_ids) {
+            incomingAttendantIds = prevShiftData.incoming_attendant_ids
+          }
+          if (prevShiftData?.nozzle_attendant_map) {
+            nozzleAttendantMapping = prevShiftData.nozzle_attendant_map
+            setNozzleAttendantMap(nozzleAttendantMapping)
           }
         }
         
-        // Build nozzle prices from branch_items
+        // Build nozzle prices from prefetched branch_items
         const prices: Record<string, number> = {}
-        try {
-          const branchItemsRes = await fetch(`/api/branch-items?branchId=${currentBranchId}`)
-          if (branchItemsRes.ok) {
-            const branchItemsData = await branchItemsRes.json()
-            const branchItems = branchItemsData.items || branchItemsData.data || []
-            for (const nozzle of nozzlesData.data || []) {
-              const branchItem = branchItems.find((bi: any) => bi.item_id === nozzle.item_id)
-              if (branchItem?.branch_sale_price || branchItem?.sale_price) {
-                prices[nozzle.id] = parseFloat(branchItem.branch_sale_price || branchItem.sale_price)
-              }
-            }
+        const branchItems = branchItemsData.items || branchItemsData.data || []
+        for (const nozzle of nozzlesData.data || []) {
+          const branchItem = branchItems.find((bi: any) => bi.item_id === nozzle.item_id)
+          if (branchItem?.branch_sale_price || branchItem?.sale_price) {
+            prices[nozzle.id] = parseFloat(branchItem.branch_sale_price || branchItem.sale_price)
           }
-        } catch (e) {
-          console.error("Failed to fetch branch items for pricing:", e)
         }
         setNozzlePrices(prices)
         
@@ -258,29 +283,6 @@ export default function EndShiftPage() {
           ]
         }
         setAttendantCollections(collections)
-
-        // Fetch expense accounts
-        try {
-          const expenseRes = await fetch('/api/expense-accounts')
-          if (expenseRes.ok) {
-            const expenseData = await expenseRes.json()
-            setExpenseAccounts(expenseData.data || [])
-          }
-        } catch (e) {
-          console.error("Failed to fetch expense accounts:", e)
-        }
-
-        // Fetch banking accounts
-        try {
-          const bankingRes = await fetch('/api/banking-accounts')
-          if (bankingRes.ok) {
-            const bankingData = await bankingRes.json()
-            const activeAccounts = (bankingData.data || []).filter((a: any) => a.is_active)
-            setBankingAccounts(activeAccounts)
-          }
-        } catch (e) {
-          console.error("Failed to fetch banking accounts:", e)
-        }
 
       } catch (error: any) {
         console.error("Error loading end shift data:", error)
