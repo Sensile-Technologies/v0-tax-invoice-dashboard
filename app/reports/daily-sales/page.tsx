@@ -244,56 +244,30 @@ export default function DSSRPage() {
     if (yPos > 240) { doc.addPage(); yPos = 20 }
     doc.setFontSize(12)
     doc.setFont("helvetica", "bold")
-    doc.text("3. CASH FLOW SUMMARY", 14, yPos)
-    yPos += 4
-
-    autoTable(doc, {
-      startY: yPos,
-      head: [['Product', 'Total Sales (L)', 'Pump Price', 'Amount']],
-      body: data.product_cash_flow.map(p => [
-        p.product,
-        formatNumber(p.total_sales_litres),
-        formatCurrency(p.pump_price),
-        formatCurrency(p.amount)
-      ]),
-      foot: [['TOTAL', formatNumber(data.product_cash_flow.reduce((s, p) => s + p.total_sales_litres, 0)), '', formatCurrency(data.totals.total_sales_amount)]],
-      theme: 'striped',
-      headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
-      bodyStyles: { fontSize: 8 },
-      footStyles: { fillColor: [236, 240, 241], fontStyle: 'bold', fontSize: 8 },
-      margin: { left: 14, right: 14 }
-    })
-
-    yPos = (doc as any).lastAutoTable.finalY + 10
-    if (yPos > 240) { doc.addPage(); yPos = 20 }
-    doc.setFontSize(12)
-    doc.setFont("helvetica", "bold")
-    doc.text("4. COLLECTION SUMMARY", 14, yPos)
+    doc.text("3. COLLECTION SUMMARY", 14, yPos)
     yPos += 4
 
     if (data.attendant_collections.length > 0) {
       const collectionTotals = data.attendant_collections.reduce((acc, ac) => ({
         cash: acc.cash + ac.cash,
-        mpesa: acc.mpesa + ac.mpesa,
         card: acc.card + ac.card,
         mobile_money: acc.mobile_money + ac.mobile_money,
         credit: acc.credit + ac.credit,
         total: acc.total + ac.total
-      }), { cash: 0, mpesa: 0, card: 0, mobile_money: 0, credit: 0, total: 0 })
+      }), { cash: 0, card: 0, mobile_money: 0, credit: 0, total: 0 })
 
       autoTable(doc, {
         startY: yPos,
-        head: [['Attendant', 'Cash', 'MPESA', 'Card', 'Mobile Money', 'Credit', 'Total']],
+        head: [['Attendant', 'Cash', 'Card', 'Mobile Money', 'Credit', 'Total']],
         body: data.attendant_collections.map(ac => [
           ac.staff_name,
           formatCurrency(ac.cash),
-          formatCurrency(ac.mpesa),
           formatCurrency(ac.card),
           formatCurrency(ac.mobile_money),
           formatCurrency(ac.credit),
           formatCurrency(ac.total)
         ]),
-        foot: [['TOTAL', formatCurrency(collectionTotals.cash), formatCurrency(collectionTotals.mpesa), formatCurrency(collectionTotals.card), formatCurrency(collectionTotals.mobile_money), formatCurrency(collectionTotals.credit), formatCurrency(collectionTotals.total)]],
+        foot: [['TOTAL', formatCurrency(collectionTotals.cash), formatCurrency(collectionTotals.card), formatCurrency(collectionTotals.mobile_money), formatCurrency(collectionTotals.credit), formatCurrency(collectionTotals.total)]],
         theme: 'striped',
         headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
         bodyStyles: { fontSize: 8 },
@@ -311,7 +285,7 @@ export default function DSSRPage() {
     if (yPos > 240) { doc.addPage(); yPos = 20 }
     doc.setFontSize(12)
     doc.setFont("helvetica", "bold")
-    doc.text("5. BANKING SUMMARY", 14, yPos)
+    doc.text("4. BANKING SUMMARY", 14, yPos)
     yPos += 4
 
     if (data.banking_entries.length > 0) {
@@ -377,43 +351,33 @@ export default function DSSRPage() {
     ws2['!cols'] = [{ wch: 15 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }]
     XLSX.utils.book_append_sheet(wb, ws2, 'Product Movement')
 
-    const cashFlowData = [
-      ['3. CASH FLOW SUMMARY'],
-      ['Product', 'Total Sales (L)', 'Pump Price', 'Amount'],
-      ...data.product_cash_flow.map(p => [p.product, p.total_sales_litres, p.pump_price, p.amount]),
-      ['TOTAL', data.product_cash_flow.reduce((s, p) => s + p.total_sales_litres, 0), '', data.totals.total_sales_amount]
-    ]
-    const ws3 = XLSX.utils.aoa_to_sheet(cashFlowData)
-    ws3['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 15 }]
-    XLSX.utils.book_append_sheet(wb, ws3, 'Cash Flow')
-
     const collectionTotals = data.attendant_collections.reduce((acc, ac) => ({
-      cash: acc.cash + ac.cash, mpesa: acc.mpesa + ac.mpesa, card: acc.card + ac.card,
+      cash: acc.cash + ac.cash, card: acc.card + ac.card,
       mobile_money: acc.mobile_money + ac.mobile_money, credit: acc.credit + ac.credit, total: acc.total + ac.total
-    }), { cash: 0, mpesa: 0, card: 0, mobile_money: 0, credit: 0, total: 0 })
+    }), { cash: 0, card: 0, mobile_money: 0, credit: 0, total: 0 })
 
     const collectionData = [
-      ['4. COLLECTION SUMMARY'],
-      ['Attendant', 'Cash', 'MPESA', 'Card', 'Mobile Money', 'Credit', 'Total'],
+      ['3. COLLECTION SUMMARY'],
+      ['Attendant', 'Cash', 'Card', 'Mobile Money', 'Credit', 'Total'],
       ...data.attendant_collections.map(ac => [
-        ac.staff_name, ac.cash, ac.mpesa, ac.card, ac.mobile_money, ac.credit, ac.total
+        ac.staff_name, ac.cash, ac.card, ac.mobile_money, ac.credit, ac.total
       ]),
-      ['TOTAL', collectionTotals.cash, collectionTotals.mpesa, collectionTotals.card, collectionTotals.mobile_money, collectionTotals.credit, collectionTotals.total]
+      ['TOTAL', collectionTotals.cash, collectionTotals.card, collectionTotals.mobile_money, collectionTotals.credit, collectionTotals.total]
     ]
-    const ws4 = XLSX.utils.aoa_to_sheet(collectionData)
-    ws4['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }]
-    XLSX.utils.book_append_sheet(wb, ws4, 'Collections')
+    const ws3 = XLSX.utils.aoa_to_sheet(collectionData)
+    ws3['!cols'] = [{ wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }]
+    XLSX.utils.book_append_sheet(wb, ws3, 'Collections')
 
     const totalBanked = data.banking_entries.reduce((sum, b) => sum + b.amount, 0)
     const bankingData = [
-      ['5. BANKING SUMMARY'],
+      ['4. BANKING SUMMARY'],
       ['Account', 'Bank', 'Amount', 'Notes'],
       ...data.banking_entries.map(b => [b.account_name, b.bank_name || '-', b.amount, b.notes || '-']),
       ['TOTAL BANKED', '', totalBanked, '']
     ]
-    const ws5 = XLSX.utils.aoa_to_sheet(bankingData)
-    ws5['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }]
-    XLSX.utils.book_append_sheet(wb, ws5, 'Banking')
+    const ws4 = XLSX.utils.aoa_to_sheet(bankingData)
+    ws4['!cols'] = [{ wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 25 }]
+    XLSX.utils.book_append_sheet(wb, ws4, 'Banking')
 
     XLSX.writeFile(wb, `DSSR_${data.branch_name}_${data.date}.xlsx`)
   }
@@ -663,44 +627,6 @@ export default function DSSRPage() {
                   <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg font-bold text-slate-800">
-                        CASH FLOW SUMMARY
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="bg-slate-100 border-y text-xs">
-                              <th className="text-left py-2 px-3 font-semibold">PRODUCT</th>
-                              <th className="text-right py-2 px-3 font-semibold">TOTAL SALES (L)</th>
-                              <th className="text-right py-2 px-3 font-semibold">PUMP PRICE</th>
-                              <th className="text-right py-2 px-3 font-semibold">AMOUNT</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {data.product_cash_flow.map(p => (
-                              <tr key={p.product} className="border-b hover:bg-slate-50">
-                                <td className="py-2 px-3 font-medium">{p.product}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.total_sales_litres)}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatCurrency(p.pump_price)}</td>
-                                <td className="text-right py-2 px-3 font-mono font-semibold">{formatCurrency(p.amount)}</td>
-                              </tr>
-                            ))}
-                            <tr className="bg-slate-100 font-bold">
-                              <td className="py-2 px-3">TOTAL</td>
-                              <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_cash_flow.reduce((s, p) => s + p.total_sales_litres, 0))}</td>
-                              <td></td>
-                              <td className="text-right py-2 px-3 font-mono">{formatCurrency(data.totals.total_sales_amount)}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-bold text-slate-800">
                         COLLECTION SUMMARY
                       </CardTitle>
                     </CardHeader>
@@ -712,7 +638,6 @@ export default function DSSRPage() {
                               <tr className="bg-slate-100 border-y text-xs">
                                 <th className="text-left py-2 px-4 font-semibold">ATTENDANT</th>
                                 <th className="text-right py-2 px-4 font-semibold">CASH</th>
-                                <th className="text-right py-2 px-4 font-semibold">MPESA</th>
                                 <th className="text-right py-2 px-4 font-semibold">CARD</th>
                                 <th className="text-right py-2 px-4 font-semibold">MOBILE MONEY</th>
                                 <th className="text-right py-2 px-4 font-semibold">CREDIT</th>
@@ -724,7 +649,6 @@ export default function DSSRPage() {
                                 <tr key={ac.staff_id} className="border-b hover:bg-slate-50">
                                   <td className="py-2 px-4 font-medium">{ac.staff_name}</td>
                                   <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.cash)}</td>
-                                  <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.mpesa)}</td>
                                   <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.card)}</td>
                                   <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.mobile_money)}</td>
                                   <td className="text-right py-2 px-4 font-mono">{formatCurrency(ac.credit)}</td>
@@ -734,7 +658,6 @@ export default function DSSRPage() {
                               <tr className="bg-slate-100 font-bold">
                                 <td className="py-2 px-4">TOTAL</td>
                                 <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.cash, 0))}</td>
-                                <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.mpesa, 0))}</td>
                                 <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.card, 0))}</td>
                                 <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.mobile_money, 0))}</td>
                                 <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.attendant_collections.reduce((s, ac) => s + ac.credit, 0))}</td>

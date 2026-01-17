@@ -7688,12 +7688,6 @@
   }
 
   @media (min-width: 40rem) {
-    .sm\:max-w-2xl {
-      max-width: var(--container-2xl);
-    }
-  }
-
-  @media (min-width: 40rem) {
     .sm\:max-w-\[500px\] {
       max-width: 500px;
     }
