@@ -315,7 +315,12 @@ export default function SalesReportsPage() {
     }
   }
 
-  async function handlePrintReceipt(sale: any) {
+  async function handlePrintOriginal(sale: any) {
+    if (sale.original_printed) {
+      toast.error("Original invoice has already been printed. Use 'Print Copy' from the menu.")
+      return
+    }
+    
     try {
       const currentBranch = localStorage.getItem("selectedBranch")
       if (!currentBranch) {
@@ -329,7 +334,9 @@ export default function SalesReportsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sale_id: sale.id,
-          branch_id: branchData.id
+          branch_id: branchData.id,
+          is_copy: false,
+          mark_original_printed: true
         })
       })
       
@@ -342,16 +349,61 @@ export default function SalesReportsPage() {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `receipt-${sale.invoice_number || sale.id}.pdf`
+      link.download = `invoice-original-${sale.invoice_number || sale.id}.pdf`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
       
-      toast.success('Receipt downloaded')
+      // Update local state to reflect the original has been printed
+      setSales(prev => prev.map(s => s.id === sale.id ? { ...s, original_printed: true } : s))
+      
+      toast.success('Original invoice downloaded')
     } catch (error) {
       console.error('Error generating receipt:', error)
       toast.error('Failed to generate receipt')
+    }
+  }
+
+  async function handlePrintCopy(sale: any) {
+    try {
+      const currentBranch = localStorage.getItem("selectedBranch")
+      if (!currentBranch) {
+        toast.error("No branch selected")
+        return
+      }
+      const branchData = JSON.parse(currentBranch)
+      
+      const response = await fetch('/api/receipt/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sale_id: sale.id,
+          branch_id: branchData.id,
+          is_copy: true,
+          mark_original_printed: false
+        })
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to generate receipt')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `invoice-copy-${sale.invoice_number || sale.id}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+      toast.success('Invoice copy downloaded')
+    } catch (error) {
+      console.error('Error generating receipt:', error)
+      toast.error('Failed to generate receipt copy')
     }
   }
 
@@ -568,16 +620,22 @@ export default function SalesReportsPage() {
                                   </TableCell>
                                   <TableCell className="p-1 md:p-2 text-right font-mono text-xs hidden xl:table-cell">{sale.meter_reading_after.toFixed(2)}</TableCell>
                                   <TableCell className="p-1 md:p-2 text-center">
-                                    {sale.kra_status === 'success' ? (
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-7 w-7 md:h-8 md:w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                        onClick={() => handlePrintReceipt(sale)}
-                                        title="Print KRA Receipt"
-                                      >
-                                        <Printer className="h-4 w-4 md:h-5 md:w-5" />
-                                      </Button>
+                                    {sale.kra_status === 'success' || sale.kra_status === 'transmitted' ? (
+                                      sale.original_printed ? (
+                                        <Badge variant="secondary" className="text-xs">
+                                          Printed
+                                        </Badge>
+                                      ) : (
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-7 w-7 md:h-8 md:w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                          onClick={() => handlePrintOriginal(sale)}
+                                          title="Print Original Invoice (one-time)"
+                                        >
+                                          <Printer className="h-4 w-4 md:h-5 md:w-5" />
+                                        </Button>
+                                      )
                                     ) : (
                                       <Badge variant={getStatusBadgeVariant(sale.kra_status || sale.transmission_status)} className="capitalize text-xs">
                                         {sale.kra_status || sale.transmission_status || "pending"}
@@ -592,9 +650,9 @@ export default function SalesReportsPage() {
                                         </Button>
                                       </DropdownMenuTrigger>
                                       <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => handlePrintReceipt(sale)}>
+                                        <DropdownMenuItem onClick={() => handlePrintCopy(sale)}>
                                           <FileText className="h-4 w-4 mr-2" />
-                                          View Invoice
+                                          Print Copy
                                         </DropdownMenuItem>
                                         {!sale.is_credit_note && (
                                           <DropdownMenuItem 

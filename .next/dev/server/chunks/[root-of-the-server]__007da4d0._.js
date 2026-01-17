@@ -131,16 +131,18 @@ async function PUT(request, { params }) {
             });
         }
         const session = JSON.parse(sessionCookie.value);
-        const { vendor_id, role } = session;
+        const { user_id, vendor_id } = session;
         const { id: branchId } = await params;
+        const userResult = await pool.query(`SELECT role FROM staff WHERE id = $1`, [
+            user_id
+        ]);
+        const userRole = userResult.rows[0]?.role;
         if (![
-            'supervisor',
-            'manager',
             'director',
             'vendor'
-        ].includes(role)) {
+        ].includes(userRole)) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Insufficient permissions"
+                error: "Only directors can modify the intermittency rate"
             }, {
                 status: 403
             });
