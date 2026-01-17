@@ -98,6 +98,8 @@ export async function POST(request: NextRequest) {
 
     const creditNoteInvoiceNumber = `${originalSale.invoice_number}-CR`
     const kraData = kraResult.kraResponse?.data || {}
+    // CU invoice number is formatted as sdcId/rcptNo (e.g., KRACU0300003796/378)
+    const cuInvNo = (kraData.sdcId && kraData.rcptNo) ? `${kraData.sdcId}/${kraData.rcptNo}` : null
 
     const insertResult = await client.query(
       `INSERT INTO sales (
@@ -105,9 +107,9 @@ export async function POST(request: NextRequest) {
         payment_method, customer_name, customer_pin, is_loyalty_sale, 
         meter_reading_after, invoice_number, receipt_number,
         transmission_status, sale_date, is_credit_note, original_sale_id,
-        kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv, is_automated, source_system
+        kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv, kra_internal_data, is_automated, source_system
       ) VALUES (
-        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), $16, $17, $18, $19, $20, $21, $22, $23
+        gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), $16, $17, $18, $19, $20, $21, $22, $23, $24
       ) RETURNING *`,
       [
         branch_id,
@@ -130,7 +132,8 @@ export async function POST(request: NextRequest) {
         'success',
         kraData.rcptSign || null,
         kraData.sdcId || null,
-        kraData.intrlData || `${kraResult.creditNoteNumber}`,
+        cuInvNo,
+        kraData.intrlData || null,
         originalSale.is_automated || false,
         originalSale.source_system || null
       ]
