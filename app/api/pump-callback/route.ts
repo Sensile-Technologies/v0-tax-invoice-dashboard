@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server"
 import { query } from "@/lib/db"
 import { callKraSaveSales } from "@/lib/kra-sales-api"
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders })
+}
+
 interface FuelGradeMapping {
   id: string
   pts_id: string | null
@@ -378,7 +388,7 @@ export async function POST(request: NextRequest) {
     console.log("[PUMP CALLBACK] Sending response:", JSON.stringify(response, null, 2))
     console.log("=".repeat(60))
 
-    return NextResponse.json(response)
+    return NextResponse.json(response, { headers: corsHeaders })
   } catch (error: any) {
     console.error("[PUMP CALLBACK] Error processing callback:", error.message)
     console.error("[PUMP CALLBACK] Stack:", error.stack)
@@ -390,7 +400,7 @@ export async function POST(request: NextRequest) {
         Message: "ERROR",
         Type: "Error"
       }]
-    }, { status: 500 })
+    }, { status: 500, headers: corsHeaders })
   }
 }
 
@@ -414,5 +424,5 @@ export async function GET() {
         }
       }]
     }
-  })
+  }, { headers: corsHeaders })
 }
