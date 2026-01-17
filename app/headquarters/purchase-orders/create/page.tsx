@@ -108,54 +108,42 @@ export default function CreatePurchaseOrderPage() {
 
   const fetchItems = useCallback(async (branchId?: string) => {
     try {
-      const user = getCurrentUser()
-      const vendorId = user?.vendor_id
-      if (!vendorId) {
-        console.error("No vendor ID found")
+      // Items must be fetched from the selected branch's branch_items
+      if (!branchId) {
+        setItems([])
         return
       }
       
-      // Fetch catalog items
-      const response = await fetch(`/api/items?vendorId=${vendorId}&catalog=true`)
+      // Fetch items assigned to this branch via branch_items
+      const response = await fetch(`/api/branch-items?branchId=${branchId}`)
       const result = await response.json()
       
-      if (result.success) {
-        let itemsWithPricing = result.items || []
-        
-        // If branch is selected, fetch branch_items pricing
-        if (branchId) {
-          const branchItemsResponse = await fetch(`/api/branch-items?branch_id=${branchId}`)
-          const branchItemsResult = await branchItemsResponse.json()
-          
-          if (branchItemsResult.success && branchItemsResult.data) {
-            const branchItemsMap = new Map(
-              branchItemsResult.data.map((bi: any) => [bi.item_id, bi])
-            )
-            
-            itemsWithPricing = itemsWithPricing.map((item: Item) => {
-              const branchItem = branchItemsMap.get(item.id) as any
-              return {
-                ...item,
-                purchase_price: branchItem?.purchase_price || item.purchase_price || null
-              }
-            })
-          }
-        }
-        
-        setItems(itemsWithPricing)
+      if (result.success && result.items) {
+        // Map branch_items to the Item format expected by the form
+        const branchItems = result.items.map((bi: any) => ({
+          id: bi.item_id,
+          item_name: bi.item_name,
+          purchase_price: bi.branch_purchase_price,
+          unit_price: bi.branch_sale_price
+        }))
+        setItems(branchItems)
+      } else {
+        setItems([])
       }
     } catch (error) {
       console.error("Error fetching items:", error)
+      setItems([])
     }
   }, [])
 
   useEffect(() => {
     if (hasAccess) {
-      Promise.all([fetchBranches(), fetchSuppliers(), fetchTransporters(), fetchItems()]).finally(() => {
+      // Don't fetch items on initial load - wait for branch selection
+      Promise.all([fetchBranches(), fetchSuppliers(), fetchTransporters()]).finally(() => {
         setLoading(false)
       })
     }
-  }, [fetchBranches, fetchSuppliers, fetchTransporters, fetchItems, hasAccess])
+  }, [fetchBranches, fetchSuppliers, fetchTransporters, hasAccess])
 
   // Re-fetch items with branch pricing when branch changes
   useEffect(() => {
