@@ -551,8 +551,11 @@ export default function DSSRPage() {
                             <tr className="h-4">
                               <td colSpan={data.nozzle_readings.length + 1}></td>
                             </tr>
+                            <tr className="bg-slate-200">
+                              <td className="py-2 px-4 font-bold whitespace-nowrap" colSpan={data.nozzle_readings.length + 1}>TOTALS</td>
+                            </tr>
                             <tr className="border-b bg-slate-100">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">F) Total Volume Per Product</td>
+                              <td className="py-2 px-4 font-medium whitespace-nowrap">Total Volume Per Product</td>
                               {(() => {
                                 const seenProducts = new Set<string>()
                                 return data.nozzle_readings.map((n, idx) => {
@@ -578,7 +581,7 @@ export default function DSSRPage() {
                               })()}
                             </tr>
                             <tr className="border-b bg-green-50">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">G) Amount Per Product</td>
+                              <td className="py-2 px-4 font-medium whitespace-nowrap">Amount Per Product</td>
                               {(() => {
                                 const seenProducts = new Set<string>()
                                 return data.nozzle_readings.map((n, idx) => {
