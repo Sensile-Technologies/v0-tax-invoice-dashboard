@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
-import { ArrowLeft, ArrowRight, Clock, Fuel, Users, CreditCard, Receipt, Plus, Trash2, Landmark } from "lucide-react"
+import { ArrowLeft, ArrowRight, Clock, Fuel, Users, CreditCard, Receipt, Plus, Trash2, Landmark, AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 
@@ -953,6 +953,15 @@ export default function EndShiftPage() {
                                   </div>
                                 </div>
                               </div>
+                              {Math.abs(variance) > 1000 && (
+                                <div className="bg-red-100 border border-red-300 rounded-lg p-3 flex items-center gap-2">
+                                  <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
+                                  <p className="text-sm text-red-700">
+                                    <strong>Cannot reconcile:</strong> Variance for {attendant.name} is KES {Math.abs(variance).toLocaleString('en-KE', { minimumFractionDigits: 2 })}. 
+                                    Variance must be within KES 1,000 to complete reconciliation.
+                                  </p>
+                                </div>
+                              )}
                             </div>
                           )
                         })
