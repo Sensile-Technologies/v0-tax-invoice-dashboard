@@ -13,32 +13,43 @@ export async function POST(request: Request) {
       )
     }
 
-    const defaultPassword = "flow360"
+    const defaultPassword = "flow360123"
     const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
-    let result
+    // Get the staff member and their user_id
+    let staffResult
     if (staffId) {
-      result = await query(
-        `UPDATE staff SET password_hash = $1 WHERE id = $2 RETURNING id, email`,
-        [hashedPassword, staffId]
+      staffResult = await query(
+        `SELECT id, user_id, email FROM staff WHERE id = $1`,
+        [staffId]
       )
     } else {
-      result = await query(
-        `UPDATE staff SET password_hash = $1 WHERE email = $2 RETURNING id, email`,
-        [hashedPassword, email]
+      staffResult = await query(
+        `SELECT id, user_id, email FROM staff WHERE email = $1`,
+        [email]
       )
     }
 
-    if (result.length === 0) {
+    if (staffResult.length === 0) {
       return NextResponse.json(
         { error: "Staff member not found" },
         { status: 404 }
       )
     }
 
+    const staff = staffResult[0]
+
+    // Update password in users table and set must_change_password flag
+    if (staff.user_id) {
+      await query(
+        `UPDATE users SET password_hash = $1, must_change_password = true, updated_at = NOW() WHERE id = $2`,
+        [hashedPassword, staff.user_id]
+      )
+    }
+
     return NextResponse.json({ 
       success: true, 
-      message: "Password reset to default (flow360)" 
+      message: "Password reset to default. User must change password on next login." 
     })
   } catch (error: any) {
     console.error("Error resetting password:", error)

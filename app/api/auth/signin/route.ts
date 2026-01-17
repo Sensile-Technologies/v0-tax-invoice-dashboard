@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
       if (email) {
         const result = await client.query(
-          `SELECT u.id, u.email, u.username, u.password_hash, 
+          `SELECT u.id, u.email, u.username, u.password_hash, u.must_change_password,
            COALESCE(s.role, u.role) as role,
            COALESCE(v.id, b.vendor_id) as vendor_id, 
            COALESCE(v.name, sv.name) as vendor_name,
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
         user = result.rows[0]
       } else {
         const result = await client.query(
-          `SELECT u.id, u.email, u.username, u.password_hash, 
+          `SELECT u.id, u.email, u.username, u.password_hash, u.must_change_password,
            COALESCE(s.role, u.role) as role,
            COALESCE(v.id, b.vendor_id) as vendor_id, 
            COALESCE(v.name, sv.name) as vendor_name,
@@ -163,6 +163,7 @@ export async function POST(request: Request) {
       const response = NextResponse.json({
         access_token: token,
         refresh_token: refreshToken,
+        must_change_password: user.must_change_password || false,
         user: {
           id: user.id,
           email: user.email,

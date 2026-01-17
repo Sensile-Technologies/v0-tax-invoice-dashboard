@@ -177,9 +177,38 @@ export default function StaffManagementPage() {
         alert("Failed to create staff member. Please try again.")
       }
     } else {
-      setStaff(staff.map((s) => (s.id === selectedStaff.id ? { ...s, ...formData } : s)))
-      setEditDialogOpen(false)
-      setSelectedStaff(null)
+      // Update existing staff member
+      setIsLoading(true)
+      try {
+        const response = await fetch("/api/staff/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            staffId: selectedStaff.id,
+            fullName: formData.name,
+            username: formData.username,
+            email: formData.email,
+            phone: formData.phone,
+            role: formData.role,
+            branchId: formData.role === "Director" ? null : formData.branchId,
+          }),
+        })
+
+        const result = await response.json()
+        setIsLoading(false)
+
+        if (response.ok && result.success) {
+          await fetchStaff()
+          alert("Staff member updated successfully!")
+          setEditDialogOpen(false)
+          setSelectedStaff(null)
+        } else {
+          alert(`Error updating staff: ${result.error}`)
+        }
+      } catch (error) {
+        setIsLoading(false)
+        alert("Failed to update staff member. Please try again.")
+      }
     }
   }
 
@@ -202,7 +231,7 @@ export default function StaffManagementPage() {
 
       setIsLoading(false)
       if (response.ok) {
-        alert("Password has been reset to 'flow360'. User should change it on next login.")
+        alert("Password has been reset to 'flow360123'. User must change it on their next login.")
         setResetDialogOpen(false)
       } else {
         const result = await response.json()

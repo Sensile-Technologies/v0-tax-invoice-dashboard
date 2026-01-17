@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -18,6 +19,12 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showPasswordChange, setShowPasswordChange] = useState(false)
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [pendingUser, setPendingUser] = useState<any>(null)
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -26,30 +33,82 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { data, error } = await signIn(identifier, password)
+      const { data, error, mustChangePassword } = await signIn(identifier, password)
       if (error) throw new Error(error.message || "Login failed")
 
       if (data.access_token) {
-        if (data.user?.role === "admin") {
-          window.location.href = "/admin"
-        } else if (data.user?.role === "sales") {
-          window.location.href = "/admin/sales"
-        } else {
-          // Directors and vendors go to HQ, branch staff go to branch UI
-          const role = (data.user?.role || '').toLowerCase()
-          if (role === 'director' || role === 'vendor') {
-            // Clear any previously selected branch so they start fresh at HQ
-            localStorage.removeItem("selectedBranch")
-            window.location.href = "/headquarters"
-          } else {
-            window.location.href = "/sales/summary"
-          }
+        // Check if user must change password
+        if (mustChangePassword) {
+          setPendingUser(data.user)
+          setShowPasswordChange(true)
+          setIsLoading(false)
+          return
         }
+
+        redirectUser(data.user)
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const redirectUser = (user: any) => {
+    if (user?.role === "admin") {
+      window.location.href = "/admin"
+    } else if (user?.role === "sales") {
+      window.location.href = "/admin/sales"
+    } else {
+      const role = (user?.role || '').toLowerCase()
+      if (role === 'director' || role === 'vendor') {
+        localStorage.removeItem("selectedBranch")
+        window.location.href = "/headquarters"
+      } else {
+        window.location.href = "/sales/summary"
+      }
+    }
+  }
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordError(null)
+
+    if (newPassword.length < 6) {
+      setPasswordError("Password must be at least 6 characters")
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords do not match")
+      return
+    }
+
+    setPasswordLoading(true)
+
+    try {
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: pendingUser?.id,
+          newPassword: newPassword
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        localStorage.removeItem("must_change_password")
+        setShowPasswordChange(false)
+        redirectUser(pendingUser)
+      } else {
+        setPasswordError(result.error || "Failed to change password")
+      }
+    } catch (error) {
+      setPasswordError("Failed to change password. Please try again.")
+    } finally {
+      setPasswordLoading(false)
     }
   }
 
@@ -124,6 +183,51 @@ export default function LoginPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={showPasswordChange} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>Change Your Password</DialogTitle>
+            <DialogDescription>
+              Your password has been reset. Please create a new password to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handlePasswordChange} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                placeholder="Enter new password"
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="rounded-xl"
+                minLength={6}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm new password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="rounded-xl"
+                minLength={6}
+              />
+            </div>
+            {passwordError && (
+              <div className="text-sm text-red-500 bg-red-50 p-3 rounded-xl">{passwordError}</div>
+            )}
+            <Button type="submit" className="w-full rounded-xl" disabled={passwordLoading}>
+              {passwordLoading ? "Changing Password..." : "Change Password"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
