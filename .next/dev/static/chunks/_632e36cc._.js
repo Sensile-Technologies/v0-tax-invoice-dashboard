@@ -2626,17 +2626,13 @@ function ExpenseReportPage() {
             "Date",
             "Category",
             "Description",
-            "Branch",
-            "Amount (KES)",
-            "Recorded By"
+            "Amount (KES)"
         ];
         const csvData = filteredExpenses.map((item)=>[
                 new Date(item.created_at).toLocaleDateString(),
                 item.category,
                 item.description || "",
-                item.branch_name,
-                parseFloat(item.amount).toFixed(2),
-                item.recorded_by || ""
+                parseFloat(item.amount).toFixed(2)
             ]);
         const csvContent = [
             headers,
@@ -2664,7 +2660,7 @@ function ExpenseReportPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                lineNumber: 122,
+                lineNumber: 120,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2674,7 +2670,7 @@ function ExpenseReportPage() {
                         onMobileMenuToggle: ()=>setMobileMenuOpen(true)
                     }, void 0, false, {
                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                        lineNumber: 130,
+                        lineNumber: 128,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2684,7 +2680,7 @@ function ExpenseReportPage() {
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$report$2d$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReportTabs"], {}, void 0, false, {
                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                    lineNumber: 134,
+                                    lineNumber: 132,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2697,7 +2693,7 @@ function ExpenseReportPage() {
                                                     children: "Expense Report"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 137,
+                                                    lineNumber: 135,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2705,13 +2701,13 @@ function ExpenseReportPage() {
                                                     children: "Shift expenses and operating costs"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 138,
+                                                    lineNumber: 136,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                            lineNumber: 136,
+                                            lineNumber: 134,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2727,14 +2723,14 @@ function ExpenseReportPage() {
                                                             className: "h-4 w-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 142,
+                                                            lineNumber: 140,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Print"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 141,
+                                                    lineNumber: 139,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2747,26 +2743,26 @@ function ExpenseReportPage() {
                                                             className: "h-4 w-4 mr-2"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 146,
+                                                            lineNumber: 144,
                                                             columnNumber: 19
                                                         }, this),
                                                         "Export"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 145,
+                                                    lineNumber: 143,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                            lineNumber: 140,
+                                            lineNumber: 138,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                    lineNumber: 135,
+                                    lineNumber: 133,
                                     columnNumber: 13
                                 }, this),
                                 loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2776,7 +2772,7 @@ function ExpenseReportPage() {
                                             className: "h-8 w-8 animate-spin text-blue-600"
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                            lineNumber: 154,
+                                            lineNumber: 152,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2784,13 +2780,13 @@ function ExpenseReportPage() {
                                             children: "Loading expense data..."
                                         }, void 0, false, {
                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                            lineNumber: 155,
+                                            lineNumber: 153,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                    lineNumber: 153,
+                                    lineNumber: 151,
                                     columnNumber: 15
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                     children: [
@@ -2807,12 +2803,12 @@ function ExpenseReportPage() {
                                                                 children: "Total Expenses"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 162,
+                                                                lineNumber: 160,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 161,
+                                                            lineNumber: 159,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2826,18 +2822,18 @@ function ExpenseReportPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 165,
+                                                                lineNumber: 163,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 164,
+                                                            lineNumber: 162,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 160,
+                                                    lineNumber: 158,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2850,12 +2846,12 @@ function ExpenseReportPage() {
                                                                 children: "Number of Transactions"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 173,
+                                                                lineNumber: 171,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 172,
+                                                            lineNumber: 170,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2864,18 +2860,18 @@ function ExpenseReportPage() {
                                                                 children: summary.transactionCount
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 176,
+                                                                lineNumber: 174,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 175,
+                                                            lineNumber: 173,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 171,
+                                                    lineNumber: 169,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2888,12 +2884,12 @@ function ExpenseReportPage() {
                                                                 children: "Average Expense"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 182,
+                                                                lineNumber: 180,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 181,
+                                                            lineNumber: 179,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2907,18 +2903,18 @@ function ExpenseReportPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 185,
+                                                                lineNumber: 183,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 184,
+                                                            lineNumber: 182,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 180,
+                                                    lineNumber: 178,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2931,12 +2927,12 @@ function ExpenseReportPage() {
                                                                 children: "Categories"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 193,
+                                                                lineNumber: 191,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 192,
+                                                            lineNumber: 190,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2945,24 +2941,24 @@ function ExpenseReportPage() {
                                                                 children: summary.categoryCount
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 196,
+                                                                lineNumber: 194,
                                                                 columnNumber: 23
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 195,
+                                                            lineNumber: 193,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 191,
+                                                    lineNumber: 189,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                            lineNumber: 159,
+                                            lineNumber: 157,
                                             columnNumber: 17
                                         }, this),
                                         Object.keys(summary.categoryTotals).length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2974,12 +2970,12 @@ function ExpenseReportPage() {
                                                         children: "Expense by Category"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                        lineNumber: 204,
+                                                        lineNumber: 202,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 203,
+                                                    lineNumber: 201,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2993,7 +2989,7 @@ function ExpenseReportPage() {
                                                                         children: category
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 210,
+                                                                        lineNumber: 208,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3006,7 +3002,7 @@ function ExpenseReportPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 211,
+                                                                        lineNumber: 209,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3017,29 +3013,29 @@ function ExpenseReportPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 214,
+                                                                        lineNumber: 212,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, category, true, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 209,
+                                                                lineNumber: 207,
                                                                 columnNumber: 27
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                        lineNumber: 207,
+                                                        lineNumber: 205,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 206,
+                                                    lineNumber: 204,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                            lineNumber: 202,
+                                            lineNumber: 200,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3054,7 +3050,7 @@ function ExpenseReportPage() {
                                                                 children: "Expense Transactions"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 227,
+                                                                lineNumber: 225,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3067,7 +3063,7 @@ function ExpenseReportPage() {
                                                                                 className: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 230,
+                                                                                lineNumber: 228,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3077,13 +3073,13 @@ function ExpenseReportPage() {
                                                                                 className: "pl-10 w-64 rounded-full"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 231,
+                                                                                lineNumber: 229,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 229,
+                                                                        lineNumber: 227,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3093,7 +3089,7 @@ function ExpenseReportPage() {
                                                                         className: "w-40 rounded-full"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 238,
+                                                                        lineNumber: 236,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3101,7 +3097,7 @@ function ExpenseReportPage() {
                                                                         children: "to"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 244,
+                                                                        lineNumber: 242,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3111,24 +3107,24 @@ function ExpenseReportPage() {
                                                                         className: "w-40 rounded-full"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 245,
+                                                                        lineNumber: 243,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                lineNumber: 228,
+                                                                lineNumber: 226,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                        lineNumber: 226,
+                                                        lineNumber: 224,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 225,
+                                                    lineNumber: 223,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3151,18 +3147,18 @@ function ExpenseReportPage() {
                                                                                             className: "h-4 w-4"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                            lineNumber: 261,
+                                                                                            lineNumber: 259,
                                                                                             columnNumber: 38
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                    lineNumber: 260,
+                                                                                    lineNumber: 258,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 259,
+                                                                                lineNumber: 257,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3170,7 +3166,7 @@ function ExpenseReportPage() {
                                                                                 children: "Category"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 264,
+                                                                                lineNumber: 262,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3178,15 +3174,7 @@ function ExpenseReportPage() {
                                                                                 children: "Description"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 265,
-                                                                                columnNumber: 29
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                                                                                className: "text-left py-3 px-4 font-semibold text-slate-700",
-                                                                                children: "Branch"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 266,
+                                                                                lineNumber: 263,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -3194,42 +3182,34 @@ function ExpenseReportPage() {
                                                                                 children: "Amount (KES)"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 267,
-                                                                                columnNumber: 29
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
-                                                                                className: "text-left py-3 px-4 font-semibold text-slate-700",
-                                                                                children: "Recorded By"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 268,
+                                                                                lineNumber: 264,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 258,
+                                                                        lineNumber: 256,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                    lineNumber: 257,
+                                                                    lineNumber: 255,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
                                                                     children: filteredExpenses.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                            colSpan: 6,
+                                                                            colSpan: 4,
                                                                             className: "py-8 text-center text-slate-500",
                                                                             children: "No expense records found"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                            lineNumber: 274,
+                                                                            lineNumber: 270,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                        lineNumber: 273,
+                                                                        lineNumber: 269,
                                                                         columnNumber: 29
                                                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                         children: [
@@ -3241,7 +3221,7 @@ function ExpenseReportPage() {
                                                                                             children: new Date(item.created_at).toLocaleDateString()
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                            lineNumber: 282,
+                                                                                            lineNumber: 278,
                                                                                             columnNumber: 35
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3251,12 +3231,12 @@ function ExpenseReportPage() {
                                                                                                 children: item.category
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                                lineNumber: 284,
+                                                                                                lineNumber: 280,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                            lineNumber: 283,
+                                                                                            lineNumber: 279,
                                                                                             columnNumber: 35
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3264,15 +3244,7 @@ function ExpenseReportPage() {
                                                                                             children: item.description || "-"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                            lineNumber: 288,
-                                                                                            columnNumber: 35
-                                                                                        }, this),
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                                            className: "py-3 px-4",
-                                                                                            children: item.branch_name
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                            lineNumber: 289,
+                                                                                            lineNumber: 284,
                                                                                             columnNumber: 35
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3282,33 +3254,25 @@ function ExpenseReportPage() {
                                                                                             })
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                            lineNumber: 290,
-                                                                                            columnNumber: 35
-                                                                                        }, this),
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                                            className: "py-3 px-4 text-slate-600",
-                                                                                            children: item.recorded_by || "-"
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                            lineNumber: 293,
+                                                                                            lineNumber: 285,
                                                                                             columnNumber: 35
                                                                                         }, this)
                                                                                     ]
                                                                                 }, item.id, true, {
                                                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                    lineNumber: 281,
+                                                                                    lineNumber: 277,
                                                                                     columnNumber: 33
                                                                                 }, this)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                                                                                 className: "bg-slate-100 font-bold",
                                                                                 children: [
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                                                        colSpan: 4,
+                                                                                        colSpan: 3,
                                                                                         className: "py-3 px-4 text-right",
                                                                                         children: "Total Expenses:"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                        lineNumber: 297,
+                                                                                        lineNumber: 291,
                                                                                         columnNumber: 33
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3321,47 +3285,42 @@ function ExpenseReportPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                        lineNumber: 300,
-                                                                                        columnNumber: 33
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {}, void 0, false, {
-                                                                                        fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                        lineNumber: 303,
+                                                                                        lineNumber: 294,
                                                                                         columnNumber: 33
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                                lineNumber: 296,
+                                                                                lineNumber: 290,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                                    lineNumber: 271,
+                                                                    lineNumber: 267,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                            lineNumber: 256,
+                                                            lineNumber: 254,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                        lineNumber: 255,
+                                                        lineNumber: 253,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                                    lineNumber: 254,
+                                                    lineNumber: 252,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                                            lineNumber: 224,
+                                            lineNumber: 222,
                                             columnNumber: 17
                                         }, this)
                                     ]
@@ -3371,30 +3330,30 @@ function ExpenseReportPage() {
                                     children: "Powered by Sensile Technologies East Africa Ltd"
                                 }, void 0, false, {
                                     fileName: "[project]/app/reports/expense-report/page.tsx",
-                                    lineNumber: 315,
+                                    lineNumber: 308,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/reports/expense-report/page.tsx",
-                            lineNumber: 133,
+                            lineNumber: 131,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/reports/expense-report/page.tsx",
-                        lineNumber: 132,
+                        lineNumber: 130,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/reports/expense-report/page.tsx",
-                lineNumber: 129,
+                lineNumber: 127,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/reports/expense-report/page.tsx",
-        lineNumber: 121,
+        lineNumber: 119,
         columnNumber: 5
     }, this);
 }

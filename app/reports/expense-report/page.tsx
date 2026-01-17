@@ -94,14 +94,12 @@ export default function ExpenseReportPage() {
   }
 
   const handleExport = () => {
-    const headers = ["Date", "Category", "Description", "Branch", "Amount (KES)", "Recorded By"]
+    const headers = ["Date", "Category", "Description", "Amount (KES)"]
     const csvData = filteredExpenses.map(item => [
       new Date(item.created_at).toLocaleDateString(),
       item.category,
       item.description || "",
-      item.branch_name,
-      parseFloat(item.amount).toFixed(2),
-      item.recorded_by || ""
+      parseFloat(item.amount).toFixed(2)
     ])
 
     const csvContent = [headers, ...csvData]
@@ -263,15 +261,13 @@ export default function ExpenseReportPage() {
                             </th>
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">Category</th>
                             <th className="text-left py-3 px-4 font-semibold text-slate-700">Description</th>
-                            <th className="text-left py-3 px-4 font-semibold text-slate-700">Branch</th>
                             <th className="text-right py-3 px-4 font-semibold text-slate-700">Amount (KES)</th>
-                            <th className="text-left py-3 px-4 font-semibold text-slate-700">Recorded By</th>
                           </tr>
                         </thead>
                         <tbody>
                           {filteredExpenses.length === 0 ? (
                             <tr>
-                              <td colSpan={6} className="py-8 text-center text-slate-500">
+                              <td colSpan={4} className="py-8 text-center text-slate-500">
                                 No expense records found
                               </td>
                             </tr>
@@ -286,21 +282,18 @@ export default function ExpenseReportPage() {
                                     </span>
                                   </td>
                                   <td className="py-3 px-4">{item.description || "-"}</td>
-                                  <td className="py-3 px-4">{item.branch_name}</td>
                                   <td className="py-3 px-4 text-right font-semibold">
                                     {parseFloat(item.amount).toLocaleString("en-KE", { minimumFractionDigits: 2 })}
                                   </td>
-                                  <td className="py-3 px-4 text-slate-600">{item.recorded_by || "-"}</td>
                                 </tr>
                               ))}
                               <tr className="bg-slate-100 font-bold">
-                                <td colSpan={4} className="py-3 px-4 text-right">
+                                <td colSpan={3} className="py-3 px-4 text-right">
                                   Total Expenses:
                                 </td>
                                 <td className="py-3 px-4 text-right text-lg">
                                   KES {summary.totalExpense.toLocaleString("en-KE", { minimumFractionDigits: 2 })}
                                 </td>
-                                <td></td>
                               </tr>
                             </>
                           )}

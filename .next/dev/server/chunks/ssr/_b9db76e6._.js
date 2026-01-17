@@ -2309,6 +2309,11 @@ const reportTabs = [
         href: "/reports/shifts"
     },
     {
+        id: "bulk-sales",
+        label: "Bulk Sales",
+        href: "/reports/bulk-sales"
+    },
+    {
         id: "x-report",
         label: "X/Z Report",
         href: "/reports/x-report"
@@ -2357,13 +2362,13 @@ function ReportTabs() {
                 children: tab.label
             }, tab.id, false, {
                 fileName: "[project]/components/report-tabs.tsx",
-                lineNumber: 27,
+                lineNumber: 28,
                 columnNumber: 11
             }, this);
         })
     }, void 0, false, {
         fileName: "[project]/components/report-tabs.tsx",
-        lineNumber: 23,
+        lineNumber: 24,
         columnNumber: 5
     }, this);
 }
