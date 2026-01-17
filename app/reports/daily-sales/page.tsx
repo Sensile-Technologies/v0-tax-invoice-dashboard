@@ -545,6 +545,12 @@ export default function DSSRPage() {
                                 <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold text-blue-700">{formatNumber(n.pump_sales)}</td>
                               ))}
                             </tr>
+                            <tr className="h-4">
+                              <td colSpan={data.nozzle_readings.length + 1}></td>
+                            </tr>
+                            <tr className="h-4">
+                              <td colSpan={data.nozzle_readings.length + 1}></td>
+                            </tr>
                             <tr className="border-b bg-slate-100">
                               <td className="py-2 px-4 font-medium whitespace-nowrap">F) Total Volume Per Product</td>
                               {(() => {
