@@ -437,8 +437,7 @@ export default function BulkSalesReportPage() {
                       <div>
                         <p className="font-medium text-amber-900">KRA Intermittency Rate</p>
                         <p className="text-sm text-amber-700 mt-0.5">
-                          Set the percentage of bulk sales to validate with KRA per shift. 
-                          100% means all sales are transmitted, 0% means none.
+                          The percentage of successful eTIMs invoice transmissions against total number of invoices validated in the ongoing shift.
                         </p>
                       </div>
                     </div>
