@@ -237,27 +237,11 @@ export default function EndShiftPage() {
         }
         setNozzlePrices(prices)
         
-        // Determine outgoing attendants: In reconcile mode, use staff who made sales during the shift
-        // Otherwise, use the incoming attendants from the previous shift
-        let outgoing: Array<{ id: string; name: string }> = []
-        
-        if (hasUnreconciled && shiftSales.length > 0) {
-          // In reconcile mode - get unique staff from sales
-          const salesStaffIds = new Set<string>()
-          for (const sale of shiftSales) {
-            if (sale.staff_id) {
-              salesStaffIds.add(sale.staff_id)
-            }
-          }
-          outgoing = allStaff
-            .filter((s: any) => salesStaffIds.has(s.id))
-            .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
-        } else if (incomingAttendantIds.length > 0) {
-          // Not reconcile mode - use incoming attendants from previous shift
-          outgoing = allStaff
-            .filter((s: any) => incomingAttendantIds.includes(s.id))
-            .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
-        }
+        // Outgoing attendants are those who were assigned as incoming attendants when the shift started
+        // They worked the nozzles during the shift and now need to reconcile their collections
+        const outgoing = allStaff
+          .filter((s: any) => incomingAttendantIds.includes(s.id))
+          .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
         setOutgoingAttendants(outgoing)
 
         const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
@@ -414,32 +398,28 @@ export default function EndShiftPage() {
   }
 
   const validateStep2 = () => {
-    // If there are outgoing attendants (from sales), validate their collections
-    if (outgoingAttendants.length > 0) {
-      // Mobile Money and Cash are mandatory for each attendant
-      for (const attendant of outgoingAttendants) {
-        const collections = attendantCollections[attendant.id] || []
-        const mobileMoneyEntry = collections.find(c => c.payment_method === 'mobile_money')
-        const cashEntry = collections.find(c => c.payment_method === 'cash')
-        
-        if (!mobileMoneyEntry || mobileMoneyEntry.amount === '') {
-          toast.error(`Please enter Mobile Money amount for ${attendant.name}`)
-          return false
-        }
-        if (!cashEntry || cashEntry.amount === '') {
-          toast.error(`Please enter Cash amount for ${attendant.name}`)
-          return false
-        }
-        
-        // Check variance - cannot close shift if variance > 1000
-        const variance = calculateVariance(attendant.id)
-        if (Math.abs(variance) > 1000) {
-          toast.error(`Variance for ${attendant.name} is KES ${Math.abs(variance).toFixed(2)}. Cannot close shift with variance greater than KES 1,000.`)
-          return false
-        }
+    // Mobile Money and Cash are mandatory for each attendant
+    for (const attendant of outgoingAttendants) {
+      const collections = attendantCollections[attendant.id] || []
+      const mobileMoneyEntry = collections.find(c => c.payment_method === 'mobile_money')
+      const cashEntry = collections.find(c => c.payment_method === 'cash')
+      
+      if (!mobileMoneyEntry || mobileMoneyEntry.amount === '') {
+        toast.error(`Please enter Mobile Money amount for ${attendant.name}`)
+        return false
+      }
+      if (!cashEntry || cashEntry.amount === '') {
+        toast.error(`Please enter Cash amount for ${attendant.name}`)
+        return false
+      }
+      
+      // Check variance - cannot close shift if variance > 1000
+      const variance = calculateVariance(attendant.id)
+      if (Math.abs(variance) > 1000) {
+        toast.error(`Variance for ${attendant.name} is KES ${Math.abs(variance).toFixed(2)}. Cannot close shift with variance greater than KES 1,000.`)
+        return false
       }
     }
-    // If no outgoing attendants (no sales during shift), still allow reconciliation
     return true
   }
 
