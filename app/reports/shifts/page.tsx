@@ -205,10 +205,10 @@ export default function ShiftsReportPage() {
       return
     }
 
-    const headers = ['Branch', 'Started', 'Status', 'Total Volume', 'Total Sales']
+    const headers = ['Started', 'Duration', 'Status', 'Total Volume', 'Total Sales']
     const rows = shifts.map(s => [
-      s.branch_name,
       formatDateTime(s.start_time),
+      formatDuration(s.start_time, s.end_time),
       s.status,
       ((s.total_closing_reading || 0) - (s.total_opening_reading || 0)).toFixed(2),
       s.total_sales?.toFixed(2) || '0.00'
@@ -234,6 +234,19 @@ export default function ShiftsReportPage() {
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  function formatDuration(startTime: string | null, endTime: string | null) {
+    if (!startTime) return '-'
+    const start = new Date(startTime)
+    const end = endTime ? new Date(endTime) : new Date()
+    const diffMs = end.getTime() - start.getTime()
+    const hours = Math.floor(diffMs / (1000 * 60 * 60))
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`
+    }
+    return `${minutes}m`
   }
 
   function getStatusBadge(status: string) {
@@ -378,8 +391,8 @@ export default function ShiftsReportPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b">
-                            <th className="py-3 px-4 text-left font-medium text-slate-500">Branch</th>
                             <th className="py-3 px-4 text-left font-medium text-slate-500">Started</th>
+                            <th className="py-3 px-4 text-left font-medium text-slate-500">Duration</th>
                             <th className="py-3 px-4 text-right font-medium text-slate-500">Total Volume</th>
                             <th className="py-3 px-4 text-right font-medium text-slate-500">Total Sales</th>
                             <th className="py-3 px-4 text-center font-medium text-slate-500">Status</th>
@@ -389,8 +402,8 @@ export default function ShiftsReportPage() {
                         <tbody>
                           {shifts.map((shift) => (
                             <tr key={shift.id} className="border-b hover:bg-slate-50">
-                              <td className="py-3 px-4 font-medium">{shift.branch_name}</td>
                               <td className="py-3 px-4">{formatDateTime(shift.start_time)}</td>
+                              <td className="py-3 px-4">{formatDuration(shift.start_time, shift.end_time)}</td>
                               <td className="py-3 px-4 text-right font-medium">
                                 {((shift.total_closing_reading || 0) - (shift.total_opening_reading || 0)).toFixed(2)} L
                               </td>
