@@ -68,8 +68,8 @@ export async function PUT(
     )
     const userRole = userResult.rows[0]?.role
 
-    if (!['supervisor', 'manager', 'director', 'vendor'].includes(userRole)) {
-      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
+    if (!['director', 'vendor'].includes(userRole)) {
+      return NextResponse.json({ error: "Only directors can modify the intermittency rate" }, { status: 403 })
     }
 
     const body = await request.json()
