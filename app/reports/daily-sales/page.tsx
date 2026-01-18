@@ -508,7 +508,7 @@ export default function DSSRPage() {
                             <tr className="bg-slate-100 border-y text-xs">
                               <th className="text-left py-2 px-4 font-semibold whitespace-nowrap">Nozzle</th>
                               <th className="text-right py-2 px-4 font-semibold whitespace-nowrap">A) Closing Meter</th>
-                              <th className="text-right py-2 px-4 font-semibold whitespace-nowrap">B) Opening</th>
+                              <th className="text-right py-2 px-4 font-semibold whitespace-nowrap">B) Opening Meter</th>
                               <th className="text-right py-2 px-4 font-semibold whitespace-nowrap bg-slate-200">C) Thro'put (A-B)</th>
                               <th className="text-right py-2 px-4 font-semibold whitespace-nowrap">D) RTT</th>
                               <th className="text-right py-2 px-4 font-semibold whitespace-nowrap bg-blue-100 text-blue-800">E) Pump Sales (C-D)</th>
@@ -527,12 +527,8 @@ export default function DSSRPage() {
                             ))}
                             <tr className="bg-slate-200 font-bold border-t-2 border-slate-400">
                               <td className="py-2 px-4 whitespace-nowrap">TOTAL</td>
-                              <td className="text-right py-2 px-4 font-mono">
-                                {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.closing_meter, 0))}
-                              </td>
-                              <td className="text-right py-2 px-4 font-mono">
-                                {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.opening_meter, 0))}
-                              </td>
+                              <td className="text-right py-2 px-4 font-mono"></td>
+                              <td className="text-right py-2 px-4 font-mono"></td>
                               <td className="text-right py-2 px-4 font-mono bg-slate-300">
                                 {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.throughput, 0))}
                               </td>
