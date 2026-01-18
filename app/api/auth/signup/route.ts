@@ -160,6 +160,25 @@ export async function POST(request: Request) {
             [normalizedPin]
           )
         }
+
+        // Create default expense accounts for new vendor
+        await client.query(
+          `INSERT INTO expense_accounts (vendor_id, account_name, description, is_active)
+           VALUES ($1, 'Petty Cash', 'Petty cash expenses', true)`,
+          [vendorId]
+        )
+        await client.query(
+          `INSERT INTO expense_accounts (vendor_id, account_name, description, is_active)
+           VALUES ($1, 'Genset', 'Generator fuel and maintenance expenses', true)`,
+          [vendorId]
+        )
+
+        // Create default banking account for new vendor
+        await client.query(
+          `INSERT INTO banking_accounts (vendor_id, account_name, is_default, is_active)
+           VALUES ($1, 'Cash Drop', true, true)`,
+          [vendorId]
+        )
       }
 
       await client.query("COMMIT")
