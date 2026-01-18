@@ -289,6 +289,10 @@ export default function EndShiftPage() {
           if (prevShiftData?.nozzle_attendant_map) {
             nozzleAttendantMapping = prevShiftData.nozzle_attendant_map
             setNozzleAttendantMap(nozzleAttendantMapping)
+            // Auto-populate outgoing attendants from the nozzle-attendant map
+            // These are the attendants who were "incoming" when the previous shift ended,
+            // meaning they worked THIS shift and are now "outgoing"
+            setOutgoingAttendantMap(nozzleAttendantMapping)
           }
         }
         
@@ -344,7 +348,7 @@ export default function EndShiftPage() {
     }
     const missingOutgoing = nozzles.filter(n => !outgoingAttendantMap[n.id])
     if (missingOutgoing.length > 0) {
-      toast.error("Please select an outgoing attendant for each nozzle (who worked this shift)")
+      toast.error("Please select the outgoing attendant for each nozzle (first-time setup)")
       return false
     }
     const missingIncoming = nozzles.filter(n => !incomingAttendants[n.id])
@@ -782,22 +786,28 @@ export default function EndShiftPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <Label className="text-xs text-slate-500">Outgoing Attendant *</Label>
-                                <Select
-                                  value={outgoingAttendantMap[nozzle.id] || ""}
-                                  onValueChange={(value) => setOutgoingAttendantMap({ ...outgoingAttendantMap, [nozzle.id]: value })}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Who worked this nozzle?" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {cashiers.map((cashier) => (
-                                      <SelectItem key={cashier.id} value={cashier.id}>
-                                        {cashier.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                <Label className="text-xs text-slate-500">Outgoing Attendant</Label>
+                                {outgoingAttendantMap[nozzle.id] ? (
+                                  <div className="h-10 px-3 py-2 bg-slate-100 border rounded-md flex items-center text-sm">
+                                    {cashiers.find(c => c.id === outgoingAttendantMap[nozzle.id])?.name || 'Unknown'}
+                                  </div>
+                                ) : (
+                                  <Select
+                                    value={outgoingAttendantMap[nozzle.id] || ""}
+                                    onValueChange={(value) => setOutgoingAttendantMap({ ...outgoingAttendantMap, [nozzle.id]: value })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select initial attendant" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {cashiers.map((cashier) => (
+                                        <SelectItem key={cashier.id} value={cashier.id}>
+                                          {cashier.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
                               </div>
                               <div>
                                 <Label className="text-xs text-slate-500">Incoming Attendant *</Label>
