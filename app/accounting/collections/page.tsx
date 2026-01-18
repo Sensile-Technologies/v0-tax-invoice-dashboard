@@ -289,8 +289,8 @@ export default function CollectionsPage() {
             <div className="w-full max-w-7xl mx-auto space-y-4 md:space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold">Collections</h1>
-                  <p className="text-muted-foreground">Manage expense accounts, banking accounts, and payment collections</p>
+                  <h1 className="text-2xl font-bold">Account Types</h1>
+                  <p className="text-muted-foreground">Manage expense accounts and banking accounts</p>
                 </div>
               </div>
 

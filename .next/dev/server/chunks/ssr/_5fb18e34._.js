@@ -476,7 +476,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                                 href: "/accounting/collections",
                                                                 className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
                                                                 onClick: handleLinkClick,
-                                                                children: "Collections"
+                                                                children: "Account Types"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/dashboard-sidebar.tsx",
                                                                 lineNumber: 207,
@@ -1184,10 +1184,17 @@ async function signIn(identifier, password) {
             localStorage.setItem("currentUser", JSON.stringify(data.user));
             localStorage.setItem("user", JSON.stringify(data.user));
         }
+        // Store must_change_password flag
+        if (data.must_change_password) {
+            localStorage.setItem("must_change_password", "true");
+        } else {
+            localStorage.removeItem("must_change_password");
+        }
     }
     return {
         data,
-        error: data.error || null
+        error: data.error || null,
+        mustChangePassword: data.must_change_password || false
     };
 }
 async function signOut() {
@@ -3279,7 +3286,7 @@ function CollectionsPage() {
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                                     className: "text-2xl font-bold",
-                                                    children: "Collections"
+                                                    children: "Account Types"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/accounting/collections/page.tsx",
                                                     lineNumber: 292,
@@ -3287,7 +3294,7 @@ function CollectionsPage() {
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                     className: "text-muted-foreground",
-                                                    children: "Manage expense accounts, banking accounts, and payment collections"
+                                                    children: "Manage expense accounts and banking accounts"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/accounting/collections/page.tsx",
                                                     lineNumber: 293,

@@ -497,7 +497,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                                 href: "/accounting/collections",
                                                                 className: "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-all hover:bg-white/20",
                                                                 onClick: handleLinkClick,
-                                                                children: "Collections"
+                                                                children: "Account Types"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/dashboard-sidebar.tsx",
                                                                 lineNumber: 207,
