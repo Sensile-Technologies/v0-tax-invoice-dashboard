@@ -128,7 +128,7 @@ async function GET(request) {
                 });
             }
             const user = userResult.rows[0];
-            const userVendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+            const userVendorId = user.vendor_id || (await client.query('SELECT b.vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
                 session.id
             ])).rows[0]?.vendor_id;
             const branchCheck = await client.query('SELECT id, vendor_id FROM branches WHERE id = $1', [

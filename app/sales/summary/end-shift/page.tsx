@@ -236,15 +236,18 @@ export default function EndShiftPage() {
               const readingsData = await shiftReadingsRes.json()
               const readings = readingsData.data || []
               const attendantIds = new Set<string>()
+              const openingReadings: Record<string, number> = {}
               const closingReadings: Record<string, string> = {}
               const rttValues: Record<string, string> = {}
               const selfFuelingValues: Record<string, string> = {}
               const prepaidSaleValues: Record<string, string> = {}
+              const tankOpenings: Record<string, number> = {}
               const tankClosings: Record<string, string> = {}
               const tankReceived: Record<string, string> = {}
               
               for (const r of readings) {
                 if (r.reading_type === 'nozzle' && r.nozzle_id) {
+                  openingReadings[String(r.nozzle_id)] = parseFloat(r.opening_reading || 0)
                   closingReadings[String(r.nozzle_id)] = String(r.closing_reading || 0)
                   rttValues[String(r.nozzle_id)] = String(r.rtt || 0)
                   selfFuelingValues[String(r.nozzle_id)] = String(r.self_fueling || 0)
@@ -254,16 +257,20 @@ export default function EndShiftPage() {
                     nozzleAttendantMapping[String(r.nozzle_id)] = String(r.incoming_attendant_id)
                   }
                 } else if (r.reading_type === 'tank' && r.tank_id) {
+                  tankOpenings[String(r.tank_id)] = parseFloat(r.opening_reading || 0)
                   tankClosings[String(r.tank_id)] = String(r.closing_reading || 0)
                   tankReceived[String(r.tank_id)] = String(r.stock_received || 0)
                 }
               }
               incomingAttendantIds = Array.from(attendantIds)
               setNozzleAttendantMap(nozzleAttendantMapping)
+              // Use opening readings from shift_readings as baselines for reconciliation
+              setNozzleBaselines(openingReadings)
               setNozzleReadings(closingReadings)
               setNozzleRtt(rttValues)
               setNozzleSelfFueling(selfFuelingValues)
               setNozzlePrepaidSale(prepaidSaleValues)
+              setTankBaselines(tankOpenings)
               setTankStocks(tankClosings)
               setTankStockReceived(tankReceived)
             }
