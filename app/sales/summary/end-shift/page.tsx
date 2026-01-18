@@ -238,8 +238,8 @@ export default function EndShiftPage() {
               const attendantIds = new Set<string>()
               for (const r of readings) {
                 if (r.incoming_attendant_id) {
-                  attendantIds.add(r.incoming_attendant_id)
-                  nozzleAttendantMapping[r.nozzle_id] = r.incoming_attendant_id
+                  attendantIds.add(String(r.incoming_attendant_id))
+                  nozzleAttendantMapping[String(r.nozzle_id)] = String(r.incoming_attendant_id)
                 }
               }
               incomingAttendantIds = Array.from(attendantIds)
@@ -273,8 +273,8 @@ export default function EndShiftPage() {
         // Outgoing attendants are those who were assigned as incoming attendants when the shift started
         // They worked the nozzles during the shift and now need to reconcile their collections
         const outgoing = allStaff
-          .filter((s: any) => incomingAttendantIds.includes(s.id))
-          .map((s: any) => ({ id: s.id, name: s.full_name || s.username || 'Unknown' }))
+          .filter((s: any) => incomingAttendantIds.includes(String(s.id)))
+          .map((s: any) => ({ id: String(s.id), name: s.full_name || s.username || 'Unknown' }))
         setOutgoingAttendants(outgoing)
 
         const collections: Record<string, Array<{ payment_method: string; amount: string }>> = {}
@@ -354,8 +354,8 @@ export default function EndShiftPage() {
     // Calculate total sales from meter readings for nozzles assigned to this attendant
     let totalSales = 0
     for (const nozzle of nozzles) {
-      const assignedAttendant = nozzleAttendantMap[nozzle.id]
-      if (assignedAttendant === attendantId) {
+      const assignedAttendant = nozzleAttendantMap[String(nozzle.id)]
+      if (String(assignedAttendant) === String(attendantId)) {
         const opening = nozzleBaselines[nozzle.id] || 0
         const closing = parseFloat(nozzleReadings[nozzle.id] || "0")
         const unitPrice = nozzlePrices[nozzle.id] || 0
