@@ -192,6 +192,7 @@ async function GET(request) {
                 branchId
             ]);
         } else if (vendorFilter) {
+            // Include staff with branches belonging to vendor, OR staff with vendor_id directly set
             result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
         SELECT 
           s.id,
@@ -207,7 +208,7 @@ async function GET(request) {
           b.name as branch_name
         FROM staff s
         LEFT JOIN branches b ON s.branch_id = b.id
-        WHERE b.vendor_id = $1
+        WHERE b.vendor_id = $1 OR s.vendor_id = $1
         ORDER BY s.created_at DESC
       `, [
                 vendorFilter
