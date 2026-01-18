@@ -149,23 +149,31 @@ async function GET(request) {
         if (vendorId) {
             vendorFilter = vendorId;
         } else if (userId) {
-            // First try to get vendor_id from vendors table (for vendor owners)
-            const vendorResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
-         JOIN vendors v ON v.email = u.email 
-         WHERE u.id = $1`, [
+            // First check if user is a staff member with a vendor_id
+            const staffVendorResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT vendor_id FROM staff WHERE user_id = $1 AND vendor_id IS NOT NULL`, [
                 userId
             ]);
-            if (vendorResult && vendorResult.length > 0) {
-                vendorFilter = vendorResult[0].vendor_id;
+            if (staffVendorResult && staffVendorResult.length > 0) {
+                vendorFilter = staffVendorResult[0].vendor_id;
             } else {
-                // For staff members (including directors), get vendor_id from their branch
-                const staffResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
+                // Try to get vendor_id from staff's branch
+                const staffBranchResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT DISTINCT b.vendor_id FROM staff s
            JOIN branches b ON s.branch_id = b.id
            WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`, [
                     userId
                 ]);
-                if (staffResult && staffResult.length > 0) {
-                    vendorFilter = staffResult[0].vendor_id;
+                if (staffBranchResult && staffBranchResult.length > 0) {
+                    vendorFilter = staffBranchResult[0].vendor_id;
+                } else {
+                    // Finally check if user's email matches a vendor (for vendor owners)
+                    const vendorResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT v.id as vendor_id FROM users u 
+             JOIN vendors v ON v.email = u.email 
+             WHERE u.id = $1`, [
+                        userId
+                    ]);
+                    if (vendorResult && vendorResult.length > 0) {
+                        vendorFilter = vendorResult[0].vendor_id;
+                    }
                 }
             }
         }
