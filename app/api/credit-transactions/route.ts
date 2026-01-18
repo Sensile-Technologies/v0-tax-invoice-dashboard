@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { query } from '@/lib/db'
-import { getSession } from '@/lib/auth'
+import { cookies } from 'next/headers'
+
+async function getSession() {
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get("user_session")
+  if (!sessionCookie) return null
+  try {
+    return JSON.parse(sessionCookie.value)
+  } catch {
+    return null
+  }
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -13,6 +24,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const session = await getSession()
+    if (!session?.id) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const dateFilter = startDate && endDate 
       ? `AND DATE(s.sale_date) BETWEEN $2 AND $3`
       : ''
@@ -39,7 +55,7 @@ export async function GET(request: NextRequest) {
       LEFT JOIN items i ON s.item_id = i.id
       WHERE s.branch_id = $1
         AND s.payment_method = 'credit'
-        AND s.is_credit_note = false
+        AND (s.is_credit_note = false OR s.is_credit_note IS NULL)
         ${dateFilter}
       ORDER BY s.sale_date DESC
     `
@@ -141,7 +157,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession()
-    if (!session?.user) {
+    if (!session?.id) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -151,7 +167,6 @@ export async function POST(request: NextRequest) {
       credit_type, 
       source_id, 
       source_date, 
-      credit_amount, 
       payment_amount, 
       payment_reference, 
       payment_notes 
@@ -164,10 +179,49 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    if (payment_amount <= 0) {
+    const paymentNum = parseFloat(payment_amount)
+    if (isNaN(paymentNum) || paymentNum <= 0) {
       return NextResponse.json({ 
         success: false, 
         error: 'Payment amount must be greater than 0' 
+      }, { status: 400 })
+    }
+
+    let originalAmount = 0
+    let actualSourceDate = source_date
+
+    if (credit_type === 'sale') {
+      const saleResult = await query(
+        `SELECT total_amount, DATE(sale_date) as day FROM sales 
+         WHERE id = $1 AND branch_id = $2 AND payment_method = 'credit'`,
+        [source_id, branch_id]
+      )
+      if (saleResult.length === 0) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Credit sale not found or access denied' 
+        }, { status: 404 })
+      }
+      originalAmount = parseFloat(saleResult[0].total_amount) || 0
+      actualSourceDate = saleResult[0].day
+    } else if (credit_type === 'collection') {
+      const collectionResult = await query(
+        `SELECT amount, DATE(created_at) as day FROM attendant_collections 
+         WHERE id = $1 AND branch_id = $2 AND payment_method = 'credit'`,
+        [source_id, branch_id]
+      )
+      if (collectionResult.length === 0) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Credit collection not found or access denied' 
+        }, { status: 404 })
+      }
+      originalAmount = parseFloat(collectionResult[0].amount) || 0
+      actualSourceDate = collectionResult[0].day
+    } else {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Invalid credit_type. Must be "sale" or "collection"' 
       }, { status: 400 })
     }
 
@@ -179,14 +233,31 @@ export async function POST(request: NextRequest) {
     )
     
     const totalPaid = parseFloat(existingPayments[0]?.total_paid || 0)
-    const originalAmount = parseFloat(credit_amount) || 0
-    const newPayment = parseFloat(payment_amount)
+    const outstanding = originalAmount - totalPaid
     
-    if (totalPaid + newPayment > originalAmount) {
+    if (paymentNum > outstanding + 0.01) {
       return NextResponse.json({ 
         success: false, 
-        error: `Payment exceeds outstanding amount. Outstanding: ${(originalAmount - totalPaid).toFixed(2)}` 
+        error: `Payment exceeds outstanding amount. Outstanding: ${outstanding.toFixed(2)}` 
       }, { status: 400 })
+    }
+
+    const userResult = await query(
+      `SELECT u.id, v.id as vendor_id, s.branch_id as staff_branch_id
+       FROM users u
+       LEFT JOIN vendors v ON v.email = u.email
+       LEFT JOIN staff s ON s.user_id = u.id
+       WHERE u.id = $1`,
+      [session.id]
+    )
+    
+    let vendorId = userResult[0]?.vendor_id || null
+    if (!vendorId && userResult[0]?.staff_branch_id) {
+      const branchResult = await query(
+        'SELECT vendor_id FROM branches WHERE id = $1',
+        [userResult[0].staff_branch_id]
+      )
+      vendorId = branchResult[0]?.vendor_id || null
     }
 
     const result = await query(
@@ -197,15 +268,15 @@ export async function POST(request: NextRequest) {
       RETURNING *`,
       [
         branch_id,
-        session.user.vendor_id || null,
+        vendorId,
         credit_type,
         source_id,
-        source_date || new Date().toISOString().split('T')[0],
-        credit_amount,
-        payment_amount,
+        actualSourceDate || new Date().toISOString().split('T')[0],
+        originalAmount,
+        paymentNum,
         payment_reference || null,
         payment_notes || null,
-        session.user.id
+        session.id
       ]
     )
 
