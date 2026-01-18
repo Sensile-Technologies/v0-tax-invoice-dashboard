@@ -218,7 +218,7 @@ async function GET(request) {
         ac.created_at as transaction_date,
         DATE(ac.created_at) as day,
         sh.id as shift_id,
-        u.full_name as staff_name,
+        COALESCE(st.full_name, u.username) as staff_name,
         ac.amount as credit_amount,
         COALESCE(
           (SELECT SUM(cp.payment_amount) FROM credit_payments cp WHERE cp.source_id = ac.id AND cp.credit_type = 'collection'),
@@ -227,6 +227,7 @@ async function GET(request) {
       FROM attendant_collections ac
       JOIN shifts sh ON ac.shift_id = sh.id
       LEFT JOIN users u ON ac.staff_id = u.id
+      LEFT JOIN staff st ON st.user_id = u.id
       WHERE ac.branch_id = $1
         AND ac.payment_method = 'credit'
         ${collectionDateFilter}
