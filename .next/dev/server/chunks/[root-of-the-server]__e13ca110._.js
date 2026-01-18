@@ -157,7 +157,7 @@ async function POST(request) {
                 status: 400
             });
         }
-        const defaultPassword = "flow360123";
+        const defaultPassword = "flow360";
         const hashedPassword = await __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$bcryptjs$2f$index$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].hash(defaultPassword, 10);
         // Get the staff member and their user_id
         let staffResult;
