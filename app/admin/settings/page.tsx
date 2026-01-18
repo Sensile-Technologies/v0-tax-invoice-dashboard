@@ -449,47 +449,14 @@ export default function SettingsPage() {
                 WhatsApp DSSR Notifications
               </CardTitle>
               <CardDescription>
-                Configure director phone numbers to receive Daily Sales Summary Reports via WhatsApp when branches reconcile
+                DSSR notifications are now configured at the branch level
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter phone number (e.g., +254712345678)"
-                  value={newDirectorNumber}
-                  onChange={(e) => setNewDirectorNumber(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddDirector()}
-                />
-                <Button onClick={handleAddDirector} size="icon">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              {whatsappDirectors.length > 0 ? (
-                <div className="space-y-2">
-                  <Label>Directors receiving DSSR notifications:</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {whatsappDirectors.map((number, idx) => (
-                      <Badge key={idx} variant="secondary" className="gap-1 py-1 px-2">
-                        {number}
-                        <button
-                          onClick={() => handleRemoveDirector(number)}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-slate-500">No director numbers configured. Add phone numbers to receive DSSR via WhatsApp.</p>
-              )}
-              
-              <div className="pt-4 border-t">
-                <Button onClick={handleSaveWhatsappDirectors} disabled={savingWhatsapp}>
-                  {savingWhatsapp ? "Saving..." : "Save WhatsApp Settings"}
-                </Button>
+            <CardContent>
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  WhatsApp DSSR notifications are now configured per branch. Go to <strong>Explore Tuzwa → Earning Rules</strong> tab within each branch to configure director phone numbers for that branch.
+                </p>
               </div>
             </CardContent>
           </Card>

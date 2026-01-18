@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, TrendingUp, Users, Award, Calendar, Leaf, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, TrendingUp, Users, Award, Calendar, Leaf, ChevronLeft, ChevronRight, MessageSquare, Plus, X, Loader2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
 import { useCurrency } from "@/lib/currency-utils"
@@ -53,6 +54,14 @@ export default function LoyaltyPage() {
   const [customersPagination, setCustomersPagination] = useState({ total: 0, totalPages: 1 })
   const [customerSearch, setCustomerSearch] = useState("")
   const pageSize = 50
+  const { toast } = useToast()
+  
+  // WhatsApp DSSR Notifications state
+  const [branchId, setBranchId] = useState<string | null>(null)
+  const [whatsappDirectors, setWhatsappDirectors] = useState<string[]>([])
+  const [newPhoneNumber, setNewPhoneNumber] = useState("")
+  const [savingWhatsapp, setSavingWhatsapp] = useState(false)
+  const [loadingWhatsapp, setLoadingWhatsapp] = useState(false)
 
   // Calculate environmental impact metrics from real loyalty transaction data
   // Formulas based on fuel industry standards:
@@ -174,6 +183,73 @@ export default function LoyaltyPage() {
 
     fetchCustomers()
   }, [customersPage, customerSearch])
+
+  // Fetch branch ID and WhatsApp directors
+  useEffect(() => {
+    const fetchWhatsAppConfig = async () => {
+      try {
+        const selectedBranch = localStorage.getItem("selectedBranch")
+        if (!selectedBranch) return
+
+        const branch = JSON.parse(selectedBranch)
+        setBranchId(branch.id)
+        setLoadingWhatsapp(true)
+
+        const response = await fetch(`/api/branches/whatsapp-directors?branch_id=${branch.id}`)
+        const data = await response.json()
+        if (data.success) {
+          setWhatsappDirectors(data.directors || [])
+        }
+      } catch (error) {
+        console.error("Error fetching WhatsApp config:", error)
+      } finally {
+        setLoadingWhatsapp(false)
+      }
+    }
+
+    fetchWhatsAppConfig()
+  }, [])
+
+  const addPhoneNumber = () => {
+    if (!newPhoneNumber.trim()) return
+    const cleaned = newPhoneNumber.trim()
+    if (!cleaned.match(/^\+?[0-9]{10,15}$/)) {
+      toast({ title: "Invalid phone number", description: "Use format: +254712345678", variant: "destructive" })
+      return
+    }
+    if (whatsappDirectors.includes(cleaned)) {
+      toast({ title: "Duplicate", description: "This number is already added", variant: "destructive" })
+      return
+    }
+    setWhatsappDirectors([...whatsappDirectors, cleaned])
+    setNewPhoneNumber("")
+  }
+
+  const removePhoneNumber = (phone: string) => {
+    setWhatsappDirectors(whatsappDirectors.filter(p => p !== phone))
+  }
+
+  const saveWhatsAppSettings = async () => {
+    if (!branchId) return
+    setSavingWhatsapp(true)
+    try {
+      const response = await fetch("/api/branches/whatsapp-directors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ branch_id: branchId, directors: whatsappDirectors })
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({ title: "Saved", description: "WhatsApp settings updated successfully" })
+      } else {
+        toast({ title: "Error", description: data.error, variant: "destructive" })
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to save settings", variant: "destructive" })
+    } finally {
+      setSavingWhatsapp(false)
+    }
+  }
 
   // Use aggregates from API for branch-wide totals (not from page data)
   const totalPointsIssued = transactionsAggregates.totalPoints
@@ -592,6 +668,82 @@ export default function LoyaltyPage() {
                         </tbody>
                       </table>
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* WhatsApp DSSR Notifications */}
+                <Card className="rounded-2xl">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
+                        <MessageSquare className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <CardTitle>WhatsApp DSSR Notifications</CardTitle>
+                        <CardDescription>
+                          Configure phone numbers to receive Daily Sales Summary Reports via WhatsApp when shifts are reconciled
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {loadingWhatsapp ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Enter phone number (e.g., +254712345678)"
+                            value={newPhoneNumber}
+                            onChange={(e) => setNewPhoneNumber(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && addPhoneNumber()}
+                            className="flex-1 rounded-xl"
+                          />
+                          <Button onClick={addPhoneNumber} className="rounded-xl bg-green-500 hover:bg-green-600">
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {whatsappDirectors.length === 0 ? (
+                          <p className="text-sm text-muted-foreground py-2">
+                            No director numbers configured. Add phone numbers to receive DSSR notifications via WhatsApp.
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            {whatsappDirectors.map((phone, index) => (
+                              <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-xl">
+                                <span className="font-medium">{phone}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => removePhoneNumber(phone)}
+                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <Button 
+                          onClick={saveWhatsAppSettings} 
+                          disabled={savingWhatsapp}
+                          className="rounded-xl bg-green-500 hover:bg-green-600"
+                        >
+                          {savingWhatsapp ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Saving...
+                            </>
+                          ) : (
+                            "Save WhatsApp Settings"
+                          )}
+                        </Button>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

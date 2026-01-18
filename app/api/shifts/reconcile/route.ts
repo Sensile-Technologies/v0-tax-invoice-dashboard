@@ -141,15 +141,16 @@ export async function POST(request: NextRequest) {
 
     // Send DSSR via WhatsApp to directors (async, don't block response)
     try {
-      const vendorResult = await client.query(
-        `SELECT whatsapp_directors FROM vendors WHERE id = $1`,
-        [vendorId]
+      // Get whatsapp_directors from branch level (not vendor level)
+      const branchConfigResult = await client.query(
+        `SELECT whatsapp_directors FROM branches WHERE id = $1`,
+        [branchId]
       )
       
-      if (vendorResult.rows.length > 0 && vendorResult.rows[0].whatsapp_directors) {
+      if (branchConfigResult.rows.length > 0 && branchConfigResult.rows[0].whatsapp_directors) {
         let directorNumbers: string[] = []
         try {
-          const directors = vendorResult.rows[0].whatsapp_directors
+          const directors = branchConfigResult.rows[0].whatsapp_directors
           directorNumbers = typeof directors === 'string' ? JSON.parse(directors) : directors
         } catch {
           directorNumbers = []
