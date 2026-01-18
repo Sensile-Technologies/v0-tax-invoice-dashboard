@@ -59,7 +59,7 @@ export async function PUT(
     }
     
     const session = JSON.parse(sessionCookie.value)
-    const { user_id, vendor_id } = session
+    const { id: userId, vendor_id } = session
     const { id: branchId } = await params
 
     const userResult = await pool.query(
@@ -67,7 +67,7 @@ export async function PUT(
        UNION
        SELECT 'vendor' as role FROM vendors v 
        JOIN users u ON u.email = v.email WHERE u.id = $1`,
-      [user_id]
+      [userId]
     )
     const userRole = userResult.rows[0]?.role?.toLowerCase()
 
