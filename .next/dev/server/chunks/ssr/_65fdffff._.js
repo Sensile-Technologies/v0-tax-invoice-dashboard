@@ -2685,8 +2685,8 @@ function EndShiftPage() {
                     if (urlBranchId) {
                         currentBranchId = urlBranchId;
                     } else {
-                        // Then check localStorage
-                        const stored = localStorage.getItem('selected_branch');
+                        // Then check localStorage (try both key names for compatibility)
+                        const stored = localStorage.getItem('selectedBranch') || localStorage.getItem('selected_branch');
                         if (stored) {
                             try {
                                 const parsed = JSON.parse(stored);
