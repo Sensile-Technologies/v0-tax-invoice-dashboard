@@ -74,8 +74,15 @@ export default function EndShiftPage() {
         let currentBranchId = user.assigned_branch_id
         
         if (!isRestrictedRole) {
-          // First check URL params
-          const urlBranchId = searchParams.get('branch')
+          // First check URL params (try multiple methods for reliability)
+          let urlBranchId = searchParams.get('branch')
+          
+          // Fallback to window.location if searchParams doesn't have it yet
+          if (!urlBranchId && typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search)
+            urlBranchId = urlParams.get('branch')
+          }
+          
           if (urlBranchId) {
             currentBranchId = urlBranchId
           } else {
