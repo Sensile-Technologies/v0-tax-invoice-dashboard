@@ -372,10 +372,17 @@ export function SalesSummaryContent() {
       const trendData: Array<{ date: string; [key: string]: number | string }> = []
       const productTotals: Map<string, number> = new Map()
       
-      // Fetch DSSR data for the past 7 days
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date()
-        date.setDate(date.getDate() - i)
+      // Fetch DSSR data for MTD (start of month to today)
+      const now = new Date()
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      const today = new Date()
+      
+      // Calculate number of days from start of month to today
+      const dayOfMonth = today.getDate()
+      
+      for (let i = 0; i < dayOfMonth; i++) {
+        const date = new Date(monthStart)
+        date.setDate(date.getDate() + i)
         const dateStr = date.toISOString().split('T')[0]
         
         try {
@@ -403,7 +410,7 @@ export function SalesSummaryContent() {
       
       setDailyTrendData(trendData)
     } catch (error) {
-      console.error("Error fetching daily trend data:", error)
+      console.error("Error fetching MTD trend data:", error)
     } finally {
       setTrendLoading(false)
     }
@@ -1114,8 +1121,8 @@ export function SalesSummaryContent() {
 
           <Card className="rounded-2xl md:col-span-2">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base text-black">Daily Sales Trend</CardTitle>
-              <CardDescription className="text-xs text-black/70">Daily turnover from DSSR over 7 days</CardDescription>
+              <CardTitle className="text-base text-black">MTD Sales Trend</CardTitle>
+              <CardDescription className="text-xs text-black/70">Month-to-date turnover from DSSR</CardDescription>
             </CardHeader>
             <CardContent className="pt-2">
               {trendLoading ? (
@@ -1124,7 +1131,7 @@ export function SalesSummaryContent() {
                 </div>
               ) : dailyTrendData.length === 0 ? (
                 <div className="flex items-center justify-center h-[220px]">
-                  <p className="text-sm text-slate-500">No DSSR data available for the past 7 days</p>
+                  <p className="text-sm text-slate-500">No DSSR data available for this month</p>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
