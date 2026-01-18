@@ -61,6 +61,8 @@ export function SalesSummaryContent() {
   const [customerSearchOpen, setCustomerSearchOpen] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [fuelColorMap, setFuelColorMap] = useState<Record<string, string>>({})
+  const [dailyTrendData, setDailyTrendData] = useState<Array<{ date: string; [key: string]: number | string }>>([])
+  const [trendLoading, setTrendLoading] = useState(false)
 
   const [saleForm, setSaleForm] = useState({
     nozzle_id: "",
@@ -361,6 +363,57 @@ export function SalesSummaryContent() {
       console.error("Error fetching sales:", error)
     }
   }
+
+  async function fetchDailyTrendData() {
+    if (!currentBranchData?.id) return
+    
+    setTrendLoading(true)
+    try {
+      const trendData: Array<{ date: string; [key: string]: number | string }> = []
+      const productTotals: Map<string, number> = new Map()
+      
+      // Fetch DSSR data for the past 7 days
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date()
+        date.setDate(date.getDate() - i)
+        const dateStr = date.toISOString().split('T')[0]
+        
+        try {
+          const response = await fetch(`/api/reports/dssr?branch_id=${currentBranchData.id}&date=${dateStr}`)
+          const result = await response.json()
+          
+          const dayData: { date: string; [key: string]: number | string } = { date: dateStr }
+          
+          if (result.success && result.data?.product_nozzle_totals) {
+            // Extract turnover per product from DSSR
+            for (const product of result.data.product_nozzle_totals) {
+              const productName = product.product || 'Unknown'
+              const amount = product.amount || 0
+              dayData[productName] = amount
+              productTotals.set(productName, (productTotals.get(productName) || 0) + amount)
+            }
+          }
+          
+          trendData.push(dayData)
+        } catch (err) {
+          // If DSSR fetch fails for a day, add empty entry
+          trendData.push({ date: dateStr })
+        }
+      }
+      
+      setDailyTrendData(trendData)
+    } catch (error) {
+      console.error("Error fetching daily trend data:", error)
+    } finally {
+      setTrendLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (currentBranchData?.id) {
+      fetchDailyTrendData()
+    }
+  }, [currentBranchData?.id])
 
   async function handleCreateSale() {
     if (!saleForm.nozzle_id || !saleForm.fuel_type || !saleForm.amount) {
@@ -1062,72 +1115,74 @@ export function SalesSummaryContent() {
           <Card className="rounded-2xl md:col-span-2">
             <CardHeader className="pb-2">
               <CardTitle className="text-base text-black">Daily Sales Trend</CardTitle>
-              <CardDescription className="text-xs text-black/70">Sales per product over 7 days</CardDescription>
+              <CardDescription className="text-xs text-black/70">Daily turnover from DSSR over 7 days</CardDescription>
             </CardHeader>
             <CardContent className="pt-2">
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart
-                  data={(() => {
-                    const days = []
-                    for (let i = 6; i >= 0; i--) {
-                      const date = new Date()
-                      date.setDate(date.getDate() - i)
-                      const dateStr = date.toISOString().split("T")[0]
-
-                      const daySales: any = { date: dateStr }
-                      const uniqueFuelTypes = [...new Set(sales.map((s) => s.fuel_type))]
-
-                      uniqueFuelTypes.forEach((fuelType) => {
-                        const total = sales
-                          .filter((s) => s.sale_date.startsWith(dateStr) && s.fuel_type === fuelType)
-                          .reduce((sum, s) => sum + s.total_amount, 0)
-                        daySales[fuelType] = total
+              {trendLoading ? (
+                <div className="flex items-center justify-center h-[220px]">
+                  <p className="text-sm text-slate-500">Loading trend data...</p>
+                </div>
+              ) : dailyTrendData.length === 0 ? (
+                <div className="flex items-center justify-center h-[220px]">
+                  <p className="text-sm text-slate-500">No DSSR data available for the past 7 days</p>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <LineChart
+                    data={dailyTrendData}
+                    margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 10, fill: "#000" }}
+                      tickFormatter={(value) => new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    />
+                    <YAxis tick={{ fontSize: 11, fill: "#000" }} />
+                    <Tooltip
+                      formatter={(value: any) => formatCurrency(value)}
+                      contentStyle={{ color: "#000" }}
+                      labelFormatter={(label) => new Date(label).toLocaleDateString()}
+                    />
+                    {(() => {
+                      // Extract unique product names from all days' data
+                      const allProducts = new Set<string>()
+                      dailyTrendData.forEach(day => {
+                        Object.keys(day).forEach(key => {
+                          if (key !== 'date' && typeof day[key] === 'number') {
+                            allProducts.add(key)
+                          }
+                        })
                       })
-
-                      days.push(daySales)
-                    }
-                    return days
-                  })()}
-                  margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fontSize: 10, fill: "#000" }}
-                    tickFormatter={(value) => new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  />
-                  <YAxis tick={{ fontSize: 11, fill: "#000" }} />
-                  <Tooltip
-                    formatter={(value: any) => formatCurrency(value)}
-                    contentStyle={{ color: "#000" }}
-                    labelFormatter={(label) => new Date(label).toLocaleDateString()}
-                  />
-                  {[...new Set(sales.map((s) => s.fuel_type))].map((fuelType) => {
-                    const getFuelColor = (ft: string) => {
-                      const ftUpper = (ft || '').toUpperCase()
-                      if (fuelColorMap[ft]) return fuelColorMap[ft]
-                      if (fuelColorMap[ftUpper]) return fuelColorMap[ftUpper]
-                      if (ftUpper.includes('DIESEL')) return '#FFFF00'
-                      if (ftUpper.includes('PETROL') || ftUpper.includes('SUPER') || ftUpper.includes('UNLEADED')) return '#FF0000'
-                      if (ftUpper.includes('KEROSENE')) return '#0D1433'
-                      if (ftUpper.includes('GAS') || ftUpper.includes('LPG')) return '#00FF00'
-                      return '#000'
-                    }
-                    const color = getFuelColor(fuelType)
-                    return (
-                      <Line
-                        key={fuelType}
-                        type="monotone"
-                        dataKey={fuelType}
-                        stroke={color}
-                        strokeWidth={2}
-                        dot={{ fill: color }}
-                        name={fuelType}
-                      />
-                    )
-                  })}
-                </LineChart>
-              </ResponsiveContainer>
+                      
+                      return [...allProducts].map((productName) => {
+                        const getFuelColor = (ft: string) => {
+                          const ftUpper = (ft || '').toUpperCase()
+                          if (fuelColorMap[ft]) return fuelColorMap[ft]
+                          if (fuelColorMap[ftUpper]) return fuelColorMap[ftUpper]
+                          if (ftUpper.includes('DIESEL')) return '#FFFF00'
+                          if (ftUpper.includes('PETROL') || ftUpper.includes('SUPER') || ftUpper.includes('UNLEADED')) return '#FF0000'
+                          if (ftUpper.includes('KEROSENE')) return '#0D1433'
+                          if (ftUpper.includes('GAS') || ftUpper.includes('LPG')) return '#00FF00'
+                          return '#000'
+                        }
+                        const color = getFuelColor(productName)
+                        return (
+                          <Line
+                            key={productName}
+                            type="monotone"
+                            dataKey={productName}
+                            stroke={color}
+                            strokeWidth={2}
+                            dot={{ fill: color }}
+                            name={productName}
+                          />
+                        )
+                      })
+                    })()}
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </CardContent>
           </Card>
         </>

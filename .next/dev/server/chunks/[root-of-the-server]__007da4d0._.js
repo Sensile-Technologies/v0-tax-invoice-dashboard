@@ -133,16 +133,19 @@ async function PUT(request, { params }) {
         const session = JSON.parse(sessionCookie.value);
         const { user_id, vendor_id } = session;
         const { id: branchId } = await params;
-        const userResult = await pool.query(`SELECT role FROM staff WHERE id = $1`, [
+        const userResult = await pool.query(`SELECT s.role FROM staff s WHERE s.user_id = $1
+       UNION
+       SELECT 'vendor' as role FROM vendors v 
+       JOIN users u ON u.email = v.email WHERE u.id = $1`, [
             user_id
         ]);
-        const userRole = userResult.rows[0]?.role;
+        const userRole = userResult.rows[0]?.role?.toLowerCase();
         if (![
             'director',
             'vendor'
         ].includes(userRole)) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Only directors can modify the intermittency rate"
+                error: "Only directors and vendors can modify the intermittency rate"
             }, {
                 status: 403
             });
