@@ -18,9 +18,13 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await pool.query(
-      `SELECT sr.*, st.full_name as attendant_name
+      `SELECT sr.*, 
+              outgoing_staff.full_name as outgoing_attendant_name,
+              incoming_staff.full_name as incoming_attendant_name,
+              outgoing_staff.full_name as attendant_name
        FROM shift_readings sr
-       LEFT JOIN staff st ON sr.incoming_attendant_id = st.id
+       LEFT JOIN staff outgoing_staff ON sr.outgoing_attendant_id = outgoing_staff.id
+       LEFT JOIN staff incoming_staff ON sr.incoming_attendant_id = incoming_staff.id
        WHERE sr.shift_id = $1
        ORDER BY sr.created_at ASC`,
       [shiftId]

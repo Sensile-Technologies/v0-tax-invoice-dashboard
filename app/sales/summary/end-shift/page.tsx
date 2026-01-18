@@ -40,6 +40,7 @@ export default function EndShiftPage() {
   const [tankStocks, setTankStocks] = useState<Record<string, string>>({})
   const [tankStockReceived, setTankStockReceived] = useState<Record<string, string>>({})
   const [incomingAttendants, setIncomingAttendants] = useState<Record<string, string>>({})
+  const [outgoingAttendantMap, setOutgoingAttendantMap] = useState<Record<string, string>>({})
   const [nozzleRtt, setNozzleRtt] = useState<Record<string, string>>({})
   const [nozzleSelfFueling, setNozzleSelfFueling] = useState<Record<string, string>>({})
   const [nozzlePrepaidSale, setNozzlePrepaidSale] = useState<Record<string, string>>({})
@@ -252,9 +253,12 @@ export default function EndShiftPage() {
                   rttValues[String(r.nozzle_id)] = String(r.rtt || 0)
                   selfFuelingValues[String(r.nozzle_id)] = String(r.self_fueling || 0)
                   prepaidSaleValues[String(r.nozzle_id)] = String(r.prepaid_sale || 0)
-                  if (r.incoming_attendant_id) {
-                    attendantIds.add(String(r.incoming_attendant_id))
-                    nozzleAttendantMapping[String(r.nozzle_id)] = String(r.incoming_attendant_id)
+                  // Use outgoing_attendant_id for reconciliation (who worked this shift)
+                  // Fall back to incoming_attendant_id for backward compatibility with old data
+                  const attendantId = r.outgoing_attendant_id || r.incoming_attendant_id
+                  if (attendantId) {
+                    attendantIds.add(String(attendantId))
+                    nozzleAttendantMapping[String(r.nozzle_id)] = String(attendantId)
                   }
                 } else if (r.reading_type === 'tank' && r.tank_id) {
                   tankOpenings[String(r.tank_id)] = parseFloat(r.opening_reading || 0)
@@ -338,9 +342,14 @@ export default function EndShiftPage() {
       toast.error("Please enter closing readings for all nozzles")
       return false
     }
-    const missingAttendants = nozzles.filter(n => !incomingAttendants[n.id])
-    if (missingAttendants.length > 0) {
-      toast.error("Please select an incoming attendant for each nozzle")
+    const missingOutgoing = nozzles.filter(n => !outgoingAttendantMap[n.id])
+    if (missingOutgoing.length > 0) {
+      toast.error("Please select an outgoing attendant for each nozzle (who worked this shift)")
+      return false
+    }
+    const missingIncoming = nozzles.filter(n => !incomingAttendants[n.id])
+    if (missingIncoming.length > 0) {
+      toast.error("Please select an incoming attendant for each nozzle (who takes over)")
       return false
     }
     for (const nozzle of nozzles) {
@@ -465,6 +474,7 @@ export default function EndShiftPage() {
       const readings = nozzles.map(nozzle => ({
         nozzle_id: nozzle.id,
         closing_reading: parseFloat(nozzleReadings[nozzle.id] || "0"),
+        outgoing_attendant_id: outgoingAttendantMap[nozzle.id] || null,
         incoming_attendant_id: incomingAttendants[nozzle.id] || null,
         rtt: parseFloat(nozzleRtt[nozzle.id] || "0") || 0,
         self_fueling: parseFloat(nozzleSelfFueling[nozzle.id] || "0") || 0,
@@ -770,23 +780,43 @@ export default function EndShiftPage() {
                                 />
                               </div>
                             </div>
-                            <div>
-                              <Label className="text-xs text-slate-500">Incoming Attendant *</Label>
-                              <Select
-                                value={incomingAttendants[nozzle.id] || ""}
-                                onValueChange={(value) => setIncomingAttendants({ ...incomingAttendants, [nozzle.id]: value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select cashier taking over" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {cashiers.map((cashier) => (
-                                    <SelectItem key={cashier.id} value={cashier.id}>
-                                      {cashier.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-xs text-slate-500">Outgoing Attendant *</Label>
+                                <Select
+                                  value={outgoingAttendantMap[nozzle.id] || ""}
+                                  onValueChange={(value) => setOutgoingAttendantMap({ ...outgoingAttendantMap, [nozzle.id]: value })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Who worked this nozzle?" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {cashiers.map((cashier) => (
+                                      <SelectItem key={cashier.id} value={cashier.id}>
+                                        {cashier.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-slate-500">Incoming Attendant *</Label>
+                                <Select
+                                  value={incomingAttendants[nozzle.id] || ""}
+                                  onValueChange={(value) => setIncomingAttendants({ ...incomingAttendants, [nozzle.id]: value })}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Who takes over?" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {cashiers.map((cashier) => (
+                                      <SelectItem key={cashier.id} value={cashier.id}>
+                                        {cashier.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
                             </div>
                             {nozzleReadings[nozzle.id] && parseFloat(nozzleReadings[nozzle.id]) < openingReading && (
                               <p className="text-xs text-red-500">Closing reading cannot be less than opening ({openingReading})</p>
