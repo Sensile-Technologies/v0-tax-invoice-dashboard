@@ -437,7 +437,7 @@ async function POST(request) {
                     const branchResult = await client.query(`SELECT name FROM branches WHERE id = $1`, [
                         branchId
                     ]);
-                    const attendantResult = await client.query(`SELECT u.full_name FROM users u
+                    const attendantResult = await client.query(`SELECT u.username FROM users u
              WHERE u.id = (SELECT user_id FROM shifts WHERE id = $1)`, [
                         shift_id
                     ]);
@@ -461,7 +461,7 @@ async function POST(request) {
                         branchName: branchResult.rows[0]?.name || 'Unknown Branch',
                         date: new Date().toISOString().split('T')[0],
                         shiftType: shift.shift_type || 'Day',
-                        attendantName: attendantResult.rows[0]?.full_name || 'N/A',
+                        attendantName: attendantResult.rows[0]?.username || 'N/A',
                         totalSales,
                         totalVolume,
                         cashCollected,

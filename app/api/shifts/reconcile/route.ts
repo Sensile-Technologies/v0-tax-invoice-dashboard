@@ -179,8 +179,8 @@ export async function POST(request: NextRequest) {
           )
           
           const attendantResult = await client.query(
-            `SELECT u.username FROM users u
-             WHERE u.id = (SELECT user_id FROM shifts WHERE id = $1)`,
+            `SELECT s.name FROM staff s
+             WHERE s.id = (SELECT staff_id FROM shifts WHERE id = $1)`,
             [shift_id]
           )
           
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
             branchName: branchResult.rows[0]?.name || 'Unknown Branch',
             date: new Date().toISOString().split('T')[0],
             shiftType: shift.shift_type || 'Day',
-            attendantName: attendantResult.rows[0]?.username || 'N/A',
+            attendantName: attendantResult.rows[0]?.name || 'N/A',
             totalSales,
             totalVolume,
             cashCollected,
