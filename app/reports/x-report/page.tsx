@@ -58,25 +58,68 @@ export default function XReportPage() {
   const [branchId, setBranchId] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchSession = async () => {
+    const initializePage = async () => {
       try {
-        const res = await fetch('/api/auth/session')
-        const data = await res.json()
-        if (data.branch_id) {
-          setBranchId(data.branch_id)
+        let currentBranchId: string | null = null
+
+        if (typeof window !== 'undefined') {
+          const storedBranch = localStorage.getItem("selectedBranch")
+          if (storedBranch) {
+            try {
+              const branch = JSON.parse(storedBranch)
+              currentBranchId = branch.id
+            } catch {}
+          }
+        }
+
+        if (!currentBranchId) {
+          const res = await fetch('/api/auth/session')
+          const data = await res.json()
+          if (data.user?.branch_id) {
+            currentBranchId = data.user.branch_id
+          }
+        }
+
+        if (currentBranchId) {
+          setBranchId(currentBranchId)
+        } else {
+          setLoading(false)
         }
       } catch (error) {
-        console.error("Failed to fetch session:", error)
+        console.error("Failed to initialize:", error)
+        setLoading(false)
       }
     }
-    fetchSession()
+    initializePage()
   }, [])
 
   useEffect(() => {
     if (branchId) {
-      fetchReport()
+      fetchCurrentShiftReport()
     }
   }, [branchId])
+
+  const fetchCurrentShiftReport = async () => {
+    if (!branchId) return
+    
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      params.set('type', 'x')
+      params.set('branch_id', branchId)
+
+      const res = await fetch(`/api/reports/fiscal?${params.toString()}`)
+      const result = await res.json()
+      
+      if (result.success && result.data) {
+        setReportData(result.data)
+      }
+    } catch (error) {
+      console.error("Failed to fetch report:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const fetchReport = async () => {
     if (!branchId) return
@@ -191,6 +234,11 @@ export default function XReportPage() {
                     <div className="flex items-center justify-center py-12">
                       <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
                       <span className="ml-2 text-slate-500">Loading report...</span>
+                    </div>
+                  ) : !branchId ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <p className="text-slate-500 mb-2">No branch selected</p>
+                      <p className="text-sm text-slate-400">Please select a branch from the header to view the X/Z Report</p>
                     </div>
                   ) : reportData ? (
                     <>
