@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Settings, Server, CreditCard, Bell, Shield, Store, Building2, Activity, RefreshCw, ChevronLeft, ChevronRight, Clock, Filter, User } from "lucide-react"
+import { Settings, Server, CreditCard, Bell, Shield, Store, Building2, Activity, RefreshCw, ChevronLeft, ChevronRight, Clock, Filter, User, MessageSquare, Plus, X } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 
@@ -53,6 +53,9 @@ export default function SettingsPage() {
     ticketAlerts: true,
     invoiceReminders: true
   })
+  const [whatsappDirectors, setWhatsappDirectors] = useState<string[]>([])
+  const [newDirectorNumber, setNewDirectorNumber] = useState("")
+  const [savingWhatsapp, setSavingWhatsapp] = useState(false)
   const [connectedBranches, setConnectedBranches] = useState<ConnectedBranch[]>([])
   const [loadingBranches, setLoadingBranches] = useState(true)
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([])
@@ -75,7 +78,57 @@ export default function SettingsPage() {
       } catch (e) {}
     }
     fetchConnectedBranches()
+    fetchWhatsappDirectors()
   }, [])
+
+  const fetchWhatsappDirectors = async () => {
+    try {
+      const response = await fetch('/api/vendors/whatsapp-directors')
+      const data = await response.json()
+      if (data.success) {
+        setWhatsappDirectors(data.directors || [])
+      }
+    } catch (error) {
+      console.error("Error fetching WhatsApp directors:", error)
+    }
+  }
+
+  const handleAddDirector = () => {
+    if (!newDirectorNumber.trim()) return
+    const cleaned = newDirectorNumber.replace(/\s/g, '')
+    if (whatsappDirectors.includes(cleaned)) {
+      toast.error("This number is already added")
+      return
+    }
+    setWhatsappDirectors([...whatsappDirectors, cleaned])
+    setNewDirectorNumber("")
+  }
+
+  const handleRemoveDirector = (number: string) => {
+    setWhatsappDirectors(whatsappDirectors.filter(n => n !== number))
+  }
+
+  const handleSaveWhatsappDirectors = async () => {
+    setSavingWhatsapp(true)
+    try {
+      const response = await fetch('/api/vendors/whatsapp-directors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ directors: whatsappDirectors })
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success(data.message || "WhatsApp directors saved")
+        setWhatsappDirectors(data.directors || whatsappDirectors)
+      } else {
+        toast.error(data.error || "Failed to save")
+      }
+    } catch (error) {
+      toast.error("Failed to save WhatsApp directors")
+    } finally {
+      setSavingWhatsapp(false)
+    }
+  }
 
   const fetchConnectedBranches = async () => {
     try {
@@ -385,6 +438,58 @@ export default function SettingsPage() {
               </div>
               <div className="pt-4">
                 <Button onClick={handleSaveNotifications}>Save Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-green-600" />
+                WhatsApp DSSR Notifications
+              </CardTitle>
+              <CardDescription>
+                Configure director phone numbers to receive Daily Sales Summary Reports via WhatsApp when branches reconcile
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter phone number (e.g., +254712345678)"
+                  value={newDirectorNumber}
+                  onChange={(e) => setNewDirectorNumber(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddDirector()}
+                />
+                <Button onClick={handleAddDirector} size="icon">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              {whatsappDirectors.length > 0 ? (
+                <div className="space-y-2">
+                  <Label>Directors receiving DSSR notifications:</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {whatsappDirectors.map((number, idx) => (
+                      <Badge key={idx} variant="secondary" className="gap-1 py-1 px-2">
+                        {number}
+                        <button
+                          onClick={() => handleRemoveDirector(number)}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500">No director numbers configured. Add phone numbers to receive DSSR via WhatsApp.</p>
+              )}
+              
+              <div className="pt-4 border-t">
+                <Button onClick={handleSaveWhatsappDirectors} disabled={savingWhatsapp}>
+                  {savingWhatsapp ? "Saving..." : "Save WhatsApp Settings"}
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { sendDSSRToDirectors, DSSRSummary } from "@/lib/whatsapp-service"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -176,6 +177,90 @@ export async function POST(request: NextRequest) {
     )
 
     await client.query('COMMIT')
+
+    // Send DSSR via WhatsApp to directors (async, don't block response)
+    try {
+      const vendorResult = await client.query(
+        `SELECT whatsapp_directors FROM vendors WHERE id = $1`,
+        [vendorId]
+      )
+      
+      if (vendorResult.rows.length > 0 && vendorResult.rows[0].whatsapp_directors) {
+        let directorNumbers: string[] = []
+        try {
+          const directors = vendorResult.rows[0].whatsapp_directors
+          directorNumbers = typeof directors === 'string' ? JSON.parse(directors) : directors
+        } catch {
+          directorNumbers = []
+        }
+        
+        if (directorNumbers.length > 0) {
+          // Fetch sales data for DSSR
+          const salesResult = await client.query(
+            `SELECT 
+               COALESCE(i.item_name, s.fuel_type, 'Unknown') as product,
+               SUM(s.quantity) as volume,
+               SUM(s.total_amount) as amount,
+               SUM(CASE WHEN LOWER(s.payment_method) = 'cash' THEN s.total_amount ELSE 0 END) as cash_amount,
+               SUM(CASE WHEN LOWER(s.payment_method) IN ('mpesa', 'm-pesa', 'mobile_money') THEN s.total_amount ELSE 0 END) as mpesa_amount,
+               SUM(CASE WHEN LOWER(s.payment_method) = 'credit' THEN s.total_amount ELSE 0 END) as credit_amount
+             FROM sales s
+             LEFT JOIN items i ON s.item_id = i.id
+             WHERE s.shift_id = $1
+             GROUP BY COALESCE(i.item_name, s.fuel_type, 'Unknown')`,
+            [shift_id]
+          )
+          
+          const branchResult = await client.query(
+            `SELECT name FROM branches WHERE id = $1`,
+            [branchId]
+          )
+          
+          const attendantResult = await client.query(
+            `SELECT u.full_name FROM users u
+             JOIN staff st ON st.user_id = u.id
+             WHERE st.id = (SELECT user_id FROM shifts WHERE id = $1)`,
+            [shift_id]
+          )
+          
+          let totalSales = 0, totalVolume = 0, cashCollected = 0, mpesaCollected = 0, creditSales = 0
+          const productBreakdown: Array<{ product: string; volume: number; amount: number }> = []
+          
+          for (const row of salesResult.rows) {
+            const volume = parseFloat(row.volume) || 0
+            const amount = parseFloat(row.amount) || 0
+            totalVolume += volume
+            totalSales += amount
+            cashCollected += parseFloat(row.cash_amount) || 0
+            mpesaCollected += parseFloat(row.mpesa_amount) || 0
+            creditSales += parseFloat(row.credit_amount) || 0
+            productBreakdown.push({ product: row.product, volume, amount })
+          }
+          
+          const summary: DSSRSummary = {
+            branchName: branchResult.rows[0]?.name || 'Unknown Branch',
+            date: new Date().toISOString().split('T')[0],
+            shiftType: shift.shift_type || 'Day',
+            attendantName: attendantResult.rows[0]?.full_name || 'N/A',
+            totalSales,
+            totalVolume,
+            cashCollected,
+            mpesaCollected,
+            creditSales,
+            variance: (cashCollected + mpesaCollected) - (totalSales - creditSales),
+            productBreakdown
+          }
+          
+          // Fire and forget - don't wait for WhatsApp response
+          sendDSSRToDirectors(summary, directorNumbers).catch(err => {
+            console.error('[Reconcile] WhatsApp notification failed:', err)
+          })
+        }
+      }
+    } catch (whatsappError) {
+      // Don't fail reconciliation if WhatsApp notification fails
+      console.error('[Reconcile] WhatsApp notification error:', whatsappError)
+    }
 
     return NextResponse.json({
       success: true,
