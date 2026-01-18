@@ -231,7 +231,7 @@ export default function StaffManagementPage() {
 
       setIsLoading(false)
       if (response.ok) {
-        alert("Password has been reset to 'flow360123'. User must change it on their next login.")
+        alert("Password has been reset to 'flow360'. User must change it on their next login.")
         setResetDialogOpen(false)
       } else {
         const result = await response.json()

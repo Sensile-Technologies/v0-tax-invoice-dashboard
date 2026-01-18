@@ -227,14 +227,25 @@ async function POST(request) {
                 status: 403
             });
         }
-        // Update staff table
+        // Get vendor_id from new branch if branch is changing
+        let vendorId = null;
+        if (branchId) {
+            const branchResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT vendor_id FROM branches WHERE id = $1`, [
+                branchId
+            ]);
+            if (branchResult.length > 0) {
+                vendorId = branchResult[0].vendor_id;
+            }
+        }
+        // Update staff table - only update branch_id if explicitly provided
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`UPDATE staff 
        SET full_name = COALESCE($1, full_name),
            username = COALESCE($2, username),
            email = COALESCE($3, email),
            phone_number = COALESCE($4, phone_number),
            role = COALESCE($5, role),
-           branch_id = $6,
+           branch_id = CASE WHEN $6::text = '' OR $6 IS NULL THEN branch_id ELSE $6::uuid END,
+           vendor_id = CASE WHEN $8::text = '' OR $8 IS NULL THEN vendor_id ELSE $8::uuid END,
            updated_at = NOW()
        WHERE id = $7`, [
             fullName,
@@ -242,8 +253,9 @@ async function POST(request) {
             email,
             phone,
             role,
-            branchId || null,
-            staffId
+            branchId || '',
+            staffId,
+            vendorId || ''
         ]);
         // Update corresponding user record if exists
         if (staffMember.user_id) {

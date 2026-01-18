@@ -3,6 +3,7 @@
   "/api/branches/list/route": "app/api/branches/list/route.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
   "/api/staff/list/route": "app/api/staff/list/route.js",
+  "/api/staff/update/route": "app/api/staff/update/route.js",
   "/headquarters/page": "app/headquarters/page.js",
   "/headquarters/staff-management/page": "app/headquarters/staff-management/page.js",
   "/page": "app/page.js"

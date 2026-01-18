@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const defaultPassword = "flow360123"
+    const defaultPassword = "flow360"
     const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
     // Get the staff member and their user_id
