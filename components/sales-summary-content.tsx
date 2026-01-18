@@ -369,43 +369,46 @@ export function SalesSummaryContent() {
     
     setTrendLoading(true)
     try {
-      const trendData: Array<{ date: string; [key: string]: number | string }> = []
-      const productTotals: Map<string, number> = new Map()
-      
-      // Fetch DSSR data for MTD (start of month to today)
+      // Fetch DSSR data for MTD (start of month to today) - parallel fetching for speed
       const now = new Date()
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-      const today = new Date()
+      const dayOfMonth = now.getDate()
       
-      // Calculate number of days from start of month to today
-      const dayOfMonth = today.getDate()
-      
+      // Build array of dates to fetch
+      const dates: string[] = []
       for (let i = 0; i < dayOfMonth; i++) {
         const date = new Date(monthStart)
         date.setDate(date.getDate() + i)
-        const dateStr = date.toISOString().split('T')[0]
-        
-        try {
-          const response = await fetch(`/api/reports/dssr?branch_id=${currentBranchData.id}&date=${dateStr}`)
-          const result = await response.json()
-          
-          const dayData: { date: string; [key: string]: number | string } = { date: dateStr }
-          
-          if (result.success && result.data?.product_nozzle_totals) {
-            // Extract turnover per product from DSSR
-            for (const product of result.data.product_nozzle_totals) {
-              const productName = product.product || 'Unknown'
-              const amount = product.amount || 0
-              dayData[productName] = amount
-              productTotals.set(productName, (productTotals.get(productName) || 0) + amount)
-            }
+        dates.push(date.toISOString().split('T')[0])
+      }
+      
+      // Fetch all days in parallel
+      const results = await Promise.all(
+        dates.map(async (dateStr) => {
+          try {
+            const response = await fetch(`/api/reports/dssr?branch_id=${currentBranchData.id}&date=${dateStr}`)
+            const result = await response.json()
+            return { dateStr, result }
+          } catch (err) {
+            return { dateStr, result: null }
           }
-          
-          trendData.push(dayData)
-        } catch (err) {
-          // If DSSR fetch fails for a day, add empty entry
-          trendData.push({ date: dateStr })
+        })
+      )
+      
+      // Process results in order
+      const trendData: Array<{ date: string; [key: string]: number | string }> = []
+      for (const { dateStr, result } of results) {
+        const dayData: { date: string; [key: string]: number | string } = { date: dateStr }
+        
+        if (result?.success && result.data?.product_nozzle_totals) {
+          for (const product of result.data.product_nozzle_totals) {
+            const productName = product.product || 'Unknown'
+            const amount = product.amount || 0
+            dayData[productName] = amount
+          }
         }
+        
+        trendData.push(dayData)
       }
       
       setDailyTrendData(trendData)
