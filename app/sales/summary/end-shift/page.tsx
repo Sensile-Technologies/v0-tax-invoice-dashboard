@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -605,7 +605,20 @@ export default function EndShiftPage() {
 
   const shiftStartTime = currentShift ? new Date(currentShift.start_time).toLocaleString() : ""
   const shiftDuration = currentShift ? Math.round((Date.now() - new Date(currentShift.start_time).getTime()) / 3600000) : 0
-  const totalSales = sales.reduce((sum, s) => sum + (parseFloat(s.total_amount) || 0), 0)
+  
+  // Calculate total sales from meter readings (consistent with attendant sales calculation)
+  const totalSales = useMemo(() => {
+    let total = 0
+    for (const nozzle of nozzles) {
+      const nozzleKey = String(nozzle.id)
+      const opening = nozzleBaselines[nozzleKey] || nozzleBaselines[nozzle.id] || 0
+      const closing = parseFloat(nozzleReadings[nozzleKey] || nozzleReadings[nozzle.id] || "0")
+      const unitPrice = nozzlePrices[nozzleKey] || nozzlePrices[nozzle.id] || 0
+      const quantity = Math.max(0, closing - opening)
+      total += quantity * unitPrice
+    }
+    return total
+  }, [nozzles, nozzleBaselines, nozzleReadings, nozzlePrices])
 
   if (loading) {
     return (
