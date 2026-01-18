@@ -1,14 +1,70 @@
 import { NextResponse } from 'next/server'
 import { query } from '@/lib/db/client'
 import { sendDSSRToDirectors, DSSRSummary } from '@/lib/whatsapp-service'
+import { cookies } from 'next/headers'
+
+async function getSessionAndVendor(): Promise<{ userId: string; vendorId: string } | null> {
+  try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get('user_session')
+    if (!sessionCookie?.value) return null
+    
+    const session = JSON.parse(sessionCookie.value)
+    if (!session.id) return null
+    
+    // Get vendor_id from user
+    const vendorResult = await query(
+      `SELECT v.id as vendor_id FROM users u 
+       JOIN vendors v ON v.email = u.email 
+       WHERE u.id = $1`,
+      [session.id]
+    )
+    
+    if (vendorResult && vendorResult.length > 0) {
+      return { userId: session.id, vendorId: vendorResult[0].vendor_id }
+    }
+    
+    // Try via staff
+    const staffResult = await query(
+      `SELECT DISTINCT b.vendor_id FROM staff s
+       JOIN branches b ON s.branch_id = b.id
+       WHERE s.user_id = $1 AND b.vendor_id IS NOT NULL`,
+      [session.id]
+    )
+    
+    if (staffResult && staffResult.length > 0) {
+      return { userId: session.id, vendorId: staffResult[0].vendor_id }
+    }
+    
+    return null
+  } catch {
+    return null
+  }
+}
 
 export async function POST(request: Request) {
   try {
+    // SECURITY: Require authentication
+    const sessionData = await getSessionAndVendor()
+    if (!sessionData) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    
     const body = await request.json()
     const { branch_id, shift_id, date } = body
     
     if (!branch_id) {
       return NextResponse.json({ success: false, error: 'Missing branch_id' }, { status: 400 })
+    }
+    
+    // SECURITY: Verify user has access to this branch (same vendor)
+    const branchAccessCheck = await query(
+      `SELECT id FROM branches WHERE id = $1 AND vendor_id = $2`,
+      [branch_id, sessionData.vendorId]
+    )
+    
+    if (!branchAccessCheck || branchAccessCheck.length === 0) {
+      return NextResponse.json({ success: false, error: 'Access denied to this branch' }, { status: 403 })
     }
     
     const branchResult = await query(

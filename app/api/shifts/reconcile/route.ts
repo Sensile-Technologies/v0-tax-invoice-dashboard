@@ -218,8 +218,7 @@ export async function POST(request: NextRequest) {
           
           const attendantResult = await client.query(
             `SELECT u.full_name FROM users u
-             JOIN staff st ON st.user_id = u.id
-             WHERE st.id = (SELECT user_id FROM shifts WHERE id = $1)`,
+             WHERE u.id = (SELECT user_id FROM shifts WHERE id = $1)`,
             [shift_id]
           )
           
