@@ -35,11 +35,24 @@ export async function POST(request: Request) {
       )
 
       const staffId = crypto.randomUUID()
+      
+      // Get vendor_id from branch if branch is provided
+      let vendorId = null
+      if (branchId) {
+        const branchResult = await client.query(
+          `SELECT vendor_id FROM branches WHERE id = $1`,
+          [branchId]
+        )
+        if (branchResult.rows.length > 0) {
+          vendorId = branchResult.rows[0].vendor_id
+        }
+      }
+      
       const staffResult = await client.query(
-        `INSERT INTO staff (id, user_id, username, email, full_name, phone_number, role, branch_id, status, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active', NOW(), NOW())
+        `INSERT INTO staff (id, user_id, username, email, full_name, phone_number, role, branch_id, vendor_id, status, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'active', NOW(), NOW())
          RETURNING *`,
-        [staffId, userId, username, email, fullName, phoneNumber || null, role, branchId || null]
+        [staffId, userId, username, email, fullName, phoneNumber || null, role, branchId || null, vendorId]
       )
 
       return Response.json({

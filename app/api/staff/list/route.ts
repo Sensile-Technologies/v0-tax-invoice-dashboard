@@ -58,6 +58,7 @@ export async function GET(request: Request) {
         ORDER BY s.created_at DESC
       `, [branchId])
     } else if (vendorFilter) {
+      // Include staff with branches belonging to vendor, OR staff with vendor_id directly set
       result = await query(`
         SELECT 
           s.id,
@@ -73,7 +74,7 @@ export async function GET(request: Request) {
           b.name as branch_name
         FROM staff s
         LEFT JOIN branches b ON s.branch_id = b.id
-        WHERE b.vendor_id = $1
+        WHERE b.vendor_id = $1 OR s.vendor_id = $1
         ORDER BY s.created_at DESC
       `, [vendorFilter])
     } else {
