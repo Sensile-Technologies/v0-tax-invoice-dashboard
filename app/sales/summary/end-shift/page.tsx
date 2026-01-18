@@ -236,14 +236,36 @@ export default function EndShiftPage() {
               const readingsData = await shiftReadingsRes.json()
               const readings = readingsData.data || []
               const attendantIds = new Set<string>()
+              const closingReadings: Record<string, string> = {}
+              const rttValues: Record<string, string> = {}
+              const selfFuelingValues: Record<string, string> = {}
+              const prepaidSaleValues: Record<string, string> = {}
+              const tankClosings: Record<string, string> = {}
+              const tankReceived: Record<string, string> = {}
+              
               for (const r of readings) {
-                if (r.incoming_attendant_id) {
-                  attendantIds.add(String(r.incoming_attendant_id))
-                  nozzleAttendantMapping[String(r.nozzle_id)] = String(r.incoming_attendant_id)
+                if (r.reading_type === 'nozzle' && r.nozzle_id) {
+                  closingReadings[String(r.nozzle_id)] = String(r.closing_reading || 0)
+                  rttValues[String(r.nozzle_id)] = String(r.rtt || 0)
+                  selfFuelingValues[String(r.nozzle_id)] = String(r.self_fueling || 0)
+                  prepaidSaleValues[String(r.nozzle_id)] = String(r.prepaid_sale || 0)
+                  if (r.incoming_attendant_id) {
+                    attendantIds.add(String(r.incoming_attendant_id))
+                    nozzleAttendantMapping[String(r.nozzle_id)] = String(r.incoming_attendant_id)
+                  }
+                } else if (r.reading_type === 'tank' && r.tank_id) {
+                  tankClosings[String(r.tank_id)] = String(r.closing_reading || 0)
+                  tankReceived[String(r.tank_id)] = String(r.stock_received || 0)
                 }
               }
               incomingAttendantIds = Array.from(attendantIds)
               setNozzleAttendantMap(nozzleAttendantMapping)
+              setNozzleReadings(closingReadings)
+              setNozzleRtt(rttValues)
+              setNozzleSelfFueling(selfFuelingValues)
+              setNozzlePrepaidSale(prepaidSaleValues)
+              setTankStocks(tankClosings)
+              setTankStockReceived(tankReceived)
             }
           } catch (e) {
             console.error("Failed to fetch shift readings for reconciliation:", e)
@@ -356,9 +378,10 @@ export default function EndShiftPage() {
     for (const nozzle of nozzles) {
       const assignedAttendant = nozzleAttendantMap[String(nozzle.id)]
       if (String(assignedAttendant) === String(attendantId)) {
-        const opening = nozzleBaselines[nozzle.id] || 0
-        const closing = parseFloat(nozzleReadings[nozzle.id] || "0")
-        const unitPrice = nozzlePrices[nozzle.id] || 0
+        const nozzleKey = String(nozzle.id)
+        const opening = nozzleBaselines[nozzleKey] || nozzleBaselines[nozzle.id] || 0
+        const closing = parseFloat(nozzleReadings[nozzleKey] || nozzleReadings[nozzle.id] || "0")
+        const unitPrice = nozzlePrices[nozzleKey] || nozzlePrices[nozzle.id] || 0
         const quantity = Math.max(0, closing - opening)
         totalSales += quantity * unitPrice
       }
