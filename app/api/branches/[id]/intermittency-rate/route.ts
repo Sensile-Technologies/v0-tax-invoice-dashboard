@@ -69,7 +69,7 @@ export async function PUT(
        JOIN users u ON u.email = v.email WHERE u.id = $1`,
       [user_id]
     )
-    const userRole = userResult.rows[0]?.role
+    const userRole = userResult.rows[0]?.role?.toLowerCase()
 
     if (!['director', 'vendor'].includes(userRole)) {
       return NextResponse.json({ error: "Only directors and vendors can modify the intermittency rate" }, { status: 403 })
