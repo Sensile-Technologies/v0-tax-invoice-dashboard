@@ -34,3 +34,10 @@ Key architectural decisions and features include:
 - **Expo React Native**: Used for developing the mobile application.
 - **EAS (Expo Application Services)**: Used for building and configuring the mobile app APK.
 - **Twilio WhatsApp API**: Used for sending DSSR (Daily Sales Summary Reports) to directors via WhatsApp when branches reconcile shifts. Configured via environment secrets (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER). Director phone numbers are stored in the `vendors.whatsapp_directors` JSONB column and managed via Admin Settings → Notifications tab.
+
+## Default Account Setup
+All vendors automatically receive the following default accounts:
+- **Expense Accounts**: "Petty Cash" (for petty cash expenses), "Genset" (for generator fuel and maintenance)
+- **Banking Accounts**: "Cash Drop" (marked as default for shift banking activities)
+
+Run `migrations/seed-default-accounts.sql` in production to seed these defaults for all existing vendors. New vendors will need these accounts created manually via the Accounting → Collections page.
