@@ -408,26 +408,19 @@ export default function EndShiftPage() {
   }
 
   const validateStep2 = () => {
-    // Mobile Money and Cash are mandatory for each attendant
+    // Collections are now optional - no mandatory validation for Cash or Mobile Money
+    // Only check variance if there are collections entered
     for (const attendant of outgoingAttendants) {
       const collections = attendantCollections[attendant.id] || []
-      const mobileMoneyEntry = collections.find(c => c.payment_method === 'mobile_money')
-      const cashEntry = collections.find(c => c.payment_method === 'cash')
+      const hasAnyCollection = collections.some(c => c.amount && parseFloat(c.amount) > 0)
       
-      if (!mobileMoneyEntry || mobileMoneyEntry.amount === '') {
-        toast.error(`Please enter Mobile Money amount for ${attendant.name}`)
-        return false
-      }
-      if (!cashEntry || cashEntry.amount === '') {
-        toast.error(`Please enter Cash amount for ${attendant.name}`)
-        return false
-      }
-      
-      // Check variance - cannot close shift if variance > 1000
-      const variance = calculateVariance(attendant.id)
-      if (Math.abs(variance) > 1000) {
-        toast.error(`Variance for ${attendant.name} is KES ${Math.abs(variance).toFixed(2)}. Cannot close shift with variance greater than KES 1,000.`)
-        return false
+      // Only check variance if collections were entered
+      if (hasAnyCollection) {
+        const variance = calculateVariance(attendant.id)
+        if (Math.abs(variance) > 1000) {
+          toast.error(`Variance for ${attendant.name} is KES ${Math.abs(variance).toFixed(2)}. Cannot close shift with variance greater than KES 1,000.`)
+          return false
+        }
       }
     }
     return true
@@ -503,16 +496,7 @@ export default function EndShiftPage() {
       return
     }
 
-    if (shiftBanking.length === 0) {
-      toast.error("Banking summary is mandatory. Please add at least one banking entry.")
-      return
-    }
-
-    const hasBankingWithAmount = shiftBanking.some(b => b.banking_account_id && parseFloat(b.amount) > 0)
-    if (!hasBankingWithAmount) {
-      toast.error("Please enter a valid banking amount.")
-      return
-    }
+    // Banking is now optional - no mandatory validation
 
     setSubmitting(true)
     try {
