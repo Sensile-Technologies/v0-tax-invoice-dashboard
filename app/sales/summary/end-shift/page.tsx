@@ -69,31 +69,32 @@ export default function EndShiftPage() {
           return
         }
 
-        const role = (user.role || '').toLowerCase()
-        const isRestrictedRole = ['supervisor', 'manager', 'cashier'].includes(role)
-        let currentBranchId = user.assigned_branch_id
+        // Priority order for branch ID:
+        // 1. URL params (always check first - this is how we navigate here)
+        // 2. User's assigned_branch_id (for restricted roles)
+        // 3. localStorage (fallback)
         
-        if (!isRestrictedRole) {
-          // First check URL params (try multiple methods for reliability)
-          let urlBranchId = searchParams.get('branch')
-          
-          // Fallback to window.location if searchParams doesn't have it yet
-          if (!urlBranchId && typeof window !== 'undefined') {
-            const urlParams = new URLSearchParams(window.location.search)
-            urlBranchId = urlParams.get('branch')
-          }
-          
-          if (urlBranchId) {
-            currentBranchId = urlBranchId
-          } else {
-            // Then check localStorage (try both key names for compatibility)
-            const stored = localStorage.getItem('selectedBranch') || localStorage.getItem('selected_branch')
-            if (stored) {
-              try {
-                const parsed = JSON.parse(stored)
-                currentBranchId = parsed.id
-              } catch {}
-            }
+        // Try URL params first (multiple methods for reliability)
+        let currentBranchId = searchParams.get('branch')
+        
+        if (!currentBranchId && typeof window !== 'undefined') {
+          const urlParams = new URLSearchParams(window.location.search)
+          currentBranchId = urlParams.get('branch')
+        }
+        
+        // Fall back to user's assigned branch
+        if (!currentBranchId) {
+          currentBranchId = user.assigned_branch_id
+        }
+        
+        // Fall back to localStorage
+        if (!currentBranchId) {
+          const stored = localStorage.getItem('selectedBranch') || localStorage.getItem('selected_branch')
+          if (stored) {
+            try {
+              const parsed = JSON.parse(stored)
+              currentBranchId = parsed.id
+            } catch {}
           }
         }
         
