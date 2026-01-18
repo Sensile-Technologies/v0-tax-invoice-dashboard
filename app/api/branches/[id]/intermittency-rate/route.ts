@@ -63,13 +63,16 @@ export async function PUT(
     const { id: branchId } = await params
 
     const userResult = await pool.query(
-      `SELECT role FROM staff WHERE id = $1`,
+      `SELECT s.role FROM staff s WHERE s.user_id = $1
+       UNION
+       SELECT 'vendor' as role FROM vendors v 
+       JOIN users u ON u.email = v.email WHERE u.id = $1`,
       [user_id]
     )
     const userRole = userResult.rows[0]?.role
 
     if (!['director', 'vendor'].includes(userRole)) {
-      return NextResponse.json({ error: "Only directors can modify the intermittency rate" }, { status: 403 })
+      return NextResponse.json({ error: "Only directors and vendors can modify the intermittency rate" }, { status: 403 })
     }
 
     const body = await request.json()

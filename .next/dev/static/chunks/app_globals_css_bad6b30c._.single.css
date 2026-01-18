@@ -2323,10 +2323,6 @@
     min-width: 8rem;
   }
 
-  .min-w-\[100px\] {
-    min-width: 100px;
-  }
-
   .min-w-\[150px\] {
     min-width: 150px;
   }
@@ -3639,6 +3635,10 @@
     border-color: var(--color-slate-300);
   }
 
+  .border-slate-400 {
+    border-color: var(--color-slate-400);
+  }
+
   .border-teal-200 {
     border-color: var(--color-teal-200);
   }
@@ -4015,6 +4015,10 @@
 
   .bg-slate-200 {
     background-color: var(--color-slate-200);
+  }
+
+  .bg-slate-300 {
+    background-color: var(--color-slate-300);
   }
 
   .bg-slate-500 {

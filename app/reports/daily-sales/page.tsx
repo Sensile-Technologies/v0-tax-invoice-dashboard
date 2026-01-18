@@ -506,108 +506,66 @@ export default function DSSRPage() {
                         <table className="w-full text-sm table-auto">
                           <thead>
                             <tr className="bg-slate-100 border-y text-xs">
-                              <th className="text-left py-2 px-4 font-semibold whitespace-nowrap">NOZZLES</th>
-                              {data.nozzle_readings.map(n => (
-                                <th key={n.nozzle_id} className="text-right py-2 px-4 font-semibold min-w-[100px] whitespace-nowrap">
-                                  {n.nozzle_name}
-                                </th>
-                              ))}
+                              <th className="text-left py-2 px-4 font-semibold whitespace-nowrap">Nozzle</th>
+                              <th className="text-right py-2 px-4 font-semibold whitespace-nowrap">A) Closing Meter</th>
+                              <th className="text-right py-2 px-4 font-semibold whitespace-nowrap">B) Opening</th>
+                              <th className="text-right py-2 px-4 font-semibold whitespace-nowrap bg-slate-200">C) Thro'put (A-B)</th>
+                              <th className="text-right py-2 px-4 font-semibold whitespace-nowrap">D) RTT</th>
+                              <th className="text-right py-2 px-4 font-semibold whitespace-nowrap bg-blue-100 text-blue-800">E) Pump Sales (C-D)</th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr className="border-b">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">A) Closing Meter</td>
-                              {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">{formatNumber(n.closing_meter)}</td>
-                              ))}
-                            </tr>
-                            <tr className="border-b">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">B) Opening</td>
-                              {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">{formatNumber(n.opening_meter)}</td>
-                              ))}
-                            </tr>
-                            <tr className="border-b bg-slate-50">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">C) Thro'put (A-B)</td>
-                              {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold">{formatNumber(n.throughput)}</td>
-                              ))}
-                            </tr>
-                            <tr className="border-b">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">D) RTT</td>
-                              {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">{formatNumber(n.rtt)}</td>
-                              ))}
-                            </tr>
-                            <tr className="border-b bg-blue-50">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">E) Pump Sales (C-D)</td>
-                              {data.nozzle_readings.map(n => (
-                                <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold text-blue-700">{formatNumber(n.pump_sales)}</td>
-                              ))}
-                            </tr>
-                            <tr className="h-4">
-                              <td colSpan={data.nozzle_readings.length + 1}></td>
-                            </tr>
-                            <tr className="h-4">
-                              <td colSpan={data.nozzle_readings.length + 1}></td>
-                            </tr>
-                            <tr className="bg-slate-200">
-                              <td className="py-2 px-4 font-bold whitespace-nowrap" colSpan={data.nozzle_readings.length + 1}>TOTALS</td>
-                            </tr>
-                            <tr className="border-b bg-slate-100">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">Total Volume Per Product</td>
-                              {(() => {
-                                const seenProducts = new Set<string>()
-                                return data.nozzle_readings.map((n, idx) => {
-                                  if (seenProducts.has(n.fuel_type)) {
-                                    if (idx === data.nozzle_readings.length - 1) {
-                                      const totalVolume = data.product_nozzle_totals.reduce((sum, p) => sum + p.pump_sales, 0)
-                                      return (
-                                        <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-bold bg-slate-200">
-                                          {formatNumber(totalVolume)} L
-                                        </td>
-                                      )
-                                    }
-                                    return <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">-</td>
-                                  }
-                                  seenProducts.add(n.fuel_type)
-                                  const productTotal = data.product_nozzle_totals.find(p => p.product === n.fuel_type)
-                                  return (
-                                    <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold">
-                                      {productTotal ? `${formatNumber(productTotal.pump_sales)} L` : '-'}
-                                    </td>
-                                  )
-                                })
-                              })()}
-                            </tr>
-                            <tr className="border-b bg-green-50">
-                              <td className="py-2 px-4 font-medium whitespace-nowrap">Amount Per Product</td>
-                              {(() => {
-                                const seenProducts = new Set<string>()
-                                return data.nozzle_readings.map((n, idx) => {
-                                  if (seenProducts.has(n.fuel_type)) {
-                                    if (idx === data.nozzle_readings.length - 1) {
-                                      const totalAmount = data.product_nozzle_totals.reduce((sum, p) => sum + p.amount, 0)
-                                      return (
-                                        <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-bold text-green-800 bg-green-100">
-                                          KES {formatNumber(totalAmount)}
-                                        </td>
-                                      )
-                                    }
-                                    return <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono">-</td>
-                                  }
-                                  seenProducts.add(n.fuel_type)
-                                  const productTotal = data.product_nozzle_totals.find(p => p.product === n.fuel_type)
-                                  return (
-                                    <td key={n.nozzle_id} className="text-right py-2 px-4 font-mono font-semibold text-green-700">
-                                      {productTotal ? `KES ${formatNumber(productTotal.amount)}` : '-'}
-                                    </td>
-                                  )
-                                })
-                              })()}
+                            {data.nozzle_readings.map((n, idx) => (
+                              <tr key={n.nozzle_id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                                <td className="py-2 px-4 font-medium whitespace-nowrap">{n.nozzle_name}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatNumber(n.closing_meter)}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatNumber(n.opening_meter)}</td>
+                                <td className="text-right py-2 px-4 font-mono font-semibold bg-slate-100">{formatNumber(n.throughput)}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatNumber(n.rtt)}</td>
+                                <td className="text-right py-2 px-4 font-mono font-semibold text-blue-700 bg-blue-50">{formatNumber(n.pump_sales)}</td>
+                              </tr>
+                            ))}
+                            <tr className="bg-slate-200 font-bold border-t-2 border-slate-400">
+                              <td className="py-2 px-4 whitespace-nowrap">TOTAL</td>
+                              <td className="text-right py-2 px-4 font-mono">
+                                {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.closing_meter, 0))}
+                              </td>
+                              <td className="text-right py-2 px-4 font-mono">
+                                {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.opening_meter, 0))}
+                              </td>
+                              <td className="text-right py-2 px-4 font-mono bg-slate-300">
+                                {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.throughput, 0))}
+                              </td>
+                              <td className="text-right py-2 px-4 font-mono">
+                                {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.rtt, 0))}
+                              </td>
+                              <td className="text-right py-2 px-4 font-mono text-blue-800 bg-blue-100">
+                                {formatNumber(data.nozzle_readings.reduce((sum, n) => sum + n.pump_sales, 0))}
+                              </td>
                             </tr>
                           </tbody>
                         </table>
+                      </div>
+                      <div className="mt-4 p-4 border-t">
+                        <h4 className="font-semibold text-slate-700 mb-2">Product Totals</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {data.product_nozzle_totals.map(p => (
+                            <div key={p.product} className="bg-slate-50 rounded-lg p-3">
+                              <div className="text-xs text-slate-500">{p.product}</div>
+                              <div className="font-semibold text-blue-700">{formatNumber(p.pump_sales)} L</div>
+                              <div className="text-sm text-green-700">KES {formatNumber(p.amount)}</div>
+                            </div>
+                          ))}
+                          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                            <div className="text-xs text-green-600">Grand Total</div>
+                            <div className="font-bold text-green-800">
+                              {formatNumber(data.product_nozzle_totals.reduce((sum, p) => sum + p.pump_sales, 0))} L
+                            </div>
+                            <div className="text-sm font-semibold text-green-700">
+                              KES {formatNumber(data.product_nozzle_totals.reduce((sum, p) => sum + p.amount, 0))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
