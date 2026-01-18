@@ -50,46 +50,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!attendant_collections || attendant_collections.length === 0) {
-      await client.query('ROLLBACK')
-      client.release()
-      return NextResponse.json(
-        { error: "Attendant collections are required for reconciliation" },
-        { status: 400 }
-      )
-    }
-
-    const hasValidCollections = attendant_collections.some((c: any) => 
-      c.attendant_id && c.payments && Array.isArray(c.payments) && 
-      c.payments.some((p: any) => p.amount > 0)
-    )
-    if (!hasValidCollections) {
-      await client.query('ROLLBACK')
-      client.release()
-      return NextResponse.json(
-        { error: "At least one attendant must have collection amounts entered" },
-        { status: 400 }
-      )
-    }
-
-    if (!banking || banking.length === 0) {
-      await client.query('ROLLBACK')
-      client.release()
-      return NextResponse.json(
-        { error: "Banking summary is required for reconciliation" },
-        { status: 400 }
-      )
-    }
-
-    const hasValidBanking = banking.some((b: any) => b.banking_account_id && b.amount > 0)
-    if (!hasValidBanking) {
-      await client.query('ROLLBACK')
-      client.release()
-      return NextResponse.json(
-        { error: "At least one banking entry with a valid amount is required" },
-        { status: 400 }
-      )
-    }
+    // Collections, expenses, and banking are now optional for reconciliation
 
     await client.query(
       `DELETE FROM attendant_collections WHERE shift_id = $1`,
