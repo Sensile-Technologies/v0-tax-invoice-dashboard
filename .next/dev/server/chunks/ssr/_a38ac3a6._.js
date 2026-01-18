@@ -1184,10 +1184,17 @@ async function signIn(identifier, password) {
             localStorage.setItem("currentUser", JSON.stringify(data.user));
             localStorage.setItem("user", JSON.stringify(data.user));
         }
+        // Store must_change_password flag
+        if (data.must_change_password) {
+            localStorage.setItem("must_change_password", "true");
+        } else {
+            localStorage.removeItem("must_change_password");
+        }
     }
     return {
         data,
-        error: data.error || null
+        error: data.error || null,
+        mustChangePassword: data.must_change_password || false
     };
 }
 async function signOut() {
