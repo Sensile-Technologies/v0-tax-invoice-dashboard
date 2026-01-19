@@ -399,8 +399,11 @@ export async function PATCH(request: NextRequest) {
       [branchId]
     )
     for (const r of prevNozzleReadings.rows) {
-      if (!nozzleBaseReadings[r.nozzle_id] || parseFloat(r.closing_reading) > nozzleBaseReadings[r.nozzle_id]) {
-        nozzleBaseReadings[r.nozzle_id] = parseFloat(r.closing_reading)
+      // Only update baselines for nozzles that have a tank assigned (already in nozzleBaseReadings)
+      if (nozzleBaseReadings.hasOwnProperty(r.nozzle_id)) {
+        if (parseFloat(r.closing_reading) > nozzleBaseReadings[r.nozzle_id]) {
+          nozzleBaseReadings[r.nozzle_id] = parseFloat(r.closing_reading)
+        }
       }
     }
 

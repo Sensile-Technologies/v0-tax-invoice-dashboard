@@ -40,9 +40,12 @@ export async function GET(request: NextRequest) {
       [branchId]
     )
     for (const r of prevNozzleReadings.rows) {
-      const closingVal = parseFloat(r.closing_reading) || 0
-      if (closingVal > (nozzleBaselines[r.nozzle_id] || 0)) {
-        nozzleBaselines[r.nozzle_id] = closingVal
+      // Only update baselines for nozzles that have a tank assigned (already in nozzleBaselines)
+      if (nozzleBaselines.hasOwnProperty(r.nozzle_id)) {
+        const closingVal = parseFloat(r.closing_reading) || 0
+        if (closingVal > (nozzleBaselines[r.nozzle_id] || 0)) {
+          nozzleBaselines[r.nozzle_id] = closingVal
+        }
       }
     }
 
