@@ -12,70 +12,66 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Branch ID required" }, { status: 400 })
     }
 
-    let whereClause = "WHERE bs.branch_id = $1"
+    let whereClause = "WHERE s.branch_id = $1 AND s.source_system = 'meter_diff_bulk'"
     const params: any[] = [branchId]
     let paramIndex = 2
 
     if (dateFrom) {
-      whereClause += ` AND DATE(bs.created_at) >= $${paramIndex}`
+      whereClause += ` AND DATE(s.created_at) >= $${paramIndex}`
       params.push(dateFrom)
       paramIndex++
     }
 
     if (dateTo) {
-      whereClause += ` AND DATE(bs.created_at) <= $${paramIndex}`
+      whereClause += ` AND DATE(s.created_at) <= $${paramIndex}`
       params.push(dateTo)
       paramIndex++
     }
 
     const bulkSales = await query(`
       SELECT 
-        bs.id,
-        bs.shift_id,
-        bs.nozzle_id,
-        bs.item_id,
-        bs.fuel_type,
-        bs.opening_reading,
-        bs.closing_reading,
-        bs.meter_difference,
-        bs.invoiced_quantity,
-        bs.bulk_quantity,
-        bs.unit_price,
-        bs.total_amount,
-        bs.generated_invoices,
-        bs.status,
-        bs.created_at,
+        s.id,
+        s.shift_id,
+        s.nozzle_id,
+        s.fuel_type,
+        s.quantity,
+        s.unit_price,
+        s.total_amount,
+        s.invoice_number,
+        s.kra_status,
+        s.transmission_status,
+        s.created_at,
         CONCAT('D', d.dispenser_number, '-N', n.nozzle_number) AS nozzle_name,
         d.dispenser_number,
         n.nozzle_number,
-        s.start_time AS shift_start,
-        s.end_time AS shift_end,
+        sh.start_time AS shift_start,
+        sh.end_time AS shift_end,
         st.full_name AS cashier_name,
         i.item_name AS item_name
-      FROM bulk_sales bs
-      LEFT JOIN nozzles n ON bs.nozzle_id = n.id
+      FROM sales s
+      LEFT JOIN nozzles n ON s.nozzle_id = n.id
       LEFT JOIN dispensers d ON n.dispenser_id = d.id
-      LEFT JOIN shifts s ON bs.shift_id = s.id
-      LEFT JOIN staff st ON s.staff_id = st.id
-      LEFT JOIN items i ON bs.item_id = i.id
+      LEFT JOIN shifts sh ON s.shift_id = sh.id
+      LEFT JOIN staff st ON sh.staff_id = st.id
+      LEFT JOIN items i ON n.item_id = i.id
       ${whereClause}
-      ORDER BY bs.created_at DESC
+      ORDER BY s.created_at DESC
     `, params)
 
     const summary = await query(`
       SELECT 
-        bs.fuel_type,
-        COALESCE(i.item_name, bs.fuel_type) AS product_name,
-        SUM(bs.meter_difference) AS total_meter_difference,
-        SUM(bs.invoiced_quantity) AS total_invoiced,
-        SUM(bs.bulk_quantity) AS total_bulk,
-        SUM(bs.total_amount) AS total_amount,
-        SUM(bs.generated_invoices) AS total_invoices,
-        COUNT(bs.id) AS entry_count
-      FROM bulk_sales bs
-      LEFT JOIN items i ON bs.item_id = i.id
+        s.fuel_type,
+        COALESCE(i.item_name, s.fuel_type) AS product_name,
+        SUM(s.quantity) AS total_quantity,
+        SUM(s.total_amount) AS total_amount,
+        COUNT(s.id) AS invoice_count,
+        COUNT(CASE WHEN s.kra_status = 'success' OR s.kra_status = 'transmitted' THEN 1 END) AS kra_transmitted,
+        COUNT(CASE WHEN s.kra_status = 'pending' OR s.transmission_status = 'not_sent' THEN 1 END) AS kra_skipped
+      FROM sales s
+      LEFT JOIN nozzles n ON s.nozzle_id = n.id
+      LEFT JOIN items i ON n.item_id = i.id
       ${whereClause}
-      GROUP BY bs.fuel_type, i.item_name
+      GROUP BY s.fuel_type, i.item_name
       ORDER BY i.item_name
     `, params)
 
@@ -96,11 +92,11 @@ export async function GET(request: NextRequest) {
         has_controller: hasController,
         controller_id: branchData.controller_id || null,
         totals: {
-          total_meter_difference: bulkSales.reduce((sum: number, bs: any) => sum + Number(bs.meter_difference || 0), 0),
-          total_invoiced: bulkSales.reduce((sum: number, bs: any) => sum + Number(bs.invoiced_quantity || 0), 0),
-          total_bulk: bulkSales.reduce((sum: number, bs: any) => sum + Number(bs.bulk_quantity || 0), 0),
-          total_amount: bulkSales.reduce((sum: number, bs: any) => sum + Number(bs.total_amount || 0), 0),
-          total_entries: bulkSales.length
+          total_quantity: bulkSales.reduce((sum: number, s: any) => sum + Number(s.quantity || 0), 0),
+          total_amount: bulkSales.reduce((sum: number, s: any) => sum + Number(s.total_amount || 0), 0),
+          total_entries: bulkSales.length,
+          kra_transmitted: bulkSales.filter((s: any) => s.kra_status === 'success' || s.kra_status === 'transmitted').length,
+          kra_skipped: bulkSales.filter((s: any) => s.kra_status === 'pending' || s.transmission_status === 'not_sent').length
         }
       }
     })
