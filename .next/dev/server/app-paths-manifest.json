@@ -1,4 +1,7 @@
 {
+  "/api/auth/session/route": "app/api/auth/session/route.js",
+  "/api/branches/list/route": "app/api/branches/list/route.js",
+  "/api/reports/bulk-sales/route": "app/api/reports/bulk-sales/route.js",
   "/page": "app/page.js",
   "/reports/bulk-sales/page": "app/reports/bulk-sales/page.js"
 }
