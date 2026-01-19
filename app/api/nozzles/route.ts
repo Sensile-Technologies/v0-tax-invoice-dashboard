@@ -19,9 +19,10 @@ export async function GET(request: NextRequest) {
       const branchIdx = params.length
       query = `
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
-               n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
+               n.initial_meter_reading, n.item_id, n.tank_id, n.created_at, n.updated_at,
                d.dispenser_number, COALESCE(i.item_name, 'Unknown') as item_name, 
                COALESCE(i.item_name, 'Unknown') as fuel_type,
+               t.tank_name,
                COALESCE(
                  (SELECT sr.closing_reading 
                   FROM shift_readings sr 
@@ -35,14 +36,16 @@ export async function GET(request: NextRequest) {
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
         LEFT JOIN items i ON n.item_id = i.id
+        LEFT JOIN tanks t ON n.tank_id = t.id
         LEFT JOIN branch_items bi ON bi.item_id = n.item_id AND bi.branch_id = $${branchIdx}
         WHERE n.branch_id = $${branchIdx}`
     } else {
       query = `
         SELECT n.id, n.branch_id, n.dispenser_id, n.nozzle_number, n.status, 
-               n.initial_meter_reading, n.item_id, n.created_at, n.updated_at,
+               n.initial_meter_reading, n.item_id, n.tank_id, n.created_at, n.updated_at,
                d.dispenser_number, COALESCE(i.item_name, 'Unknown') as item_name, 
                COALESCE(i.item_name, 'Unknown') as fuel_type,
+               t.tank_name,
                COALESCE(
                  (SELECT sr.closing_reading 
                   FROM shift_readings sr 
@@ -56,6 +59,7 @@ export async function GET(request: NextRequest) {
         FROM nozzles n
         LEFT JOIN dispensers d ON n.dispenser_id = d.id
         LEFT JOIN items i ON n.item_id = i.id
+        LEFT JOIN tanks t ON n.tank_id = t.id
         WHERE 1=1`
     }
 
@@ -91,7 +95,8 @@ export async function POST(request: NextRequest) {
       nozzle_number, 
       status,
       initial_meter_reading,
-      item_id
+      item_id,
+      tank_id
     } = body
 
     if (!branch_id || !dispenser_id || !nozzle_number) {
@@ -101,18 +106,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!item_id) {
+    if (!item_id && !tank_id) {
       return NextResponse.json(
-        { error: "item_id is required - select a fuel type from items" },
+        { error: "Either item_id or tank_id is required - select a fuel type or tank" },
         { status: 400 }
       )
     }
 
     const result = await pool.query(
-      `INSERT INTO nozzles (branch_id, dispenser_id, nozzle_number, status, initial_meter_reading, item_id)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO nozzles (branch_id, dispenser_id, nozzle_number, status, initial_meter_reading, item_id, tank_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
-      [branch_id, dispenser_id, nozzle_number, status || 'active', initial_meter_reading || 0, item_id]
+      [branch_id, dispenser_id, nozzle_number, status || 'active', initial_meter_reading || 0, item_id, tank_id]
     )
 
     return NextResponse.json({
@@ -138,7 +143,8 @@ export async function PUT(request: NextRequest) {
       nozzle_number, 
       status,
       initial_meter_reading,
-      item_id
+      item_id,
+      tank_id
     } = body
 
     if (!id) {
@@ -155,10 +161,11 @@ export async function PUT(request: NextRequest) {
            status = COALESCE($4, status),
            initial_meter_reading = COALESCE($5, initial_meter_reading),
            item_id = COALESCE($6, item_id),
+           tank_id = COALESCE($7, tank_id),
            updated_at = NOW()
        WHERE id = $1
        RETURNING *`,
-      [id, dispenser_id, nozzle_number, status, initial_meter_reading, item_id]
+      [id, dispenser_id, nozzle_number, status, initial_meter_reading, item_id, tank_id]
     )
 
     if (result.rows.length === 0) {

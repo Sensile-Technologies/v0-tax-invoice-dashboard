@@ -36,6 +36,8 @@ interface Nozzle {
   initial_meter_reading?: number
   item_id?: string
   item_name?: string
+  tank_id?: string
+  tank_name?: string
 }
 
 interface Dispenser {
@@ -44,6 +46,15 @@ interface Dispenser {
   tank_id: string
   tank_name?: string
   fuel_type?: string
+}
+
+interface Tank {
+  id: string
+  tank_name: string
+  item_id: string
+  item_name: string
+  capacity: number
+  current_stock: number
 }
 
 interface Item {
@@ -56,6 +67,7 @@ interface Item {
 export default function NozzleManagement({ branchId }: { branchId: string | null }) {
   const [nozzles, setNozzles] = useState<Nozzle[]>([])
   const [dispensers, setDispensers] = useState<Dispenser[]>([])
+  const [tanks, setTanks] = useState<Tank[]>([])
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -68,6 +80,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
     fuel_type: "Diesel",
     initial_meter_reading: "0",
     item_id: "",
+    tank_id: "",
   })
 
   useEffect(() => {
@@ -79,14 +92,16 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [nozzlesRes, dispensersRes, itemsRes] = await Promise.all([
+      const [nozzlesRes, dispensersRes, tanksRes, itemsRes] = await Promise.all([
         fetch(`/api/nozzles?branch_id=${branchId}`),
         fetch(`/api/dispensers?branch_id=${branchId}`),
+        fetch(`/api/tanks?branch_id=${branchId}`),
         fetch(`/api/branch-items?branchId=${branchId}`)
       ])
 
       const nozzlesResult = await nozzlesRes.json()
       const dispensersResult = await dispensersRes.json()
+      const tanksResult = await tanksRes.json()
       const itemsResult = await itemsRes.json()
 
       if (nozzlesResult.success) {
@@ -94,6 +109,9 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
       }
       if (dispensersResult.success) {
         setDispensers(dispensersResult.data || [])
+      }
+      if (tanksResult.success) {
+        setTanks(tanksResult.data || [])
       }
       if (itemsResult.success) {
         const mappedItems = (itemsResult.items || [])
@@ -119,6 +137,10 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
       toast.error("Please select a dispenser")
       return
     }
+    if (!formData.tank_id) {
+      toast.error("Please select a tank")
+      return
+    }
 
     try {
       const res = await fetch("/api/nozzles", {
@@ -132,6 +154,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           initial_meter_reading: parseFloat(formData.initial_meter_reading) || 0,
           status: "active",
           item_id: formData.item_id && formData.item_id !== "none" ? formData.item_id : null,
+          tank_id: formData.tank_id && formData.tank_id !== "none" ? formData.tank_id : null,
         }),
       })
 
@@ -165,6 +188,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           status: selectedNozzle.status,
           initial_meter_reading: parseFloat(formData.initial_meter_reading) || 0,
           item_id: formData.item_id && formData.item_id !== "none" ? formData.item_id : null,
+          tank_id: formData.tank_id && formData.tank_id !== "none" ? formData.tank_id : null,
         }),
       })
 
@@ -217,6 +241,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
       fuel_type: nozzle.fuel_type,
       initial_meter_reading: (nozzle.initial_meter_reading || 0).toString(),
       item_id: nozzle.item_id || "",
+      tank_id: nozzle.tank_id || "",
     })
     setShowEditDialog(true)
   }
@@ -228,7 +253,22 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
       fuel_type: "Diesel",
       initial_meter_reading: "0",
       item_id: "",
+      tank_id: "",
     })
+  }
+
+  const handleTankChange = (tankId: string) => {
+    const selectedTank = tanks.find(t => t.id === tankId)
+    if (selectedTank) {
+      setFormData({
+        ...formData,
+        tank_id: tankId,
+        item_id: selectedTank.item_id,
+        fuel_type: selectedTank.item_name
+      })
+    } else {
+      setFormData({ ...formData, tank_id: tankId })
+    }
   }
 
   const getDispenserLabel = (dispenser: Dispenser) => {
@@ -271,48 +311,52 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
                 <TableRow>
                   <TableHead>Nozzle</TableHead>
                   <TableHead>Dispenser</TableHead>
+                  <TableHead>Tank (Source)</TableHead>
                   <TableHead>Fuel Type</TableHead>
-                  <TableHead>Linked Item</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Current Meter Reading</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {nozzles.map((nozzle) => (
-                  <TableRow key={nozzle.id}>
-                    <TableCell className="font-medium">
-                      D{nozzle.dispenser_number}N{nozzle.nozzle_number}
-                    </TableCell>
-                    <TableCell>Dispenser {nozzle.dispenser_number}</TableCell>
-                    <TableCell>
-                      <Badge variant={nozzle.fuel_type === "Diesel" ? "default" : "secondary"}>
-                        {nozzle.fuel_type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {nozzle.item_name ? (
-                        <span className="text-sm">{nozzle.item_name}</span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Not linked</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={nozzle.status === "active" ? "default" : "destructive"}>
-                        {nozzle.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{nozzle.initial_meter_reading?.toLocaleString() || 0}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => openEditDialog(nozzle)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDeleteNozzle(nozzle)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {nozzles.map((nozzle) => {
+                  return (
+                    <TableRow key={nozzle.id}>
+                      <TableCell className="font-medium">
+                        D{nozzle.dispenser_number}N{nozzle.nozzle_number}
+                      </TableCell>
+                      <TableCell>Dispenser {nozzle.dispenser_number}</TableCell>
+                      <TableCell>
+                        {nozzle.tank_name ? (
+                          <span className="text-sm font-medium">{nozzle.tank_name}</span>
+                        ) : nozzle.tank_id ? (
+                          <span className="text-sm text-muted-foreground">Tank ID: {nozzle.tank_id.slice(0, 8)}...</span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">Not assigned</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={nozzle.fuel_type?.includes("AGO") || nozzle.fuel_type?.includes("Diesel") ? "default" : "secondary"}>
+                          {nozzle.fuel_type || nozzle.item_name || "Unknown"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={nozzle.status === "active" ? "default" : "destructive"}>
+                          {nozzle.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{nozzle.initial_meter_reading?.toLocaleString() || 0}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" onClick={() => openEditDialog(nozzle)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteNozzle(nozzle)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           )}
@@ -324,7 +368,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           <DialogHeader>
             <DialogTitle>Add New Nozzle</DialogTitle>
             <DialogDescription>
-              Add a nozzle to a dispenser. The nozzle will be used for recording sales.
+              Add a nozzle to a dispenser. Select which tank it will draw fuel from.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -353,30 +397,20 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
               />
             </div>
             <div>
-              <Label>Fuel Item (from branch inventory)</Label>
-              <Select 
-                value={formData.item_id} 
-                onValueChange={(v) => {
-                  const selectedItem = items.find(item => item.id === v)
-                  setFormData({ 
-                    ...formData, 
-                    item_id: v,
-                    fuel_type: selectedItem?.item_name || formData.fuel_type
-                  })
-                }}
-              >
+              <Label className="font-medium">Tank (Source) *</Label>
+              <Select value={formData.tank_id} onValueChange={handleTankChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select fuel item" />
+                  <SelectValue placeholder="Select tank this nozzle draws from" />
                 </SelectTrigger>
                 <SelectContent>
-                  {items.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
+                  {tanks.map((tank) => (
+                    <SelectItem key={tank.id} value={tank.id}>
+                      {tank.tank_name} - {tank.item_name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">KRA synced items only - same as tanks</p>
+              <p className="text-xs text-muted-foreground mt-1">Select which tank this nozzle draws fuel from</p>
             </div>
             <div>
               <Label>Current Meter Reading</Label>
@@ -400,7 +434,7 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
           <DialogHeader>
             <DialogTitle>Edit Nozzle</DialogTitle>
             <DialogDescription>
-              Update nozzle details.
+              Change which tank this nozzle draws from, or update other details.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -429,30 +463,20 @@ export default function NozzleManagement({ branchId }: { branchId: string | null
               />
             </div>
             <div>
-              <Label>Fuel Item (from branch inventory)</Label>
-              <Select 
-                value={formData.item_id} 
-                onValueChange={(v) => {
-                  const selectedItem = items.find(item => item.id === v)
-                  setFormData({ 
-                    ...formData, 
-                    item_id: v,
-                    fuel_type: selectedItem?.item_name || formData.fuel_type
-                  })
-                }}
-              >
+              <Label className="font-medium">Tank (Source) *</Label>
+              <Select value={formData.tank_id} onValueChange={handleTankChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select fuel item" />
+                  <SelectValue placeholder="Select tank this nozzle draws from" />
                 </SelectTrigger>
                 <SelectContent>
-                  {items.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.item_code ? `${item.item_code} - ` : ""}{item.item_name}
+                  {tanks.map((tank) => (
+                    <SelectItem key={tank.id} value={tank.id}>
+                      {tank.tank_name} - {tank.item_name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground mt-1">KRA synced items only - same as tanks</p>
+              <p className="text-xs text-muted-foreground mt-1">Select which tank this nozzle draws fuel from</p>
             </div>
             <div>
               <Label>Current Meter Reading</Label>

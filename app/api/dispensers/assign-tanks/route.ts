@@ -86,8 +86,18 @@ export async function POST(request: NextRequest) {
         [tankIdsArray]
       )
 
-      for (let i = 0; i < tanksResultForNozzles.rows.length; i++) {
-        const tank = tanksResultForNozzles.rows[i]
+      // Sort tanks: AGO/Diesel first, then others (PMS/Petrol)
+      // This ensures nozzle 1 defaults to AGO when available
+      const sortedTanks = tanksResultForNozzles.rows.sort((a: any, b: any) => {
+        const aIsAGO = a.fuel_type?.toLowerCase().includes('ago') || a.fuel_type?.toLowerCase().includes('diesel')
+        const bIsAGO = b.fuel_type?.toLowerCase().includes('ago') || b.fuel_type?.toLowerCase().includes('diesel')
+        if (aIsAGO && !bIsAGO) return -1
+        if (!aIsAGO && bIsAGO) return 1
+        return 0
+      })
+
+      for (let i = 0; i < sortedTanks.length; i++) {
+        const tank = sortedTanks[i]
         
         if (!existingTankIds.includes(tank.id)) {
           const nozzleNumber = nextNozzleNumber++
