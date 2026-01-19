@@ -207,7 +207,7 @@ export default function BulkSalesReportPage() {
 
     autoTable(doc, {
       startY: yPos,
-      head: [['Product', 'Quantity (L)', 'Amount', 'Invoices', 'KRA Sent', 'KRA Skipped']],
+      head: [['Product', 'Quantity (L)', 'Amount', 'Invoices', 'KRA Sent', 'Pending Transmission']],
       body: data.summary.map(s => [
         s.product_name || s.fuel_type,
         formatNumber(Number(s.total_quantity)),
@@ -275,7 +275,7 @@ export default function BulkSalesReportPage() {
       [`KRA Transmission Rate: ${data.kra_percentage}%`],
       [],
       ['SUMMARY BY PRODUCT'],
-      ['Product', 'Quantity (L)', 'Amount', 'Invoices', 'KRA Sent', 'KRA Skipped'],
+      ['Product', 'Quantity (L)', 'Amount', 'Invoices', 'KRA Sent', 'Pending Transmission'],
       ...data.summary.map(s => [
         s.product_name || s.fuel_type,
         Number(s.total_quantity),
@@ -530,7 +530,7 @@ export default function BulkSalesReportPage() {
                             <Package className="h-5 w-5 text-amber-600" />
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500">KRA Skipped</p>
+                            <p className="text-xs text-slate-500">Pending Transmission</p>
                             <p className="text-lg font-bold text-slate-900">{data.totals.kra_skipped || 0}</p>
                           </div>
                         </div>
@@ -572,7 +572,7 @@ export default function BulkSalesReportPage() {
                               <th className="text-right py-2 px-4 font-semibold">AMOUNT</th>
                               <th className="text-right py-2 px-4 font-semibold">INVOICES</th>
                               <th className="text-right py-2 px-4 font-semibold">KRA SENT</th>
-                              <th className="text-right py-2 px-4 font-semibold">KRA SKIPPED</th>
+                              <th className="text-right py-2 px-4 font-semibold">PENDING</th>
                             </tr>
                           </thead>
                           <tbody>

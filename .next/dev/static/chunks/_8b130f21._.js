@@ -2851,7 +2851,7 @@ function BulkSalesReportPage() {
                     'Amount',
                     'Invoices',
                     'KRA Sent',
-                    'KRA Skipped'
+                    'Pending Transmission'
                 ]
             ],
             body: data.summary.map((s)=>[
@@ -2978,7 +2978,7 @@ function BulkSalesReportPage() {
                 'Amount',
                 'Invoices',
                 'KRA Sent',
-                'KRA Skipped'
+                'Pending Transmission'
             ],
             ...data.summary.map((s)=>[
                     s.product_name || s.fuel_type,
@@ -3860,7 +3860,7 @@ function BulkSalesReportPage() {
                                                                         children: [
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                                 className: "text-xs text-slate-500",
-                                                                                children: "KRA Skipped"
+                                                                                children: "Pending Transmission"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/bulk-sales/page.tsx",
                                                                                 lineNumber: 533,
@@ -4064,7 +4064,7 @@ function BulkSalesReportPage() {
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
                                                                                     className: "text-right py-2 px-4 font-semibold",
-                                                                                    children: "KRA SKIPPED"
+                                                                                    children: "PENDING"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/reports/bulk-sales/page.tsx",
                                                                                     lineNumber: 575,
