@@ -1,10 +1,10 @@
 {
+  "pages": {},
   "app": {
-    "[project]/app/page": [
+    "[project]/app/reports/x-report/page": [
       "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
     ]
   },
   "appUsingSizeAdjust": true,
-  "pages": {},
   "pagesUsingSizeAdjust": false
 }
