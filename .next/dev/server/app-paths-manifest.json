@@ -11,6 +11,7 @@
   "/api/reports/dssr/route": "app/api/reports/dssr/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
+  "/api/stock-report/route": "app/api/stock-report/route.js",
   "/api/tanks/route": "app/api/tanks/route.js",
   "/headquarters/page": "app/headquarters/page.js",
   "/inventory/page": "app/inventory/page.js",
