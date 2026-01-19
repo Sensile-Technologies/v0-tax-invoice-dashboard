@@ -283,18 +283,33 @@ export async function POST(request: NextRequest) {
 
       const acceptanceId = acceptanceResult.rows[0].id
 
+      // Validate all tank readings have valid volume_after before processing
       if (tank_readings && Array.isArray(tank_readings)) {
+        const invalidTanks: string[] = []
+        for (const reading of tank_readings) {
+          const volumeAfter = parseFloat(reading.volume_after)
+          if (isNaN(volumeAfter) || volumeAfter <= 0) {
+            // Get tank name for better error message
+            const tankResult = await client.query(
+              `SELECT tank_name FROM tanks WHERE id = $1`,
+              [reading.tank_id]
+            )
+            const tankName = tankResult.rows[0]?.tank_name || reading.tank_id
+            invalidTanks.push(tankName)
+          }
+        }
+        
+        if (invalidTanks.length > 0) {
+          await client.query('ROLLBACK')
+          return NextResponse.json({ 
+            success: false, 
+            error: `Please enter a valid 'Volume After' for: ${invalidTanks.join(', ')}` 
+          }, { status: 400 })
+        }
+
         for (const reading of tank_readings) {
           const volumeBefore = parseFloat(reading.volume_before) || 0
           const volumeAfter = parseFloat(reading.volume_after) || 0
-          
-          // Safety check: Skip tank update if volume_after is 0 or less than volume_before
-          // This prevents accidental stock reset
-          if (volumeAfter <= 0) {
-            console.warn(`Skipping tank ${reading.tank_id}: volume_after is ${volumeAfter}`)
-            continue
-          }
-          
           const quantityReceived = volumeAfter - volumeBefore
 
           await client.query(
