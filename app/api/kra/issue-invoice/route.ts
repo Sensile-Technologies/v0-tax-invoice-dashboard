@@ -425,175 +425,174 @@ export async function POST(request: NextRequest) {
     // The meter_reading_after is stored in the sales record
     // Opening readings come from previous shift's closing reading in shift_readings table
 
-    const splyAmt = Math.round(quantity * unitPrice * 100) / 100
-    const stockTaxAmt = Math.round(splyAmt * 0.16 * 100) / 100
+    // OPTIMIZATION: Run stock sync in background (fire-and-forget) for faster response
+    // Stock sync is not critical for the invoice to be issued - it can happen async
+    const syncStockInBackground = async () => {
+      try {
+        const splyAmt = Math.round(quantity * unitPrice * 100) / 100
+        const stockTaxAmt = Math.round(splyAmt * 0.16 * 100) / 100
 
-    const saveStockItemsPayload = {
-      tin: branch.kra_pin,
-      bhfId: branch.bhf_id || "00",
-      sarNo: newSarNo,
-      orgSarNo: 0,
-      regTyCd: "M",
-      custTin: null,
-      custNm: null,
-      custBhfId: null,
-      sarTyCd: "11",
-      ocrnDt: formatKraDate(),
-      totItemCnt: 1,
-      totTaxblAmt: toFixed2(splyAmt),
-      totTaxAmt: toFixed2(stockTaxAmt),
-      totAmt: toFixed2(splyAmt),
-      remark: null,
-      regrId: "Admin",
-      regrNm: "Admin",
-      modrNm: "Admin",
-      modrId: "Admin",
-      itemList: [
-        {
-          itemSeq: 1,
-          itemCd: itemCd,
-          itemClsCd: itemClsCd,
-          itemNm: itemNm,
-          bcd: null,
-          pkgUnitCd: pkgUnitCd,
-          pkg: Math.ceil(quantity),
-          qtyUnitCd: qtyUnitCd,
-          qty: parseFloat(quantity.toFixed(2)),
-          itemExprDt: null,
-          prc: unitPrice,
-          splyAmt: toFixed2(splyAmt),
-          totDcAmt: 0,
-          taxblAmt: toFixed2(splyAmt),
-          taxTyCd: taxTyCd,
-          taxAmt: toFixed2(stockTaxAmt),
-          totAmt: toFixed2(splyAmt)
+        const saveStockItemsPayload = {
+          tin: branch.kra_pin,
+          bhfId: branch.bhf_id || "00",
+          sarNo: newSarNo,
+          orgSarNo: 0,
+          regTyCd: "M",
+          custTin: null,
+          custNm: null,
+          custBhfId: null,
+          sarTyCd: "11",
+          ocrnDt: formatKraDate(),
+          totItemCnt: 1,
+          totTaxblAmt: toFixed2(splyAmt),
+          totTaxAmt: toFixed2(stockTaxAmt),
+          totAmt: toFixed2(splyAmt),
+          remark: null,
+          regrId: "Admin",
+          regrNm: "Admin",
+          modrNm: "Admin",
+          modrId: "Admin",
+          itemList: [
+            {
+              itemSeq: 1,
+              itemCd: itemCd,
+              itemClsCd: itemClsCd,
+              itemNm: itemNm,
+              bcd: null,
+              pkgUnitCd: pkgUnitCd,
+              pkg: Math.ceil(quantity),
+              qtyUnitCd: qtyUnitCd,
+              qty: parseFloat(quantity.toFixed(2)),
+              itemExprDt: null,
+              prc: unitPrice,
+              splyAmt: toFixed2(splyAmt),
+              totDcAmt: 0,
+              taxblAmt: toFixed2(splyAmt),
+              taxTyCd: taxTyCd,
+              taxAmt: toFixed2(stockTaxAmt),
+              totAmt: toFixed2(splyAmt)
+            }
+          ]
         }
-      ]
-    }
 
-    startTime = Date.now()
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000)
-      
-      const response = await fetch(`${kraBaseUrl}/stock/saveStockItems`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(saveStockItemsPayload),
-        signal: controller.signal
-      })
+        let syncStartTime = Date.now()
+        try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 15000)
+          
+          const response = await fetch(`${kraBaseUrl}/stock/saveStockItems`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(saveStockItemsPayload),
+            signal: controller.signal
+          })
 
-      clearTimeout(timeoutId)
-      responses.saveStockItems = await response.json()
-      
-      await logApiCall({
-        endpoint: "/stock/saveStockItems",
-        method: "POST",
-        payload: saveStockItemsPayload,
-        response: responses.saveStockItems,
-        statusCode: response.status,
-        durationMs: Date.now() - startTime,
-        branchId: branch_id,
-        externalEndpoint: `${kraBaseUrl}/stock/saveStockItems`
-      })
-    } catch (err: any) {
-      responses.saveStockItems = {
-        resultCd: err.name === 'AbortError' ? "TIMEOUT" : "NETWORK_ERROR",
-        resultMsg: err.message || "Failed to connect to KRA",
-        resultDt: new Date().toISOString()
+          clearTimeout(timeoutId)
+          const stockItemsResponse = await response.json()
+          
+          await logApiCall({
+            endpoint: "/stock/saveStockItems",
+            method: "POST",
+            payload: saveStockItemsPayload,
+            response: stockItemsResponse,
+            statusCode: response.status,
+            durationMs: Date.now() - syncStartTime,
+            branchId: branch_id,
+            externalEndpoint: `${kraBaseUrl}/stock/saveStockItems`
+          })
+        } catch (err: any) {
+          await logApiCall({
+            endpoint: "/stock/saveStockItems",
+            method: "POST",
+            payload: saveStockItemsPayload,
+            response: { resultCd: err.name === 'AbortError' ? "TIMEOUT" : "NETWORK_ERROR", resultMsg: err.message },
+            statusCode: 0,
+            durationMs: Date.now() - syncStartTime,
+            branchId: branch_id,
+            error: err.message,
+            externalEndpoint: `${kraBaseUrl}/stock/saveStockItems`
+          })
+        }
+
+        const tankResult = await query(`
+          SELECT t.current_stock FROM tanks t
+          LEFT JOIN items i ON t.item_id = i.id
+          WHERE t.branch_id = $1 AND (t.kra_item_cd = $2 OR UPPER(i.item_name) = UPPER($3))
+          LIMIT 1
+        `, [branch_id, itemCd, itemNm])
+        
+        const currentStock = tankResult.length > 0 ? parseFloat(tankResult[0].current_stock) || 0 : 0
+
+        const saveStockMasterPayload = {
+          tin: branch.kra_pin,
+          bhfId: branch.bhf_id || "00",
+          itemCd: itemCd,
+          rsdQty: currentStock,
+          regrId: "Admin",
+          regrNm: "Admin",
+          modrNm: "Admin",
+          modrId: "Admin"
+        }
+
+        syncStartTime = Date.now()
+        try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 15000)
+          
+          const response = await fetch(`${kraBaseUrl}/stockMaster/saveStockMaster`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(saveStockMasterPayload),
+            signal: controller.signal
+          })
+
+          clearTimeout(timeoutId)
+          const stockMasterResponse = await response.json()
+          
+          await logApiCall({
+            endpoint: "/stockMaster/saveStockMaster",
+            method: "POST",
+            payload: saveStockMasterPayload,
+            response: stockMasterResponse,
+            statusCode: response.status,
+            durationMs: Date.now() - syncStartTime,
+            branchId: branch_id,
+            externalEndpoint: `${kraBaseUrl}/stockMaster/saveStockMaster`
+          })
+        } catch (err: any) {
+          await logApiCall({
+            endpoint: "/stockMaster/saveStockMaster",
+            method: "POST",
+            payload: saveStockMasterPayload,
+            response: { resultCd: err.name === 'AbortError' ? "TIMEOUT" : "NETWORK_ERROR", resultMsg: err.message },
+            statusCode: 0,
+            durationMs: Date.now() - syncStartTime,
+            branchId: branch_id,
+            error: err.message,
+            externalEndpoint: `${kraBaseUrl}/stockMaster/saveStockMaster`
+          })
+        }
+      } catch (bgError: any) {
+        console.error("[Issue Invoice] Background stock sync error:", bgError.message)
       }
-      await logApiCall({
-        endpoint: "/stock/saveStockItems",
-        method: "POST",
-        payload: saveStockItemsPayload,
-        response: responses.saveStockItems,
-        statusCode: 0,
-        durationMs: Date.now() - startTime,
-        branchId: branch_id,
-        error: err.message,
-        externalEndpoint: `${kraBaseUrl}/stock/saveStockItems`
-      })
     }
 
-    const tankResult = await query(`
-      SELECT t.current_stock FROM tanks t
-      LEFT JOIN items i ON t.item_id = i.id
-      WHERE t.branch_id = $1 AND (t.kra_item_cd = $2 OR UPPER(i.item_name) = UPPER($3))
-      LIMIT 1
-    `, [branch_id, itemCd, itemNm])
-    
-    const currentStock = tankResult.length > 0 ? parseFloat(tankResult[0].current_stock) || 0 : 0
+    // Fire and forget - don't await, let it run in background
+    syncStockInBackground().catch(err => console.error("[Issue Invoice] Stock sync failed:", err.message))
 
-    const saveStockMasterPayload = {
-      tin: branch.kra_pin,
-      bhfId: branch.bhf_id || "00",
-      itemCd: itemCd,
-      rsdQty: currentStock,
-      regrId: "Admin",
-      regrNm: "Admin",
-      modrNm: "Admin",
-      modrId: "Admin"
-    }
-
-    startTime = Date.now()
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 15000)
-      
-      const response = await fetch(`${kraBaseUrl}/stockMaster/saveStockMaster`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(saveStockMasterPayload),
-        signal: controller.signal
-      })
-
-      clearTimeout(timeoutId)
-      responses.saveStockMaster = await response.json()
-      
-      await logApiCall({
-        endpoint: "/stockMaster/saveStockMaster",
-        method: "POST",
-        payload: saveStockMasterPayload,
-        response: responses.saveStockMaster,
-        statusCode: response.status,
-        durationMs: Date.now() - startTime,
-        branchId: branch_id,
-        externalEndpoint: `${kraBaseUrl}/stockMaster/saveStockMaster`
-      })
-    } catch (err: any) {
-      responses.saveStockMaster = {
-        resultCd: err.name === 'AbortError' ? "TIMEOUT" : "NETWORK_ERROR",
-        resultMsg: err.message || "Failed to connect to KRA",
-        resultDt: new Date().toISOString()
-      }
-      await logApiCall({
-        endpoint: "/stockMaster/saveStockMaster",
-        method: "POST",
-        payload: saveStockMasterPayload,
-        response: responses.saveStockMaster,
-        statusCode: 0,
-        durationMs: Date.now() - startTime,
-        branchId: branch_id,
-        error: err.message,
-        externalEndpoint: `${kraBaseUrl}/stockMaster/saveStockMaster`
-      })
-    }
-
-    const saveStockItemsSuccess = responses.saveStockItems?.resultCd === "000" || responses.saveStockItems?.resultCd === "0"
-    const saveStockMasterSuccess = responses.saveStockMaster?.resultCd === "000" || responses.saveStockMaster?.resultCd === "0"
-
+    // Return immediately after saveSales success - stock sync happens in background
     return NextResponse.json({
       success: true,
       invoiceNumber: trdInvcNo,
       responses: {
         saveSales: responses.saveSales,
-        saveStockItems: responses.saveStockItems,
-        saveStockMaster: responses.saveStockMaster
+        saveStockItems: { status: "processing_in_background" },
+        saveStockMaster: { status: "processing_in_background" }
       },
       summary: {
         saveSales: "Success",
-        saveStockItems: saveStockItemsSuccess ? "Success" : responses.saveStockItems?.resultMsg || "Failed",
-        saveStockMaster: saveStockMasterSuccess ? "Success" : responses.saveStockMaster?.resultMsg || "Failed"
+        saveStockItems: "Processing in background",
+        saveStockMaster: "Processing in background"
       }
     })
 
