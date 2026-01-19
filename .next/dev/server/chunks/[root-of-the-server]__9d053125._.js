@@ -943,29 +943,28 @@ async function callKraSaveSales(saleData) {
             externalEndpoint: kraEndpoint
         });
         if (isSuccess) {
-            console.log(`[KRA Sales API] saveSales successful, now syncing stock with KRA`);
-            try {
-                const stockSyncResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$sync$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["syncStockAfterSale"])(saleData.branch_id, [
-                    {
-                        itemCode: itemCd,
-                        itemClassCode: itemClsCd,
-                        itemName: itemNm,
-                        packageUnit: pkgUnitCd,
-                        quantityUnit: qtyUnitCd,
-                        quantity: qty,
-                        unitPrice: prc,
-                        taxType: taxTyCd
-                    }
-                ]);
-                if (stockSyncResult.success) {
+            console.log(`[KRA Sales API] saveSales successful, syncing stock in background`);
+            // OPTIMIZATION: Run stock sync in background (fire-and-forget) for faster response
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$sync$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["syncStockAfterSale"])(saleData.branch_id, [
+                {
+                    itemCode: itemCd,
+                    itemClassCode: itemClsCd,
+                    itemName: itemNm,
+                    packageUnit: pkgUnitCd,
+                    quantityUnit: qtyUnitCd,
+                    quantity: qty,
+                    unitPrice: prc,
+                    taxType: taxTyCd
+                }
+            ]).then((result)=>{
+                if (result.success) {
                     console.log(`[KRA Sales API] Stock sync completed successfully`);
                 } else {
-                    console.log(`[KRA Sales API] Stock sync failed: ${stockSyncResult.error}`);
+                    console.log(`[KRA Sales API] Stock sync failed: ${result.error}`);
                 }
-            } catch (stockError) {
-                console.error(`[KRA Sales API] Error during stock sync:`, stockError.message);
-            }
+            }).catch((err)=>console.error(`[KRA Sales API] Error during stock sync:`, err.message));
         }
+        // Return immediately - stock sync happens in background
         return {
             success: isSuccess,
             kraResponse
