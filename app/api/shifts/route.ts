@@ -297,12 +297,12 @@ export async function PATCH(request: NextRequest) {
       const shiftBranchId = shiftBranchResult.rows[0]?.branch_id
 
       if (shiftBranchId) {
-        // Get all active nozzles for this branch
+        // Get all active nozzles with assigned tanks for this branch
         const activeNozzlesResult = await client.query(
           `SELECT n.id, n.nozzle_number, i.item_name as fuel_type
            FROM nozzles n
            LEFT JOIN items i ON n.item_id = i.id
-           WHERE n.branch_id = $1 AND n.status = 'active'`,
+           WHERE n.branch_id = $1 AND n.status = 'active' AND n.tank_id IS NOT NULL`,
           [shiftBranchId]
         )
 
@@ -382,8 +382,9 @@ export async function PATCH(request: NextRequest) {
     const staffId = currentShift.staff_id
     const endTimeValue = end_time || new Date().toISOString()
 
+    // Only include nozzles that have a tank assigned
     const nozzlesResult = await client.query(
-      `SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1`,
+      `SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1 AND tank_id IS NOT NULL`,
       [branchId]
     )
     const nozzleBaseReadings: Record<string, number> = {}

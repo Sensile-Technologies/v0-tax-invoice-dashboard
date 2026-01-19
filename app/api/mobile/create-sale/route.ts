@@ -37,6 +37,35 @@ export async function POST(request: Request) {
     }
 
     const client = await pool.connect()
+    
+    // Validate nozzle has a tank assigned before allowing sale
+    if (nozzle_id) {
+      const nozzleTankCheck = await client.query(
+        `SELECT n.id, n.tank_id, n.nozzle_number, d.dispenser_number 
+         FROM nozzles n 
+         JOIN dispensers d ON n.dispenser_id = d.id
+         WHERE n.id = $1`,
+        [nozzle_id]
+      )
+      
+      if (nozzleTankCheck.rows.length === 0) {
+        client.release()
+        return NextResponse.json(
+          { error: "Nozzle not found" },
+          { status: 400 }
+        )
+      }
+      
+      const nozzle = nozzleTankCheck.rows[0]
+      if (!nozzle.tank_id) {
+        client.release()
+        console.log(`[Mobile Create Sale] Blocked sale - Nozzle D${nozzle.dispenser_number}N${nozzle.nozzle_number} has no tank assigned`)
+        return NextResponse.json(
+          { error: `Cannot sell from nozzle D${nozzle.dispenser_number}N${nozzle.nozzle_number} - no tank assigned. Please assign a tank in Manage Nozzles.` },
+          { status: 400 }
+        )
+      }
+    }
     try {
       const duplicateCheck = await client.query(
         `SELECT id, invoice_number, kra_status, kra_cu_inv, kra_rcpt_sign, kra_internal_data,

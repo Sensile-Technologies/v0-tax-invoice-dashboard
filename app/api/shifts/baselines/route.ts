@@ -17,8 +17,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Only include nozzles that have a tank assigned
     const nozzlesResult = await pool.query(
-      `SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1`,
+      `SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1 AND tank_id IS NOT NULL`,
       [branchId]
     )
     const nozzleBaselines: Record<string, number> = {}
