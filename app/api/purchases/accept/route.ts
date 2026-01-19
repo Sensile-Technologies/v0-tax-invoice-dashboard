@@ -287,6 +287,14 @@ export async function POST(request: NextRequest) {
         for (const reading of tank_readings) {
           const volumeBefore = parseFloat(reading.volume_before) || 0
           const volumeAfter = parseFloat(reading.volume_after) || 0
+          
+          // Safety check: Skip tank update if volume_after is 0 or less than volume_before
+          // This prevents accidental stock reset
+          if (volumeAfter <= 0) {
+            console.warn(`Skipping tank ${reading.tank_id}: volume_after is ${volumeAfter}`)
+            continue
+          }
+          
           const quantityReceived = volumeAfter - volumeBefore
 
           await client.query(
