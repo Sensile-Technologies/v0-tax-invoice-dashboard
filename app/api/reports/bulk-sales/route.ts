@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     `, params)
 
     const branch = await query(`
-      SELECT name, bulk_sales_kra_percentage, controller_id FROM branches WHERE id = $1
+      SELECT name, bulk_sales_kra_percentage, controller_id, split_denominations FROM branches WHERE id = $1
     `, [branchId])
 
     const branchData = branch[0] || {}
@@ -89,6 +89,7 @@ export async function GET(request: NextRequest) {
         summary,
         branch_name: branchData.name || "Unknown Branch",
         kra_percentage: branchData.bulk_sales_kra_percentage || 100,
+        split_denominations: branchData.split_denominations !== false,
         has_controller: hasController,
         controller_id: branchData.controller_id || null,
         totals: {

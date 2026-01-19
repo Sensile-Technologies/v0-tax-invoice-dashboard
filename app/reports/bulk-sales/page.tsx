@@ -52,6 +52,7 @@ interface BulkSalesData {
   summary: ProductSummary[]
   branch_name: string
   kra_percentage: number
+  split_denominations: boolean
   has_controller: boolean
   controller_id: string | null
   totals: {
@@ -74,6 +75,9 @@ export default function BulkSalesReportPage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<BulkSalesData | null>(null)
   const [splitDenominations, setSplitDenominations] = useState(true)
+  const [savedSplitDenominations, setSavedSplitDenominations] = useState(true)
+  const [savingSplit, setSavingSplit] = useState(false)
+  const [splitMessage, setSplitMessage] = useState<string | null>(null)
   const [intermittencyRate, setIntermittencyRate] = useState<number>(100)
   const [savingRate, setSavingRate] = useState(false)
   const [rateMessage, setRateMessage] = useState<string | null>(null)
@@ -107,6 +111,8 @@ export default function BulkSalesReportPage() {
       if (result.success && result.data) {
         setData(result.data)
         setIntermittencyRate(result.data.kra_percentage || 100)
+        setSplitDenominations(result.data.split_denominations !== false)
+        setSavedSplitDenominations(result.data.split_denominations !== false)
         setCurrentPage(1)
       } else {
         setData(null)
@@ -158,6 +164,42 @@ export default function BulkSalesReportPage() {
       setRateMessage("Failed to save intermittency rate")
     } finally {
       setSavingRate(false)
+    }
+  }
+
+  const handleSaveSplitDenominations = async () => {
+    try {
+      setSavingSplit(true)
+      setSplitMessage(null)
+      
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (!storedBranch) {
+        setSplitMessage("No branch selected")
+        return
+      }
+      
+      const branch = JSON.parse(storedBranch)
+      
+      const response = await fetch(`/api/branches/${branch.id}/split-denominations`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ split_denominations: splitDenominations })
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        setSavedSplitDenominations(splitDenominations)
+        setSplitMessage(splitDenominations ? "Bulk sales will be split into denominations." : "Bulk sales will not be split.")
+        setTimeout(() => setSplitMessage(null), 3000)
+      } else {
+        setSplitMessage(result.error || "Failed to save")
+      }
+    } catch (error) {
+      console.error("Error saving split denominations:", error)
+      setSplitMessage("Failed to save setting")
+    } finally {
+      setSavingSplit(false)
     }
   }
 
@@ -409,7 +451,7 @@ export default function BulkSalesReportPage() {
                       />
                     </div>
                     {!data?.has_controller && (
-                      <div className="flex items-center gap-2 min-w-[200px]">
+                      <div className="flex items-center gap-3 min-w-[300px]">
                         <Checkbox
                           id="split-denominations"
                           checked={splitDenominations}
@@ -418,6 +460,22 @@ export default function BulkSalesReportPage() {
                         <Label htmlFor="split-denominations" className="text-sm text-slate-700 cursor-pointer">
                           Split into Denominations
                         </Label>
+                        <Button
+                          onClick={handleSaveSplitDenominations}
+                          disabled={savingSplit || splitDenominations === savedSplitDenominations}
+                          size="sm"
+                          variant="outline"
+                          className="ml-auto"
+                        >
+                          {savingSplit ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Check className="h-4 w-4 mr-1" />
+                              Save
+                            </>
+                          )}
+                        </Button>
                       </div>
                     )}
                     <Button onClick={fetchBulkSales} disabled={loading}>
@@ -425,6 +483,11 @@ export default function BulkSalesReportPage() {
                       Generate Report
                     </Button>
                   </div>
+                  {splitMessage && (
+                    <div className={`mt-3 text-sm ${splitMessage.includes('Failed') ? 'text-red-600' : 'text-green-600'}`}>
+                      {splitMessage}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
