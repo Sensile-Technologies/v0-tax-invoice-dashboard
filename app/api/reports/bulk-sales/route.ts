@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
         bulk_sales: bulkSales,
         summary,
         branch_name: branchData.name || "Unknown Branch",
-        kra_percentage: branchData.bulk_sales_kra_percentage || 100,
+        kra_percentage: branchData.bulk_sales_kra_percentage ?? 100,
         split_denominations: branchData.split_denominations !== false,
         has_controller: hasController,
         controller_id: branchData.controller_id || null,

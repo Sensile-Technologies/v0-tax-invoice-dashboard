@@ -213,7 +213,7 @@ async function GET(request) {
       ORDER BY i.item_name
     `, params);
         const branch = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
-      SELECT name, bulk_sales_kra_percentage, controller_id FROM branches WHERE id = $1
+      SELECT name, bulk_sales_kra_percentage, controller_id, split_denominations FROM branches WHERE id = $1
     `, [
             branchId
         ]);
@@ -225,7 +225,8 @@ async function GET(request) {
                 bulk_sales: bulkSales,
                 summary,
                 branch_name: branchData.name || "Unknown Branch",
-                kra_percentage: branchData.bulk_sales_kra_percentage || 100,
+                kra_percentage: branchData.bulk_sales_kra_percentage ?? 100,
+                split_denominations: branchData.split_denominations !== false,
                 has_controller: hasController,
                 controller_id: branchData.controller_id || null,
                 totals: {
