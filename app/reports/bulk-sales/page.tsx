@@ -63,6 +63,8 @@ interface BulkSalesData {
   }
 }
 
+const ITEMS_PER_PAGE = 20
+
 export default function BulkSalesReportPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -75,6 +77,7 @@ export default function BulkSalesReportPage() {
   const [intermittencyRate, setIntermittencyRate] = useState<number>(100)
   const [savingRate, setSavingRate] = useState(false)
   const [rateMessage, setRateMessage] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
   const { formatCurrency } = useCurrency()
 
   const fetchBulkSales = useCallback(async () => {
@@ -104,6 +107,7 @@ export default function BulkSalesReportPage() {
       if (result.success && result.data) {
         setData(result.data)
         setIntermittencyRate(result.data.kra_percentage || 100)
+        setCurrentPage(1)
       } else {
         setData(null)
       }
@@ -172,6 +176,12 @@ export default function BulkSalesReportPage() {
   const formatTime = (dateStr: string) => {
     return new Date(dateStr).toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit' })
   }
+
+  const totalPages = data ? Math.ceil(data.bulk_sales.length / ITEMS_PER_PAGE) : 0
+  const paginatedBulkSales = data ? data.bulk_sales.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  ) : []
 
   const handleExportPDF = () => {
     if (!data) return
@@ -593,9 +603,14 @@ export default function BulkSalesReportPage() {
                   {data.bulk_sales.length > 0 && (
                     <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-lg font-bold text-slate-800">
-                          DETAILED ENTRIES
-                        </CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-lg font-bold text-slate-800">
+                            DETAILED ENTRIES
+                          </CardTitle>
+                          <span className="text-sm text-slate-500">
+                            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, data.bulk_sales.length)} of {data.bulk_sales.length}
+                          </span>
+                        </div>
                       </CardHeader>
                       <CardContent className="p-0">
                         <div className="overflow-x-auto">
@@ -613,7 +628,7 @@ export default function BulkSalesReportPage() {
                               </tr>
                             </thead>
                             <tbody>
-                              {data.bulk_sales.map((bs) => (
+                              {paginatedBulkSales.map((bs) => (
                                 <tr key={bs.id} className="border-b hover:bg-slate-50">
                                   <td className="py-2 px-3 whitespace-nowrap">{formatDate(bs.created_at)}</td>
                                   <td className="py-2 px-3 whitespace-nowrap text-xs">{bs.invoice_number}</td>
@@ -632,6 +647,47 @@ export default function BulkSalesReportPage() {
                             </tbody>
                           </table>
                         </div>
+                        {totalPages > 1 && (
+                          <div className="flex items-center justify-between px-4 py-3 border-t bg-slate-50">
+                            <button
+                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                              disabled={currentPage === 1}
+                              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Previous
+                            </button>
+                            <div className="flex items-center gap-1">
+                              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                let pageNum: number
+                                if (totalPages <= 5) {
+                                  pageNum = i + 1
+                                } else if (currentPage <= 3) {
+                                  pageNum = i + 1
+                                } else if (currentPage >= totalPages - 2) {
+                                  pageNum = totalPages - 4 + i
+                                } else {
+                                  pageNum = currentPage - 2 + i
+                                }
+                                return (
+                                  <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`w-8 h-8 text-sm font-medium rounded-lg ${currentPage === pageNum ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                                  >
+                                    {pageNum}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                            <button
+                              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                              disabled={currentPage === totalPages}
+                              className="px-3 py-1.5 text-sm font-medium rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Next
+                            </button>
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   )}
