@@ -22,9 +22,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Plus, Edit, Trash2, Fuel, Link2 } from "lucide-react"
+import { Plus, Edit, Trash2, Fuel } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
 import { toast } from "react-toastify"
 
 interface Dispenser {
@@ -63,7 +62,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
   const [loading, setLoading] = useState(true)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
-  const [showAssignTanksDialog, setShowAssignTanksDialog] = useState(false)
   const [showMeterReadingDialog, setShowMeterReadingDialog] = useState(false)
   const [selectedDispenser, setSelectedDispenser] = useState<Dispenser | null>(null)
   const [createdNozzles, setCreatedNozzles] = useState<CreatedNozzle[]>([])
@@ -73,7 +71,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
     status: "active",
   })
 
-  const [selectedTankIds, setSelectedTankIds] = useState<string[]>([])
 
   useEffect(() => {
     if (branchId) {
@@ -140,46 +137,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
     }
   }
 
-  const handleAssignTanks = async () => {
-    if (!selectedDispenser) return
-
-    try {
-      const res = await fetch("/api/dispensers/assign-tanks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          dispenser_id: selectedDispenser.id,
-          tank_ids: selectedTankIds,
-          branch_id: branchId,
-        }),
-      })
-
-      const result = await res.json()
-      if (result.success) {
-        setShowAssignTanksDialog(false)
-        
-        if (result.createdNozzles && result.createdNozzles.length > 0) {
-          setCreatedNozzles(result.createdNozzles.map((n: any) => ({
-            ...n,
-            meter_reading: "0"
-          })))
-          setShowMeterReadingDialog(true)
-          toast.success(`Tanks assigned. Please enter meter readings for ${result.createdNozzles.length} new nozzle(s).`)
-        } else {
-          toast.success("Tanks assigned successfully")
-          setSelectedDispenser(null)
-          setSelectedTankIds([])
-          fetchData()
-        }
-      } else {
-        toast.error(result.error || "Failed to assign tanks")
-      }
-    } catch (error) {
-      console.error("Error assigning tanks:", error)
-      toast.error("Failed to assign tanks")
-    }
-  }
-
   const handleSaveMeterReadings = async () => {
     // Validate all meter readings are valid numbers
     for (const nozzle of createdNozzles) {
@@ -215,7 +172,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
       setShowMeterReadingDialog(false)
       setCreatedNozzles([])
       setSelectedDispenser(null)
-      setSelectedTankIds([])
       fetchData()
     } catch (error) {
       console.error("Error saving meter readings:", error)
@@ -300,12 +256,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
     setShowEditDialog(true)
   }
 
-  const openAssignTanksDialog = (dispenser: Dispenser) => {
-    setSelectedDispenser(dispenser)
-    setSelectedTankIds(dispenser.tank_ids || (dispenser.tank_id ? [dispenser.tank_id] : []))
-    setShowAssignTanksDialog(true)
-  }
-
   const getAssignedTankNames = (dispenser: Dispenser) => {
     const tankIds = dispenser.tank_ids || (dispenser.tank_id ? [dispenser.tank_id] : [])
     if (tankIds.length === 0) return "None"
@@ -313,8 +263,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
     const assignedTanks = tanks.filter(t => tankIds.includes(t.id))
     return assignedTanks.map(t => t.tank_name).join(", ") || "None"
   }
-
-  const activeTanks = tanks.filter(t => t.status === "active")
 
   if (loading) {
     return (
@@ -374,15 +322,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openAssignTanksDialog(dispenser)}
-                      className="rounded-xl"
-                    >
-                      <Link2 className="h-4 w-4 mr-1" />
-                      Assign Tanks
-                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -502,69 +441,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
         </DialogContent>
       </Dialog>
 
-      {/* Assign Tanks Dialog */}
-      <Dialog open={showAssignTanksDialog} onOpenChange={setShowAssignTanksDialog}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle>Assign Tanks to Dispenser {selectedDispenser?.dispenser_number}</DialogTitle>
-            <DialogDescription>
-              Select tanks this dispenser will serve. Nozzles will be automatically created for each tank.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-2 block">Select Active Tanks</Label>
-              <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3">
-                {activeTanks.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No active tanks available</p>
-                ) : (
-                  activeTanks.map((tank) => (
-                    <div key={tank.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`assign-tank-${tank.id}`}
-                        checked={selectedTankIds.includes(tank.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedTankIds([...selectedTankIds, tank.id])
-                          } else {
-                            setSelectedTankIds(selectedTankIds.filter(id => id !== tank.id))
-                          }
-                        }}
-                      />
-                      <label htmlFor={`assign-tank-${tank.id}`} className="text-sm cursor-pointer flex-1">
-                        <span className="font-medium">{tank.tank_name}</span>
-                        <span className="text-muted-foreground ml-2">- {tank.fuel_type}</span>
-                        {tank.item_id && <span className="text-green-600 ml-2">(Item linked)</span>}
-                      </label>
-                    </div>
-                  ))
-                )}
-              </div>
-              {selectedTankIds.length > 0 && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {selectedTankIds.length} tank(s) selected - {selectedTankIds.length} nozzle(s) will be created
-                </p>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setShowAssignTanksDialog(false)
-                setSelectedTankIds([])
-              }} 
-              className="rounded-xl"
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleAssignTanks} className="rounded-xl">
-              Assign Tanks & Create Nozzles
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={showMeterReadingDialog} onOpenChange={setShowMeterReadingDialog}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -605,7 +481,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
                 setShowMeterReadingDialog(false)
                 setCreatedNozzles([])
                 setSelectedDispenser(null)
-                setSelectedTankIds([])
                 fetchData()
               }}
               className="rounded-xl"
