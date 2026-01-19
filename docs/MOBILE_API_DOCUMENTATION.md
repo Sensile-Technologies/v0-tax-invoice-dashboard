@@ -1,8 +1,34 @@
 # Flow360 Mobile APK API Documentation
 
-**Base URL:** `https://your-domain.replit.app/api/mobile`
+**Version:** 1.0  
+**Last Updated:** January 2026
 
-**Authentication:** All endpoints require the user to be logged in via the mobile app. Branch access is determined by `branch_id` parameter.
+**Base URL:** `https://[YOUR-PRODUCTION-DOMAIN]/api/mobile`
+
+> Replace `[YOUR-PRODUCTION-DOMAIN]` with your deployed Flow360 instance URL.
+
+---
+
+## Authentication
+
+All endpoints require authentication via session cookie. The third-party system must:
+
+1. **Login** via `/api/auth/login` to obtain a session
+2. **Include session cookie** in all subsequent requests
+3. **Branch access** is controlled by the authenticated user's permissions
+
+### Login Endpoint
+
+**POST** `/api/auth/login`
+
+```json
+{
+  "email": "user@example.com",
+  "password": "your-password"
+}
+```
+
+**Response:** Sets `user_session` httpOnly cookie for subsequent requests.
 
 ---
 
