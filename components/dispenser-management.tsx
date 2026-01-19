@@ -302,9 +302,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
             <TableHeader>
               <TableRow>
                 <TableHead>Dispenser #</TableHead>
-                <TableHead>Assigned Tanks</TableHead>
-                <TableHead>Fuel Types</TableHead>
-                <TableHead>Item</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -313,9 +310,6 @@ export default function DispenserManagement({ branchId }: { branchId: string | n
               {dispensers.map((dispenser) => (
                 <TableRow key={dispenser.id}>
                   <TableCell className="font-medium">D{dispenser.dispenser_number}</TableCell>
-                  <TableCell>{getAssignedTankNames(dispenser)}</TableCell>
-                  <TableCell>{dispenser.fuel_type || "Pending"}</TableCell>
-                  <TableCell>{dispenser.item_name || "-"}</TableCell>
                   <TableCell>
                     <Badge variant={dispenser.status === "active" ? "default" : "secondary"}>
                       {dispenser.status}

@@ -672,19 +672,6 @@ export function InventoryContent() {
             <Button variant="outline" className="rounded-xl bg-transparent" onClick={() => setActiveView("cards")}>
               ← Back to Overview
             </Button>
-            <div className="flex items-center gap-2">
-              <Label className="text-sm font-medium">Branch:</Label>
-              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
-                <SelectTrigger className="w-[200px] rounded-xl">
-                  <SelectValue placeholder="Select branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
           {selectedBranchId ? (
             <DispenserManagement branchId={selectedBranchId} />
