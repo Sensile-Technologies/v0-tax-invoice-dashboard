@@ -10,7 +10,7 @@ import { Download, Printer, Loader2, RefreshCw, Fuel, FileSpreadsheet, FileText,
 import { ReportTabs } from "@/components/report-tabs"
 import { useCurrency } from "@/lib/currency-utils"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
@@ -410,12 +410,12 @@ export default function BulkSalesReportPage() {
                     </div>
                     {!data?.has_controller && (
                       <div className="flex items-center gap-2 min-w-[200px]">
-                        <Switch
+                        <Checkbox
                           id="split-denominations"
                           checked={splitDenominations}
-                          onCheckedChange={setSplitDenominations}
+                          onCheckedChange={(checked) => setSplitDenominations(checked === true)}
                         />
-                        <Label htmlFor="split-denominations" className="text-sm text-slate-700">
+                        <Label htmlFor="split-denominations" className="text-sm text-slate-700 cursor-pointer">
                           Split into Denominations
                         </Label>
                       </div>

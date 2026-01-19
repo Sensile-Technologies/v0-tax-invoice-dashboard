@@ -1,24 +1,9 @@
 {
   "app": {
-    "[project]/app/headquarters/page": [
-      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
-    ],
-    "[project]/app/inventory/page": [
-      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
-    ],
     "[project]/app/page": [
       "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
     ],
     "[project]/app/reports/bulk-sales/page": [
-      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
-    ],
-    "[project]/app/reports/daily-sales/page": [
-      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
-    ],
-    "[project]/app/reports/page": [
-      "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
-    ],
-    "[project]/app/sales/summary/page": [
       "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
     ]
   },
