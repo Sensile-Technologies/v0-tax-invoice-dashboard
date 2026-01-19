@@ -20,17 +20,13 @@ interface BulkSaleEntry {
   id: string
   shift_id: string
   nozzle_id: string
-  item_id: string
   fuel_type: string
-  opening_reading: number
-  closing_reading: number
-  meter_difference: number
-  invoiced_quantity: number
-  bulk_quantity: number
+  quantity: number
   unit_price: number
   total_amount: number
-  generated_invoices: number
-  status: string
+  invoice_number: string
+  kra_status: string
+  transmission_status: string
   created_at: string
   nozzle_name: string
   dispenser_number: number
@@ -44,12 +40,11 @@ interface BulkSaleEntry {
 interface ProductSummary {
   fuel_type: string
   product_name: string
-  total_meter_difference: number
-  total_invoiced: number
-  total_bulk: number
+  total_quantity: number
   total_amount: number
-  total_invoices: number
-  entry_count: number
+  invoice_count: number
+  kra_transmitted: number
+  kra_skipped: number
 }
 
 interface BulkSalesData {
@@ -60,11 +55,11 @@ interface BulkSalesData {
   has_controller: boolean
   controller_id: string | null
   totals: {
-    total_meter_difference: number
-    total_invoiced: number
-    total_bulk: number
+    total_quantity: number
     total_amount: number
     total_entries: number
+    kra_transmitted: number
+    kra_skipped: number
   }
 }
 
@@ -166,8 +161,8 @@ export default function BulkSalesReportPage() {
     window.print()
   }
 
-  const formatNumber = (num: number) => {
-    return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const formatNumber = (num: number | undefined | null) => {
+    return (num ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
 
   const formatDate = (dateStr: string) => {
@@ -202,22 +197,22 @@ export default function BulkSalesReportPage() {
 
     autoTable(doc, {
       startY: yPos,
-      head: [['Product', 'Meter Diff (L)', 'Invoiced (L)', 'Bulk (L)', 'Amount', 'Invoices']],
+      head: [['Product', 'Quantity (L)', 'Amount', 'Invoices', 'KRA Sent', 'KRA Skipped']],
       body: data.summary.map(s => [
         s.product_name || s.fuel_type,
-        formatNumber(Number(s.total_meter_difference)),
-        formatNumber(Number(s.total_invoiced)),
-        formatNumber(Number(s.total_bulk)),
+        formatNumber(Number(s.total_quantity)),
         formatCurrency(Number(s.total_amount)),
-        Number(s.total_invoices).toString()
+        Number(s.invoice_count).toString(),
+        Number(s.kra_transmitted).toString(),
+        Number(s.kra_skipped).toString()
       ]),
       foot: [[
         'TOTAL',
-        formatNumber(data.totals.total_meter_difference),
-        formatNumber(data.totals.total_invoiced),
-        formatNumber(data.totals.total_bulk),
+        formatNumber(data.totals.total_quantity),
         formatCurrency(data.totals.total_amount),
-        data.totals.total_entries.toString()
+        data.totals.total_entries.toString(),
+        data.totals.kra_transmitted.toString(),
+        data.totals.kra_skipped.toString()
       ]],
       theme: 'striped',
       headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
@@ -237,15 +232,15 @@ export default function BulkSalesReportPage() {
 
       autoTable(doc, {
         startY: yPos,
-        head: [['Date', 'Nozzle', 'Product', 'Meter Diff', 'Invoiced', 'Bulk', 'Amount', 'Cashier']],
+        head: [['Date', 'Invoice', 'Nozzle', 'Product', 'Qty (L)', 'Amount', 'KRA Status', 'Cashier']],
         body: data.bulk_sales.map(bs => [
           formatDate(bs.created_at),
+          bs.invoice_number,
           bs.nozzle_name || `D${bs.dispenser_number}-N${bs.nozzle_number}`,
           bs.item_name || bs.fuel_type,
-          formatNumber(Number(bs.meter_difference)),
-          formatNumber(Number(bs.invoiced_quantity)),
-          formatNumber(Number(bs.bulk_quantity)),
+          formatNumber(Number(bs.quantity)),
           formatCurrency(Number(bs.total_amount)),
+          bs.kra_status || bs.transmission_status,
           bs.cashier_name || '-'
         ]),
         theme: 'striped',
@@ -270,16 +265,16 @@ export default function BulkSalesReportPage() {
       [`KRA Transmission Rate: ${data.kra_percentage}%`],
       [],
       ['SUMMARY BY PRODUCT'],
-      ['Product', 'Meter Difference (L)', 'Invoiced (L)', 'Bulk (L)', 'Amount', 'Invoices Generated'],
+      ['Product', 'Quantity (L)', 'Amount', 'Invoices', 'KRA Sent', 'KRA Skipped'],
       ...data.summary.map(s => [
         s.product_name || s.fuel_type,
-        Number(s.total_meter_difference),
-        Number(s.total_invoiced),
-        Number(s.total_bulk),
+        Number(s.total_quantity),
         Number(s.total_amount),
-        Number(s.total_invoices)
+        Number(s.invoice_count),
+        Number(s.kra_transmitted),
+        Number(s.kra_skipped)
       ]),
-      ['TOTAL', data.totals.total_meter_difference, data.totals.total_invoiced, data.totals.total_bulk, data.totals.total_amount, data.totals.total_entries]
+      ['TOTAL', data.totals.total_quantity, data.totals.total_amount, data.totals.total_entries, data.totals.kra_transmitted, data.totals.kra_skipped]
     ]
     const ws1 = XLSX.utils.aoa_to_sheet(summaryData)
     ws1['!cols'] = [{ wch: 20 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 15 }, { wch: 18 }]
@@ -287,21 +282,17 @@ export default function BulkSalesReportPage() {
 
     const detailData = [
       ['DETAILED ENTRIES'],
-      ['Date', 'Nozzle', 'Product', 'Opening', 'Closing', 'Meter Diff', 'Invoiced', 'Bulk', 'Unit Price', 'Amount', 'Invoices', 'Cashier', 'Status'],
+      ['Date', 'Invoice', 'Nozzle', 'Product', 'Quantity (L)', 'Unit Price', 'Amount', 'KRA Status', 'Cashier'],
       ...data.bulk_sales.map(bs => [
         formatDate(bs.created_at),
+        bs.invoice_number,
         bs.nozzle_name || `D${bs.dispenser_number}-N${bs.nozzle_number}`,
         bs.item_name || bs.fuel_type,
-        Number(bs.opening_reading),
-        Number(bs.closing_reading),
-        Number(bs.meter_difference),
-        Number(bs.invoiced_quantity),
-        Number(bs.bulk_quantity),
+        Number(bs.quantity),
         Number(bs.unit_price),
         Number(bs.total_amount),
-        bs.generated_invoices,
-        bs.cashier_name || '-',
-        bs.status
+        bs.kra_status || bs.transmission_status,
+        bs.cashier_name || '-'
       ])
     ]
     const ws2 = XLSX.utils.aoa_to_sheet(detailData)
@@ -503,8 +494,8 @@ export default function BulkSalesReportPage() {
                             <TrendingUp className="h-5 w-5 text-blue-600" />
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500">Meter Difference</p>
-                            <p className="text-lg font-bold text-slate-900">{formatNumber(data.totals.total_meter_difference)} L</p>
+                            <p className="text-xs text-slate-500">Total Quantity</p>
+                            <p className="text-lg font-bold text-slate-900">{formatNumber(data.totals.total_quantity)} L</p>
                           </div>
                         </div>
                       </CardContent>
@@ -516,8 +507,8 @@ export default function BulkSalesReportPage() {
                             <Fuel className="h-5 w-5 text-green-600" />
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500">Invoiced</p>
-                            <p className="text-lg font-bold text-slate-900">{formatNumber(data.totals.total_invoiced)} L</p>
+                            <p className="text-xs text-slate-500">KRA Transmitted</p>
+                            <p className="text-lg font-bold text-slate-900">{data.totals.kra_transmitted || 0}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -529,8 +520,8 @@ export default function BulkSalesReportPage() {
                             <Package className="h-5 w-5 text-amber-600" />
                           </div>
                           <div>
-                            <p className="text-xs text-slate-500">Bulk Sales</p>
-                            <p className="text-lg font-bold text-slate-900">{formatNumber(data.totals.total_bulk)} L</p>
+                            <p className="text-xs text-slate-500">KRA Skipped</p>
+                            <p className="text-lg font-bold text-slate-900">{data.totals.kra_skipped || 0}</p>
                           </div>
                         </div>
                       </CardContent>
@@ -567,31 +558,31 @@ export default function BulkSalesReportPage() {
                           <thead>
                             <tr className="bg-slate-100 border-y text-xs">
                               <th className="text-left py-2 px-4 font-semibold">PRODUCT</th>
-                              <th className="text-right py-2 px-4 font-semibold">METER DIFF (L)</th>
-                              <th className="text-right py-2 px-4 font-semibold">INVOICED (L)</th>
-                              <th className="text-right py-2 px-4 font-semibold">BULK (L)</th>
+                              <th className="text-right py-2 px-4 font-semibold">QUANTITY (L)</th>
                               <th className="text-right py-2 px-4 font-semibold">AMOUNT</th>
                               <th className="text-right py-2 px-4 font-semibold">INVOICES</th>
+                              <th className="text-right py-2 px-4 font-semibold">KRA SENT</th>
+                              <th className="text-right py-2 px-4 font-semibold">KRA SKIPPED</th>
                             </tr>
                           </thead>
                           <tbody>
                             {data.summary.map((s, idx) => (
                               <tr key={idx} className="border-b hover:bg-slate-50">
                                 <td className="py-2 px-4 font-medium">{s.product_name || s.fuel_type}</td>
-                                <td className="text-right py-2 px-4 font-mono">{formatNumber(Number(s.total_meter_difference))}</td>
-                                <td className="text-right py-2 px-4 font-mono">{formatNumber(Number(s.total_invoiced))}</td>
-                                <td className="text-right py-2 px-4 font-mono">{formatNumber(Number(s.total_bulk))}</td>
+                                <td className="text-right py-2 px-4 font-mono">{formatNumber(Number(s.total_quantity))}</td>
                                 <td className="text-right py-2 px-4 font-mono">{formatCurrency(Number(s.total_amount))}</td>
-                                <td className="text-right py-2 px-4 font-mono">{Number(s.total_invoices)}</td>
+                                <td className="text-right py-2 px-4 font-mono">{Number(s.invoice_count)}</td>
+                                <td className="text-right py-2 px-4 font-mono">{Number(s.kra_transmitted)}</td>
+                                <td className="text-right py-2 px-4 font-mono">{Number(s.kra_skipped)}</td>
                               </tr>
                             ))}
                             <tr className="bg-slate-100 font-bold">
                               <td className="py-2 px-4">TOTAL</td>
-                              <td className="text-right py-2 px-4 font-mono">{formatNumber(data.totals.total_meter_difference)}</td>
-                              <td className="text-right py-2 px-4 font-mono">{formatNumber(data.totals.total_invoiced)}</td>
-                              <td className="text-right py-2 px-4 font-mono">{formatNumber(data.totals.total_bulk)}</td>
+                              <td className="text-right py-2 px-4 font-mono">{formatNumber(data.totals.total_quantity)}</td>
                               <td className="text-right py-2 px-4 font-mono">{formatCurrency(data.totals.total_amount)}</td>
                               <td className="text-right py-2 px-4 font-mono">{data.totals.total_entries}</td>
+                              <td className="text-right py-2 px-4 font-mono">{data.totals.kra_transmitted}</td>
+                              <td className="text-right py-2 px-4 font-mono">{data.totals.kra_skipped}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -612,12 +603,12 @@ export default function BulkSalesReportPage() {
                             <thead>
                               <tr className="bg-slate-100 border-y text-xs">
                                 <th className="text-left py-2 px-3 font-semibold whitespace-nowrap">DATE</th>
+                                <th className="text-left py-2 px-3 font-semibold whitespace-nowrap">INVOICE</th>
                                 <th className="text-left py-2 px-3 font-semibold whitespace-nowrap">NOZZLE</th>
                                 <th className="text-left py-2 px-3 font-semibold whitespace-nowrap">PRODUCT</th>
-                                <th className="text-right py-2 px-3 font-semibold whitespace-nowrap">METER DIFF</th>
-                                <th className="text-right py-2 px-3 font-semibold whitespace-nowrap">INVOICED</th>
-                                <th className="text-right py-2 px-3 font-semibold whitespace-nowrap">BULK</th>
+                                <th className="text-right py-2 px-3 font-semibold whitespace-nowrap">QUANTITY</th>
                                 <th className="text-right py-2 px-3 font-semibold whitespace-nowrap">AMOUNT</th>
+                                <th className="text-left py-2 px-3 font-semibold whitespace-nowrap">KRA STATUS</th>
                                 <th className="text-left py-2 px-3 font-semibold whitespace-nowrap">CASHIER</th>
                               </tr>
                             </thead>
@@ -625,12 +616,16 @@ export default function BulkSalesReportPage() {
                               {data.bulk_sales.map((bs) => (
                                 <tr key={bs.id} className="border-b hover:bg-slate-50">
                                   <td className="py-2 px-3 whitespace-nowrap">{formatDate(bs.created_at)}</td>
+                                  <td className="py-2 px-3 whitespace-nowrap text-xs">{bs.invoice_number}</td>
                                   <td className="py-2 px-3 whitespace-nowrap">{bs.nozzle_name || `D${bs.dispenser_number}-N${bs.nozzle_number}`}</td>
                                   <td className="py-2 px-3 whitespace-nowrap">{bs.item_name || bs.fuel_type}</td>
-                                  <td className="text-right py-2 px-3 font-mono whitespace-nowrap">{formatNumber(Number(bs.meter_difference))}</td>
-                                  <td className="text-right py-2 px-3 font-mono whitespace-nowrap">{formatNumber(Number(bs.invoiced_quantity))}</td>
-                                  <td className="text-right py-2 px-3 font-mono whitespace-nowrap">{formatNumber(Number(bs.bulk_quantity))}</td>
+                                  <td className="text-right py-2 px-3 font-mono whitespace-nowrap">{formatNumber(Number(bs.quantity))}</td>
                                   <td className="text-right py-2 px-3 font-mono whitespace-nowrap">{formatCurrency(Number(bs.total_amount))}</td>
+                                  <td className="py-2 px-3 whitespace-nowrap">
+                                    <span className={`px-2 py-0.5 rounded text-xs ${bs.kra_status === 'success' || bs.kra_status === 'transmitted' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                      {bs.kra_status || bs.transmission_status}
+                                    </span>
+                                  </td>
                                   <td className="py-2 px-3 whitespace-nowrap">{bs.cashier_name || '-'}</td>
                                 </tr>
                               ))}
