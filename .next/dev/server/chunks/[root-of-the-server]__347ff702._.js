@@ -328,11 +328,11 @@ async function PATCH(request) {
             ]);
             const shiftBranchId = shiftBranchResult.rows[0]?.branch_id;
             if (shiftBranchId) {
-                // Get all active nozzles for this branch
+                // Get all active nozzles with assigned tanks for this branch
                 const activeNozzlesResult = await client.query(`SELECT n.id, n.nozzle_number, i.item_name as fuel_type
            FROM nozzles n
            LEFT JOIN items i ON n.item_id = i.id
-           WHERE n.branch_id = $1 AND n.status = 'active'`, [
+           WHERE n.branch_id = $1 AND n.status = 'active' AND n.tank_id IS NOT NULL`, [
                     shiftBranchId
                 ]);
                 const activeNozzleIds = new Set(activeNozzlesResult.rows.map((n)=>n.id));
@@ -388,7 +388,8 @@ async function PATCH(request) {
         const branchName = currentShift.branch_name || 'BRN';
         const staffId = currentShift.staff_id;
         const endTimeValue = end_time || new Date().toISOString();
-        const nozzlesResult = await client.query(`SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1`, [
+        // Only include nozzles that have a tank assigned
+        const nozzlesResult = await client.query(`SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1 AND tank_id IS NOT NULL`, [
             branchId
         ]);
         const nozzleBaseReadings = {};
@@ -401,8 +402,11 @@ async function PATCH(request) {
             branchId
         ]);
         for (const r of prevNozzleReadings.rows){
-            if (!nozzleBaseReadings[r.nozzle_id] || parseFloat(r.closing_reading) > nozzleBaseReadings[r.nozzle_id]) {
-                nozzleBaseReadings[r.nozzle_id] = parseFloat(r.closing_reading);
+            // Only update baselines for nozzles that have a tank assigned (already in nozzleBaseReadings)
+            if (nozzleBaseReadings.hasOwnProperty(r.nozzle_id)) {
+                if (parseFloat(r.closing_reading) > nozzleBaseReadings[r.nozzle_id]) {
+                    nozzleBaseReadings[r.nozzle_id] = parseFloat(r.closing_reading);
+                }
             }
         }
         const tanksResult = await client.query(`SELECT id, current_stock FROM tanks WHERE branch_id = $1`, [
