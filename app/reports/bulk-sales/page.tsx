@@ -110,7 +110,7 @@ export default function BulkSalesReportPage() {
 
       if (result.success && result.data) {
         setData(result.data)
-        setIntermittencyRate(result.data.kra_percentage || 100)
+        setIntermittencyRate(result.data.kra_percentage ?? 100)
         setSplitDenominations(result.data.split_denominations !== false)
         setSavedSplitDenominations(result.data.split_denominations !== false)
         setCurrentPage(1)
@@ -150,18 +150,19 @@ export default function BulkSalesReportPage() {
       
       const result = await response.json()
       
-      if (result.success) {
+      if (response.ok && result.success) {
         setRateMessage(`Saved! ${intermittencyRate}% of bulk sales will be transmitted to KRA.`)
         if (data) {
           setData({ ...data, kra_percentage: intermittencyRate })
         }
         setTimeout(() => setRateMessage(null), 3000)
       } else {
-        setRateMessage(result.error || "Failed to save")
+        console.error("Failed to save intermittency rate:", result)
+        setRateMessage(`Failed: ${result.error || "Unknown error"}`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving intermittency rate:", error)
-      setRateMessage("Failed to save intermittency rate")
+      setRateMessage(`Failed: ${error.message || "Network error"}`)
     } finally {
       setSavingRate(false)
     }
