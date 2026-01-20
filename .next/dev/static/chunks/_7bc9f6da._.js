@@ -3230,8 +3230,8 @@ function EndShiftPage() {
         const openingStock = tankBaselines[tankId] || 0;
         const closingStock = parseFloat(tankStocks[tankId] || "0") || 0;
         const offloaded = parseFloat(tankStockReceived[tankId] || "0") || 0;
-        // Find nozzles linked to this tank (matching item_id)
-        const linkedNozzles = nozzles.filter((n)=>n.item_id === tank.item_id);
+        // Find nozzles linked to this tank (matching tank_id assignment)
+        const linkedNozzles = nozzles.filter((n)=>n.tank_id === tank.id);
         // Calculate total volume dispensed through linked nozzles
         let totalNozzleSales = 0;
         for (const nozzle of linkedNozzles){
