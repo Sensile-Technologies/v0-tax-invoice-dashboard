@@ -261,31 +261,7 @@ declare global {
     params: Promise<ParamMap[AppRouteHandlerRoute]>
   }
 }
-eset-password": {}
-  "/auth/sign-up": {}
-  "/auth/sign-up-success": {}
-  "/configuration/tax-service": {}
-  "/controller-logs": {}
-  "/customers": {}
-  "/headquarters": {}
-  "/headquarters/approvals": {}
-  "/headquarters/devices/assignment": {}
-  "/headquarters/devices/initialization": {}
-  "/headquarters/devices/inventory": {}
-  "/headquarters/inventory": {}
-  "/headquarters/items": {}
-  "/headquarters/items/add": {}
-  "/headquarters/purchase-orders": {}
-  "/headquarters/purchase-orders/create": {}
-  "/headquarters/roles": {}
-  "/headquarters/staff-management": {}
-  "/headquarters/suppliers": {}
-  "/headquarters/transporters": {}
-  "/imports": {}
-  "/inventory": {}
-  "/item-composition": {}
-  "/items": {}
-  "/logs": {}
+ogs": {}
   "/loyalty": {}
   "/payments": {}
   "/payments/running-balance": {}
@@ -316,7 +292,6 @@ eset-password": {}
   "/seed-staff-auth": {}
   "/setup-demo": {}
   "/staff": {}
-  "/vendor/branch/profile/logs": {}
 }
 
 
@@ -350,6 +325,33 @@ declare global {
    * Props for Next.js App Router layout components
    * @example
    * ```tsx
+   * export default function Layout(props: LayoutProps<'/dashboard'>) {
+   *   return <div>{props.children}</div>
+   * }
+   * ```
+   */
+  type LayoutProps<LayoutRoute extends LayoutRoutes> = {
+    params: Promise<ParamMap[LayoutRoute]>
+    children: React.ReactNode
+  } & {
+    [K in LayoutSlotMap[LayoutRoute]]: React.ReactNode
+  }
+
+  /**
+   * Context for Next.js App Router route handlers
+   * @example
+   * ```tsx
+   * export async function GET(request: NextRequest, context: RouteContext<'/api/users/[id]'>) {
+   *   const { id } = await context.params
+   *   return Response.json({ id })
+   * }
+   * ```
+   */
+  interface RouteContext<AppRouteHandlerRoute extends AppRouteHandlerRoutes> {
+    params: Promise<ParamMap[AppRouteHandlerRoute]>
+  }
+}
+`tsx
    * export default function Layout(props: LayoutProps<'/dashboard'>) {
    *   return <div>{props.children}</div>
    * }
