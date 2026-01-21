@@ -237,6 +237,33 @@ async function POST(request) {
             opening_cash || 0,
             notes || null
         ]);
+        const shiftId = result.rows[0].id;
+        // Record tank opening readings at shift start (capture current_stock as opening)
+        const tanksResult = await pool.query(`SELECT id, current_stock FROM tanks WHERE branch_id = $1`, [
+            branch_id
+        ]);
+        for (const tank of tanksResult.rows){
+            await pool.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, opening_reading)
+         VALUES ($1, $2, 'tank', $3, $4)`, [
+                shiftId,
+                branch_id,
+                tank.id,
+                parseFloat(tank.current_stock) || 0
+            ]);
+        }
+        // Record nozzle opening readings at shift start (capture initial_meter_reading)
+        const nozzlesResult = await pool.query(`SELECT id, initial_meter_reading FROM nozzles WHERE branch_id = $1 AND tank_id IS NOT NULL`, [
+            branch_id
+        ]);
+        for (const nozzle of nozzlesResult.rows){
+            await pool.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading)
+         VALUES ($1, $2, 'nozzle', $3, $4)`, [
+                shiftId,
+                branch_id,
+                nozzle.id,
+                parseFloat(nozzle.initial_meter_reading) || 0
+            ]);
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,
             data: result.rows[0]
@@ -409,12 +436,25 @@ async function PATCH(request) {
                 }
             }
         }
+        // Get tank opening readings from shift_readings (recorded at shift start)
+        // Fall back to tanks.current_stock for legacy shifts that started before this fix
+        const tankOpeningsResult = await client.query(`SELECT sr.tank_id, sr.opening_reading
+       FROM shift_readings sr
+       WHERE sr.shift_id = $1 AND sr.reading_type = 'tank' AND sr.tank_id IS NOT NULL`, [
+            id
+        ]);
+        const tankBaseStocks = {};
+        for (const r of tankOpeningsResult.rows){
+            tankBaseStocks[r.tank_id] = parseFloat(r.opening_reading) || 0;
+        }
+        // For legacy shifts without opening readings, fall back to current_stock
         const tanksResult = await client.query(`SELECT id, current_stock FROM tanks WHERE branch_id = $1`, [
             branchId
         ]);
-        const tankBaseStocks = {};
         for (const t of tanksResult.rows){
-            tankBaseStocks[t.id] = parseFloat(t.current_stock) || 0;
+            if (!tankBaseStocks.hasOwnProperty(t.id)) {
+                tankBaseStocks[t.id] = parseFloat(t.current_stock) || 0;
+            }
         }
         if (nozzle_readings && nozzle_readings.length > 0) {
             for (const reading of nozzle_readings){
@@ -443,9 +483,7 @@ async function PATCH(request) {
             id
         ]);
         const shift = result.rows[0];
-        await client.query(`DELETE FROM shift_readings WHERE shift_id = $1`, [
-            id
-        ]);
+        // Update nozzle readings - use UPSERT to preserve opening readings recorded at shift start
         const savedNozzleReadings = [];
         if (nozzle_readings && nozzle_readings.length > 0) {
             for (const reading of nozzle_readings){
@@ -456,19 +494,36 @@ async function PATCH(request) {
                     const rtt = parseFloat(reading.rtt) || 0;
                     const selfFueling = parseFloat(reading.self_fueling) || 0;
                     const prepaidSale = parseFloat(reading.prepaid_sale) || 0;
-                    await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading, outgoing_attendant_id, incoming_attendant_id, rtt, self_fueling, prepaid_sale)
-             VALUES ($1, $2, 'nozzle', $3, $4, $5, $6, $7, $8, $9, $10)`, [
-                        id,
-                        branchId,
-                        reading.nozzle_id,
-                        openingReading,
+                    // Try to update existing record first, then insert if none exists
+                    const updateResult = await client.query(`UPDATE shift_readings 
+             SET closing_reading = $1, outgoing_attendant_id = $2, incoming_attendant_id = $3, 
+                 rtt = $4, self_fueling = $5, prepaid_sale = $6
+             WHERE shift_id = $7 AND nozzle_id = $8 AND reading_type = 'nozzle'
+             RETURNING id`, [
                         reading.closing_reading,
                         outgoingAttendantId,
                         incomingAttendantId,
                         rtt,
                         selfFueling,
-                        prepaidSale
+                        prepaidSale,
+                        id,
+                        reading.nozzle_id
                     ]);
+                    if (updateResult.rows.length === 0) {
+                        await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, nozzle_id, opening_reading, closing_reading, outgoing_attendant_id, incoming_attendant_id, rtt, self_fueling, prepaid_sale)
+               VALUES ($1, $2, 'nozzle', $3, $4, $5, $6, $7, $8, $9, $10)`, [
+                            id,
+                            branchId,
+                            reading.nozzle_id,
+                            openingReading,
+                            reading.closing_reading,
+                            outgoingAttendantId,
+                            incomingAttendantId,
+                            rtt,
+                            selfFueling,
+                            prepaidSale
+                        ]);
+                    }
                     savedNozzleReadings.push({
                         nozzle_id: reading.nozzle_id,
                         opening_reading: openingReading,
@@ -498,15 +553,27 @@ async function PATCH(request) {
                 if (stock.tank_id && !isNaN(closingStock)) {
                     const openingStock = tankBaseStocks[stock.tank_id] || 0;
                     const stockReceived = stock.stock_received || 0;
-                    await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, opening_reading, closing_reading, stock_received)
-             VALUES ($1, $2, 'tank', $3, $4, $5, $6)`, [
-                        id,
-                        branchId,
-                        stock.tank_id,
-                        openingStock,
+                    // Try to update existing record first, then insert if none exists
+                    const updateResult = await client.query(`UPDATE shift_readings 
+             SET closing_reading = $1, stock_received = $2
+             WHERE shift_id = $3 AND tank_id = $4 AND reading_type = 'tank'
+             RETURNING id`, [
                         closingStock,
-                        stockReceived
+                        stockReceived,
+                        id,
+                        stock.tank_id
                     ]);
+                    if (updateResult.rows.length === 0) {
+                        await client.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, opening_reading, closing_reading, stock_received)
+               VALUES ($1, $2, 'tank', $3, $4, $5, $6)`, [
+                            id,
+                            branchId,
+                            stock.tank_id,
+                            openingStock,
+                            closingStock,
+                            stockReceived
+                        ]);
+                    }
                     await client.query(`UPDATE tanks SET current_stock = $1, updated_at = NOW() WHERE id = $2`, [
                         closingStock,
                         stock.tank_id
