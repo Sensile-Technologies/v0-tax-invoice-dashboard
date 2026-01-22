@@ -286,12 +286,12 @@ export async function POST(request: Request) {
           [branch_id]
         )
         const earningRules = earningRulesResult.rows[0] || {}
-        // Use nullish coalescing (??) not OR (||) to allow 0 values - CRITICAL bug pattern
+        // Use nullish coalescing BEFORE Number() - Number(null) returns NaN, not null!
         const earnType = earningRules.loyalty_earn_type ?? 'per_amount'
-        const pointsPerLitre = Number(earningRules.loyalty_points_per_litre) ?? 1
-        const pointsPerAmount = Number(earningRules.loyalty_points_per_amount) ?? 1
+        const pointsPerLitre = Number(earningRules.loyalty_points_per_litre ?? 1)
+        const pointsPerAmount = Number(earningRules.loyalty_points_per_amount ?? 1)
         // Threshold must be at least 1 to prevent division by zero
-        const amountThreshold = Math.max(1, Number(earningRules.loyalty_amount_threshold) ?? 100)
+        const amountThreshold = Math.max(1, Number(earningRules.loyalty_amount_threshold ?? 100))
         
         // Calculate points based on earning type
         let pointsEarned: number
