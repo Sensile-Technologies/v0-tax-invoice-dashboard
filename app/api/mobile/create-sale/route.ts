@@ -302,7 +302,7 @@ export async function POST(request: Request) {
       await client.query('COMMIT')
 
       const branchResult = await client.query(
-        `SELECT name, address, phone, kra_pin, bhf_id FROM branches WHERE id = $1`,
+        `SELECT name, address, phone, kra_pin, bhf_id, server_address FROM branches WHERE id = $1`,
         [branch_id]
       )
       const branchData = branchResult.rows[0] || {}
@@ -317,7 +317,8 @@ export async function POST(request: Request) {
       )
       const itemCode = itemResult.rows[0]?.item_code || null
 
-      console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
+      // Check if branch has KRA configured (server_address must be set)
+      const kraConfigured = !!(branchData.server_address && branchData.server_address.trim())
       
       // For loyalty customers, look up their KRA PIN from the customers table if not provided
       // Priority: kra_pin (from request) -> loyalty_customer_pin (explicit field) -> DB lookup
@@ -340,6 +341,50 @@ export async function POST(request: Request) {
         }
       }
       
+      // If KRA is not configured for this branch, skip KRA transmission
+      if (!kraConfigured) {
+        console.log("[Mobile Create Sale] Branch has no KRA server configured, skipping KRA transmission")
+        
+        await client.query(
+          `UPDATE sales SET 
+            kra_status = 'not_required',
+            customer_pin = COALESCE(customer_pin, $2::text),
+            loyalty_customer_pin = CASE WHEN is_loyalty_sale THEN COALESCE(loyalty_customer_pin, $2::text) ELSE loyalty_customer_pin END,
+            updated_at = NOW()
+          WHERE id = $1`,
+          [sale.id, effectiveCustomerPin || null]
+        )
+
+        return NextResponse.json({
+          success: true,
+          sale_id: sale.id,
+          sale: { ...sale, kra_status: 'not_required' },
+          invoice_number: invoiceNumber,
+          receipt_number: receiptNumber,
+          kra_response: null,
+          kra_success: false,
+          kra_not_configured: true,
+          print_data: {
+            invoice_number: invoiceNumber,
+            receipt_no: receiptNumber,
+            cu_serial_number: null,
+            cu_invoice_no: null,
+            intrl_data: null,
+            branch_name: branchData.name || null,
+            branch_address: branchData.address || null,
+            branch_phone: branchData.phone || null,
+            branch_pin: branchData.kra_pin || null,
+            item_code: itemCode,
+            receipt_signature: null,
+            bhf_id: branchData.bhf_id || null,
+            customer_name: effectiveCustomerName,
+            customer_pin: effectiveCustomerPin || null,
+            is_loyalty_customer: is_loyalty_customer || false,
+          }
+        })
+      }
+      
+      console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...")
       console.log(`[Mobile Create Sale] is_loyalty_customer: ${is_loyalty_customer}, customer_pin for KRA: ${effectiveCustomerPin}`)
       
       const kraResult = await callKraSaveSales({
