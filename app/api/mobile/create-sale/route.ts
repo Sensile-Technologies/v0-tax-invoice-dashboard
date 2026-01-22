@@ -278,7 +278,30 @@ export async function POST(request: Request) {
       if (is_loyalty_customer) {
         const loyaltyCustomerName = loyalty_customer_name || customer_name || 'Walk-in Customer'
         const loyaltyCustomerPin = loyalty_customer_pin || kra_pin || ''
-        const pointsEarned = Math.floor(total_amount / 100) // 1 point per 100 KES
+        
+        // Fetch branch earning rules for points calculation
+        const earningRulesResult = await client.query(
+          `SELECT loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold
+           FROM branches WHERE id = $1`,
+          [branch_id]
+        )
+        const earningRules = earningRulesResult.rows[0] || {}
+        // Use nullish coalescing (??) not OR (||) to allow 0 values - CRITICAL bug pattern
+        const earnType = earningRules.loyalty_earn_type ?? 'per_amount'
+        const pointsPerLitre = Number(earningRules.loyalty_points_per_litre) ?? 1
+        const pointsPerAmount = Number(earningRules.loyalty_points_per_amount) ?? 1
+        // Threshold must be at least 1 to prevent division by zero
+        const amountThreshold = Math.max(1, Number(earningRules.loyalty_amount_threshold) ?? 100)
+        
+        // Calculate points based on earning type
+        let pointsEarned: number
+        if (earnType === 'per_litre') {
+          // Points per litre of fuel purchased
+          pointsEarned = Math.floor(correctQuantity * pointsPerLitre)
+        } else {
+          // Points per amount spent (default) - safe division with threshold >= 1
+          pointsEarned = Math.floor(total_amount / amountThreshold) * pointsPerAmount
+        }
         
         await client.query(
           `INSERT INTO loyalty_transactions 

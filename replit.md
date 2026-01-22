@@ -35,6 +35,13 @@ Key architectural decisions and features include:
 - **EAS (Expo Application Services)**: Used for building and configuring the mobile app APK.
 - **Twilio WhatsApp API**: Used for sending DSSR (Daily Sales Summary Reports) to directors via WhatsApp when branches reconcile shifts. Configured via environment secrets (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER). Director phone numbers are stored in the `branches.whatsapp_directors` JSONB column and managed per-branch via Explore Tuzwa → Earning Rules tab.
 
+## Loyalty Earning Rules
+Loyalty points earning is configurable per-branch via Explore Tuzwa → Earning Rules tab. Two methods are supported:
+- **Per Litre**: Points calculated as `quantity × points_per_litre`. Example: 50L × 2 points/litre = 100 points.
+- **Per Amount Spent** (default): Points calculated as `floor(amount / threshold) × points_per_amount`. Example: KES 5000 / 100 threshold × 1 point = 50 points.
+
+Configuration is stored in `branches` table columns: `loyalty_earn_type`, `loyalty_points_per_litre`, `loyalty_points_per_amount`, `loyalty_amount_threshold`. The amount threshold is always >= 1 to prevent division by zero.
+
 ## Default Account Setup
 All vendors automatically receive the following default accounts:
 - **Expense Accounts**: "Petty Cash" (for petty cash expenses), "Genset" (for generator fuel and maintenance)

@@ -25,18 +25,6 @@ const loyaltyData = [
 
 
 
-const earningRules = [
-  { id: 1, rule: "Purchase", description: "Earn 1 point per KES 100 spent", multiplier: "1x", status: "Active" },
-  {
-    id: 2,
-    rule: "Referral",
-    description: "Earn 500 points per successful referral",
-    multiplier: "5x",
-    status: "Active",
-  },
-  { id: 3, rule: "Birthday", description: "Double points on birthday month", multiplier: "2x", status: "Active" },
-  { id: 4, rule: "Review", description: "Earn 100 points for product review", multiplier: "1x", status: "Active" },
-]
 
 export default function LoyaltyPage() {
   const [collapsed, setCollapsed] = useState(false)
@@ -62,6 +50,16 @@ export default function LoyaltyPage() {
   const [newPhoneNumber, setNewPhoneNumber] = useState("")
   const [savingWhatsapp, setSavingWhatsapp] = useState(false)
   const [loadingWhatsapp, setLoadingWhatsapp] = useState(false)
+  
+  // Earning Rules state
+  const [earningRulesConfig, setEarningRulesConfig] = useState({
+    loyalty_earn_type: 'per_amount' as 'per_litre' | 'per_amount',
+    loyalty_points_per_litre: 1,
+    loyalty_points_per_amount: 1,
+    loyalty_amount_threshold: 100
+  })
+  const [loadingEarningRules, setLoadingEarningRules] = useState(false)
+  const [savingEarningRules, setSavingEarningRules] = useState(false)
 
   // Calculate environmental impact metrics from real loyalty transaction data
   // Formulas based on fuel industry standards:
@@ -248,6 +246,60 @@ export default function LoyaltyPage() {
       toast({ title: "Error", description: "Failed to save settings", variant: "destructive" })
     } finally {
       setSavingWhatsapp(false)
+    }
+  }
+
+  // Fetch earning rules when branch changes
+  useEffect(() => {
+    const fetchEarningRules = async () => {
+      if (!branchId) return
+      setLoadingEarningRules(true)
+      try {
+        const response = await fetch(`/api/branches/earning-rules?branch_id=${branchId}`, {
+          credentials: "include"
+        })
+        const data = await response.json()
+        if (data.success && data.data) {
+          // Use nullish coalescing (??) not OR (||) - CRITICAL bug pattern
+          setEarningRulesConfig({
+            loyalty_earn_type: data.data.loyalty_earn_type ?? 'per_amount',
+            loyalty_points_per_litre: Number(data.data.loyalty_points_per_litre ?? 1),
+            loyalty_points_per_amount: Number(data.data.loyalty_points_per_amount ?? 1),
+            loyalty_amount_threshold: Math.max(1, Number(data.data.loyalty_amount_threshold ?? 100))
+          })
+        }
+      } catch (error) {
+        console.error("Failed to fetch earning rules:", error)
+      } finally {
+        setLoadingEarningRules(false)
+      }
+    }
+    fetchEarningRules()
+  }, [branchId])
+
+  const saveEarningRules = async () => {
+    if (!branchId) return
+    setSavingEarningRules(true)
+    try {
+      const response = await fetch("/api/branches/earning-rules", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          branch_id: branchId,
+          ...earningRulesConfig
+        })
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast({ title: "Saved", description: "Earning rules updated successfully" })
+      } else {
+        toast({ title: "Error", description: data.error, variant: "destructive" })
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to save earning rules", variant: "destructive" })
+    } finally {
+      setSavingEarningRules(false)
     }
   }
 
@@ -621,53 +673,125 @@ export default function LoyaltyPage() {
               <TabsContent value="rules" className="space-y-4">
                 <Card className="rounded-2xl">
                   <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Earning Rules Configuration</CardTitle>
-                        <CardDescription>Define how customers earn loyalty points</CardDescription>
-                      </div>
-                      <Button className="rounded-xl bg-green-500 hover:bg-green-600 hover:shadow-lg transition-all">
-                        Add New Rule
-                      </Button>
+                    <div>
+                      <CardTitle>Earning Rules Configuration</CardTitle>
+                      <CardDescription>Define how customers earn loyalty points at this branch</CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="rounded-xl border">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b bg-muted/50">
-                            <th className="p-3 text-left text-sm font-medium">Rule</th>
-                            <th className="p-3 text-left text-sm font-medium">Description</th>
-                            <th className="p-3 text-left text-sm font-medium">Multiplier</th>
-                            <th className="p-3 text-left text-sm font-medium">Status</th>
-                            <th className="p-3 text-left text-sm font-medium">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {earningRules.map((rule) => (
-                            <tr key={rule.id} className="border-b hover:bg-muted/50 transition-colors">
-                              <td className="p-3 font-medium">{rule.rule}</td>
-                              <td className="p-3 text-muted-foreground">{rule.description}</td>
-                              <td className="p-3">
-                                <Badge className="rounded-full bg-blue-100 text-blue-800">{rule.multiplier}</Badge>
-                              </td>
-                              <td className="p-3">
-                                <Badge className="rounded-full bg-green-100 text-green-800">{rule.status}</Badge>
-                              </td>
-                              <td className="p-3">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="rounded-lg hover:bg-gray-100 transition-colors"
-                                >
-                                  Edit
-                                </Button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    {loadingEarningRules ? (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <label className="text-sm font-medium">Points Earning Method</label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              type="button"
+                              onClick={() => setEarningRulesConfig(prev => ({ ...prev, loyalty_earn_type: 'per_litre' }))}
+                              className={`p-4 rounded-xl border-2 transition-all text-left ${
+                                earningRulesConfig.loyalty_earn_type === 'per_litre'
+                                  ? 'border-green-500 bg-green-50'
+                                  : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                            >
+                              <div className="font-medium">Per Litre</div>
+                              <div className="text-sm text-muted-foreground">Earn points based on fuel volume purchased</div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEarningRulesConfig(prev => ({ ...prev, loyalty_earn_type: 'per_amount' }))}
+                              className={`p-4 rounded-xl border-2 transition-all text-left ${
+                                earningRulesConfig.loyalty_earn_type === 'per_amount'
+                                  ? 'border-green-500 bg-green-50'
+                                  : 'border-gray-200 hover:border-gray-300'
+                              }`}
+                            >
+                              <div className="font-medium">Per Amount Spent</div>
+                              <div className="text-sm text-muted-foreground">Earn points based on money spent</div>
+                            </button>
+                          </div>
+                        </div>
+
+                        {earningRulesConfig.loyalty_earn_type === 'per_litre' ? (
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Points per Litre</label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={earningRulesConfig.loyalty_points_per_litre}
+                                onChange={(e) => setEarningRulesConfig(prev => ({
+                                  ...prev,
+                                  loyalty_points_per_litre: parseFloat(e.target.value) || 0
+                                }))}
+                                className="w-32 rounded-xl"
+                              />
+                              <span className="text-sm text-muted-foreground">points per litre purchased</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Example: If set to 2, a 50L purchase earns 100 points
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium">Points Earned</label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.1"
+                                  value={earningRulesConfig.loyalty_points_per_amount}
+                                  onChange={(e) => setEarningRulesConfig(prev => ({
+                                    ...prev,
+                                    loyalty_points_per_amount: parseFloat(e.target.value) || 0
+                                  }))}
+                                  className="rounded-xl"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <label className="text-sm font-medium">Per Amount ({formatCurrency(earningRulesConfig.loyalty_amount_threshold).split(' ')[0]})</label>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  step="1"
+                                  value={earningRulesConfig.loyalty_amount_threshold}
+                                  onChange={(e) => setEarningRulesConfig(prev => ({
+                                    ...prev,
+                                    loyalty_amount_threshold: Math.max(1, parseFloat(e.target.value) || 1)
+                                  }))}
+                                  className="rounded-xl"
+                                />
+                              </div>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              Example: Earn {earningRulesConfig.loyalty_points_per_amount} point(s) for every {formatCurrency(earningRulesConfig.loyalty_amount_threshold)} spent
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="pt-4 border-t">
+                          <Button
+                            onClick={saveEarningRules}
+                            disabled={savingEarningRules}
+                            className="rounded-xl bg-green-500 hover:bg-green-600 hover:shadow-lg transition-all"
+                          >
+                            {savingEarningRules ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              "Save Earning Rules"
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
