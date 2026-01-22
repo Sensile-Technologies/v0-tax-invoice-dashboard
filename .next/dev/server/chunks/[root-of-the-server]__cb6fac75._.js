@@ -943,29 +943,28 @@ async function callKraSaveSales(saleData) {
             externalEndpoint: kraEndpoint
         });
         if (isSuccess) {
-            console.log(`[KRA Sales API] saveSales successful, now syncing stock with KRA`);
-            try {
-                const stockSyncResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$sync$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["syncStockAfterSale"])(saleData.branch_id, [
-                    {
-                        itemCode: itemCd,
-                        itemClassCode: itemClsCd,
-                        itemName: itemNm,
-                        packageUnit: pkgUnitCd,
-                        quantityUnit: qtyUnitCd,
-                        quantity: qty,
-                        unitPrice: prc,
-                        taxType: taxTyCd
-                    }
-                ]);
-                if (stockSyncResult.success) {
+            console.log(`[KRA Sales API] saveSales successful, syncing stock in background`);
+            // OPTIMIZATION: Run stock sync in background (fire-and-forget) for faster response
+            (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$stock$2d$sync$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["syncStockAfterSale"])(saleData.branch_id, [
+                {
+                    itemCode: itemCd,
+                    itemClassCode: itemClsCd,
+                    itemName: itemNm,
+                    packageUnit: pkgUnitCd,
+                    quantityUnit: qtyUnitCd,
+                    quantity: qty,
+                    unitPrice: prc,
+                    taxType: taxTyCd
+                }
+            ]).then((result)=>{
+                if (result.success) {
                     console.log(`[KRA Sales API] Stock sync completed successfully`);
                 } else {
-                    console.log(`[KRA Sales API] Stock sync failed: ${stockSyncResult.error}`);
+                    console.log(`[KRA Sales API] Stock sync failed: ${result.error}`);
                 }
-            } catch (stockError) {
-                console.error(`[KRA Sales API] Error during stock sync:`, stockError.message);
-            }
+            }).catch((err)=>console.error(`[KRA Sales API] Error during stock sync:`, err.message));
         }
+        // Return immediately - stock sync happens in background
         return {
             success: isSuccess,
             kraResponse
@@ -1484,7 +1483,7 @@ async function POST(request) {
                 console.log(`[Mobile Create Sale] Created loyalty_transaction for sale ${sale.id}, points: ${pointsEarned}`);
             }
             await client.query('COMMIT');
-            const branchResult = await client.query(`SELECT name, address, phone, kra_pin, bhf_id FROM branches WHERE id = $1`, [
+            const branchResult = await client.query(`SELECT name, address, phone, kra_pin, bhf_id, server_address FROM branches WHERE id = $1`, [
                 branch_id
             ]);
             const branchData = branchResult.rows[0] || {};
@@ -1497,7 +1496,8 @@ async function POST(request) {
                 `%${fuel_type}%`
             ]);
             const itemCode = itemResult.rows[0]?.item_code || null;
-            console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...");
+            // Check if branch has KRA configured (server_address must be set)
+            const kraConfigured = !!(branchData.server_address && branchData.server_address.trim());
             // For loyalty customers, look up their KRA PIN from the customers table if not provided
             // Priority: kra_pin (from request) -> loyalty_customer_pin (explicit field) -> DB lookup
             let effectiveCustomerPin = kra_pin || loyalty_customer_pin || '';
@@ -1517,6 +1517,50 @@ async function POST(request) {
                     console.log(`[Mobile Create Sale] Found loyalty customer PIN from DB: ${effectiveCustomerPin}`);
                 }
             }
+            // If KRA is not configured for this branch, skip KRA transmission
+            if (!kraConfigured) {
+                console.log("[Mobile Create Sale] Branch has no KRA server configured, skipping KRA transmission");
+                await client.query(`UPDATE sales SET 
+            kra_status = 'not_required',
+            customer_pin = COALESCE(customer_pin, $2::text),
+            loyalty_customer_pin = CASE WHEN is_loyalty_sale THEN COALESCE(loyalty_customer_pin, $2::text) ELSE loyalty_customer_pin END,
+            updated_at = NOW()
+          WHERE id = $1`, [
+                    sale.id,
+                    effectiveCustomerPin || null
+                ]);
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: true,
+                    sale_id: sale.id,
+                    sale: {
+                        ...sale,
+                        kra_status: 'not_required'
+                    },
+                    invoice_number: invoiceNumber,
+                    receipt_number: receiptNumber,
+                    kra_response: null,
+                    kra_success: false,
+                    kra_not_configured: true,
+                    print_data: {
+                        invoice_number: invoiceNumber,
+                        receipt_no: receiptNumber,
+                        cu_serial_number: null,
+                        cu_invoice_no: null,
+                        intrl_data: null,
+                        branch_name: branchData.name || null,
+                        branch_address: branchData.address || null,
+                        branch_phone: branchData.phone || null,
+                        branch_pin: branchData.kra_pin || null,
+                        item_code: itemCode,
+                        receipt_signature: null,
+                        bhf_id: branchData.bhf_id || null,
+                        customer_name: effectiveCustomerName,
+                        customer_pin: effectiveCustomerPin || null,
+                        is_loyalty_customer: is_loyalty_customer || false
+                    }
+                });
+            }
+            console.log("[Mobile Create Sale] Sale created successfully, calling KRA endpoint...");
             console.log(`[Mobile Create Sale] is_loyalty_customer: ${is_loyalty_customer}, customer_pin for KRA: ${effectiveCustomerPin}`);
             const kraResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$sales$2d$api$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["callKraSaveSales"])({
                 branch_id,
