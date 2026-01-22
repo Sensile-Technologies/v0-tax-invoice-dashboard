@@ -170,6 +170,35 @@ async function PUT(request) {
                 status: 400
             });
         }
+        // Validate numeric values - use nullish coalescing (??) not OR (||) to allow 0 values
+        const pointsPerLitre = Number(loyalty_points_per_litre ?? 1);
+        const pointsPerAmount = Number(loyalty_points_per_amount ?? 1);
+        const amountThreshold = Number(loyalty_amount_threshold ?? 100);
+        // Validate: points must be >= 0, threshold must be >= 1 to avoid division by zero
+        if (pointsPerLitre < 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Points per litre must be 0 or greater"
+            }, {
+                status: 400
+            });
+        }
+        if (pointsPerAmount < 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Points per amount must be 0 or greater"
+            }, {
+                status: 400
+            });
+        }
+        if (amountThreshold < 1) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Amount threshold must be at least 1"
+            }, {
+                status: 400
+            });
+        }
         const result = await pool.query(`UPDATE branches SET
         loyalty_earn_type = $1,
         loyalty_points_per_litre = $2,
@@ -179,9 +208,9 @@ async function PUT(request) {
       WHERE id = $5
       RETURNING id, name, loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold`, [
             loyalty_earn_type,
-            loyalty_points_per_litre || 1,
-            loyalty_points_per_amount || 1,
-            loyalty_amount_threshold || 100,
+            pointsPerLitre,
+            pointsPerAmount,
+            amountThreshold,
             branch_id
         ]);
         if (result.rows.length === 0) {
