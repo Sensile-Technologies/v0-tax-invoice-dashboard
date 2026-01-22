@@ -139,6 +139,7 @@ export default function BranchItemPricing() {
         const response = await fetch("/api/branch-items", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             branchItemId: selectedItem.branch_item_id,
             salePrice: parseFloat(priceForm.salePrice),
@@ -159,6 +160,7 @@ export default function BranchItemPricing() {
         const response = await fetch("/api/branch-items", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             branchId,
             itemId: selectedItem.item_id,
@@ -193,7 +195,8 @@ export default function BranchItemPricing() {
 
     try {
       const response = await fetch(`/api/branch-items?id=${item.branch_item_id}`, {
-        method: "DELETE"
+        method: "DELETE",
+        credentials: "include"
       })
 
       const result = await response.json()
