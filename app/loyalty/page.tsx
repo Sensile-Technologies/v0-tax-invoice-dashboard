@@ -470,12 +470,10 @@ export default function LoyaltyPage() {
                 <TabsTrigger value="impact" className="rounded-lg">
                   Impact Tracker
                 </TabsTrigger>
-                {(userRole === 'director' || userRole === 'vendor') && (
-                  <TabsTrigger value="redemptions" className="rounded-lg">
-                    <Gift className="h-4 w-4 mr-1" />
-                    Bulk Redemption
-                  </TabsTrigger>
-                )}
+                <TabsTrigger value="redemptions" className="rounded-lg">
+                  <Gift className="h-4 w-4 mr-1" />
+                  Bulk Redemption
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="customers" className="space-y-4">
@@ -1082,9 +1080,8 @@ export default function LoyaltyPage() {
                 </Card>
               </TabsContent>
 
-              {/* Bulk Redemption - Directors Only */}
-              {(userRole === 'director' || userRole === 'vendor') && (
-                <TabsContent value="redemptions" className="space-y-4">
+              {/* Bulk Redemption */}
+              <TabsContent value="redemptions" className="space-y-4">
                   <Card className="rounded-2xl">
                     <CardHeader>
                       <div className="flex items-center gap-3">
@@ -1265,7 +1262,6 @@ export default function LoyaltyPage() {
                     </CardContent>
                   </Card>
                 </TabsContent>
-              )}
             </Tabs>
 
             <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-navy-900">
