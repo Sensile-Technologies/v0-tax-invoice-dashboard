@@ -74,4 +74,18 @@ All vendors automatically receive the following default accounts:
 - **Expense Accounts**: "Petty Cash" (for petty cash expenses), "Genset" (for generator fuel and maintenance)
 - **Banking Accounts**: "Cash Drop" (marked as default for shift banking activities)
 
-Run `migrations/seed-default-accounts.sql` in production to seed these defaults for all existing vendors. New vendors will need these accounts created manually via the Accounting → Collections page.
+Run `migrations/002_seed_default_accounts.sql` in production to seed these defaults for all existing vendors. New vendors will need these accounts created manually via the Accounting → Collections page.
+
+## Database Migrations
+Migration scripts are located in the `/migrations` directory:
+- `001_full_schema.sql` - Complete database schema for fresh installations
+- `002_seed_default_accounts.sql` - Seeds default expense and banking accounts for all vendors
+
+### Purchase Order Variance Formula
+```
+Total Variance = (Tank Variance + Meter Variance) - Bowser Volume
+```
+- **Tank Variance**: Sum of (Volume After - Volume Before) for each tank
+- **Meter Variance**: Sum of nozzle readings if provided, otherwise dispenser readings
+- **Positive variance**: Surplus (received more than declared)
+- **Negative variance**: Shortage (received less than declared)

@@ -9,6 +9,7 @@
   "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
   "/api/loyalty-transactions/route": "app/api/loyalty-transactions/route.js",
+  "/api/loyalty/bulk-redeem/route": "app/api/loyalty/bulk-redeem/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
   "/api/reports/dssr/route": "app/api/reports/dssr/route.js",
   "/api/sales/route": "app/api/sales/route.js",
