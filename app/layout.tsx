@@ -16,9 +16,15 @@ export const metadata: Metadata = {
   title: "Flow360 - Tax Invoice Management",
   description: "Professional tax invoice management system powered by Sensile Technologies East Africa Ltd",
   generator: "v0.app",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Flow360",
+  },
   icons: {
     icon: "/favicon.png",
-    apple: "/favicon.png",
+    apple: "/apple-icon.png",
   },
 }
 
