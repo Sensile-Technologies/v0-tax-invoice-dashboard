@@ -3165,7 +3165,10 @@ function LoyaltyPage() {
         loyalty_earn_type: 'per_amount',
         loyalty_points_per_litre: 1,
         loyalty_points_per_amount: 1,
-        loyalty_amount_threshold: 100
+        loyalty_amount_threshold: 100,
+        redemption_points_per_ksh: 1,
+        min_redemption_points: 100,
+        max_redemption_percent: 50
     });
     const [loadingEarningRules, setLoadingEarningRules] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [savingEarningRules, setSavingEarningRules] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -3429,7 +3432,10 @@ function LoyaltyPage() {
                                 loyalty_earn_type: data.data.loyalty_earn_type ?? 'per_amount',
                                 loyalty_points_per_litre: Number(data.data.loyalty_points_per_litre ?? 1),
                                 loyalty_points_per_amount: Number(data.data.loyalty_points_per_amount ?? 1),
-                                loyalty_amount_threshold: Math.max(1, Number(data.data.loyalty_amount_threshold ?? 100))
+                                loyalty_amount_threshold: Math.max(1, Number(data.data.loyalty_amount_threshold ?? 100)),
+                                redemption_points_per_ksh: Number(data.data.redemption_points_per_ksh ?? 1),
+                                min_redemption_points: Number(data.data.min_redemption_points ?? 100),
+                                max_redemption_percent: Number(data.data.max_redemption_percent ?? 50)
                             });
                         }
                     } catch (error) {
@@ -3501,7 +3507,7 @@ function LoyaltyPage() {
                 }
             }, void 0, false, {
                 fileName: "[project]/app/loyalty/page.tsx",
-                lineNumber: 316,
+                lineNumber: 322,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3514,12 +3520,12 @@ function LoyaltyPage() {
                     onMobileClose: ()=>setMobileMenuOpen(false)
                 }, void 0, false, {
                     fileName: "[project]/app/loyalty/page.tsx",
-                    lineNumber: 327,
+                    lineNumber: 333,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/loyalty/page.tsx",
-                lineNumber: 326,
+                lineNumber: 332,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3531,7 +3537,7 @@ function LoyaltyPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/loyalty/page.tsx",
-                            lineNumber: 338,
+                            lineNumber: 344,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -3551,12 +3557,12 @@ function LoyaltyPage() {
                                                             className: "h-5 w-5 md:h-6 md:w-6 text-white"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 345,
+                                                            lineNumber: 351,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 344,
+                                                        lineNumber: 350,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3566,7 +3572,7 @@ function LoyaltyPage() {
                                                                 children: "Tuzwa Loyalty Program"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 348,
+                                                                lineNumber: 354,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3574,19 +3580,19 @@ function LoyaltyPage() {
                                                                 children: "Manage rewards, track engagement, and grow customer loyalty"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 349,
+                                                                lineNumber: 355,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 347,
+                                                        lineNumber: 353,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 343,
+                                                lineNumber: 349,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3596,7 +3602,7 @@ function LoyaltyPage() {
                                                         className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 355,
+                                                        lineNumber: 361,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -3610,19 +3616,19 @@ function LoyaltyPage() {
                                                         className: "pl-9 rounded-xl"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 356,
+                                                        lineNumber: 362,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 354,
+                                                lineNumber: 360,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/loyalty/page.tsx",
-                                        lineNumber: 342,
+                                        lineNumber: 348,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3641,7 +3647,7 @@ function LoyaltyPage() {
                                                                     children: "Total Points Issued"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 373,
+                                                                    lineNumber: 379,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3650,23 +3656,23 @@ function LoyaltyPage() {
                                                                         className: "h-5 w-5 text-green-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 375,
+                                                                        lineNumber: 381,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 374,
+                                                                    lineNumber: 380,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 372,
+                                                            lineNumber: 378,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 371,
+                                                        lineNumber: 377,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3676,7 +3682,7 @@ function LoyaltyPage() {
                                                                 children: totalPointsIssued.toFixed(0)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 380,
+                                                                lineNumber: 386,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3684,19 +3690,19 @@ function LoyaltyPage() {
                                                                 children: "Total loyalty points earned"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 381,
+                                                                lineNumber: 387,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 379,
+                                                        lineNumber: 385,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 370,
+                                                lineNumber: 376,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3712,7 +3718,7 @@ function LoyaltyPage() {
                                                                     children: "Active Members"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 388,
+                                                                    lineNumber: 394,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3721,23 +3727,23 @@ function LoyaltyPage() {
                                                                         className: "h-5 w-5 text-blue-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 390,
+                                                                        lineNumber: 396,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 389,
+                                                                    lineNumber: 395,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 387,
+                                                            lineNumber: 393,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 386,
+                                                        lineNumber: 392,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3747,7 +3753,7 @@ function LoyaltyPage() {
                                                                 children: uniqueCustomers
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 395,
+                                                                lineNumber: 401,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3755,19 +3761,19 @@ function LoyaltyPage() {
                                                                 children: "Unique loyalty customers"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 396,
+                                                                lineNumber: 402,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 394,
+                                                        lineNumber: 400,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 385,
+                                                lineNumber: 391,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3783,7 +3789,7 @@ function LoyaltyPage() {
                                                                     children: "Revenue Impact"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 403,
+                                                                    lineNumber: 409,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3792,23 +3798,23 @@ function LoyaltyPage() {
                                                                         className: "h-5 w-5 text-purple-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 405,
+                                                                        lineNumber: 411,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 404,
+                                                                    lineNumber: 410,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 402,
+                                                            lineNumber: 408,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 401,
+                                                        lineNumber: 407,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3818,7 +3824,7 @@ function LoyaltyPage() {
                                                                 children: formatCurrency(totalRevenue)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 410,
+                                                                lineNumber: 416,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3826,19 +3832,19 @@ function LoyaltyPage() {
                                                                 children: "From loyalty sales"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 411,
+                                                                lineNumber: 417,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 409,
+                                                        lineNumber: 415,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 400,
+                                                lineNumber: 406,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -3854,7 +3860,7 @@ function LoyaltyPage() {
                                                                     children: "Avg Points/Sale"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 418,
+                                                                    lineNumber: 424,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3863,23 +3869,23 @@ function LoyaltyPage() {
                                                                         className: "h-5 w-5 text-orange-600"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 420,
+                                                                        lineNumber: 426,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 419,
+                                                                    lineNumber: 425,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 417,
+                                                            lineNumber: 423,
                                                             columnNumber: 19
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 416,
+                                                        lineNumber: 422,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -3889,7 +3895,7 @@ function LoyaltyPage() {
                                                                 children: transactionsPagination.total > 0 ? (totalPointsIssued / transactionsPagination.total).toFixed(1) : "0"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 425,
+                                                                lineNumber: 431,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3897,25 +3903,25 @@ function LoyaltyPage() {
                                                                 children: "Points per transaction"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 428,
+                                                                lineNumber: 434,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 424,
+                                                        lineNumber: 430,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 415,
+                                                lineNumber: 421,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/loyalty/page.tsx",
-                                        lineNumber: 369,
+                                        lineNumber: 375,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -3931,7 +3937,7 @@ function LoyaltyPage() {
                                                         children: "Loyalty Customers"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 435,
+                                                        lineNumber: 441,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3940,7 +3946,7 @@ function LoyaltyPage() {
                                                         children: "Loyalty Transactions"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 438,
+                                                        lineNumber: 444,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3949,7 +3955,7 @@ function LoyaltyPage() {
                                                         children: "Earning Rules"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 441,
+                                                        lineNumber: 447,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3958,7 +3964,7 @@ function LoyaltyPage() {
                                                         children: "Points Earned"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 444,
+                                                        lineNumber: 450,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -3967,13 +3973,13 @@ function LoyaltyPage() {
                                                         children: "Impact Tracker"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 447,
+                                                        lineNumber: 453,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 434,
+                                                lineNumber: 440,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -3992,20 +3998,20 @@ function LoyaltyPage() {
                                                                                 children: "Loyalty Customers"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 457,
+                                                                                lineNumber: 463,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                                 children: "Active members in your loyalty program"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 458,
+                                                                                lineNumber: 464,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 456,
+                                                                        lineNumber: 462,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4021,7 +4027,7 @@ function LoyaltyPage() {
                                                                                 className: "rounded-xl"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 461,
+                                                                                lineNumber: 467,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4034,24 +4040,24 @@ function LoyaltyPage() {
                                                                                 className: "rounded-xl"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 467,
+                                                                                lineNumber: 473,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 460,
+                                                                        lineNumber: 466,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 455,
+                                                                lineNumber: 461,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 454,
+                                                            lineNumber: 460,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4070,7 +4076,7 @@ function LoyaltyPage() {
                                                                                             children: "Customer"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 481,
+                                                                                            lineNumber: 487,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4078,7 +4084,7 @@ function LoyaltyPage() {
                                                                                             children: "Points"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 482,
+                                                                                            lineNumber: 488,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4086,7 +4092,7 @@ function LoyaltyPage() {
                                                                                             children: "Tier"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 483,
+                                                                                            lineNumber: 489,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4094,7 +4100,7 @@ function LoyaltyPage() {
                                                                                             children: "Purchases"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 484,
+                                                                                            lineNumber: 490,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4102,18 +4108,18 @@ function LoyaltyPage() {
                                                                                             children: "Last Activity"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 485,
+                                                                                            lineNumber: 491,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 480,
+                                                                                    lineNumber: 486,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 479,
+                                                                                lineNumber: 485,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4125,7 +4131,7 @@ function LoyaltyPage() {
                                                                                                 children: customer.name
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 491,
+                                                                                                lineNumber: 497,
                                                                                                 columnNumber: 31
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4133,7 +4139,7 @@ function LoyaltyPage() {
                                                                                                 children: customer.points.toLocaleString()
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 492,
+                                                                                                lineNumber: 498,
                                                                                                 columnNumber: 31
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4143,12 +4149,12 @@ function LoyaltyPage() {
                                                                                                     children: customer.tier
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 494,
+                                                                                                    lineNumber: 500,
                                                                                                     columnNumber: 33
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 493,
+                                                                                                lineNumber: 499,
                                                                                                 columnNumber: 31
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4156,7 +4162,7 @@ function LoyaltyPage() {
                                                                                                 children: customer.purchases
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 508,
+                                                                                                lineNumber: 514,
                                                                                                 columnNumber: 31
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4164,29 +4170,29 @@ function LoyaltyPage() {
                                                                                                 children: customer.lastActivity
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 509,
+                                                                                                lineNumber: 515,
                                                                                                 columnNumber: 31
                                                                                             }, this)
                                                                                         ]
                                                                                     }, customer.id, true, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 490,
+                                                                                        lineNumber: 496,
                                                                                         columnNumber: 29
                                                                                     }, this))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 488,
+                                                                                lineNumber: 494,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 478,
+                                                                        lineNumber: 484,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 477,
+                                                                    lineNumber: 483,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4201,12 +4207,12 @@ function LoyaltyPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 516,
+                                                                        lineNumber: 522,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 515,
+                                                                    lineNumber: 521,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 customersPagination.totalPages > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4223,14 +4229,14 @@ function LoyaltyPage() {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 527,
+                                                                                    lineNumber: 533,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 "Previous"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 520,
+                                                                            lineNumber: 526,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4243,7 +4249,7 @@ function LoyaltyPage() {
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 530,
+                                                                            lineNumber: 536,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4258,36 +4264,36 @@ function LoyaltyPage() {
                                                                                     className: "h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 541,
+                                                                                    lineNumber: 547,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 533,
+                                                                            lineNumber: 539,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 519,
+                                                                    lineNumber: 525,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 476,
+                                                            lineNumber: 482,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                    lineNumber: 453,
+                                                    lineNumber: 459,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 452,
+                                                lineNumber: 458,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -4306,20 +4312,20 @@ function LoyaltyPage() {
                                                                                 children: "Loyalty Transactions Report"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 554,
+                                                                                lineNumber: 560,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                                 children: "Track all loyalty customer transactions and points earned"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 555,
+                                                                                lineNumber: 561,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 553,
+                                                                        lineNumber: 559,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4335,7 +4341,7 @@ function LoyaltyPage() {
                                                                                 className: "rounded-xl"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 558,
+                                                                                lineNumber: 564,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4348,7 +4354,7 @@ function LoyaltyPage() {
                                                                                 className: "rounded-xl"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 564,
+                                                                                lineNumber: 570,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4357,24 +4363,24 @@ function LoyaltyPage() {
                                                                                 children: "Export"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 570,
+                                                                                lineNumber: 576,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 557,
+                                                                        lineNumber: 563,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 552,
+                                                                lineNumber: 558,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 551,
+                                                            lineNumber: 557,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4383,14 +4389,14 @@ function LoyaltyPage() {
                                                                 children: "Loading transactions..."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 578,
+                                                                lineNumber: 584,
                                                                 columnNumber: 23
                                                             }, this) : loyaltyTransactions.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                 className: "text-center py-8 text-muted-foreground",
                                                                 children: "No loyalty transactions found. Record a sale with a loyalty customer to see transactions here."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 580,
+                                                                lineNumber: 586,
                                                                 columnNumber: 23
                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                 children: [
@@ -4408,7 +4414,7 @@ function LoyaltyPage() {
                                                                                                 children: "Date"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 589,
+                                                                                                lineNumber: 595,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4416,7 +4422,7 @@ function LoyaltyPage() {
                                                                                                 children: "Customer Name"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 590,
+                                                                                                lineNumber: 596,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4424,7 +4430,7 @@ function LoyaltyPage() {
                                                                                                 children: "PIN"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 591,
+                                                                                                lineNumber: 597,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4432,7 +4438,7 @@ function LoyaltyPage() {
                                                                                                 children: "Fuel Type"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 592,
+                                                                                                lineNumber: 598,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4440,7 +4446,7 @@ function LoyaltyPage() {
                                                                                                 children: "Quantity (L)"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 593,
+                                                                                                lineNumber: 599,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4448,7 +4454,7 @@ function LoyaltyPage() {
                                                                                                 children: "Amount"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 594,
+                                                                                                lineNumber: 600,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4456,7 +4462,7 @@ function LoyaltyPage() {
                                                                                                 children: "Payment"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 595,
+                                                                                                lineNumber: 601,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -4464,18 +4470,18 @@ function LoyaltyPage() {
                                                                                                 children: "Points"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 596,
+                                                                                                lineNumber: 602,
                                                                                                 columnNumber: 33
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 588,
+                                                                                        lineNumber: 594,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 587,
+                                                                                    lineNumber: 593,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4487,7 +4493,7 @@ function LoyaltyPage() {
                                                                                                     children: new Date(transaction.transaction_date).toLocaleDateString()
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 602,
+                                                                                                    lineNumber: 608,
                                                                                                     columnNumber: 35
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4495,7 +4501,7 @@ function LoyaltyPage() {
                                                                                                     children: transaction.customer_name
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 605,
+                                                                                                    lineNumber: 611,
                                                                                                     columnNumber: 35
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4503,7 +4509,7 @@ function LoyaltyPage() {
                                                                                                     children: transaction.customer_pin || "N/A"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 606,
+                                                                                                    lineNumber: 612,
                                                                                                     columnNumber: 35
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4511,7 +4517,7 @@ function LoyaltyPage() {
                                                                                                     children: transaction.fuel_type || "N/A"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 607,
+                                                                                                    lineNumber: 613,
                                                                                                     columnNumber: 35
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4519,7 +4525,7 @@ function LoyaltyPage() {
                                                                                                     children: (parseFloat(transaction.quantity) || 0).toFixed(2)
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 608,
+                                                                                                    lineNumber: 614,
                                                                                                     columnNumber: 35
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4527,7 +4533,7 @@ function LoyaltyPage() {
                                                                                                     children: formatCurrency(transaction.transaction_amount)
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 609,
+                                                                                                    lineNumber: 615,
                                                                                                     columnNumber: 35
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4538,12 +4544,12 @@ function LoyaltyPage() {
                                                                                                         children: transaction.payment_method || "Cash"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                        lineNumber: 613,
+                                                                                                        lineNumber: 619,
                                                                                                         columnNumber: 37
                                                                                                     }, this)
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 612,
+                                                                                                    lineNumber: 618,
                                                                                                     columnNumber: 35
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4556,34 +4562,34 @@ function LoyaltyPage() {
                                                                                                         ]
                                                                                                     }, void 0, true, {
                                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                        lineNumber: 618,
+                                                                                                        lineNumber: 624,
                                                                                                         columnNumber: 37
                                                                                                     }, this)
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 617,
+                                                                                                    lineNumber: 623,
                                                                                                     columnNumber: 35
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, transaction.id, true, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 601,
+                                                                                            lineNumber: 607,
                                                                                             columnNumber: 33
                                                                                         }, this))
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 599,
+                                                                                    lineNumber: 605,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 586,
+                                                                            lineNumber: 592,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 585,
+                                                                        lineNumber: 591,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4599,7 +4605,7 @@ function LoyaltyPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 628,
+                                                                                lineNumber: 634,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4617,13 +4623,13 @@ function LoyaltyPage() {
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 633,
+                                                                                                lineNumber: 639,
                                                                                                 columnNumber: 45
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 632,
+                                                                                        lineNumber: 638,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4635,25 +4641,25 @@ function LoyaltyPage() {
                                                                                                 children: formatCurrency(totalRevenue)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 636,
+                                                                                                lineNumber: 642,
                                                                                                 columnNumber: 45
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 635,
+                                                                                        lineNumber: 641,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 631,
+                                                                                lineNumber: 637,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 627,
+                                                                        lineNumber: 633,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     transactionsPagination.totalPages > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4670,14 +4676,14 @@ function LoyaltyPage() {
                                                                                         className: "h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 649,
+                                                                                        lineNumber: 655,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     "Previous"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 642,
+                                                                                lineNumber: 648,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4690,7 +4696,7 @@ function LoyaltyPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 652,
+                                                                                lineNumber: 658,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -4705,37 +4711,37 @@ function LoyaltyPage() {
                                                                                         className: "h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 663,
+                                                                                        lineNumber: 669,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 655,
+                                                                                lineNumber: 661,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 641,
+                                                                        lineNumber: 647,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 576,
+                                                            lineNumber: 582,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                    lineNumber: 550,
+                                                    lineNumber: 556,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 549,
+                                                lineNumber: 555,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -4752,25 +4758,25 @@ function LoyaltyPage() {
                                                                             children: "Earning Rules Configuration"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 677,
+                                                                            lineNumber: 683,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                             children: "Define how customers earn loyalty points at this branch"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 678,
+                                                                            lineNumber: 684,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 676,
+                                                                    lineNumber: 682,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 675,
+                                                                lineNumber: 681,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -4780,12 +4786,12 @@ function LoyaltyPage() {
                                                                         className: "h-6 w-6 animate-spin text-muted-foreground"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 684,
+                                                                        lineNumber: 690,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 683,
+                                                                    lineNumber: 689,
                                                                     columnNumber: 23
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                     className: "space-y-6",
@@ -4798,7 +4804,7 @@ function LoyaltyPage() {
                                                                                     children: "Points Earning Method"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 689,
+                                                                                    lineNumber: 695,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4817,7 +4823,7 @@ function LoyaltyPage() {
                                                                                                     children: "Per Litre"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 700,
+                                                                                                    lineNumber: 706,
                                                                                                     columnNumber: 31
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4825,13 +4831,13 @@ function LoyaltyPage() {
                                                                                                     children: "Earn points based on fuel volume purchased"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 701,
+                                                                                                    lineNumber: 707,
                                                                                                     columnNumber: 31
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 691,
+                                                                                            lineNumber: 697,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4847,7 +4853,7 @@ function LoyaltyPage() {
                                                                                                     children: "Per Amount Spent"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 712,
+                                                                                                    lineNumber: 718,
                                                                                                     columnNumber: 31
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4855,25 +4861,25 @@ function LoyaltyPage() {
                                                                                                     children: "Earn points based on money spent"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 713,
+                                                                                                    lineNumber: 719,
                                                                                                     columnNumber: 31
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 703,
+                                                                                            lineNumber: 709,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 690,
+                                                                                    lineNumber: 696,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 688,
+                                                                            lineNumber: 694,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         earningRulesConfig.loyalty_earn_type === 'per_litre' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4884,7 +4890,7 @@ function LoyaltyPage() {
                                                                                     children: "Points per Litre"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 720,
+                                                                                    lineNumber: 726,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4902,7 +4908,7 @@ function LoyaltyPage() {
                                                                                             className: "w-32 rounded-xl"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 722,
+                                                                                            lineNumber: 728,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -4910,13 +4916,13 @@ function LoyaltyPage() {
                                                                                             children: "points per litre purchased"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 733,
+                                                                                            lineNumber: 739,
                                                                                             columnNumber: 31
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 721,
+                                                                                    lineNumber: 727,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -4924,13 +4930,13 @@ function LoyaltyPage() {
                                                                                     children: "Example: If set to 2, a 50L purchase earns 100 points"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 735,
+                                                                                    lineNumber: 741,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 719,
+                                                                            lineNumber: 725,
                                                                             columnNumber: 27
                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                             className: "space-y-4",
@@ -4946,7 +4952,7 @@ function LoyaltyPage() {
                                                                                                     children: "Points Earned"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 743,
+                                                                                                    lineNumber: 749,
                                                                                                     columnNumber: 33
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4961,13 +4967,13 @@ function LoyaltyPage() {
                                                                                                     className: "rounded-xl"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 744,
+                                                                                                    lineNumber: 750,
                                                                                                     columnNumber: 33
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 742,
+                                                                                            lineNumber: 748,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4982,7 +4988,7 @@ function LoyaltyPage() {
                                                                                                     ]
                                                                                                 }, void 0, true, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 757,
+                                                                                                    lineNumber: 763,
                                                                                                     columnNumber: 33
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -4997,19 +5003,19 @@ function LoyaltyPage() {
                                                                                                     className: "rounded-xl"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                    lineNumber: 758,
+                                                                                                    lineNumber: 764,
                                                                                                     columnNumber: 33
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 756,
+                                                                                            lineNumber: 762,
                                                                                             columnNumber: 31
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 741,
+                                                                                    lineNumber: 747,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5023,14 +5029,178 @@ function LoyaltyPage() {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 771,
+                                                                                    lineNumber: 777,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 740,
+                                                                            lineNumber: 746,
                                                                             columnNumber: 27
+                                                                        }, this),
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                            className: "pt-6 mt-6 border-t",
+                                                                            children: [
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
+                                                                                    className: "font-semibold text-base mb-4",
+                                                                                    children: "Redemption Rules"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                    lineNumber: 785,
+                                                                                    columnNumber: 27
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                    className: "text-sm text-muted-foreground mb-4",
+                                                                                    children: "Configure how customers can redeem their earned points for discounts"
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                    lineNumber: 786,
+                                                                                    columnNumber: 27
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                    className: "grid gap-4",
+                                                                                    children: [
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                                                    className: "text-sm font-medium",
+                                                                                                    children: "Points per KES 1"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 792,
+                                                                                                    columnNumber: 31
+                                                                                                }, this),
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                                                                    type: "number",
+                                                                                                    min: "1",
+                                                                                                    step: "1",
+                                                                                                    value: earningRulesConfig.redemption_points_per_ksh,
+                                                                                                    onChange: (e)=>setEarningRulesConfig((prev)=>({
+                                                                                                                ...prev,
+                                                                                                                redemption_points_per_ksh: Math.max(1, parseInt(e.target.value) || 1)
+                                                                                                            })),
+                                                                                                    className: "mt-1 rounded-xl"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 793,
+                                                                                                    columnNumber: 31
+                                                                                                }, this),
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                                    className: "text-xs text-muted-foreground mt-1",
+                                                                                                    children: [
+                                                                                                        "Example: ",
+                                                                                                        earningRulesConfig.redemption_points_per_ksh,
+                                                                                                        " point(s) = KES 1 discount"
+                                                                                                    ]
+                                                                                                }, void 0, true, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 804,
+                                                                                                    columnNumber: 31
+                                                                                                }, this)
+                                                                                            ]
+                                                                                        }, void 0, true, {
+                                                                                            fileName: "[project]/app/loyalty/page.tsx",
+                                                                                            lineNumber: 791,
+                                                                                            columnNumber: 29
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                                                    className: "text-sm font-medium",
+                                                                                                    children: "Minimum Points to Redeem"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 810,
+                                                                                                    columnNumber: 31
+                                                                                                }, this),
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                                                                    type: "number",
+                                                                                                    min: "0",
+                                                                                                    step: "10",
+                                                                                                    value: earningRulesConfig.min_redemption_points,
+                                                                                                    onChange: (e)=>setEarningRulesConfig((prev)=>({
+                                                                                                                ...prev,
+                                                                                                                min_redemption_points: Math.max(0, parseInt(e.target.value) || 0)
+                                                                                                            })),
+                                                                                                    className: "mt-1 rounded-xl"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 811,
+                                                                                                    columnNumber: 31
+                                                                                                }, this),
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                                    className: "text-xs text-muted-foreground mt-1",
+                                                                                                    children: [
+                                                                                                        "Customer must have at least ",
+                                                                                                        earningRulesConfig.min_redemption_points,
+                                                                                                        " points to redeem"
+                                                                                                    ]
+                                                                                                }, void 0, true, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 822,
+                                                                                                    columnNumber: 31
+                                                                                                }, this)
+                                                                                            ]
+                                                                                        }, void 0, true, {
+                                                                                            fileName: "[project]/app/loyalty/page.tsx",
+                                                                                            lineNumber: 809,
+                                                                                            columnNumber: 29
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                                                                    className: "text-sm font-medium",
+                                                                                                    children: "Max Discount Percentage"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 828,
+                                                                                                    columnNumber: 31
+                                                                                                }, this),
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
+                                                                                                    type: "number",
+                                                                                                    min: "0",
+                                                                                                    max: "100",
+                                                                                                    step: "5",
+                                                                                                    value: earningRulesConfig.max_redemption_percent,
+                                                                                                    onChange: (e)=>setEarningRulesConfig((prev)=>({
+                                                                                                                ...prev,
+                                                                                                                max_redemption_percent: Math.min(100, Math.max(0, parseInt(e.target.value) || 0))
+                                                                                                            })),
+                                                                                                    className: "mt-1 rounded-xl"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 829,
+                                                                                                    columnNumber: 31
+                                                                                                }, this),
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                                    className: "text-xs text-muted-foreground mt-1",
+                                                                                                    children: [
+                                                                                                        "Maximum ",
+                                                                                                        earningRulesConfig.max_redemption_percent,
+                                                                                                        "% of transaction can be covered by points"
+                                                                                                    ]
+                                                                                                }, void 0, true, {
+                                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                                    lineNumber: 841,
+                                                                                                    columnNumber: 31
+                                                                                                }, this)
+                                                                                            ]
+                                                                                        }, void 0, true, {
+                                                                                            fileName: "[project]/app/loyalty/page.tsx",
+                                                                                            lineNumber: 827,
+                                                                                            columnNumber: 29
+                                                                                        }, this)
+                                                                                    ]
+                                                                                }, void 0, true, {
+                                                                                    fileName: "[project]/app/loyalty/page.tsx",
+                                                                                    lineNumber: 790,
+                                                                                    columnNumber: 27
+                                                                                }, this)
+                                                                            ]
+                                                                        }, void 0, true, {
+                                                                            fileName: "[project]/app/loyalty/page.tsx",
+                                                                            lineNumber: 784,
+                                                                            columnNumber: 25
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                             className: "pt-4 border-t",
@@ -5044,37 +5214,37 @@ function LoyaltyPage() {
                                                                                             className: "mr-2 h-4 w-4 animate-spin"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 785,
+                                                                                            lineNumber: 856,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         "Saving..."
                                                                                     ]
-                                                                                }, void 0, true) : "Save Earning Rules"
+                                                                                }, void 0, true) : "Save Earning & Redemption Rules"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 778,
+                                                                                lineNumber: 849,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 777,
+                                                                            lineNumber: 848,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 687,
+                                                                    lineNumber: 693,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 681,
+                                                                lineNumber: 687,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 674,
+                                                        lineNumber: 680,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -5090,12 +5260,12 @@ function LoyaltyPage() {
                                                                                 className: "h-5 w-5 text-green-600"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 803,
+                                                                                lineNumber: 874,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 802,
+                                                                            lineNumber: 873,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5104,31 +5274,31 @@ function LoyaltyPage() {
                                                                                     children: "WhatsApp DSSR Notifications"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 806,
+                                                                                    lineNumber: 877,
                                                                                     columnNumber: 25
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                                     children: "Configure phone numbers to receive Daily Sales Summary Reports via WhatsApp when shifts are reconciled"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 807,
+                                                                                    lineNumber: 878,
                                                                                     columnNumber: 25
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 805,
+                                                                            lineNumber: 876,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 801,
+                                                                    lineNumber: 872,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 800,
+                                                                lineNumber: 871,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5139,12 +5309,12 @@ function LoyaltyPage() {
                                                                         className: "h-6 w-6 animate-spin text-muted-foreground"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 816,
+                                                                        lineNumber: 887,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 815,
+                                                                    lineNumber: 886,
                                                                     columnNumber: 23
                                                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                     children: [
@@ -5159,7 +5329,7 @@ function LoyaltyPage() {
                                                                                     className: "flex-1 rounded-xl"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 821,
+                                                                                    lineNumber: 892,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -5169,18 +5339,18 @@ function LoyaltyPage() {
                                                                                         className: "h-4 w-4"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 829,
+                                                                                        lineNumber: 900,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 828,
+                                                                                    lineNumber: 899,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 820,
+                                                                            lineNumber: 891,
                                                                             columnNumber: 25
                                                                         }, this),
                                                                         whatsappDirectors.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5188,7 +5358,7 @@ function LoyaltyPage() {
                                                                             children: "No director numbers configured. Add phone numbers to receive DSSR notifications via WhatsApp."
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 834,
+                                                                            lineNumber: 905,
                                                                             columnNumber: 27
                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                             className: "space-y-2",
@@ -5200,7 +5370,7 @@ function LoyaltyPage() {
                                                                                             children: phone
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 841,
+                                                                                            lineNumber: 912,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -5212,23 +5382,23 @@ function LoyaltyPage() {
                                                                                                 className: "h-4 w-4"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                                lineNumber: 848,
+                                                                                                lineNumber: 919,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 842,
+                                                                                            lineNumber: 913,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     ]
                                                                                 }, index, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 840,
+                                                                                    lineNumber: 911,
                                                                                     columnNumber: 31
                                                                                 }, this))
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 838,
+                                                                            lineNumber: 909,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -5241,7 +5411,7 @@ function LoyaltyPage() {
                                                                                         className: "mr-2 h-4 w-4 animate-spin"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 862,
+                                                                                        lineNumber: 933,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     "Saving..."
@@ -5249,26 +5419,26 @@ function LoyaltyPage() {
                                                                             }, void 0, true) : "Save WhatsApp Settings"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 855,
+                                                                            lineNumber: 926,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 813,
+                                                                lineNumber: 884,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                        lineNumber: 799,
+                                                        lineNumber: 870,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 673,
+                                                lineNumber: 679,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -5283,20 +5453,20 @@ function LoyaltyPage() {
                                                                     children: "Loyalty Points Earned Over Time"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 878,
+                                                                    lineNumber: 949,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                     children: "Track how points are accumulated across your program"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 879,
+                                                                    lineNumber: 950,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 877,
+                                                            lineNumber: 948,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5326,7 +5496,7 @@ function LoyaltyPage() {
                                                                                 stroke: "#e5e7eb"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 893,
+                                                                                lineNumber: 964,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -5338,7 +5508,7 @@ function LoyaltyPage() {
                                                                                 height: 40
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 894,
+                                                                                lineNumber: 965,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -5353,7 +5523,7 @@ function LoyaltyPage() {
                                                                                 ]
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 895,
+                                                                                lineNumber: 966,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -5367,7 +5537,7 @@ function LoyaltyPage() {
                                                                                 }
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 896,
+                                                                                lineNumber: 967,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Line$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Line"], {
@@ -5381,39 +5551,39 @@ function LoyaltyPage() {
                                                                                 }
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                                lineNumber: 900,
+                                                                                lineNumber: 971,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 892,
+                                                                        lineNumber: 963,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 891,
+                                                                    lineNumber: 962,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                                lineNumber: 882,
+                                                                lineNumber: 953,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 881,
+                                                            lineNumber: 952,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                    lineNumber: 876,
+                                                    lineNumber: 947,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 875,
+                                                lineNumber: 946,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -5428,20 +5598,20 @@ function LoyaltyPage() {
                                                                     children: "Environmental Impact Tracker"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 917,
+                                                                    lineNumber: 988,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                                     children: "Track CO2 offset and environmental benefits from the loyalty program"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 918,
+                                                                    lineNumber: 989,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 916,
+                                                            lineNumber: 987,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5459,12 +5629,12 @@ function LoyaltyPage() {
                                                                                         children: "CO2 Offset Achieved"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 926,
+                                                                                        lineNumber: 997,
                                                                                         columnNumber: 27
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 925,
+                                                                                    lineNumber: 996,
                                                                                     columnNumber: 25
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5477,7 +5647,7 @@ function LoyaltyPage() {
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 929,
+                                                                                            lineNumber: 1000,
                                                                                             columnNumber: 27
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5485,19 +5655,19 @@ function LoyaltyPage() {
                                                                                             children: "Based on loyalty revenue"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 930,
+                                                                                            lineNumber: 1001,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 928,
+                                                                                    lineNumber: 999,
                                                                                     columnNumber: 25
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 924,
+                                                                            lineNumber: 995,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -5510,12 +5680,12 @@ function LoyaltyPage() {
                                                                                         children: "Trees Equivalent"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 935,
+                                                                                        lineNumber: 1006,
                                                                                         columnNumber: 27
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 934,
+                                                                                    lineNumber: 1005,
                                                                                     columnNumber: 25
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5525,7 +5695,7 @@ function LoyaltyPage() {
                                                                                             children: impactMetrics.treesEquivalent.toLocaleString()
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 938,
+                                                                                            lineNumber: 1009,
                                                                                             columnNumber: 27
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5533,19 +5703,19 @@ function LoyaltyPage() {
                                                                                             children: "~22 kg CO2 per tree/year"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 939,
+                                                                                            lineNumber: 1010,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 937,
+                                                                                    lineNumber: 1008,
                                                                                     columnNumber: 25
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 933,
+                                                                            lineNumber: 1004,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -5558,12 +5728,12 @@ function LoyaltyPage() {
                                                                                         children: "Carbon Credits"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 944,
+                                                                                        lineNumber: 1015,
                                                                                         columnNumber: 27
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 943,
+                                                                                    lineNumber: 1014,
                                                                                     columnNumber: 25
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5573,7 +5743,7 @@ function LoyaltyPage() {
                                                                                             children: impactMetrics.carbonCredits.toLocaleString()
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 947,
+                                                                                            lineNumber: 1018,
                                                                                             columnNumber: 27
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5581,19 +5751,19 @@ function LoyaltyPage() {
                                                                                             children: "1 credit per KES 1,000"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 948,
+                                                                                            lineNumber: 1019,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 946,
+                                                                                    lineNumber: 1017,
                                                                                     columnNumber: 25
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 942,
+                                                                            lineNumber: 1013,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -5606,12 +5776,12 @@ function LoyaltyPage() {
                                                                                         children: "Green Purchases"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                                        lineNumber: 953,
+                                                                                        lineNumber: 1024,
                                                                                         columnNumber: 27
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 952,
+                                                                                    lineNumber: 1023,
                                                                                     columnNumber: 25
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -5621,7 +5791,7 @@ function LoyaltyPage() {
                                                                                             children: impactMetrics.greenPurchases.toLocaleString()
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 956,
+                                                                                            lineNumber: 1027,
                                                                                             columnNumber: 27
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -5629,25 +5799,25 @@ function LoyaltyPage() {
                                                                                             children: "Total loyalty transactions"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                                            lineNumber: 957,
+                                                                                            lineNumber: 1028,
                                                                                             columnNumber: 27
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 955,
+                                                                                    lineNumber: 1026,
                                                                                     columnNumber: 25
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 951,
+                                                                            lineNumber: 1022,
                                                                             columnNumber: 23
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 923,
+                                                                    lineNumber: 994,
                                                                     columnNumber: 21
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$chart$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ChartContainer"], {
@@ -5675,7 +5845,7 @@ function LoyaltyPage() {
                                                                                     stroke: "#e5e7eb"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 972,
+                                                                                    lineNumber: 1043,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -5689,7 +5859,7 @@ function LoyaltyPage() {
                                                                                     textAnchor: "end"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 973,
+                                                                                    lineNumber: 1044,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -5704,7 +5874,7 @@ function LoyaltyPage() {
                                                                                     ]
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 981,
+                                                                                    lineNumber: 1052,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -5714,7 +5884,7 @@ function LoyaltyPage() {
                                                                                     }
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 982,
+                                                                                    lineNumber: 1053,
                                                                                     columnNumber: 27
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Bar"], {
@@ -5728,46 +5898,46 @@ function LoyaltyPage() {
                                                                                     ]
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                                    lineNumber: 983,
+                                                                                    lineNumber: 1054,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                                            lineNumber: 971,
+                                                                            lineNumber: 1042,
                                                                             columnNumber: 25
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/loyalty/page.tsx",
-                                                                        lineNumber: 970,
+                                                                        lineNumber: 1041,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                                    lineNumber: 961,
+                                                                    lineNumber: 1032,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/loyalty/page.tsx",
-                                                            lineNumber: 922,
+                                                            lineNumber: 993,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/loyalty/page.tsx",
-                                                    lineNumber: 915,
+                                                    lineNumber: 986,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 914,
+                                                lineNumber: 985,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/loyalty/page.tsx",
-                                        lineNumber: 433,
+                                        lineNumber: 439,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -5779,45 +5949,45 @@ function LoyaltyPage() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/loyalty/page.tsx",
-                                                lineNumber: 993,
+                                                lineNumber: 1064,
                                                 columnNumber: 26
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/loyalty/page.tsx",
-                                        lineNumber: 992,
+                                        lineNumber: 1063,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/loyalty/page.tsx",
-                                lineNumber: 341,
+                                lineNumber: 347,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/loyalty/page.tsx",
-                            lineNumber: 340,
+                            lineNumber: 346,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/loyalty/page.tsx",
-                    lineNumber: 337,
+                    lineNumber: 343,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/loyalty/page.tsx",
-                lineNumber: 336,
+                lineNumber: 342,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/loyalty/page.tsx",
-        lineNumber: 315,
+        lineNumber: 321,
         columnNumber: 5
     }, this);
 }
-_s(LoyaltyPage, "93SBBtkufG4lkqhFNEy6BaHnTrY=", false, function() {
+_s(LoyaltyPage, "BOk+ErdqvTZHF81WlcxUqU98rHc=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$currency$2d$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCurrency"],
         __TURBOPACK__imported__module__$5b$project$5d2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"]

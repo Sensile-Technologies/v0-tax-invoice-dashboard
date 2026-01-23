@@ -53,7 +53,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [loyaltyPhone, setLoyaltyPhone] = useState('')
   const [verifyingLoyalty, setVerifyingLoyalty] = useState(false)
   const [loyaltyVerified, setLoyaltyVerified] = useState(false)
-  const [verifiedCustomer, setVerifiedCustomer] = useState<{id: string, name: string, phone: string, cust_tin?: string} | null>(null)
+  const [verifiedCustomer, setVerifiedCustomer] = useState<{id: string, name: string, phone: string, cust_tin?: string, point_balance?: number, redemption_rules?: {points_per_ksh: number, min_points: number, max_percent: number}} | null>(null)
   
   // Printing
   const [printing, setPrinting] = useState(false)
@@ -170,7 +170,7 @@ export default function CreateInvoiceScreen({ navigation }: any) {
     
     setVerifyingLoyalty(true)
     try {
-      const response = await api.get<{customer: {id: string, cust_nm: string, tel_no: string, cust_tin?: string} | null}>(
+      const response = await api.get<{customer: {id: string, cust_nm: string, tel_no: string, cust_tin?: string, point_balance?: number, redemption_rules?: {points_per_ksh: number, min_points: number, max_percent: number}} | null}>(
         `/api/mobile/verify-loyalty?branch_id=${user?.branch_id}&phone=${loyaltyPhone}`
       )
       
@@ -179,13 +179,16 @@ export default function CreateInvoiceScreen({ navigation }: any) {
           id: response.customer.id,
           name: response.customer.cust_nm,
           phone: response.customer.tel_no,
-          cust_tin: response.customer.cust_tin
+          cust_tin: response.customer.cust_tin,
+          point_balance: response.customer.point_balance,
+          redemption_rules: response.customer.redemption_rules
         })
         setLoyaltyVerified(true)
         if (response.customer.cust_tin) {
           setKraPin(response.customer.cust_tin)
         }
-        Alert.alert('Success', `Customer verified: ${response.customer.cust_nm}`)
+        const balanceText = response.customer.point_balance !== undefined ? ` (${response.customer.point_balance} points)` : ''
+        Alert.alert('Success', `Customer verified: ${response.customer.cust_nm}${balanceText}`)
       } else {
         Alert.alert('Not Found', 'No customer found with this phone number')
       }
@@ -696,6 +699,11 @@ export default function CreateInvoiceScreen({ navigation }: any) {
                   <Text style={styles.verifiedCustomerPhone}>{verifiedCustomer.phone}</Text>
                   {verifiedCustomer.cust_tin && (
                     <Text style={styles.verifiedCustomerPhone}>PIN: {verifiedCustomer.cust_tin}</Text>
+                  )}
+                  {verifiedCustomer.point_balance !== undefined && (
+                    <Text style={[styles.verifiedCustomerPhone, {color: colors.primary, fontWeight: '600'}]}>
+                      Points: {verifiedCustomer.point_balance}
+                    </Text>
                   )}
                 </View>
               </View>

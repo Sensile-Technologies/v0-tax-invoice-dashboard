@@ -112,7 +112,10 @@ async function GET(request) {
         loyalty_earn_type,
         loyalty_points_per_litre,
         loyalty_points_per_amount,
-        loyalty_amount_threshold
+        loyalty_amount_threshold,
+        redemption_points_per_ksh,
+        min_redemption_points,
+        max_redemption_percent
       FROM branches WHERE id = $1`, [
             branchId
         ]);
@@ -150,7 +153,7 @@ async function PUT(request) {
             });
         }
         const body = await request.json();
-        const { branch_id, loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold } = body;
+        const { branch_id, loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold, redemption_points_per_ksh, min_redemption_points, max_redemption_percent } = body;
         if (!branch_id) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 success: false,
@@ -174,6 +177,9 @@ async function PUT(request) {
         const pointsPerLitre = Number(loyalty_points_per_litre ?? 1);
         const pointsPerAmount = Number(loyalty_points_per_amount ?? 1);
         const amountThreshold = Number(loyalty_amount_threshold ?? 100);
+        const pointsPerKsh = Number(redemption_points_per_ksh ?? 1);
+        const minPoints = Number(min_redemption_points ?? 100);
+        const maxPercent = Number(max_redemption_percent ?? 50);
         // Validate: points must be >= 0, threshold must be >= 1 to avoid division by zero
         if (pointsPerLitre < 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -199,18 +205,48 @@ async function PUT(request) {
                 status: 400
             });
         }
+        if (pointsPerKsh < 1) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Points per KSH must be at least 1"
+            }, {
+                status: 400
+            });
+        }
+        if (minPoints < 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Minimum redemption points must be 0 or greater"
+            }, {
+                status: 400
+            });
+        }
+        if (maxPercent < 0 || maxPercent > 100) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                success: false,
+                error: "Max redemption percent must be between 0 and 100"
+            }, {
+                status: 400
+            });
+        }
         const result = await pool.query(`UPDATE branches SET
         loyalty_earn_type = $1,
         loyalty_points_per_litre = $2,
         loyalty_points_per_amount = $3,
         loyalty_amount_threshold = $4,
+        redemption_points_per_ksh = $5,
+        min_redemption_points = $6,
+        max_redemption_percent = $7,
         updated_at = NOW()
-      WHERE id = $5
-      RETURNING id, name, loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold`, [
+      WHERE id = $8
+      RETURNING id, name, loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold, redemption_points_per_ksh, min_redemption_points, max_redemption_percent`, [
             loyalty_earn_type,
             pointsPerLitre,
             pointsPerAmount,
             amountThreshold,
+            pointsPerKsh,
+            minPoints,
+            maxPercent,
             branch_id
         ]);
         if (result.rows.length === 0) {
