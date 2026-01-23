@@ -20,11 +20,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Only directors can view redemption data
-    if (session.role !== 'director' && session.role !== 'vendor') {
-      return NextResponse.json({ error: 'Only directors can access bulk redemption' }, { status: 403 })
-    }
-
     const { searchParams } = new URL(request.url)
     const branch_id = searchParams.get('branch_id')
 
@@ -99,11 +94,6 @@ export async function POST(request: NextRequest) {
     const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Only directors can trigger bulk redemption
-    if (session.role !== 'director' && session.role !== 'vendor') {
-      return NextResponse.json({ error: 'Only directors can trigger bulk redemption' }, { status: 403 })
     }
 
     const body = await request.json()

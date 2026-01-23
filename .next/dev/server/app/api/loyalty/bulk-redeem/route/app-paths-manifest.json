@@ -1,0 +1,3 @@
+{
+  "/api/loyalty/bulk-redeem/route": "app/api/loyalty/bulk-redeem/route.js"
+}

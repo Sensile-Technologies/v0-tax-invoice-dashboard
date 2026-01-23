@@ -53,8 +53,8 @@ Configuration is stored in `branches` table columns: `redemption_points_per_ksh`
 Mobile API endpoints:
 - `GET /api/mobile/verify-loyalty` - Returns customer info, point balance, and redemption rules
 
-**Bulk Redemption (Directors Only):**
-Redemption is done from the web dashboard, not the mobile app. Directors/vendors can trigger bulk redemption for all eligible customers at once (e.g., monthly redemption).
+**Bulk Redemption:**
+Redemption is done from the web dashboard, not the mobile app. Users can trigger bulk redemption for all eligible customers at once (e.g., monthly redemption).
 
 Web API endpoints:
 - `GET /api/loyalty/bulk-redeem` - Get all customers with point balances and eligibility status
