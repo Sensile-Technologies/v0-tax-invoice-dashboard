@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
     const branchResult = await query(`
       SELECT id, bhf_id, kra_pin, device_token, server_address, server_port, 
              COALESCE(invoice_number, 0) as invoice_number,
-             COALESCE(sr_number, 0) as sr_number
+             COALESCE(sr_number, 0) as sr_number,
+             loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold
       FROM branches
       WHERE id = $1
     `, [branch_id])
@@ -387,7 +388,7 @@ export async function POST(request: NextRequest) {
     const kraData = responses.saveSales?.data || {}
     // CU invoice number is formatted as sdcId/rcptNo (e.g., KRACU0300003796/378)
     const cuInvNo = (kraData.sdcId && kraData.rcptNo) ? `${kraData.sdcId}/${kraData.rcptNo}` : null
-    await query(
+    const saleResult = await query(
       `INSERT INTO sales (
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 
         total_amount, payment_method, customer_name, customer_pin,
@@ -395,7 +396,8 @@ export async function POST(request: NextRequest) {
         is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin, 
         sale_date, created_at,
         kra_status, kra_rcpt_sign, kra_scu_id, kra_cu_inv, kra_internal_data
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW(), $17, $18, $19, $20, $21)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW(), $17, $18, $19, $20, $21)
+      RETURNING id`,
       [
         branch_id,
         activeShiftId,
@@ -420,6 +422,44 @@ export async function POST(request: NextRequest) {
         kraData.intrlData || null
       ]
     )
+    const saleId = saleResult[0]?.id
+    
+    // Create loyalty transaction if this is a loyalty sale
+    if (is_loyalty_sale && loyalty_customer_name && saleId) {
+      try {
+        const earnType = branch.loyalty_earn_type || 'per_amount'
+        const pointsPerLitre = Number(branch.loyalty_points_per_litre ?? 1)
+        const pointsPerAmount = Number(branch.loyalty_points_per_amount ?? 1)
+        const amountThreshold = Math.max(1, Number(branch.loyalty_amount_threshold ?? 100))
+        
+        let points_earned: number
+        if (earnType === 'per_litre') {
+          points_earned = Math.floor((quantity || 0) * pointsPerLitre)
+        } else {
+          points_earned = Math.floor(totalAmount / amountThreshold) * pointsPerAmount
+        }
+        
+        await query(
+          `INSERT INTO loyalty_transactions 
+           (branch_id, sale_id, customer_name, customer_pin, transaction_date, transaction_amount, points_earned, payment_method, fuel_type, quantity, transaction_type)
+           VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8, $9, 'earn')
+           ON CONFLICT (sale_id) DO NOTHING`,
+          [
+            branch_id,
+            saleId,
+            loyalty_customer_name,
+            customer_pin || '',
+            totalAmount,
+            points_earned,
+            payment_method || 'cash',
+            fuel_type || nozzle.fuel_type,
+            quantity
+          ]
+        )
+      } catch (loyaltyError) {
+        console.error('Failed to create loyalty transaction:', loyaltyError)
+      }
+    }
     
     // Note: We don't update nozzle's initial_meter_reading here
     // The meter_reading_after is stored in the sales record
