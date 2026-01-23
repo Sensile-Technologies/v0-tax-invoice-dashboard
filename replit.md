@@ -52,8 +52,20 @@ Configuration is stored in `branches` table columns: `redemption_points_per_ksh`
 
 Mobile API endpoints:
 - `GET /api/mobile/verify-loyalty` - Returns customer info, point balance, and redemption rules
-- `GET /api/mobile/redeem-points` - Get customer point balance and redemption rules
-- `POST /api/mobile/redeem-points` - Redeem points for discount
+
+**Bulk Redemption (Directors Only):**
+Redemption is done from the web dashboard, not the mobile app. Directors/vendors can trigger bulk redemption for all eligible customers at once (e.g., monthly redemption).
+
+Web API endpoints:
+- `GET /api/loyalty/bulk-redeem` - Get all customers with point balances and eligibility status
+- `POST /api/loyalty/bulk-redeem` - Process bulk redemption for all eligible customers
+
+Workflow:
+1. Director navigates to Explore Tuzwa → Bulk Redemption tab (only visible to directors/vendors)
+2. Click "Load Eligible Customers" to see all customers with points above minimum threshold
+3. Review summary: total customers, eligible count, total points, total value
+4. Click "Redeem All Points" to process redemption for all eligible customers
+5. System creates redemption transactions and clears all point balances
 
 The `loyalty_transactions` table tracks both earning (`transaction_type='earn'`) and redemption (`transaction_type='redeem'`) with `points_earned` and `points_redeemed` columns respectively.
 

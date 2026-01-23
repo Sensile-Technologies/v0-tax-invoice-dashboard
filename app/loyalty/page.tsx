@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, TrendingUp, Users, Award, Calendar, Leaf, ChevronLeft, ChevronRight, MessageSquare, Plus, X, Loader2 } from "lucide-react"
+import { Search, TrendingUp, Users, Award, Calendar, Leaf, ChevronLeft, ChevronRight, MessageSquare, Plus, X, Loader2, Gift, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts"
 import { ChartContainer } from "@/components/ui/chart"
@@ -50,6 +50,12 @@ export default function LoyaltyPage() {
   const [newPhoneNumber, setNewPhoneNumber] = useState("")
   const [savingWhatsapp, setSavingWhatsapp] = useState(false)
   const [loadingWhatsapp, setLoadingWhatsapp] = useState(false)
+  
+  // User role and bulk redemption state
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [redemptionData, setRedemptionData] = useState<{customers: any[], summary: any} | null>(null)
+  const [loadingRedemption, setLoadingRedemption] = useState(false)
+  const [processingRedemption, setProcessingRedemption] = useState(false)
   
   // Earning Rules state
   const [earningRulesConfig, setEarningRulesConfig] = useState({
@@ -195,6 +201,17 @@ export default function LoyaltyPage() {
         const branch = JSON.parse(selectedBranch)
         setBranchId(branch.id)
         setLoadingWhatsapp(true)
+        
+        // Fetch user role
+        try {
+          const sessionRes = await fetch('/api/auth/session')
+          const sessionData = await sessionRes.json()
+          if (sessionData.user?.role) {
+            setUserRole(sessionData.user.role)
+          }
+        } catch (e) {
+          console.error('Failed to fetch session:', e)
+        }
 
         const response = await fetch(`/api/branches/whatsapp-directors?branch_id=${branch.id}`)
         const data = await response.json()
@@ -453,6 +470,12 @@ export default function LoyaltyPage() {
                 <TabsTrigger value="impact" className="rounded-lg">
                   Impact Tracker
                 </TabsTrigger>
+                {(userRole === 'director' || userRole === 'vendor') && (
+                  <TabsTrigger value="redemptions" className="rounded-lg">
+                    <Gift className="h-4 w-4 mr-1" />
+                    Bulk Redemption
+                  </TabsTrigger>
+                )}
               </TabsList>
 
               <TabsContent value="customers" className="space-y-4">
@@ -1058,6 +1081,191 @@ export default function LoyaltyPage() {
                   </CardContent>
                 </Card>
               </TabsContent>
+
+              {/* Bulk Redemption - Directors Only */}
+              {(userRole === 'director' || userRole === 'vendor') && (
+                <TabsContent value="redemptions" className="space-y-4">
+                  <Card className="rounded-2xl">
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100">
+                          <Gift className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <CardTitle>Bulk Point Redemption</CardTitle>
+                          <CardDescription>
+                            Redeem loyalty points for all eligible customers at once (e.g., monthly redemption)
+                          </CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="flex items-center gap-4">
+                        <Button
+                          onClick={async () => {
+                            if (!branchId) return
+                            setLoadingRedemption(true)
+                            try {
+                              const response = await fetch(`/api/loyalty/bulk-redeem?branch_id=${branchId}`, {
+                                credentials: 'include'
+                              })
+                              const data = await response.json()
+                              if (data.success) {
+                                setRedemptionData(data)
+                              } else {
+                                toast({ title: 'Error', description: data.error, variant: 'destructive' })
+                              }
+                            } catch (error: any) {
+                              toast({ title: 'Error', description: error.message, variant: 'destructive' })
+                            } finally {
+                              setLoadingRedemption(false)
+                            }
+                          }}
+                          disabled={loadingRedemption || !branchId}
+                          className="rounded-xl"
+                        >
+                          {loadingRedemption ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Loading...
+                            </>
+                          ) : (
+                            'Load Eligible Customers'
+                          )}
+                        </Button>
+                      </div>
+
+                      {redemptionData && (
+                        <>
+                          {/* Summary Cards */}
+                          <div className="grid gap-4 md:grid-cols-4">
+                            <Card className="rounded-xl bg-purple-50">
+                              <CardContent className="p-4">
+                                <p className="text-sm text-muted-foreground">Total Customers</p>
+                                <p className="text-2xl font-bold">{redemptionData.summary.total_customers}</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="rounded-xl bg-green-50">
+                              <CardContent className="p-4">
+                                <p className="text-sm text-muted-foreground">Eligible Customers</p>
+                                <p className="text-2xl font-bold text-green-600">{redemptionData.summary.eligible_customers}</p>
+                                <p className="text-xs text-muted-foreground">Min {redemptionData.summary.min_points} points</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="rounded-xl bg-blue-50">
+                              <CardContent className="p-4">
+                                <p className="text-sm text-muted-foreground">Total Points</p>
+                                <p className="text-2xl font-bold text-blue-600">{redemptionData.summary.total_points.toLocaleString()}</p>
+                              </CardContent>
+                            </Card>
+                            <Card className="rounded-xl bg-amber-50">
+                              <CardContent className="p-4">
+                                <p className="text-sm text-muted-foreground">Total Value</p>
+                                <p className="text-2xl font-bold text-amber-600">{formatCurrency(redemptionData.summary.total_value)}</p>
+                                <p className="text-xs text-muted-foreground">{redemptionData.summary.points_per_ksh} pts = KES 1</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+
+                          {/* Customer List */}
+                          <div className="rounded-xl border">
+                            <div className="max-h-[400px] overflow-auto">
+                              <table className="w-full">
+                                <thead className="bg-muted/50 sticky top-0">
+                                  <tr>
+                                    <th className="text-left p-3 font-medium">Customer</th>
+                                    <th className="text-left p-3 font-medium">Phone/PIN</th>
+                                    <th className="text-right p-3 font-medium">Points</th>
+                                    <th className="text-right p-3 font-medium">Value</th>
+                                    <th className="text-center p-3 font-medium">Eligible</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {redemptionData.customers.map((customer: any, index: number) => (
+                                    <tr key={index} className="border-t">
+                                      <td className="p-3">{customer.customer_name}</td>
+                                      <td className="p-3 text-muted-foreground">{customer.customer_pin}</td>
+                                      <td className="p-3 text-right font-medium">{customer.point_balance.toLocaleString()}</td>
+                                      <td className="p-3 text-right">{formatCurrency(customer.point_balance / redemptionData.summary.points_per_ksh)}</td>
+                                      <td className="p-3 text-center">
+                                        {customer.eligible ? (
+                                          <Badge className="bg-green-100 text-green-700">Eligible</Badge>
+                                        ) : (
+                                          <Badge variant="secondary">Below minimum</Badge>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+
+                          {/* Redemption Action */}
+                          {redemptionData.summary.eligible_customers > 0 && (
+                            <div className="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-200">
+                              <div className="flex items-center gap-3">
+                                <AlertCircle className="h-5 w-5 text-amber-600" />
+                                <div>
+                                  <p className="font-medium">Ready to redeem points?</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    This will redeem {redemptionData.summary.total_points.toLocaleString()} points for {redemptionData.summary.eligible_customers} customers worth {formatCurrency(redemptionData.summary.total_value)}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                onClick={async () => {
+                                  if (!branchId) return
+                                  if (!confirm(`Are you sure you want to redeem ${redemptionData.summary.total_points.toLocaleString()} points for ${redemptionData.summary.eligible_customers} customers? This action cannot be undone.`)) {
+                                    return
+                                  }
+                                  setProcessingRedemption(true)
+                                  try {
+                                    const response = await fetch('/api/loyalty/bulk-redeem', {
+                                      method: 'POST',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      credentials: 'include',
+                                      body: JSON.stringify({ branch_id: branchId, redeem_all: true })
+                                    })
+                                    const data = await response.json()
+                                    if (data.success) {
+                                      toast({ 
+                                        title: 'Redemption Complete', 
+                                        description: `${data.summary.customers_processed} customers redeemed ${data.summary.total_points_redeemed.toLocaleString()} points worth ${formatCurrency(data.summary.total_value)}` 
+                                      })
+                                      setRedemptionData(null) // Clear data to refresh
+                                    } else {
+                                      toast({ title: 'Error', description: data.error, variant: 'destructive' })
+                                    }
+                                  } catch (error: any) {
+                                    toast({ title: 'Error', description: error.message, variant: 'destructive' })
+                                  } finally {
+                                    setProcessingRedemption(false)
+                                  }
+                                }}
+                                disabled={processingRedemption}
+                                className="rounded-xl bg-purple-600 hover:bg-purple-700"
+                              >
+                                {processingRedemption ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Processing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Gift className="mr-2 h-4 w-4" />
+                                    Redeem All Points
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              )}
             </Tabs>
 
             <footer className="mt-12 border-t pt-6 pb-4 text-center text-sm text-navy-900">

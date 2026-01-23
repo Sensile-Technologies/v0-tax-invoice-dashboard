@@ -55,10 +55,6 @@ export default function CreateInvoiceScreen({ navigation }: any) {
   const [loyaltyVerified, setLoyaltyVerified] = useState(false)
   const [verifiedCustomer, setVerifiedCustomer] = useState<{id: string, name: string, phone: string, cust_tin?: string, point_balance?: number, redemption_rules?: {points_per_ksh: number, min_points: number, max_percent: number}} | null>(null)
   
-  // Point Redemption
-  const [pointsToRedeem, setPointsToRedeem] = useState('')
-  const [redemptionDiscount, setRedemptionDiscount] = useState(0)
-  
   // Printing
   const [printing, setPrinting] = useState(false)
   const [printerReady, setPrinterReady] = useState(false)
