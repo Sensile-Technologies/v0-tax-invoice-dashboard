@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
       `INSERT INTO loyalty_transactions 
        (branch_id, sale_id, customer_name, customer_pin, transaction_date, transaction_amount, points_earned, payment_method, fuel_type, quantity)
        VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8, $9)
-       RETURNING id`,
+       ON CONFLICT (sale_id) DO UPDATE SET id = loyalty_transactions.id
+       RETURNING id, (xmax = 0) as inserted`,
       [
         branch_id,
         sale_id,
