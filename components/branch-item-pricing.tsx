@@ -149,13 +149,16 @@ export default function BranchItemPricing() {
         })
 
         const result = await response.json()
-        if (result.success) {
-          toast.success("Item price updated")
-          setShowPriceDialog(false)
-          fetchBranchItems()
-        } else {
-          toast.error(result.error || "Failed to update price")
+        setSaving(false)
+        
+        if (!response.ok || !result.success) {
+          toast.error(result.error || `Failed to update price (${response.status})`)
+          return
         }
+        
+        toast.success("Item price updated")
+        setShowPriceDialog(false)
+        fetchBranchItems()
       } else {
         const response = await fetch("/api/branch-items", {
           method: "POST",
@@ -170,18 +173,20 @@ export default function BranchItemPricing() {
         })
 
         const result = await response.json()
-        if (result.success) {
-          toast.success("Item assigned to branch with custom pricing")
-          setShowPriceDialog(false)
-          fetchBranchItems()
-        } else {
-          toast.error(result.error || "Failed to assign item")
+        setSaving(false)
+        
+        if (!response.ok || !result.success) {
+          toast.error(result.error || `Failed to assign item (${response.status})`)
+          return
         }
+        
+        toast.success("Item assigned to branch with custom pricing")
+        setShowPriceDialog(false)
+        fetchBranchItems()
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving price:", error)
-      toast.error("Failed to save price")
-    } finally {
+      toast.error(error?.message || "Failed to save price - network error")
       setSaving(false)
     }
   }
