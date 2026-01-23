@@ -42,6 +42,21 @@ Loyalty points earning is configurable per-branch via Explore Tuzwa → Earning 
 
 Configuration is stored in `branches` table columns: `loyalty_earn_type`, `loyalty_points_per_litre`, `loyalty_points_per_amount`, `loyalty_amount_threshold`. The amount threshold is always >= 1 to prevent division by zero.
 
+## Loyalty Redemption Rules
+Customers can redeem earned points for discounts. Redemption rules are configurable per-branch via Explore Tuzwa → Earning Rules tab:
+- **Points per KES 1**: How many points are required for KES 1 discount. Example: 1 point = KES 1 discount.
+- **Minimum Points to Redeem**: Customer must have at least this many points to redeem. Default: 100 points.
+- **Max Discount Percentage**: Maximum percentage of transaction that can be covered by points. Default: 50%.
+
+Configuration is stored in `branches` table columns: `redemption_points_per_ksh`, `min_redemption_points`, `max_redemption_percent`.
+
+Mobile API endpoints:
+- `GET /api/mobile/verify-loyalty` - Returns customer info, point balance, and redemption rules
+- `GET /api/mobile/redeem-points` - Get customer point balance and redemption rules
+- `POST /api/mobile/redeem-points` - Redeem points for discount
+
+The `loyalty_transactions` table tracks both earning (`transaction_type='earn'`) and redemption (`transaction_type='redeem'`) with `points_earned` and `points_redeemed` columns respectively.
+
 ## Default Account Setup
 All vendors automatically receive the following default accounts:
 - **Expense Accounts**: "Petty Cash" (for petty cash expenses), "Genset" (for generator fuel and maintenance)
