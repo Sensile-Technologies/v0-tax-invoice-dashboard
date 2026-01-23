@@ -56,7 +56,10 @@ export default function LoyaltyPage() {
     loyalty_earn_type: 'per_amount' as 'per_litre' | 'per_amount',
     loyalty_points_per_litre: 1,
     loyalty_points_per_amount: 1,
-    loyalty_amount_threshold: 100
+    loyalty_amount_threshold: 100,
+    redemption_points_per_ksh: 1,
+    min_redemption_points: 100,
+    max_redemption_percent: 50
   })
   const [loadingEarningRules, setLoadingEarningRules] = useState(false)
   const [savingEarningRules, setSavingEarningRules] = useState(false)
@@ -265,7 +268,10 @@ export default function LoyaltyPage() {
             loyalty_earn_type: data.data.loyalty_earn_type ?? 'per_amount',
             loyalty_points_per_litre: Number(data.data.loyalty_points_per_litre ?? 1),
             loyalty_points_per_amount: Number(data.data.loyalty_points_per_amount ?? 1),
-            loyalty_amount_threshold: Math.max(1, Number(data.data.loyalty_amount_threshold ?? 100))
+            loyalty_amount_threshold: Math.max(1, Number(data.data.loyalty_amount_threshold ?? 100)),
+            redemption_points_per_ksh: Number(data.data.redemption_points_per_ksh ?? 1),
+            min_redemption_points: Number(data.data.min_redemption_points ?? 100),
+            max_redemption_percent: Number(data.data.max_redemption_percent ?? 50)
           })
         }
       } catch (error) {
@@ -774,6 +780,71 @@ export default function LoyaltyPage() {
                           </div>
                         )}
 
+                        {/* Redemption Rules Section */}
+                        <div className="pt-6 mt-6 border-t">
+                          <h4 className="font-semibold text-base mb-4">Redemption Rules</h4>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Configure how customers can redeem their earned points for discounts
+                          </p>
+                          
+                          <div className="grid gap-4">
+                            <div>
+                              <label className="text-sm font-medium">Points per KES 1</label>
+                              <Input
+                                type="number"
+                                min="1"
+                                step="1"
+                                value={earningRulesConfig.redemption_points_per_ksh}
+                                onChange={(e) => setEarningRulesConfig(prev => ({
+                                  ...prev,
+                                  redemption_points_per_ksh: Math.max(1, parseInt(e.target.value) || 1)
+                                }))}
+                                className="mt-1 rounded-xl"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Example: {earningRulesConfig.redemption_points_per_ksh} point(s) = KES 1 discount
+                              </p>
+                            </div>
+
+                            <div>
+                              <label className="text-sm font-medium">Minimum Points to Redeem</label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="10"
+                                value={earningRulesConfig.min_redemption_points}
+                                onChange={(e) => setEarningRulesConfig(prev => ({
+                                  ...prev,
+                                  min_redemption_points: Math.max(0, parseInt(e.target.value) || 0)
+                                }))}
+                                className="mt-1 rounded-xl"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Customer must have at least {earningRulesConfig.min_redemption_points} points to redeem
+                              </p>
+                            </div>
+
+                            <div>
+                              <label className="text-sm font-medium">Max Discount Percentage</label>
+                              <Input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="5"
+                                value={earningRulesConfig.max_redemption_percent}
+                                onChange={(e) => setEarningRulesConfig(prev => ({
+                                  ...prev,
+                                  max_redemption_percent: Math.min(100, Math.max(0, parseInt(e.target.value) || 0))
+                                }))}
+                                className="mt-1 rounded-xl"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Maximum {earningRulesConfig.max_redemption_percent}% of transaction can be covered by points
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="pt-4 border-t">
                           <Button
                             onClick={saveEarningRules}
@@ -786,7 +857,7 @@ export default function LoyaltyPage() {
                                 Saving...
                               </>
                             ) : (
-                              "Save Earning Rules"
+                              "Save Earning & Redemption Rules"
                             )}
                           </Button>
                         </div>

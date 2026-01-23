@@ -28,7 +28,43 @@ export async function GET(request: NextRequest) {
     )
 
     if (result.rows.length > 0) {
-      return NextResponse.json({ customer: result.rows[0] })
+      const customer = result.rows[0]
+      
+      // Get point balance for this customer at this branch
+      const balanceResult = await pool.query(
+        `SELECT 
+          COALESCE(SUM(points_earned), 0) as total_earned,
+          COALESCE(SUM(points_redeemed), 0) as total_redeemed
+         FROM loyalty_transactions 
+         WHERE branch_id = $1 
+         AND (customer_pin = $2 OR customer_pin = $3)`,
+        [branch_id, customer.tel_no, customer.cust_tin]
+      )
+      
+      const balance = balanceResult.rows[0]
+      const pointBalance = Math.floor(
+        (parseFloat(balance.total_earned) || 0) - (parseFloat(balance.total_redeemed) || 0)
+      )
+      
+      // Get redemption rules for the branch
+      const rulesResult = await pool.query(
+        `SELECT redemption_points_per_ksh, min_redemption_points, max_redemption_percent
+         FROM branches WHERE id = $1`,
+        [branch_id]
+      )
+      const rules = rulesResult.rows[0] || {}
+      
+      return NextResponse.json({ 
+        customer: {
+          ...customer,
+          point_balance: pointBalance,
+          redemption_rules: {
+            points_per_ksh: parseFloat(rules.redemption_points_per_ksh) || 1,
+            min_points: parseFloat(rules.min_redemption_points) || 100,
+            max_percent: parseFloat(rules.max_redemption_percent) || 50
+          }
+        }
+      })
     }
 
     return NextResponse.json({ customer: null })
