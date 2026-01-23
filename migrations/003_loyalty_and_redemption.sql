@@ -33,11 +33,20 @@ ALTER TABLE loyalty_transactions
 -- ============================================
 -- LOYALTY_TRANSACTIONS: Unique Index on sale_id
 -- Required for ON CONFLICT (sale_id) DO NOTHING clause
+-- Skip if index already exists (check pg_indexes first)
 -- ============================================
 
-CREATE UNIQUE INDEX IF NOT EXISTS loyalty_transactions_sale_id_unique 
-  ON loyalty_transactions(sale_id) 
-  WHERE sale_id IS NOT NULL;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes 
+    WHERE indexname = 'loyalty_transactions_sale_id_unique'
+  ) THEN
+    CREATE UNIQUE INDEX loyalty_transactions_sale_id_unique 
+      ON loyalty_transactions(sale_id) 
+      WHERE sale_id IS NOT NULL;
+  END IF;
+END $$;
 
 -- ============================================
 -- BACKFILL: Create missing loyalty transactions
