@@ -80,6 +80,7 @@ Run `migrations/002_seed_default_accounts.sql` in production to seed these defau
 Migration scripts are located in the `/migrations` directory:
 - `001_full_schema.sql` - Complete database schema for fresh installations
 - `002_seed_default_accounts.sql` - Seeds default expense and banking accounts for all vendors
+- `003_loyalty_and_redemption.sql` - Adds loyalty earning/redemption rules and backfills missing transactions
 
 ### Purchase Order Variance Formula
 ```
