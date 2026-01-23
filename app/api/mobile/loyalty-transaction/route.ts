@@ -22,7 +22,42 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const points_earned = Math.floor(transaction_amount / 100)
+    // Check if loyalty transaction already exists for this sale (created by create-sale API)
+    const existingCheck = await pool.query(
+      'SELECT id, points_earned FROM loyalty_transactions WHERE sale_id = $1',
+      [sale_id]
+    )
+    if (existingCheck.rows.length > 0) {
+      // Already created by create-sale API, return existing data
+      return NextResponse.json({ 
+        success: true, 
+        transaction_id: existingCheck.rows[0].id,
+        points_earned: existingCheck.rows[0].points_earned,
+        already_exists: true
+      })
+    }
+
+    // Fetch branch earning rules for points calculation
+    const earningRulesResult = await pool.query(
+      `SELECT loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold
+       FROM branches WHERE id = $1`,
+      [branch_id]
+    )
+    const earningRules = earningRulesResult.rows[0] || {}
+    // Use nullish coalescing BEFORE Number() - Number(null) returns NaN, not null!
+    const earnType = earningRules.loyalty_earn_type ?? 'per_amount'
+    const pointsPerLitre = Number(earningRules.loyalty_points_per_litre ?? 1)
+    const pointsPerAmount = Number(earningRules.loyalty_points_per_amount ?? 1)
+    // Threshold must be at least 1 to prevent division by zero
+    const amountThreshold = Math.max(1, Number(earningRules.loyalty_amount_threshold ?? 100))
+    
+    // Calculate points based on earning type
+    let points_earned: number
+    if (earnType === 'per_litre') {
+      points_earned = Math.floor((quantity || 0) * pointsPerLitre)
+    } else {
+      points_earned = Math.floor(transaction_amount / amountThreshold) * pointsPerAmount
+    }
 
     const result = await pool.query(
       `INSERT INTO loyalty_transactions 
