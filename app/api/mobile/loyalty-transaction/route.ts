@@ -22,36 +22,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if loyalty transaction already exists for this sale (created by create-sale API)
-    const existingCheck = await pool.query(
-      'SELECT id, points_earned FROM loyalty_transactions WHERE sale_id = $1',
-      [sale_id]
+    // Single query: check existing + get earning rules in one call
+    const combinedResult = await pool.query(
+      `SELECT 
+        lt.id as existing_id, lt.points_earned as existing_points,
+        b.loyalty_earn_type, b.loyalty_points_per_litre, b.loyalty_points_per_amount, b.loyalty_amount_threshold
+       FROM branches b
+       LEFT JOIN loyalty_transactions lt ON lt.sale_id = $2
+       WHERE b.id = $1
+       LIMIT 1`,
+      [branch_id, sale_id]
     )
-    if (existingCheck.rows.length > 0) {
-      // Already created by create-sale API, return existing data
+    
+    const row = combinedResult.rows[0]
+    
+    // If transaction already exists, return immediately
+    if (row?.existing_id) {
       return NextResponse.json({ 
         success: true, 
-        transaction_id: existingCheck.rows[0].id,
-        points_earned: existingCheck.rows[0].points_earned,
+        transaction_id: row.existing_id,
+        points_earned: row.existing_points,
         already_exists: true
       })
     }
 
-    // Fetch branch earning rules for points calculation
-    const earningRulesResult = await pool.query(
-      `SELECT loyalty_earn_type, loyalty_points_per_litre, loyalty_points_per_amount, loyalty_amount_threshold
-       FROM branches WHERE id = $1`,
-      [branch_id]
-    )
-    const earningRules = earningRulesResult.rows[0] || {}
-    // Use nullish coalescing BEFORE Number() - Number(null) returns NaN, not null!
-    const earnType = earningRules.loyalty_earn_type ?? 'per_amount'
-    const pointsPerLitre = Number(earningRules.loyalty_points_per_litre ?? 1)
-    const pointsPerAmount = Number(earningRules.loyalty_points_per_amount ?? 1)
-    // Threshold must be at least 1 to prevent division by zero
-    const amountThreshold = Math.max(1, Number(earningRules.loyalty_amount_threshold ?? 100))
+    // Calculate points from earning rules
+    const earnType = row?.loyalty_earn_type ?? 'per_amount'
+    const pointsPerLitre = Number(row?.loyalty_points_per_litre ?? 1)
+    const pointsPerAmount = Number(row?.loyalty_points_per_amount ?? 1)
+    const amountThreshold = Math.max(1, Number(row?.loyalty_amount_threshold ?? 100))
     
-    // Calculate points based on earning type
     let points_earned: number
     if (earnType === 'per_litre') {
       points_earned = Math.floor((quantity || 0) * pointsPerLitre)
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      transaction_id: result.rows[0].id,
+      transaction_id: result.rows[0]?.id || null,
       points_earned 
     })
   } catch (error: any) {
