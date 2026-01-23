@@ -579,7 +579,7 @@ export default function LoyaltyPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle>Loyalty Transactions Report</CardTitle>
-                        <CardDescription>Track all loyalty customer transactions and points earned</CardDescription>
+                        <CardDescription>Track all loyalty points earned and redeemed</CardDescription>
                       </div>
                       <div className="flex gap-2">
                         <Input
@@ -614,13 +614,13 @@ export default function LoyaltyPage() {
                             <thead>
                               <tr className="border-b bg-muted/50">
                                 <th className="p-3 text-left text-sm font-medium">Date</th>
+                                <th className="p-3 text-left text-sm font-medium">Type</th>
                                 <th className="p-3 text-left text-sm font-medium">Customer Name</th>
                                 <th className="p-3 text-left text-sm font-medium">PIN</th>
                                 <th className="p-3 text-left text-sm font-medium">Fuel Type</th>
-                                <th className="p-3 text-right text-sm font-medium">Quantity (L)</th>
                                 <th className="p-3 text-right text-sm font-medium">Amount</th>
-                                <th className="p-3 text-left text-sm font-medium">Payment</th>
-                                <th className="p-3 text-right text-sm font-medium">Points</th>
+                                <th className="p-3 text-right text-sm font-medium">Points Earned</th>
+                                <th className="p-3 text-right text-sm font-medium">Points Redeemed</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -629,22 +629,30 @@ export default function LoyaltyPage() {
                                   <td className="p-3 text-sm">
                                     {new Date(transaction.transaction_date).toLocaleDateString()}
                                   </td>
+                                  <td className="p-3">
+                                    <Badge className={transaction.transaction_type === 'redeem' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}>
+                                      {transaction.transaction_type === 'redeem' ? 'Redemption' : 'Earn'}
+                                    </Badge>
+                                  </td>
                                   <td className="p-3 font-medium">{transaction.customer_name}</td>
                                   <td className="p-3 text-sm">{transaction.customer_pin || "N/A"}</td>
                                   <td className="p-3">{transaction.fuel_type || "N/A"}</td>
-                                  <td className="p-3 text-right">{(parseFloat(transaction.quantity) || 0).toFixed(2)}</td>
                                   <td className="p-3 text-right font-medium">
                                     {formatCurrency(transaction.transaction_amount)}
                                   </td>
-                                  <td className="p-3">
-                                    <Badge variant="outline" className="capitalize">
-                                      {transaction.payment_method || "Cash"}
-                                    </Badge>
+                                  <td className="p-3 text-right">
+                                    {(parseFloat(transaction.points_earned) || 0) > 0 ? (
+                                      <Badge className="bg-green-100 text-green-800 rounded-full">
+                                        +{(parseFloat(transaction.points_earned) || 0).toFixed(0)} pts
+                                      </Badge>
+                                    ) : '-'}
                                   </td>
                                   <td className="p-3 text-right">
-                                    <Badge className="bg-green-100 text-green-800 rounded-full">
-                                      {(parseFloat(transaction.points_earned) || 0).toFixed(0)} pts
-                                    </Badge>
+                                    {(parseFloat(transaction.points_redeemed) || 0) > 0 ? (
+                                      <Badge className="bg-red-100 text-red-800 rounded-full">
+                                        -{(parseFloat(transaction.points_redeemed) || 0).toFixed(0)} pts
+                                      </Badge>
+                                    ) : '-'}
                                   </td>
                                 </tr>
                               ))}
