@@ -163,14 +163,6 @@ async function GET(request) {
                 status: 401
             });
         }
-        // Only directors can view redemption data
-        if (session.role !== 'director' && session.role !== 'vendor') {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: 'Only directors can access bulk redemption'
-            }, {
-                status: 403
-            });
-        }
         const { searchParams } = new URL(request.url);
         const branch_id = searchParams.get('branch_id');
         if (!branch_id) {
@@ -247,14 +239,6 @@ async function POST(request) {
                 error: 'Unauthorized'
             }, {
                 status: 401
-            });
-        }
-        // Only directors can trigger bulk redemption
-        if (session.role !== 'director' && session.role !== 'vendor') {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: 'Only directors can trigger bulk redemption'
-            }, {
-                status: 403
             });
         }
         const body = await request.json();
