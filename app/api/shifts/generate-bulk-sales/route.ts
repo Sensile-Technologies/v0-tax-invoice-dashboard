@@ -166,12 +166,12 @@ export async function POST(request: NextRequest) {
             invoice_number, receipt_number, sale_date,
             fuel_type, quantity, unit_price, total_amount,
             payment_method, is_automated, source_system,
-            transmission_status, created_at
+            transmission_status, created_at, item_id
           ) VALUES (
             $1, $2, $3, $4, $5, $6, NOW(),
             $7, $8, $9, $10,
             'cash', true, 'meter_diff_bulk',
-            'pending', NOW()
+            'pending', NOW(), $11
           ) RETURNING id, invoice_number, quantity, total_amount`,
           [
             shift.branch_id,
@@ -183,7 +183,8 @@ export async function POST(request: NextRequest) {
             reading.fuel_type,
             quantity,
             unitPrice,
-            invoiceAmount
+            invoiceAmount,
+            reading.item_id
           ]
         )
 
@@ -195,7 +196,8 @@ export async function POST(request: NextRequest) {
           quantity: quantity,
           unit_price: unitPrice,
           total_amount: invoiceAmount,
-          branch_id: shift.branch_id
+          branch_id: shift.branch_id,
+          item_id: reading.item_id
         })
 
         invoiceIndex++
