@@ -18,7 +18,7 @@ import {
   Activity,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -370,9 +370,10 @@ export function DashboardHeader({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar>
-                <AvatarImage src="/professional-avatar.png" alt="User" />
-                <AvatarFallback>JD</AvatarFallback>
+              <Avatar className="bg-slate-200">
+                <AvatarFallback className="bg-slate-200">
+                  <User className="h-5 w-5 text-slate-600" />
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
