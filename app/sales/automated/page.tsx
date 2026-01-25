@@ -276,9 +276,14 @@ export default function AutomatedSalesPage() {
     const pendingSales = filteredSales.filter(
       s => s.kra_status !== 'success' && s.transmission_status !== 'transmitted'
     )
+    const skippedCount = filteredSales.length - pendingSales.length
 
     if (pendingSales.length === 0) {
-      toast.info("No pending invoices to resubmit on this page")
+      if (skippedCount > 0) {
+        toast.info(`All ${skippedCount} invoices on this page are already transmitted`)
+      } else {
+        toast.info("No invoices to resubmit on this page")
+      }
       return
     }
 
@@ -286,7 +291,8 @@ export default function AutomatedSalesPage() {
     let successCount = 0
     let failCount = 0
 
-    toast.loading(`Resubmitting ${pendingSales.length} invoices to KRA...`)
+    const skipMsg = skippedCount > 0 ? ` (skipping ${skippedCount} already transmitted)` : ''
+    toast.loading(`Resubmitting ${pendingSales.length} invoices to KRA...${skipMsg}`)
 
     for (const sale of pendingSales) {
       try {

@@ -286,7 +286,7 @@ async function GET(request) {
       LEFT JOIN items i ON s.item_id = i.id
       WHERE s.branch_id = $1 
         AND NOT COALESCE(s.is_credit_note, false)
-        AND (s.kra_status = 'sent' OR s.transmission_status = 'success')
+        AND (s.kra_status = 'success' OR s.transmission_status = 'transmitted')
         ${dateFilter}
     `;
         const kraTransmittedResult = await pool.query(kraTransmittedQuery, params);
