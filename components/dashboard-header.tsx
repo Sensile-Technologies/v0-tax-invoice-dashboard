@@ -377,18 +377,20 @@ export function DashboardHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 rounded-xl" align="end" forceMount>
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center">
+                <User className="h-6 w-6 text-slate-500" />
+              </div>
+              <div>
+                <p className="font-medium">{userName || 'User'}</p>
+                <p className="text-xs text-muted-foreground capitalize">{userRole || 'User'}</p>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer rounded-lg">
-              <User className="mr-2 h-4 w-4" />
-              Profile Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer rounded-lg">
+            <DropdownMenuItem onClick={() => router.push("/subscription")} className="cursor-pointer rounded-lg">
               <CreditCard className="mr-2 h-4 w-4" />
               Manage Subscription
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer rounded-lg">Account Preferences</DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push("/security-settings")} className="cursor-pointer rounded-lg">
               <Shield className="mr-2 h-4 w-4" />
               Security Settings

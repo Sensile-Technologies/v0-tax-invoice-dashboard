@@ -43,24 +43,21 @@ export default function LogsPage() {
 
   const fetchBranches = async () => {
     try {
-      const userStr = localStorage.getItem("flow360_user")
-      if (userStr) {
-        const user = JSON.parse(userStr)
-        const response = await fetch(`/api/branches/list?user_id=${user.id}`)
-        const data = await response.json()
-        setBranches(data.branches || [])
-      }
+      const response = await fetch(`/api/branches/list`, { credentials: 'include' })
+      const data = await response.json()
+      setBranches(data || [])
     } catch (error) {
       console.error("Error fetching branches:", error)
     }
   }
 
-  const fetchLogs = async () => {
+  const fetchLogs = async (branch?: string) => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (branchFilter && branchFilter !== "all") {
-        params.append("branch_id", branchFilter)
+      const targetBranch = branch || branchFilter
+      if (targetBranch && targetBranch !== "all") {
+        params.append("branch_id", targetBranch)
       }
       const response = await fetch(`/api/logs${params.toString() ? '?' + params.toString() : ''}`)
       const data = await response.json()
@@ -74,10 +71,29 @@ export default function LogsPage() {
 
   useEffect(() => {
     fetchBranches()
+    
+    // Get selected branch from localStorage and use it as default filter
+    const storedBranch = localStorage.getItem("selectedBranch")
+    if (storedBranch) {
+      try {
+        const branch = JSON.parse(storedBranch)
+        if (branch?.id && branch.id !== 'hq') {
+          setBranchFilter(branch.id)
+          fetchLogs(branch.id)
+          return
+        }
+      } catch (e) {
+        console.error("Error parsing stored branch:", e)
+      }
+    }
+    fetchLogs()
   }, [])
 
   useEffect(() => {
-    fetchLogs()
+    // Only refetch if branchFilter changes after initial load
+    if (branchFilter) {
+      fetchLogs()
+    }
   }, [branchFilter])
 
   const filteredLogs = logs.filter((log) => {
@@ -153,7 +169,7 @@ export default function LogsPage() {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2 flex-wrap">
-                    <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
+                    <Button variant="outline" size="sm" onClick={() => fetchLogs()} disabled={loading}>
                       <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
                       Refresh
                     </Button>

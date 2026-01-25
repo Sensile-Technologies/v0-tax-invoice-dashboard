@@ -695,6 +695,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../../app/subscription/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/subscription">> = Specific
+  const handler = {} as typeof import("../../../app/subscription/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../../app/vendor/branch/profile/logs/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/vendor/branch/profile/logs">> = Specific
@@ -2076,6 +2085,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/stock/transfer">> = Specific
   const handler = {} as typeof import("../../../app/api/stock/transfer/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../../app/api/subscription/invoices/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/subscription/invoices">> = Specific
+  const handler = {} as typeof import("../../../app/api/subscription/invoices/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

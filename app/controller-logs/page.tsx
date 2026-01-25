@@ -103,11 +103,12 @@ export default function ControllerLogsPage() {
     notes: ""
   })
 
-  const fetchLogs = async () => {
+  const fetchLogs = async (branchId?: string) => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
       params.append("limit", "100")
+      if (branchId) params.append("branch_id", branchId)
       if (filters.startDate) params.append("start_date", filters.startDate)
       if (filters.endDate) params.append("end_date", filters.endDate)
       if (filters.ptsId) params.append("pts_id", filters.ptsId)
@@ -126,28 +127,32 @@ export default function ControllerLogsPage() {
   }
 
   useEffect(() => {
-    fetchLogs()
-    fetchMappings()
-    
     // Get current branch from localStorage
     const storedBranch = localStorage.getItem("selectedBranch")
     if (storedBranch) {
       try {
         const branch = JSON.parse(storedBranch)
-        if (branch?.id) {
+        if (branch?.id && branch.id !== 'hq') {
           setCurrentBranchId(branch.id)
+          fetchLogs(branch.id)
+          fetchMappings(branch.id)
           fetchItems(branch.id)
+          return
         }
       } catch (e) {
         console.error("Error parsing stored branch:", e)
       }
     }
+    // No branch selected - show message or empty state
+    setLoading(false)
   }, [])
 
-  const fetchMappings = async () => {
+  const fetchMappings = async (branchId?: string) => {
     setLoadingMappings(true)
     try {
-      const response = await fetch("/api/controller-logs/fuel-grade-mappings")
+      const params = new URLSearchParams()
+      if (branchId) params.append("branch_id", branchId)
+      const response = await fetch(`/api/controller-logs/fuel-grade-mappings?${params}`)
       const data = await response.json()
       if (data.success) {
         setMappings(data.data || [])
@@ -317,7 +322,7 @@ export default function ControllerLogsPage() {
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
-            <Button onClick={fetchLogs} disabled={loading}>
+            <Button onClick={() => fetchLogs(currentBranchId)} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
               Refresh
             </Button>
@@ -377,10 +382,10 @@ export default function ControllerLogsPage() {
                     onChange={(e) => setFilters({...filters, ptsId: e.target.value})}
                   />
                 </div>
-                <Button onClick={fetchLogs}>Apply Filters</Button>
+                <Button onClick={() => fetchLogs(currentBranchId)}>Apply Filters</Button>
                 <Button variant="outline" onClick={() => {
                   setFilters({ startDate: "", endDate: "", ptsId: "" })
-                  setTimeout(fetchLogs, 100)
+                  setTimeout(() => fetchLogs(currentBranchId), 100)
                 }}>Clear</Button>
               </div>
             </CardContent>
