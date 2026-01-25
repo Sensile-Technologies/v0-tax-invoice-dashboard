@@ -2,9 +2,7 @@
   "/api/auth/session/route": "app/api/auth/session/route.js",
   "/api/branch-items/route": "app/api/branch-items/route.js",
   "/api/branches/list/route": "app/api/branches/list/route.js",
-  "/api/customers/list/route": "app/api/customers/list/route.js",
   "/api/customers/route": "app/api/customers/route.js",
-  "/api/customers/statement/route": "app/api/customers/statement/route.js",
   "/api/dispensers/route": "app/api/dispensers/route.js",
   "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
@@ -15,12 +13,6 @@
   "/api/tanks/route": "app/api/tanks/route.js",
   "/headquarters/page": "app/headquarters/page.js",
   "/page": "app/page.js",
-  "/reports/balance-sheet/page": "app/reports/balance-sheet/page.js",
-  "/reports/cash-flow/page": "app/reports/cash-flow/page.js",
   "/reports/customer-statement/page": "app/reports/customer-statement/page.js",
-  "/reports/daily-sales/page": "app/reports/daily-sales/page.js",
-  "/reports/page": "app/reports/page.js",
-  "/reports/profit-loss/page": "app/reports/profit-loss/page.js",
-  "/reports/vat-report/page": "app/reports/vat-report/page.js",
   "/sales/summary/page": "app/sales/summary/page.js"
 }

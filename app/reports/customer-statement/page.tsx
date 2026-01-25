@@ -62,10 +62,42 @@ export default function CustomerStatementPage() {
   const [statementData, setStatementData] = useState<StatementData | null>(null)
   const [loadingCustomers, setLoadingCustomers] = useState(true)
   const [loadingStatement, setLoadingStatement] = useState(false)
+  const [branchId, setBranchId] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchCustomers()
+    initializePage()
   }, [])
+
+  const initializePage = async () => {
+    let currentBranchId: string | null = null
+
+    if (typeof window !== 'undefined') {
+      const storedBranch = localStorage.getItem("selectedBranch")
+      if (storedBranch) {
+        try {
+          const branch = JSON.parse(storedBranch)
+          currentBranchId = branch.id
+        } catch {}
+      }
+    }
+
+    if (!currentBranchId) {
+      try {
+        const res = await fetch('/api/auth/session')
+        const data = await res.json()
+        if (data.user?.branch_id) {
+          currentBranchId = data.user.branch_id
+        }
+      } catch {}
+    }
+
+    if (currentBranchId) {
+      setBranchId(currentBranchId)
+      fetchCustomers(currentBranchId)
+    } else {
+      setLoadingCustomers(false)
+    }
+  }
 
   useEffect(() => {
     if (selectedCustomer) {
@@ -75,10 +107,15 @@ export default function CustomerStatementPage() {
     }
   }, [selectedCustomer, dateFrom, dateTo])
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = async (branchIdParam?: string) => {
     try {
       setLoadingCustomers(true)
-      const response = await fetch('/api/customers/list')
+      const targetBranchId = branchIdParam || branchId
+      if (!targetBranchId) {
+        setCustomers([])
+        return
+      }
+      const response = await fetch(`/api/customers/list?branch_id=${targetBranchId}`)
       const data = await response.json()
       if (data.customers) {
         setCustomers(data.customers)
@@ -96,6 +133,7 @@ export default function CustomerStatementPage() {
     try {
       setLoadingStatement(true)
       const params = new URLSearchParams({ customer_id: selectedCustomer })
+      if (branchId) params.append('branch_id', branchId)
       if (dateFrom) params.append('start_date', dateFrom)
       if (dateTo) params.append('end_date', dateTo)
 
@@ -164,6 +202,14 @@ export default function CustomerStatementPage() {
               </div>
             </div>
 
+            {!branchId && !loadingCustomers && (
+              <div className="text-center py-8 mb-6 text-slate-500 bg-slate-50 rounded-2xl">
+                Please select a branch from the header to view customer statements.
+              </div>
+            )}
+
+            {branchId && (
+            <>
             <Card className="rounded-2xl mb-6">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">Statement Parameters</CardTitle>
@@ -174,7 +220,7 @@ export default function CustomerStatementPage() {
                     <label className="text-sm font-medium text-slate-700 mb-2 block">Select Customer</label>
                     <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
                       <SelectTrigger className="rounded-full">
-                        <SelectValue placeholder={loadingCustomers ? "Loading..." : "Choose customer"} />
+                        <SelectValue placeholder={loadingCustomers ? "Loading..." : customers.length === 0 ? "No customers found" : "Choose customer"} />
                       </SelectTrigger>
                       <SelectContent>
                         {customers.map((customer) => (
@@ -320,6 +366,8 @@ export default function CustomerStatementPage() {
               <div className="text-center py-12 text-slate-500">
                 No statement data found for this customer.
               </div>
+            )}
+            </>
             )}
 
             <footer className="mt-8 pt-6 border-t text-center text-sm text-navy-900 font-medium">
