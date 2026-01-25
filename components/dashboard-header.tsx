@@ -49,10 +49,13 @@ export function DashboardHeader({
 }: DashboardHeaderProps) {
   const [selectedBranch, setSelectedBranch] = useState(currentBranch)
   const [branches, setBranches] = useState<Array<{ id: string; name: string; type: string; status?: string }>>([{ id: "hq", name: "Head Office", type: "headquarters", status: "active" }])
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: "Notification 1", message: "This is the first notification", time: "10:00 AM", unread: true },
-    { id: 2, title: "Notification 2", message: "This is the second notification", time: "11:00 AM", unread: false },
-  ])
+  const [notifications, setNotifications] = useState<Array<{
+    id: number
+    title: string
+    message: string
+    type: string
+    created_at: string
+  }>>([])
   const [currentBranchName, setCurrentBranchName] = useState("Head Office")
   const [userName, setUserName] = useState("")
   const [userRole, setUserRole] = useState<string>("")
@@ -165,6 +168,24 @@ export function DashboardHeader({
       }
     }
   }, [branchIdFromUrl, branches])
+
+  // Fetch notifications from admin
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('/api/notifications', { credentials: 'include' })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            setNotifications(data.notifications || [])
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching notifications:", error)
+      }
+    }
+    fetchNotifications()
+  }, [])
 
   const fetchBranchesWithRole = async (canSwitch: boolean) => {
     try {
@@ -335,35 +356,44 @@ export function DashboardHeader({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative rounded-xl">
               <Bell className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                2
-              </span>
+              {notifications.length > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                  {notifications.length}
+                </span>
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80 rounded-xl">
             <DropdownMenuLabel>Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <ScrollArea className="h-72">
-              {notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`px-4 py-3 hover:bg-accent rounded-lg cursor-pointer ${
-                    notification.unread ? "bg-blue-50" : ""
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{notification.title}</p>
-                      <p className="text-xs text-muted-foreground">{notification.message}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
-                    </div>
-                    {notification.unread && <div className="h-2 w-2 rounded-full bg-blue-500 mt-1" />}
-                  </div>
+              {notifications.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  No notifications
                 </div>
-              ))}
+              ) : (
+                notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className="px-4 py-3 hover:bg-accent rounded-lg cursor-pointer border-b last:border-b-0"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${
+                        notification.type === 'billing' ? 'bg-amber-500' : 
+                        notification.type === 'enhancement' ? 'bg-blue-500' : 'bg-green-500'
+                      }`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium">{notification.title}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{notification.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(notification.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </ScrollArea>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer justify-center rounded-lg">Mark all as read</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
