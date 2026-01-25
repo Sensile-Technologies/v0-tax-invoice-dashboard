@@ -21,6 +21,10 @@ import { sunmiPrinter, InvoiceData, setPrintContext } from '../utils/printer'
 interface SaleInvoice {
   id: string
   invoice_number: string
+  kra_cu_inv?: string
+  kra_scu_id?: string
+  kra_rcpt_sign?: string
+  kra_internal_data?: string
   customer_name: string
   customer_pin?: string
   sale_date: string
@@ -93,8 +97,8 @@ export default function InvoicesScreen({ navigation }: any) {
       const totalCo2 = quantity * co2PerLitre
       
       const invoiceData: InvoiceData = {
-        invoiceNumber: invoice.invoice_number || `SALE-${invoice.id.slice(0, 8)}`,
-        receiptNo: invoice.invoice_number?.split('/').pop(),
+        invoiceNumber: invoice.kra_cu_inv || invoice.invoice_number || `SALE-${invoice.id.slice(0, 8)}`,
+        receiptNo: invoice.kra_cu_inv?.split('/').pop() || invoice.invoice_number?.replace('CIV-', ''),
         date: saleDate.toLocaleDateString('en-KE', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         time: saleDate.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
         branchName: invoice.branch_name || user?.branch_name || 'Flow360 Station',
@@ -122,17 +126,17 @@ export default function InvoicesScreen({ navigation }: any) {
         paymentMethod: invoice.payment_method === 'mobile_money' ? 'M-Pesa' : 
                        (invoice.payment_method?.charAt(0)?.toUpperCase() || '') + (invoice.payment_method?.slice(1) || ''),
         kraPin: invoice.kra_pin,
-        cuSerialNumber: invoice.cu_serial_number,
-        cuInvoiceNo: invoice.invoice_number,
-        receiptSignature: invoice.receipt_signature,
+        cuSerialNumber: invoice.kra_scu_id || invoice.cu_serial_number,
+        cuInvoiceNo: invoice.kra_cu_inv || invoice.invoice_number,
+        receiptSignature: invoice.kra_rcpt_sign || invoice.receipt_signature,
         controlCode: invoice.control_code,
         mrcNo: invoice.mrc_no,
-        intrlData: invoice.intrl_data,
+        intrlData: invoice.kra_internal_data || invoice.intrl_data,
         co2PerLitre: co2PerLitre,
         totalCo2: totalCo2,
         isReprint: true,
-        qrCodeData: (invoice.receipt_signature && invoice.branch_pin)
-          ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${invoice.branch_pin}${invoice.bhf_id || '03'}${invoice.receipt_signature}`
+        qrCodeData: (invoice.kra_rcpt_sign && invoice.branch_pin)
+          ? `https://etims-sbx.kra.go.ke/common/link/etims/receipt/indexEtimsReceiptData?Data=${invoice.branch_pin}${invoice.bhf_id || '03'}${invoice.kra_rcpt_sign}`
           : undefined,
       }
 
@@ -369,7 +373,7 @@ export default function InvoicesScreen({ navigation }: any) {
         renderItem={({ item }) => (
           <View style={styles.invoiceCard}>
             <View style={styles.invoiceHeader}>
-              <Text style={styles.invoiceNumber}>{item.invoice_number || `SALE-${item.id.slice(0, 8)}`}</Text>
+              <Text style={styles.invoiceNumber}>{item.kra_cu_inv || item.invoice_number || `SALE-${item.id.slice(0, 8)}`}</Text>
               <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.payment_method) + '20' }]}>
                 <Text style={[styles.statusText, { color: getStatusColor(item.payment_method) }]}>
                   {getStatusText(item.payment_method)}

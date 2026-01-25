@@ -361,9 +361,19 @@ async function PUT(request) {
             });
         }
         const user = userResult.rows[0];
-        const userVendorId = user.vendor_id || (await client.query('SELECT vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+        // Get user's vendor_id - either directly from vendors table or via staff->branch relationship
+        let userVendorId = user.vendor_id;
+        if (!userVendorId) {
+            const vendorResult = await client.query('SELECT b.vendor_id FROM branches b JOIN staff s ON s.branch_id = b.id WHERE s.user_id = $1 LIMIT 1', [
+                session.id
+            ]);
+            userVendorId = vendorResult.rows[0]?.vendor_id;
+        }
+        // Get the user's assigned branches (they may have access to multiple)
+        const userBranchesResult = await client.query('SELECT branch_id FROM staff WHERE user_id = $1', [
             session.id
-        ])).rows[0]?.vendor_id;
+        ]);
+        const userBranchIds = userBranchesResult.rows.map((r)=>r.branch_id);
         const branchItemCheck = await client.query(`SELECT bi.*, b.vendor_id 
        FROM branch_items bi 
        JOIN branches b ON bi.branch_id = b.id 
@@ -387,16 +397,27 @@ async function PUT(request) {
                 status: 403
             });
         }
+        // For supervisors and managers, check if they have access to this branch
         if ([
             'supervisor',
             'manager'
-        ].includes(user.role) && user.branch_id !== branchItem.branch_id) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                success: false,
-                error: "Access denied to this branch"
-            }, {
-                status: 403
-            });
+        ].includes(user.role)) {
+            if (userBranchIds.length === 0) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: false,
+                    error: "No branch assigned to your account"
+                }, {
+                    status: 403
+                });
+            }
+            if (!userBranchIds.includes(branchItem.branch_id)) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    success: false,
+                    error: "You can only edit prices for your assigned branch"
+                }, {
+                    status: 403
+                });
+            }
         }
         const result = await client.query(`UPDATE branch_items SET
         sale_price = COALESCE($1, sale_price),
