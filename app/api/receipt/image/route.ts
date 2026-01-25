@@ -27,10 +27,25 @@ function getChromiumPath(): string {
 let cachedBrowser: Browser | null = null
 let browserLastUsed = Date.now()
 
+function closeBrowser() {
+  if (cachedBrowser) {
+    try {
+      cachedBrowser.close().catch(() => {})
+    } catch {}
+    cachedBrowser = null
+  }
+}
+
 async function getBrowser(): Promise<Browser> {
-  if (cachedBrowser && cachedBrowser.connected) {
-    browserLastUsed = Date.now()
-    return cachedBrowser
+  if (cachedBrowser) {
+    try {
+      if (cachedBrowser.connected) {
+        browserLastUsed = Date.now()
+        return cachedBrowser
+      }
+    } catch {
+      closeBrowser()
+    }
   }
   
   const chromiumPath = getChromiumPath()
@@ -53,8 +68,7 @@ async function getBrowser(): Promise<Browser> {
 setInterval(() => {
   if (cachedBrowser && Date.now() - browserLastUsed > 5 * 60 * 1000) {
     console.log('[Receipt Image API] Closing idle browser')
-    cachedBrowser.close().catch(() => {})
-    cachedBrowser = null
+    closeBrowser()
   }
 }, 60000)
 
@@ -291,8 +305,19 @@ export async function POST(request: Request) {
       const documentType = isCreditNote ? 'credit_note' : 'invoice'
       const html = generateReceiptHTML(sale, qrCodeDataUrl, documentType)
       
-      const browser = await getBrowser()
-      const page = await browser.newPage()
+      let browser: Browser
+      let page: Awaited<ReturnType<Browser['newPage']>>
+      
+      try {
+        browser = await getBrowser()
+        page = await browser.newPage()
+      } catch (browserError: any) {
+        console.log('[Receipt Image API] Browser error, resetting:', browserError.message)
+        closeBrowser()
+        browser = await getBrowser()
+        page = await browser.newPage()
+      }
+      
       await page.setViewport({ width: 384, height: 800 })
       await page.setContent(html, { waitUntil: 'networkidle0' })
       
