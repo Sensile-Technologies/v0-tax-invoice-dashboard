@@ -76,7 +76,24 @@ function generateReceiptHTML(sale: any, qrCodeDataUrl: string, documentType: 'in
   
   const kraPin = sale.kra_pin || 'P052344628B'
   
-  const receiptNo = sale.kra_cu_inv?.split('/')[1] || sale.invoice_number?.replace('INV-', '') || String(sale.id).substring(0, 8)
+  // Extract receipt number from kra_cu_inv
+  // Format should be: KRACU0300003796/394 (sdcId/rcptNo)
+  // Some old data may be stored as: KRACU030000797A107 (no slash - fallback to last digits)
+  let receiptNo = ''
+  if (sale.kra_cu_inv) {
+    if (sale.kra_cu_inv.includes('/')) {
+      // New correct format with slash
+      receiptNo = sale.kra_cu_inv.split('/').pop() || ''
+    } else {
+      // Old format without slash - extract digits after the SCU ID prefix
+      // SCU ID format: KRACU + 10 digits, so receipt number starts at position 15
+      const match = sale.kra_cu_inv.match(/KRACU\d{10}(.+)$/)
+      receiptNo = match ? match[1] : ''
+    }
+  }
+  if (!receiptNo) {
+    receiptNo = sale.invoice_number?.replace('CIV-', '').replace('INV-', '') || String(sale.id).substring(0, 8)
+  }
 
   return `
 <!DOCTYPE html>
