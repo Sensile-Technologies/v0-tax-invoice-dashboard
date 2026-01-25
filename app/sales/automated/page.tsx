@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components
 import { Badge } from "@/components/ui/badge"
 import { useCurrency } from "@/lib/currency-utils"
 import { toast } from "sonner"
-import { ChevronLeft, ChevronRight, RefreshCw, Zap, Check, X, Printer, MoreVertical, FileText } from "lucide-react"
+import { ChevronLeft, ChevronRight, RefreshCw, Zap, Check, X, Printer, MoreVertical, FileText, Send } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -56,6 +56,7 @@ export default function AutomatedSalesPage() {
   const [currentBranchId, setCurrentBranchId] = useState<string | null>(null)
   const [branchControllerId, setBranchControllerId] = useState<string | null>(null)
   const [dataSource, setDataSource] = useState<"sales" | "controller">("sales")
+  const [bulkResubmitting, setBulkResubmitting] = useState(false)
 
   useEffect(() => {
     const getBranchData = () => {
@@ -257,6 +258,85 @@ export default function AutomatedSalesPage() {
     toast.info(`Retrying transmission for sale ${saleId}...`)
   }
 
+  async function handleResubmitPageToKra() {
+    const currentBranch = localStorage.getItem("selectedBranch")
+    if (!currentBranch) {
+      toast.error("No branch selected")
+      return
+    }
+    
+    let branchData
+    try {
+      branchData = JSON.parse(currentBranch)
+    } catch {
+      toast.error("Invalid branch selection")
+      return
+    }
+
+    const pendingSales = filteredSales.filter(
+      s => s.kra_status !== 'success' && s.transmission_status !== 'transmitted'
+    )
+
+    if (pendingSales.length === 0) {
+      toast.info("No pending invoices to resubmit on this page")
+      return
+    }
+
+    setBulkResubmitting(true)
+    let successCount = 0
+    let failCount = 0
+
+    toast.loading(`Resubmitting ${pendingSales.length} invoices to KRA...`)
+
+    for (const sale of pendingSales) {
+      try {
+        const response = await fetch('/api/sales/resubmit-kra', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sale_id: sale.id,
+            branch_id: branchData.id
+          })
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          const kraData = result.kraResponse?.data || {}
+          const cuInvNo = (kraData.sdcId && result.invcNo) ? `${kraData.sdcId}/${result.invcNo}` : null
+          
+          setSales(prev => prev.map(s => 
+            s.id === sale.id ? { 
+              ...s, 
+              kra_status: 'success', 
+              transmission_status: 'transmitted',
+              kra_cu_inv: cuInvNo || s.kra_cu_inv,
+              kra_scu_id: kraData.sdcId || s.kra_scu_id,
+              kra_rcpt_sign: kraData.rcptSign || s.kra_rcpt_sign
+            } : s
+          ))
+          successCount++
+        } else {
+          failCount++
+        }
+      } catch (error) {
+        console.error(`Failed to resubmit sale ${sale.id}:`, error)
+        failCount++
+      }
+    }
+
+    toast.dismiss()
+    setBulkResubmitting(false)
+
+    if (successCount > 0 && failCount === 0) {
+      toast.success(`Successfully resubmitted ${successCount} invoices to KRA`)
+    } else if (successCount > 0 && failCount > 0) {
+      toast.warning(`Resubmitted ${successCount} invoices, ${failCount} failed`)
+    } else {
+      toast.error(`Failed to resubmit ${failCount} invoices`)
+    }
+  }
+
   function openCreditNoteDialog(sale: any) {
     if (sale.is_credit_note) {
       toast.error("Cannot issue credit note for a credit note")
@@ -407,6 +487,15 @@ export default function AutomatedSalesPage() {
                   <p className="text-slate-600">Sales transactions posted automatically from external systems</p>
                 </div>
                 <div className="flex gap-2 items-center">
+                  <Button 
+                    variant="default" 
+                    onClick={handleResubmitPageToKra} 
+                    disabled={bulkResubmitting || loading}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Send className={`h-4 w-4 mr-2 ${bulkResubmitting ? "animate-pulse" : ""}`} />
+                    {bulkResubmitting ? "Resubmitting..." : "Resubmit Page to KRA"}
+                  </Button>
                   <Button variant="outline" onClick={fetchData} disabled={loading}>
                     <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
                     Refresh
