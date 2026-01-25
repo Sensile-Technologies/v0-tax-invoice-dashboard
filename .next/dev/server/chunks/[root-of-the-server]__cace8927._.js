@@ -400,7 +400,21 @@ async function POST(request) {
             y += 4;
             drawLine();
             doc.setFontSize(7);
-            const receiptNo = sale.kra_cu_inv?.split('/')[1] || sale.invoice_number?.replace('INV-', '') || String(sale.id).substring(0, 8);
+            // Extract receipt number from kra_cu_inv
+            // Format should be: KRACU0300003796/394 (sdcId/rcptNo)
+            // Some old data may be stored as: KRACU030000797A107 (no slash)
+            let receiptNo = '';
+            if (sale.kra_cu_inv) {
+                if (sale.kra_cu_inv.includes('/')) {
+                    receiptNo = sale.kra_cu_inv.split('/').pop() || '';
+                } else {
+                    const match = sale.kra_cu_inv.match(/KRACU\d{10}(.+)$/);
+                    receiptNo = match ? match[1] : '';
+                }
+            }
+            if (!receiptNo) {
+                receiptNo = sale.invoice_number?.replace('CIV-', '').replace('INV-', '') || String(sale.id).substring(0, 8);
+            }
             doc.text(`Receipt No:`, leftMargin, y);
             doc.text(receiptNo, leftMargin + 22, y);
             y += 3;

@@ -7,6 +7,7 @@
   "/api/fuel-prices/route": "app/api/fuel-prices/route.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
+  "/api/receipt/generate/route": "app/api/receipt/generate/route.js",
   "/api/reports/dssr/route": "app/api/reports/dssr/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
