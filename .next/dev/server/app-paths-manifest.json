@@ -8,10 +8,14 @@
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
   "/api/nozzles/route": "app/api/nozzles/route.js",
   "/api/reports/dssr/route": "app/api/reports/dssr/route.js",
+  "/api/reports/fiscal/route": "app/api/reports/fiscal/route.js",
   "/api/sales/route": "app/api/sales/route.js",
   "/api/shifts/route": "app/api/shifts/route.js",
   "/api/tanks/route": "app/api/tanks/route.js",
   "/headquarters/page": "app/headquarters/page.js",
   "/page": "app/page.js",
+  "/reports/daily-sales/page": "app/reports/daily-sales/page.js",
+  "/reports/page": "app/reports/page.js",
+  "/reports/x-report/page": "app/reports/x-report/page.js",
   "/sales/summary/page": "app/sales/summary/page.js"
 }
