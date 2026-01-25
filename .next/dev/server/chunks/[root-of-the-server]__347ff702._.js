@@ -238,17 +238,32 @@ async function POST(request) {
             notes || null
         ]);
         const shiftId = result.rows[0].id;
-        // Record tank opening readings at shift start (capture current_stock as opening)
+        // Record tank opening readings at shift start
+        // Use the PREVIOUS shift's closing reading (from shift_readings) as this shift's opening
+        // Fall back to tanks.current_stock only if no previous reading exists
         const tanksResult = await pool.query(`SELECT id, current_stock FROM tanks WHERE branch_id = $1`, [
             branch_id
         ]);
+        // Get the most recent closing reading for each tank from previous shifts
+        const prevTankReadingsResult = await pool.query(`SELECT DISTINCT ON (tank_id) tank_id, closing_reading
+       FROM shift_readings
+       WHERE branch_id = $1 AND reading_type = 'tank' AND tank_id IS NOT NULL AND closing_reading IS NOT NULL
+       ORDER BY tank_id, created_at DESC`, [
+            branch_id
+        ]);
+        const prevTankClosings = {};
+        for (const r of prevTankReadingsResult.rows){
+            prevTankClosings[r.tank_id] = parseFloat(r.closing_reading) || 0;
+        }
         for (const tank of tanksResult.rows){
+            // Use previous shift's closing reading, or fall back to current_stock for new tanks
+            const openingReading = prevTankClosings[tank.id] ?? (parseFloat(tank.current_stock) || 0);
             await pool.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, opening_reading)
          VALUES ($1, $2, 'tank', $3, $4)`, [
                 shiftId,
                 branch_id,
                 tank.id,
-                parseFloat(tank.current_stock) || 0
+                openingReading
             ]);
         }
         // Record nozzle opening readings at shift start (capture initial_meter_reading)
