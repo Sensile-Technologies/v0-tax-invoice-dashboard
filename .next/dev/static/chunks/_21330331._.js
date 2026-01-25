@@ -1640,8 +1640,8 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "text-xs md:text-sm text-muted-foreground hidden sm:block",
                                         children: [
-                                            "Welcome back, ",
-                                            userName
+                                            "Welcome back",
+                                            userName ? `, ${userName}` : ''
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
@@ -2132,7 +2132,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "font-medium",
-                                                        children: userName || 'User'
+                                                        children: userName || 'Loading...'
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/dashboard-header.tsx",
                                                         lineNumber: 416,
@@ -2140,7 +2140,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                         className: "text-xs text-muted-foreground capitalize",
-                                                        children: userRole || 'User'
+                                                        children: userRole || 'Loading...'
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/dashboard-header.tsx",
                                                         lineNumber: 417,
