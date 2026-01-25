@@ -75,15 +75,14 @@ export async function POST(request: Request) {
                kra_scu_id = $2,
                kra_cu_inv = $3,
                kra_internal_data = $4,
-               kra_response = $5,
+               kra_error = NULL,
                updated_at = NOW()
-           WHERE id = $6`,
+           WHERE id = $5`,
           [
             kraData.rcptSign || null,
             kraData.sdcId || null,
             cuInvNo,
             kraData.intrlData || null,
-            JSON.stringify(kraResult.kraResponse),
             sale_id
           ]
         )
@@ -91,7 +90,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ 
           success: true, 
           message: "Invoice successfully transmitted to KRA",
-          kraResponse: kraResult.kraResponse
+          kraResponse: kraResult.kraResponse,
+          invcNo: kraResult.invcNo
         })
       } else {
         await client.query(
