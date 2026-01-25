@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { Pool } from "pg"
-import puppeteer, { Browser } from "puppeteer"
+import puppeteer from "puppeteer"
 import QRCode from "qrcode"
 import { execSync } from "child_process"
 import { formatInTimeZone } from "date-fns-tz"
@@ -23,54 +23,6 @@ function getChromiumPath(): string {
   } catch {}
   return '/usr/bin/chromium'
 }
-
-let cachedBrowser: Browser | null = null
-let browserLastUsed = Date.now()
-
-function closeBrowser() {
-  if (cachedBrowser) {
-    try {
-      cachedBrowser.close().catch(() => {})
-    } catch {}
-    cachedBrowser = null
-  }
-}
-
-async function getBrowser(): Promise<Browser> {
-  if (cachedBrowser) {
-    try {
-      if (cachedBrowser.connected) {
-        browserLastUsed = Date.now()
-        return cachedBrowser
-      }
-    } catch {
-      closeBrowser()
-    }
-  }
-  
-  const chromiumPath = getChromiumPath()
-  console.log('[Receipt Image API] Launching browser at:', chromiumPath)
-  
-  cachedBrowser = await puppeteer.launch({
-    headless: true,
-    executablePath: chromiumPath,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process']
-  })
-  browserLastUsed = Date.now()
-  
-  cachedBrowser.on('disconnected', () => {
-    cachedBrowser = null
-  })
-  
-  return cachedBrowser
-}
-
-setInterval(() => {
-  if (cachedBrowser && Date.now() - browserLastUsed > 5 * 60 * 1000) {
-    console.log('[Receipt Image API] Closing idle browser')
-    closeBrowser()
-  }
-}, 60000)
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -305,19 +257,14 @@ export async function POST(request: Request) {
       const documentType = isCreditNote ? 'credit_note' : 'invoice'
       const html = generateReceiptHTML(sale, qrCodeDataUrl, documentType)
       
-      let browser: Browser
-      let page: Awaited<ReturnType<Browser['newPage']>>
+      const chromiumPath = getChromiumPath()
+      const browser = await puppeteer.launch({
+        headless: true,
+        executablePath: chromiumPath,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process']
+      })
       
-      try {
-        browser = await getBrowser()
-        page = await browser.newPage()
-      } catch (browserError: any) {
-        console.log('[Receipt Image API] Browser error, resetting:', browserError.message)
-        closeBrowser()
-        browser = await getBrowser()
-        page = await browser.newPage()
-      }
-      
+      const page = await browser.newPage()
       await page.setViewport({ width: 384, height: 800 })
       await page.setContent(html, { waitUntil: 'networkidle0' })
       
@@ -335,7 +282,7 @@ export async function POST(request: Request) {
         omitBackground: false
       })
       
-      await page.close()
+      await browser.close()
       
       const base64Image = Buffer.from(screenshotBuffer).toString('base64')
 
