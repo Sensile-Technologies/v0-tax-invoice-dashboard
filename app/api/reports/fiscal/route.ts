@@ -11,15 +11,20 @@ export async function GET(request: NextRequest) {
     const cookieStore = await cookies()
     const sessionCookie = cookieStore.get('user_session')
     
+    console.log('[Fiscal Report] Cookie present:', !!sessionCookie)
+    
     if (!sessionCookie) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      console.log('[Fiscal Report] No session cookie found')
+      return NextResponse.json({ error: "Unauthorized", debug: "no_cookie" }, { status: 401 })
     }
     
     let session
     try {
       session = JSON.parse(sessionCookie.value)
-    } catch {
-      return NextResponse.json({ error: "Invalid session" }, { status: 401 })
+      console.log('[Fiscal Report] Session parsed, user:', session?.email || session?.id)
+    } catch (parseError) {
+      console.log('[Fiscal Report] Failed to parse session:', parseError)
+      return NextResponse.json({ error: "Invalid session", debug: "parse_failed" }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
