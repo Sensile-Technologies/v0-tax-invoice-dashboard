@@ -1313,20 +1313,20 @@ async function POST(request) {
                kra_scu_id = $2,
                kra_cu_inv = $3,
                kra_internal_data = $4,
-               kra_response = $5,
+               kra_error = NULL,
                updated_at = NOW()
-           WHERE id = $6`, [
+           WHERE id = $5`, [
                     kraData.rcptSign || null,
                     kraData.sdcId || null,
                     cuInvNo,
                     kraData.intrlData || null,
-                    JSON.stringify(kraResult.kraResponse),
                     sale_id
                 ]);
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                     success: true,
                     message: "Invoice successfully transmitted to KRA",
-                    kraResponse: kraResult.kraResponse
+                    kraResponse: kraResult.kraResponse,
+                    invcNo: kraResult.invcNo
                 });
             } else {
                 await client.query(`UPDATE sales 
