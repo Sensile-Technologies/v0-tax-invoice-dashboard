@@ -271,7 +271,7 @@ export function DashboardHeader({
         <div className="flex items-center gap-2">
           <Image src="/flow360-logo.png" alt="Flow360 Logo" width={28} height={28} className="rounded-lg hidden sm:block" />
           <div className="flex flex-col">
-            <span className="text-xs md:text-sm text-muted-foreground hidden sm:block">Welcome back, {userName}</span>
+            <span className="text-xs md:text-sm text-muted-foreground hidden sm:block">Welcome back{userName ? `, ${userName}` : ''}</span>
             <span className="text-sm md:text-lg font-bold truncate max-w-[120px] sm:max-w-none">{currentBranchName}</span>
           </div>
         </div>
@@ -413,8 +413,8 @@ export function DashboardHeader({
                 <User className="h-6 w-6 text-slate-500" />
               </div>
               <div>
-                <p className="font-medium">{userName || 'User'}</p>
-                <p className="text-xs text-muted-foreground capitalize">{userRole || 'User'}</p>
+                <p className="font-medium">{userName || 'Loading...'}</p>
+                <p className="text-xs text-muted-foreground capitalize">{userRole || 'Loading...'}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
