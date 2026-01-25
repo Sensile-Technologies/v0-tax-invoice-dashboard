@@ -436,8 +436,20 @@ export default function SalesReportsPage() {
       toast.dismiss()
       
       if (result.success) {
+        // Extract KRA data from response
+        const kraData = result.kraResponse?.data || {}
+        const cuInvNo = (kraData.sdcId && kraData.rcptNo) ? `${kraData.sdcId}/${kraData.rcptNo}` : null
+        
         setSales(prev => prev.map(s => 
-          s.id === sale.id ? { ...s, kra_status: 'success', transmission_status: 'transmitted' } : s
+          s.id === sale.id ? { 
+            ...s, 
+            kra_status: 'success', 
+            transmission_status: 'transmitted',
+            kra_cu_inv: cuInvNo || s.kra_cu_inv,
+            kra_scu_id: kraData.sdcId || s.kra_scu_id,
+            kra_rcpt_sign: kraData.rcptSign || s.kra_rcpt_sign,
+            kra_internal_data: kraData.intrlData || s.kra_internal_data
+          } : s
         ))
         toast.success('Invoice successfully transmitted to KRA')
       } else {
