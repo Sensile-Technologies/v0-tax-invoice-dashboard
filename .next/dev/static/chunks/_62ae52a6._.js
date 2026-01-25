@@ -1316,6 +1316,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$menu$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Menu$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/menu.js [app-client] (ecmascript) <export default as Menu>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$activity$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Activity$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/activity.js [app-client] (ecmascript) <export default as Activity>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$sparkles$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Sparkles$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/sparkles.js [app-client] (ecmascript) <export default as Sparkles>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$phone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Phone$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/phone.js [app-client] (ecmascript) <export default as Phone>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/button.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/avatar.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/ui/dropdown-menu.tsx [app-client] (ecmascript)");
@@ -1582,12 +1583,12 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                             className: "h-6 w-6 text-slate-700"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-header.tsx",
-                            lineNumber: 271,
+                            lineNumber: 272,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-header.tsx",
-                        lineNumber: 265,
+                        lineNumber: 266,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1601,7 +1602,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                 className: "rounded-lg hidden sm:block"
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 275,
+                                lineNumber: 276,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1615,7 +1616,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 277,
+                                        lineNumber: 278,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1623,19 +1624,19 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                         children: currentBranchName
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 278,
+                                        lineNumber: 279,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 276,
+                                lineNumber: 277,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard-header.tsx",
-                        lineNumber: 274,
+                        lineNumber: 275,
                         columnNumber: 9
                     }, this),
                     showSearch && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1645,7 +1646,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                 className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 283,
+                                lineNumber: 284,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1654,19 +1655,19 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                 className: "pl-9 h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 284,
+                                lineNumber: 285,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard-header.tsx",
-                        lineNumber: 282,
+                        lineNumber: 283,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard-header.tsx",
-                lineNumber: 263,
+                lineNumber: 264,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1684,7 +1685,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-header.tsx",
-                                            lineNumber: 298,
+                                            lineNumber: 299,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1692,18 +1693,18 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                             children: currentBranchName
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-header.tsx",
-                                            lineNumber: 299,
+                                            lineNumber: 300,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/dashboard-header.tsx",
-                                    lineNumber: 297,
+                                    lineNumber: 298,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 296,
+                                lineNumber: 297,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1714,12 +1715,12 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                         children: "Switch Branch"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 303,
+                                        lineNumber: 304,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {}, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 304,
+                                        lineNumber: 305,
                                         columnNumber: 15
                                     }, this),
                                     branches.map((branch)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1735,14 +1736,14 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                     className: "mr-2 h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                    lineNumber: 316,
+                                                    lineNumber: 317,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     children: branch.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                    lineNumber: 317,
+                                                    lineNumber: 318,
                                                     columnNumber: 19
                                                 }, this),
                                                 branch.status === "pending_onboarding" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1751,32 +1752,32 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                     children: "Pending Admin Approval"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                    lineNumber: 319,
+                                                    lineNumber: 320,
                                                     columnNumber: 21
                                                 }, this) : branch.id === selectedBranch ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                                                     className: "ml-auto rounded-full",
                                                     children: "Active"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                    lineNumber: 321,
+                                                    lineNumber: 322,
                                                     columnNumber: 21
                                                 }, this) : null
                                             ]
                                         }, branch.id, true, {
                                             fileName: "[project]/components/dashboard-header.tsx",
-                                            lineNumber: 306,
+                                            lineNumber: 307,
                                             columnNumber: 17
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 302,
+                                lineNumber: 303,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard-header.tsx",
-                        lineNumber: 295,
+                        lineNumber: 296,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -1791,17 +1792,17 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                         className: "h-5 w-5"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 332,
+                                        lineNumber: 333,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/dashboard-header.tsx",
-                                    lineNumber: 331,
+                                    lineNumber: 332,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 330,
+                                lineNumber: 331,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1812,12 +1813,12 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                         children: "Help & Support"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 336,
+                                        lineNumber: 337,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {}, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 337,
+                                        lineNumber: 338,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1827,14 +1828,14 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 339,
+                                                lineNumber: 340,
                                                 columnNumber: 15
                                             }, this),
                                             "User Manuals"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 338,
+                                        lineNumber: 339,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1844,19 +1845,19 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 343,
+                                                lineNumber: 344,
                                                 columnNumber: 15
                                             }, this),
                                             "Helpful Links"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 342,
+                                        lineNumber: 343,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {}, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 346,
+                                        lineNumber: 347,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1867,14 +1868,32 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 351,
+                                                lineNumber: 352,
                                                 columnNumber: 15
                                             }, this),
-                                            "Contact Support"
+                                            "Email Support"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 347,
+                                        lineNumber: 348,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                        className: "cursor-pointer rounded-lg",
+                                        onClick: ()=>window.location.href = 'tel:+254117023859',
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$phone$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Phone$3e$__["Phone"], {
+                                                className: "mr-2 h-4 w-4"
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/dashboard-header.tsx",
+                                                lineNumber: 359,
+                                                columnNumber: 15
+                                            }, this),
+                                            "Call +254 117 023 859"
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/components/dashboard-header.tsx",
+                                        lineNumber: 355,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1885,26 +1904,26 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 358,
+                                                lineNumber: 366,
                                                 columnNumber: 15
                                             }, this),
                                             "Lulu"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 354,
+                                        lineNumber: 362,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 335,
+                                lineNumber: 336,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard-header.tsx",
-                        lineNumber: 329,
+                        lineNumber: 330,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -1920,7 +1939,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                             className: "h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-header.tsx",
-                                            lineNumber: 367,
+                                            lineNumber: 375,
                                             columnNumber: 15
                                         }, this),
                                         notifications.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1928,18 +1947,18 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                             children: notifications.length
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-header.tsx",
-                                            lineNumber: 369,
+                                            lineNumber: 377,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/dashboard-header.tsx",
-                                    lineNumber: 366,
+                                    lineNumber: 374,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 365,
+                                lineNumber: 373,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1950,12 +1969,12 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                         children: "Notifications"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 376,
+                                        lineNumber: 384,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {}, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 377,
+                                        lineNumber: 385,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$scroll$2d$area$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ScrollArea"], {
@@ -1965,7 +1984,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                             children: "No notifications"
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-header.tsx",
-                                            lineNumber: 380,
+                                            lineNumber: 388,
                                             columnNumber: 17
                                         }, this) : notifications.map((notification)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "px-4 py-3 hover:bg-accent rounded-lg cursor-pointer border-b last:border-b-0",
@@ -1976,7 +1995,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                             className: `mt-1 h-2 w-2 rounded-full flex-shrink-0 ${notification.type === 'billing' ? 'bg-amber-500' : notification.type === 'enhancement' ? 'bg-blue-500' : 'bg-green-500'}`
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/dashboard-header.tsx",
-                                                            lineNumber: 390,
+                                                            lineNumber: 398,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1987,7 +2006,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                                     children: notification.title
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                                    lineNumber: 395,
+                                                                    lineNumber: 403,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1995,7 +2014,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                                     children: notification.message
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                                    lineNumber: 396,
+                                                                    lineNumber: 404,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2003,41 +2022,41 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                                     children: new Date(notification.created_at).toLocaleDateString()
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                                    lineNumber: 397,
+                                                                    lineNumber: 405,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/components/dashboard-header.tsx",
-                                                            lineNumber: 394,
+                                                            lineNumber: 402,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                    lineNumber: 389,
+                                                    lineNumber: 397,
                                                     columnNumber: 21
                                                 }, this)
                                             }, notification.id, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 385,
+                                                lineNumber: 393,
                                                 columnNumber: 19
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 378,
+                                        lineNumber: 386,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 375,
+                                lineNumber: 383,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard-header.tsx",
-                        lineNumber: 364,
+                        lineNumber: 372,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
@@ -2055,27 +2074,27 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "h-5 w-5 text-slate-600"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 414,
+                                                lineNumber: 422,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/dashboard-header.tsx",
-                                            lineNumber: 413,
+                                            lineNumber: 421,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 412,
+                                        lineNumber: 420,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/dashboard-header.tsx",
-                                    lineNumber: 411,
+                                    lineNumber: 419,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 410,
+                                lineNumber: 418,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -2092,12 +2111,12 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                     className: "h-6 w-6 text-slate-500"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/dashboard-header.tsx",
-                                                    lineNumber: 422,
+                                                    lineNumber: 430,
                                                     columnNumber: 17
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 421,
+                                                lineNumber: 429,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2107,7 +2126,7 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                         children: userName || 'Loading...'
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/dashboard-header.tsx",
-                                                        lineNumber: 425,
+                                                        lineNumber: 433,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2115,24 +2134,24 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                         children: userRole || 'Loading...'
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/dashboard-header.tsx",
-                                                        lineNumber: 426,
+                                                        lineNumber: 434,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 424,
+                                                lineNumber: 432,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 420,
+                                        lineNumber: 428,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {}, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 429,
+                                        lineNumber: 437,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2143,14 +2162,14 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 431,
+                                                lineNumber: 439,
                                                 columnNumber: 15
                                             }, this),
                                             "Manage Subscription"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 430,
+                                        lineNumber: 438,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2161,14 +2180,14 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 435,
+                                                lineNumber: 443,
                                                 columnNumber: 15
                                             }, this),
                                             "Security Settings"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 434,
+                                        lineNumber: 442,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2179,14 +2198,14 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 439,
+                                                lineNumber: 447,
                                                 columnNumber: 15
                                             }, this),
                                             "Controller Logs"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 438,
+                                        lineNumber: 446,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2197,19 +2216,19 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 443,
+                                                lineNumber: 451,
                                                 columnNumber: 15
                                             }, this),
                                             "Logs"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 442,
+                                        lineNumber: 450,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuSeparator"], {}, void 0, false, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 446,
+                                        lineNumber: 454,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -2220,32 +2239,32 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                                                 className: "mr-2 h-4 w-4"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-header.tsx",
-                                                lineNumber: 448,
+                                                lineNumber: 456,
                                                 columnNumber: 15
                                             }, this),
                                             "Log out"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-header.tsx",
-                                        lineNumber: 447,
+                                        lineNumber: 455,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/dashboard-header.tsx",
-                                lineNumber: 419,
+                                lineNumber: 427,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/dashboard-header.tsx",
-                        lineNumber: 409,
+                        lineNumber: 417,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/dashboard-header.tsx",
-                lineNumber: 293,
+                lineNumber: 294,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$lulu$2d$chat$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LuluChat"], {
@@ -2253,13 +2272,13 @@ function DashboardHeader({ currentBranch = "nairobi", onBranchChange, showSearch
                 onClose: ()=>setIsLuluOpen(false)
             }, void 0, false, {
                 fileName: "[project]/components/dashboard-header.tsx",
-                lineNumber: 455,
+                lineNumber: 463,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/dashboard-header.tsx",
-        lineNumber: 262,
+        lineNumber: 263,
         columnNumber: 5
     }, this);
 }

@@ -17,6 +17,7 @@ import {
   Menu,
   Activity,
   Sparkles,
+  Phone,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -349,7 +350,14 @@ export function DashboardHeader({
               onClick={() => window.location.href = 'mailto:taxsupport@sensiletechnologies.com'}
             >
               <Mail className="mr-2 h-4 w-4" />
-              Contact Support
+              Email Support
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-lg"
+              onClick={() => window.location.href = 'tel:+254117023859'}
+            >
+              <Phone className="mr-2 h-4 w-4" />
+              Call +254 117 023 859
             </DropdownMenuItem>
             <DropdownMenuItem 
               className="cursor-pointer rounded-lg"
