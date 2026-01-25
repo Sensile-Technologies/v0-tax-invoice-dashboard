@@ -1,9 +1,9 @@
 {
   "app": {
-    "[project]/app/page": [
+    "[project]/app/headquarters/page": [
       "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
     ],
-    "[project]/app/sales/reports/page": [
+    "[project]/app/page": [
       "static/media/07454f8ad8aaac57-s.p.fc65572f.woff2"
     ],
     "[project]/app/sales/summary/page": [

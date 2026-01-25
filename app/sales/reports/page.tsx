@@ -438,7 +438,9 @@ export default function SalesReportsPage() {
       if (result.success) {
         // Extract KRA data from response
         const kraData = result.kraResponse?.data || {}
-        const cuInvNo = (kraData.sdcId && kraData.rcptNo) ? `${kraData.sdcId}/${kraData.rcptNo}` : null
+        // Use internal invoice number (invcNo) from response, NOT KRA's rcptNo
+        // The QR code verification on KRA's portal shows our internal invoice number
+        const cuInvNo = (kraData.sdcId && result.invcNo) ? `${kraData.sdcId}/${result.invcNo}` : null
         
         setSales(prev => prev.map(s => 
           s.id === sale.id ? { 
