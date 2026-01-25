@@ -137,6 +137,7 @@ function calculateTax(amount: number, taxType: string = "B"): { taxblAmt: number
 export async function callKraSaveSales(saleData: KraSaleData): Promise<{
   success: boolean
   kraResponse: KraResponse | null
+  invcNo?: number
   error?: string
 }> {
   const startTime = Date.now()
@@ -385,7 +386,8 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
     // Return immediately - stock sync happens in background
     return {
       success: isSuccess,
-      kraResponse
+      kraResponse,
+      invcNo
     }
 
   } catch (error: any) {

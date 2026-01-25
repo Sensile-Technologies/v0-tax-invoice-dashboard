@@ -429,8 +429,10 @@ export async function POST(request: Request) {
 
       const kraData = kraResult.kraResponse?.data || {}
       const kraStatus = kraResult.success ? 'success' : 'failed'
-      // CU invoice number is formatted as sdcId/rcptNo (e.g., KRACU0300003796/378)
-      const cuInvNo = (kraData.sdcId && kraData.rcptNo) ? `${kraData.sdcId}/${kraData.rcptNo}` : null
+      // CU invoice number is formatted as sdcId/invcNo (e.g., KRACU0300003796/253)
+      // IMPORTANT: Use our internal invoice number (kraResult.invcNo), NOT KRA's rcptNo
+      // The QR code verification on KRA's portal shows our internal invoice number, not their rcptNo
+      const cuInvNo = (kraData.sdcId && kraResult.invcNo) ? `${kraData.sdcId}/${kraResult.invcNo}` : null
       
       await client.query(
         `UPDATE sales SET 
@@ -464,7 +466,7 @@ export async function POST(request: Request) {
         kra_success: kraResult.success,
         print_data: {
           invoice_number: cuInvNo || invoiceNumber,
-          receipt_no: kraData.rcptNo?.toString() || null,
+          receipt_no: kraResult.invcNo?.toString() || null,
           cu_serial_number: kraData.sdcId || null,
           cu_invoice_no: cuInvNo,
           intrl_data: kraData.intrlData || null,

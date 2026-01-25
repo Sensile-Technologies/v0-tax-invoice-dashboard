@@ -386,8 +386,10 @@ export async function POST(request: NextRequest) {
     const activeShiftId = activeShiftResult.length > 0 ? activeShiftResult[0].id : null
 
     const kraData = responses.saveSales?.data || {}
-    // CU invoice number is formatted as sdcId/rcptNo (e.g., KRACU0300003796/378)
-    const cuInvNo = (kraData.sdcId && kraData.rcptNo) ? `${kraData.sdcId}/${kraData.rcptNo}` : null
+    // CU invoice number is formatted as sdcId/invcNo (e.g., KRACU0300003796/253)
+    // IMPORTANT: Use our internal invoice number (newInvoiceNo), NOT KRA's rcptNo
+    // The QR code verification on KRA's portal shows our internal invoice number, not their rcptNo
+    const cuInvNo = (kraData.sdcId && newInvoiceNo) ? `${kraData.sdcId}/${newInvoiceNo}` : null
     const saleResult = await query(
       `INSERT INTO sales (
         branch_id, shift_id, nozzle_id, fuel_type, quantity, unit_price, 

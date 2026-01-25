@@ -249,8 +249,9 @@ async function processAutoKraSale(ptsId: string, data: PumpTransactionPacket['Da
     // Update sale with KRA response if successful
     if (kraResult.success && kraResult.kraResponse?.data) {
       const kraData = kraResult.kraResponse.data
-      // CU invoice number is formatted as sdcId/rcptNo (e.g., KRACU0300003796/378)
-      const cuInvNo = (kraData.sdcId && kraData.rcptNo) ? `${kraData.sdcId}/${kraData.rcptNo}` : null
+      // CU invoice number is formatted as sdcId/invcNo (e.g., KRACU0300003796/253)
+      // IMPORTANT: Use our internal invoice number (kraResult.invcNo), NOT KRA's rcptNo
+      const cuInvNo = (kraData.sdcId && kraResult.invcNo) ? `${kraData.sdcId}/${kraResult.invcNo}` : null
       await query(`
         UPDATE sales SET 
           kra_rcpt_sign = $1, kra_scu_id = $2, kra_cu_inv = $3, kra_internal_data = $4
