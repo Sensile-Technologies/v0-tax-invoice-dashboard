@@ -798,7 +798,8 @@ async function callKraSaveSales(saleData) {
         if (!itemInfo) {
             itemInfo = await getItemInfoByFuelType(saleData.branch_id, saleData.fuel_type);
         }
-        const invcNo = await getNextInvoiceNo(saleData.branch_id);
+        // Use provided invcNo if passed (e.g., from bulk sales), otherwise get next from sequence
+        const invcNo = saleData.invcNo || await getNextInvoiceNo(saleData.branch_id);
         if (!itemInfo) {
             const errorMsg = `No item found for ${saleData.item_id ? 'item_id: ' + saleData.item_id : 'fuel type: ' + saleData.fuel_type}`;
             console.log(`[KRA Sales API] ${errorMsg}`);
