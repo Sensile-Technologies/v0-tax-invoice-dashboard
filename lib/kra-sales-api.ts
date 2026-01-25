@@ -18,6 +18,7 @@ interface KraSaleData {
   customer_pin?: string
   sale_date: string
   tank_id?: string
+  item_id?: string
 }
 
 interface KraResponse {
@@ -95,6 +96,22 @@ async function getItemInfoByFuelType(branchId: string, fuelType: string): Promis
   return result.length > 0 ? result[0] : null
 }
 
+async function getItemInfoById(branchId: string, itemId: string): Promise<any> {
+  const result = await query(`
+    SELECT i.item_code, i.class_code, i.item_name, i.package_unit, 
+           i.quantity_unit, i.tax_type, 
+           bi.sale_price, 
+           bi.purchase_price
+    FROM items i
+    INNER JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+    WHERE i.id = $2
+    AND bi.sale_price IS NOT NULL AND bi.sale_price > 0
+    LIMIT 1
+  `, [branchId, itemId])
+  
+  return result.length > 0 ? result[0] : null
+}
+
 function formatKraDateTime(date: Date = new Date()): string {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -165,11 +182,18 @@ export async function callKraSaveSales(saleData: KraSaleData): Promise<{
       }
     }
 
-    const itemInfo = await getItemInfoByFuelType(saleData.branch_id, saleData.fuel_type)
+    // Prefer item_id lookup over fuel_type name matching for accuracy
+    let itemInfo = null
+    if (saleData.item_id) {
+      itemInfo = await getItemInfoById(saleData.branch_id, saleData.item_id)
+    }
+    if (!itemInfo) {
+      itemInfo = await getItemInfoByFuelType(saleData.branch_id, saleData.fuel_type)
+    }
     const invcNo = await getNextInvoiceNo(saleData.branch_id)
     
     if (!itemInfo) {
-      const errorMsg = `No item found for fuel type: ${saleData.fuel_type}`
+      const errorMsg = `No item found for ${saleData.item_id ? 'item_id: ' + saleData.item_id : 'fuel type: ' + saleData.fuel_type}`
       console.log(`[KRA Sales API] ${errorMsg}`)
       return { 
         success: false, 

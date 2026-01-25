@@ -244,7 +244,8 @@ export async function POST(request: NextRequest) {
           unit_price: sale.unit_price,
           total_amount: sale.total_amount,
           payment_method: 'cash',
-          sale_date: new Date().toISOString()
+          sale_date: new Date().toISOString(),
+          item_id: sale.item_id
         }).catch(err => {
           console.error(`[BULK SALES] KRA submission failed for sale ${sale.id}:`, err.message)
         })
