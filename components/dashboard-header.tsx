@@ -16,6 +16,7 @@ import {
   FileText,
   Menu,
   Activity,
+  Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -33,6 +34,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { signOut, getCurrentUser } from "@/lib/auth/client"
 import { useRouter, useSearchParams } from "next/navigation"
+import { LuluChat } from "@/components/lulu-chat"
 
 interface DashboardHeaderProps {
   currentBranch?: string
@@ -60,6 +62,7 @@ export function DashboardHeader({
   const [userName, setUserName] = useState("")
   const [userRole, setUserRole] = useState<string>("")
   const [canSwitchBranches, setCanSwitchBranches] = useState(true)
+  const [isLuluOpen, setIsLuluOpen] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const branchIdFromUrl = searchParams.get('branch')
@@ -345,9 +348,12 @@ export function DashboardHeader({
               <Mail className="mr-2 h-4 w-4" />
               Contact Support
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer rounded-lg">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              In-App Chat
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-lg"
+              onClick={() => setIsLuluOpen(true)}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Lulu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -442,6 +448,8 @@ export function DashboardHeader({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <LuluChat isOpen={isLuluOpen} onClose={() => setIsLuluOpen(false)} />
     </header>
   )
 }

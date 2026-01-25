@@ -1211,6 +1211,10 @@
     bottom: calc(var(--spacing) * 1);
   }
 
+  .bottom-4 {
+    bottom: calc(var(--spacing) * 4);
+  }
+
   .left-0 {
     left: calc(var(--spacing) * 0);
   }
@@ -1911,6 +1915,10 @@
     height: calc(var(--spacing) * 72);
   }
 
+  .h-80 {
+    height: calc(var(--spacing) * 80);
+  }
+
   .h-96 {
     height: calc(var(--spacing) * 96);
   }
@@ -2269,6 +2277,10 @@
 
   .max-w-32 {
     max-width: calc(var(--spacing) * 32);
+  }
+
+  .max-w-\[80\%\] {
+    max-width: 80%;
   }
 
   .max-w-\[120px\] {
@@ -3396,6 +3408,11 @@
     border-top-right-radius: .25rem;
   }
 
+  .rounded-t-2xl {
+    border-top-left-radius: var(--radius-2xl);
+    border-top-right-radius: var(--radius-2xl);
+  }
+
   .rounded-t-lg {
     border-top-left-radius: var(--radius);
     border-top-right-radius: var(--radius);
@@ -3840,6 +3857,16 @@
   @supports (color: color-mix(in lab, red, red)) {
     .bg-destructive\/10 {
       background-color: color-mix(in oklab, var(--destructive) 10%, transparent);
+    }
+  }
+
+  .bg-foreground\/50 {
+    background-color: var(--foreground);
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-foreground\/50 {
+      background-color: color-mix(in oklab, var(--foreground) 50%, transparent);
     }
   }
 
@@ -5471,6 +5498,16 @@
     color: var(--color-white);
   }
 
+  .text-white\/70 {
+    color: #ffffffb3;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .text-white\/70 {
+      color: color-mix(in oklab, var(--color-white) 70%, transparent);
+    }
+  }
+
   .text-white\/80 {
     color: #fffc;
   }
@@ -6323,6 +6360,14 @@
     --tw-exit-rotate: -30deg;
   }
 
+  .\[animation-delay\:-0\.3s\] {
+    animation-delay: -.3s;
+  }
+
+  .\[animation-delay\:-0\.15s\] {
+    animation-delay: -.15s;
+  }
+
   .\[hash\:base64\] {
     hash: base64;
   }
@@ -6425,6 +6470,10 @@
 
   .slide-in-from-bottom {
     --tw-enter-translate-y: 100%;
+  }
+
+  .slide-in-from-bottom-4 {
+    --tw-enter-translate-y: calc(4 * var(--spacing));
   }
 
   .slide-in-from-bottom-48 {
