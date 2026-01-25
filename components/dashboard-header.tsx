@@ -344,7 +344,10 @@ export function DashboardHeader({
               Helpful Links
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer rounded-lg">
+            <DropdownMenuItem 
+              className="cursor-pointer rounded-lg"
+              onClick={() => window.location.href = 'mailto:taxsupport@sensiletechnologies.com'}
+            >
               <Mail className="mr-2 h-4 w-4" />
               Contact Support
             </DropdownMenuItem>
