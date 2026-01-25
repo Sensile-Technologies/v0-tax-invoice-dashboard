@@ -239,9 +239,9 @@ async function POST(request) {
         ]);
         const shiftId = result.rows[0].id;
         // Record tank opening readings at shift start
-        // Use the PREVIOUS shift's closing reading (from shift_readings) as this shift's opening
-        // Fall back to tanks.current_stock only if no previous reading exists
-        const tanksResult = await pool.query(`SELECT id, current_stock FROM tanks WHERE branch_id = $1`, [
+        // STRICTLY use the PREVIOUS shift's closing reading as this shift's opening
+        // This ensures continuity: Shift A closing = Shift B opening
+        const tanksResult = await pool.query(`SELECT id FROM tanks WHERE branch_id = $1`, [
             branch_id
         ]);
         // Get the most recent closing reading for each tank from previous shifts
@@ -256,8 +256,9 @@ async function POST(request) {
             prevTankClosings[r.tank_id] = parseFloat(r.closing_reading) || 0;
         }
         for (const tank of tanksResult.rows){
-            // Use previous shift's closing reading, or fall back to current_stock for new tanks
-            const openingReading = prevTankClosings[tank.id] ?? (parseFloat(tank.current_stock) || 0);
+            // STRICTLY use previous shift's closing reading - no fallback
+            // If no previous reading exists (brand new tank), opening defaults to 0
+            const openingReading = prevTankClosings[tank.id] ?? 0;
             await pool.query(`INSERT INTO shift_readings (shift_id, branch_id, reading_type, tank_id, opening_reading)
          VALUES ($1, $2, 'tank', $3, $4)`, [
                 shiftId,
