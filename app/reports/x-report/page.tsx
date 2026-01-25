@@ -108,7 +108,9 @@ export default function XReportPage() {
       params.set('type', 'x')
       params.set('branch_id', branchId)
 
-      const res = await fetch(`/api/reports/fiscal?${params.toString()}`)
+      const res = await fetch(`/api/reports/fiscal?${params.toString()}`, {
+        credentials: 'include'
+      })
       const result = await res.json()
       
       if (result.success && result.data) {
@@ -134,7 +136,9 @@ export default function XReportPage() {
       if (fromTime) params.set('from_time', fromTime)
       if (toTime) params.set('to_time', toTime)
 
-      const res = await fetch(`/api/reports/fiscal?${params.toString()}`)
+      const res = await fetch(`/api/reports/fiscal?${params.toString()}`, {
+        credentials: 'include'
+      })
       const result = await res.json()
       
       if (result.success && result.data) {

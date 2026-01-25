@@ -2635,7 +2635,9 @@ function XReportPage() {
             const params = new URLSearchParams();
             params.set('type', 'x');
             params.set('branch_id', branchId);
-            const res = await fetch(`/api/reports/fiscal?${params.toString()}`);
+            const res = await fetch(`/api/reports/fiscal?${params.toString()}`, {
+                credentials: 'include'
+            });
             const result = await res.json();
             if (result.success && result.data) {
                 setReportData(result.data);
@@ -2657,7 +2659,9 @@ function XReportPage() {
             if (toDate) params.set('to_date', toDate);
             if (fromTime) params.set('from_time', fromTime);
             if (toTime) params.set('to_time', toTime);
-            const res = await fetch(`/api/reports/fiscal?${params.toString()}`);
+            const res = await fetch(`/api/reports/fiscal?${params.toString()}`, {
+                credentials: 'include'
+            });
             const result = await res.json();
             if (result.success && result.data) {
                 setReportData(result.data);
@@ -2686,7 +2690,7 @@ function XReportPage() {
                 onMobileClose: ()=>setMobileMenuOpen(false)
             }, void 0, false, {
                 fileName: "[project]/app/reports/x-report/page.tsx",
-                lineNumber: 163,
+                lineNumber: 167,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2698,7 +2702,7 @@ function XReportPage() {
                             onMobileMenuToggle: ()=>setMobileMenuOpen(!mobileMenuOpen)
                         }, void 0, false, {
                             fileName: "[project]/app/reports/x-report/page.tsx",
-                            lineNumber: 172,
+                            lineNumber: 176,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2708,7 +2712,7 @@ function XReportPage() {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$report$2d$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ReportTabs"], {}, void 0, false, {
                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                        lineNumber: 176,
+                                        lineNumber: 180,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -2723,7 +2727,7 @@ function XReportPage() {
                                                             children: "X/Z Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/x-report/page.tsx",
-                                                            lineNumber: 180,
+                                                            lineNumber: 184,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2731,18 +2735,18 @@ function XReportPage() {
                                                             children: "Current Session Report"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/x-report/page.tsx",
-                                                            lineNumber: 181,
+                                                            lineNumber: 185,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/reports/x-report/page.tsx",
-                                                    lineNumber: 179,
+                                                    lineNumber: 183,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                lineNumber: 178,
+                                                lineNumber: 182,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2762,7 +2766,7 @@ function XReportPage() {
                                                                         className: "w-40"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 187,
+                                                                        lineNumber: 191,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2773,7 +2777,7 @@ function XReportPage() {
                                                                         className: "w-32"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 194,
+                                                                        lineNumber: 198,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2781,7 +2785,7 @@ function XReportPage() {
                                                                         children: "to"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 201,
+                                                                        lineNumber: 205,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2792,7 +2796,7 @@ function XReportPage() {
                                                                         className: "w-40"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 202,
+                                                                        lineNumber: 206,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -2803,7 +2807,7 @@ function XReportPage() {
                                                                         className: "w-32"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 209,
+                                                                        lineNumber: 213,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2814,13 +2818,13 @@ function XReportPage() {
                                                                                 className: "h-4 w-4 animate-spin"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 217,
+                                                                                lineNumber: 221,
                                                                                 columnNumber: 36
                                                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
                                                                                 className: "h-4 w-4"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 217,
+                                                                                lineNumber: 221,
                                                                                 columnNumber: 83
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2828,19 +2832,19 @@ function XReportPage() {
                                                                                 children: "Generate"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 218,
+                                                                                lineNumber: 222,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 216,
+                                                                        lineNumber: 220,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 186,
+                                                                lineNumber: 190,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2855,14 +2859,14 @@ function XReportPage() {
                                                                                 className: "h-4 w-4 mr-2"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 223,
+                                                                                lineNumber: 227,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Print"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 222,
+                                                                        lineNumber: 226,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -2873,26 +2877,26 @@ function XReportPage() {
                                                                                 className: "h-4 w-4 mr-2"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 227,
+                                                                                lineNumber: 231,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Export"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 226,
+                                                                        lineNumber: 230,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 221,
+                                                                lineNumber: 225,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                        lineNumber: 185,
+                                                        lineNumber: 189,
                                                         columnNumber: 19
                                                     }, this),
                                                     loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2902,7 +2906,7 @@ function XReportPage() {
                                                                 className: "h-8 w-8 animate-spin text-slate-400"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 235,
+                                                                lineNumber: 239,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2910,13 +2914,13 @@ function XReportPage() {
                                                                 children: "Loading report..."
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 236,
+                                                                lineNumber: 240,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                        lineNumber: 234,
+                                                        lineNumber: 238,
                                                         columnNumber: 21
                                                     }, this) : !branchId ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                         className: "flex flex-col items-center justify-center py-12 text-center",
@@ -2926,7 +2930,7 @@ function XReportPage() {
                                                                 children: "No branch selected"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 240,
+                                                                lineNumber: 244,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2934,13 +2938,13 @@ function XReportPage() {
                                                                 children: "Please select a branch from the header to view the X/Z Report"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 241,
+                                                                lineNumber: 245,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                        lineNumber: 239,
+                                                        lineNumber: 243,
                                                         columnNumber: 21
                                                     }, this) : reportData ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                         children: [
@@ -2952,7 +2956,7 @@ function XReportPage() {
                                                                         children: reportData.vendorName || 'FLOW360'
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 246,
+                                                                        lineNumber: 250,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2960,7 +2964,7 @@ function XReportPage() {
                                                                         children: reportData.branchName
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 247,
+                                                                        lineNumber: 251,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2971,13 +2975,13 @@ function XReportPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 248,
+                                                                        lineNumber: 252,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 245,
+                                                                lineNumber: 249,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2990,41 +2994,13 @@ function XReportPage() {
                                                                                 children: "Report Number:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 253,
+                                                                                lineNumber: 257,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                                 className: "font-semibold",
                                                                                 children: reportData.reportNumber
                                                                             }, void 0, false, {
-                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 254,
-                                                                                columnNumber: 27
-                                                                            }, this)
-                                                                        ]
-                                                                    }, void 0, true, {
-                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 252,
-                                                                        columnNumber: 25
-                                                                    }, this),
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                        children: [
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                                className: "text-muted-foreground",
-                                                                                children: "Date & Time:"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 257,
-                                                                                columnNumber: 27
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                                className: "font-semibold",
-                                                                                children: [
-                                                                                    reportData.date,
-                                                                                    " ",
-                                                                                    reportData.time
-                                                                                ]
-                                                                            }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                 lineNumber: 258,
                                                                                 columnNumber: 27
@@ -3039,31 +3015,35 @@ function XReportPage() {
                                                                         children: [
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                                 className: "text-muted-foreground",
-                                                                                children: "Cashier:"
+                                                                                children: "Date & Time:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 263,
+                                                                                lineNumber: 261,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                                 className: "font-semibold",
-                                                                                children: reportData.cashier
-                                                                            }, void 0, false, {
+                                                                                children: [
+                                                                                    reportData.date,
+                                                                                    " ",
+                                                                                    reportData.time
+                                                                                ]
+                                                                            }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 264,
+                                                                                lineNumber: 262,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 262,
+                                                                        lineNumber: 260,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                         children: [
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                                 className: "text-muted-foreground",
-                                                                                children: "Shift Start:"
+                                                                                children: "Cashier:"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                 lineNumber: 267,
@@ -3071,7 +3051,7 @@ function XReportPage() {
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                                 className: "font-semibold",
-                                                                                children: reportData.shiftStart
+                                                                                children: reportData.cashier
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                 lineNumber: 268,
@@ -3082,11 +3062,35 @@ function XReportPage() {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
                                                                         lineNumber: 266,
                                                                         columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                className: "text-muted-foreground",
+                                                                                children: "Shift Start:"
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                lineNumber: 271,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                                className: "font-semibold",
+                                                                                children: reportData.shiftStart
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                lineNumber: 272,
+                                                                                columnNumber: 27
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                        lineNumber: 270,
+                                                                        columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 251,
+                                                                lineNumber: 255,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3097,7 +3101,7 @@ function XReportPage() {
                                                                         children: "SALES SUMMARY"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 273,
+                                                                        lineNumber: 277,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3110,7 +3114,7 @@ function XReportPage() {
                                                                                         children: "Gross Sales"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 276,
+                                                                                        lineNumber: 280,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3118,36 +3122,6 @@ function XReportPage() {
                                                                                         children: [
                                                                                             "KES ",
                                                                                             reportData.salesSummary.grossSales.toLocaleString(undefined, {
-                                                                                                minimumFractionDigits: 2,
-                                                                                                maximumFractionDigits: 2
-                                                                                            })
-                                                                                        ]
-                                                                                    }, void 0, true, {
-                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 277,
-                                                                                        columnNumber: 29
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 275,
-                                                                                columnNumber: 27
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex justify-between text-red-600",
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        children: "Returns/Voids"
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 280,
-                                                                                        columnNumber: 29
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "font-semibold",
-                                                                                        children: [
-                                                                                            "-KES ",
-                                                                                            reportData.salesSummary.returns.toLocaleString(undefined, {
                                                                                                 minimumFractionDigits: 2,
                                                                                                 maximumFractionDigits: 2
                                                                                             })
@@ -3164,19 +3138,20 @@ function XReportPage() {
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex justify-between text-lg font-bold pt-2 border-t",
+                                                                                className: "flex justify-between text-red-600",
                                                                                 children: [
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        children: "Net Sales"
+                                                                                        children: "Returns/Voids"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                         lineNumber: 284,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "font-semibold",
                                                                                         children: [
-                                                                                            "KES ",
-                                                                                            reportData.salesSummary.netSales.toLocaleString(undefined, {
+                                                                                            "-KES ",
+                                                                                            reportData.salesSummary.returns.toLocaleString(undefined, {
                                                                                                 minimumFractionDigits: 2,
                                                                                                 maximumFractionDigits: 2
                                                                                             })
@@ -3191,17 +3166,46 @@ function XReportPage() {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                 lineNumber: 283,
                                                                                 columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                className: "flex justify-between text-lg font-bold pt-2 border-t",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        children: "Net Sales"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                        lineNumber: 288,
+                                                                                        columnNumber: 29
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        children: [
+                                                                                            "KES ",
+                                                                                            reportData.salesSummary.netSales.toLocaleString(undefined, {
+                                                                                                minimumFractionDigits: 2,
+                                                                                                maximumFractionDigits: 2
+                                                                                            })
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                        lineNumber: 289,
+                                                                                        columnNumber: 29
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                lineNumber: 287,
+                                                                                columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 274,
+                                                                        lineNumber: 278,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 272,
+                                                                lineNumber: 276,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3212,7 +3216,7 @@ function XReportPage() {
                                                                         children: "VAT BREAKDOWN"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 291,
+                                                                        lineNumber: 295,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3227,12 +3231,12 @@ function XReportPage() {
                                                                                                 children: item.category
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                                lineNumber: 296,
+                                                                                                lineNumber: 300,
                                                                                                 columnNumber: 33
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                            lineNumber: 295,
+                                                                                            lineNumber: 299,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3242,42 +3246,13 @@ function XReportPage() {
                                                                                                     children: "Taxable Amount:"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                                    lineNumber: 299,
-                                                                                                    columnNumber: 33
-                                                                                                }, this),
-                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                    children: [
-                                                                                                        "KES ",
-                                                                                                        item.taxableAmount.toLocaleString(undefined, {
-                                                                                                            minimumFractionDigits: 2,
-                                                                                                            maximumFractionDigits: 2
-                                                                                                        })
-                                                                                                    ]
-                                                                                                }, void 0, true, {
-                                                                                                    fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                                    lineNumber: 300,
-                                                                                                    columnNumber: 33
-                                                                                                }, this)
-                                                                                            ]
-                                                                                        }, void 0, true, {
-                                                                                            fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                            lineNumber: 298,
-                                                                                            columnNumber: 31
-                                                                                        }, this),
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                            className: "flex justify-between pl-4 text-muted-foreground",
-                                                                                            children: [
-                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                    children: "VAT Amount:"
-                                                                                                }, void 0, false, {
-                                                                                                    fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                                     lineNumber: 303,
                                                                                                     columnNumber: 33
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                     children: [
                                                                                                         "KES ",
-                                                                                                        item.vatAmount.toLocaleString(undefined, {
+                                                                                                        item.taxableAmount.toLocaleString(undefined, {
                                                                                                             minimumFractionDigits: 2,
                                                                                                             maximumFractionDigits: 2
                                                                                                         })
@@ -3294,10 +3269,10 @@ function XReportPage() {
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                            className: "flex justify-between pl-4 font-semibold",
+                                                                                            className: "flex justify-between pl-4 text-muted-foreground",
                                                                                             children: [
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                    children: "Total:"
+                                                                                                    children: "VAT Amount:"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                                     lineNumber: 307,
@@ -3306,7 +3281,7 @@ function XReportPage() {
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                     children: [
                                                                                                         "KES ",
-                                                                                                        item.total.toLocaleString(undefined, {
+                                                                                                        item.vatAmount.toLocaleString(undefined, {
                                                                                                             minimumFractionDigits: 2,
                                                                                                             maximumFractionDigits: 2
                                                                                                         })
@@ -3321,11 +3296,40 @@ function XReportPage() {
                                                                                             fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                             lineNumber: 306,
                                                                                             columnNumber: 31
+                                                                                        }, this),
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                            className: "flex justify-between pl-4 font-semibold",
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                                    children: "Total:"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                                    lineNumber: 311,
+                                                                                                    columnNumber: 33
+                                                                                                }, this),
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                                    children: [
+                                                                                                        "KES ",
+                                                                                                        item.total.toLocaleString(undefined, {
+                                                                                                            minimumFractionDigits: 2,
+                                                                                                            maximumFractionDigits: 2
+                                                                                                        })
+                                                                                                    ]
+                                                                                                }, void 0, true, {
+                                                                                                    fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                                    lineNumber: 312,
+                                                                                                    columnNumber: 33
+                                                                                                }, this)
+                                                                                            ]
+                                                                                        }, void 0, true, {
+                                                                                            fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                            lineNumber: 310,
+                                                                                            columnNumber: 31
                                                                                         }, this)
                                                                                     ]
                                                                                 }, index, true, {
                                                                                     fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                    lineNumber: 294,
+                                                                                    lineNumber: 298,
                                                                                     columnNumber: 29
                                                                                 }, this)),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3335,7 +3339,7 @@ function XReportPage() {
                                                                                         children: "Total VAT"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 313,
+                                                                                        lineNumber: 317,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3348,25 +3352,25 @@ function XReportPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 314,
+                                                                                        lineNumber: 318,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 312,
+                                                                                lineNumber: 316,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 292,
+                                                                        lineNumber: 296,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 290,
+                                                                lineNumber: 294,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3377,7 +3381,7 @@ function XReportPage() {
                                                                         children: "PAYMENT METHODS"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 320,
+                                                                        lineNumber: 324,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3395,7 +3399,7 @@ function XReportPage() {
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                            lineNumber: 325,
+                                                                                            lineNumber: 329,
                                                                                             columnNumber: 33
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3409,20 +3413,20 @@ function XReportPage() {
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                            lineNumber: 328,
+                                                                                            lineNumber: 332,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     ]
                                                                                 }, index, true, {
                                                                                     fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                    lineNumber: 324,
+                                                                                    lineNumber: 328,
                                                                                     columnNumber: 31
                                                                                 }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                                                 className: "text-muted-foreground",
                                                                                 children: "No payments recorded"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 332,
+                                                                                lineNumber: 336,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3432,7 +3436,7 @@ function XReportPage() {
                                                                                         children: "Total Payments"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 335,
+                                                                                        lineNumber: 339,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3445,25 +3449,25 @@ function XReportPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 336,
+                                                                                        lineNumber: 340,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 334,
+                                                                                lineNumber: 338,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 321,
+                                                                        lineNumber: 325,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 319,
+                                                                lineNumber: 323,
                                                                 columnNumber: 23
                                                             }, this),
                                                             reportData.kraTransmittedSales && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3474,7 +3478,7 @@ function XReportPage() {
                                                                         children: "KRA TRANSMITTED SALES"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 343,
+                                                                        lineNumber: 347,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3487,43 +3491,13 @@ function XReportPage() {
                                                                                         children: "Invoices Transmitted:"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 346,
+                                                                                        lineNumber: 350,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                         className: "font-semibold",
                                                                                         children: reportData.kraTransmittedSales.count
                                                                                     }, void 0, false, {
-                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 347,
-                                                                                        columnNumber: 31
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 345,
-                                                                                columnNumber: 29
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex justify-between",
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        children: "Net Sales (Excl. VAT):"
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 350,
-                                                                                        columnNumber: 31
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "font-semibold",
-                                                                                        children: [
-                                                                                            "KES ",
-                                                                                            reportData.kraTransmittedSales.net.toLocaleString(undefined, {
-                                                                                                minimumFractionDigits: 2,
-                                                                                                maximumFractionDigits: 2
-                                                                                            })
-                                                                                        ]
-                                                                                    }, void 0, true, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                         lineNumber: 351,
                                                                                         columnNumber: 31
@@ -3538,7 +3512,7 @@ function XReportPage() {
                                                                                 className: "flex justify-between",
                                                                                 children: [
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        children: "VAT Amount (16%):"
+                                                                                        children: "Net Sales (Excl. VAT):"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                         lineNumber: 354,
@@ -3548,7 +3522,7 @@ function XReportPage() {
                                                                                         className: "font-semibold",
                                                                                         children: [
                                                                                             "KES ",
-                                                                                            reportData.kraTransmittedSales.vat.toLocaleString(undefined, {
+                                                                                            reportData.kraTransmittedSales.net.toLocaleString(undefined, {
                                                                                                 minimumFractionDigits: 2,
                                                                                                 maximumFractionDigits: 2
                                                                                             })
@@ -3565,21 +3539,20 @@ function XReportPage() {
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex justify-between text-lg font-bold pt-2 border-t border-green-200",
+                                                                                className: "flex justify-between",
                                                                                 children: [
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "text-green-800",
-                                                                                        children: "Gross Sales (Incl. VAT):"
+                                                                                        children: "VAT Amount (16%):"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                         lineNumber: 358,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "text-green-800",
+                                                                                        className: "font-semibold",
                                                                                         children: [
                                                                                             "KES ",
-                                                                                            reportData.kraTransmittedSales.gross.toLocaleString(undefined, {
+                                                                                            reportData.kraTransmittedSales.vat.toLocaleString(undefined, {
                                                                                                 minimumFractionDigits: 2,
                                                                                                 maximumFractionDigits: 2
                                                                                             })
@@ -3594,17 +3567,48 @@ function XReportPage() {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                 lineNumber: 357,
                                                                                 columnNumber: 29
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                className: "flex justify-between text-lg font-bold pt-2 border-t border-green-200",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "text-green-800",
+                                                                                        children: "Gross Sales (Incl. VAT):"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                        lineNumber: 362,
+                                                                                        columnNumber: 31
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "text-green-800",
+                                                                                        children: [
+                                                                                            "KES ",
+                                                                                            reportData.kraTransmittedSales.gross.toLocaleString(undefined, {
+                                                                                                minimumFractionDigits: 2,
+                                                                                                maximumFractionDigits: 2
+                                                                                            })
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                        lineNumber: 363,
+                                                                                        columnNumber: 31
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                lineNumber: 361,
+                                                                                columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 344,
+                                                                        lineNumber: 348,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 342,
+                                                                lineNumber: 346,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3614,7 +3618,7 @@ function XReportPage() {
                                                                         children: "TRANSACTION STATISTICS"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 366,
+                                                                        lineNumber: 370,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3627,36 +3631,12 @@ function XReportPage() {
                                                                                         children: "Total Transactions:"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 369,
+                                                                                        lineNumber: 373,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                         className: "font-semibold",
                                                                                         children: reportData.transactionCount
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 370,
-                                                                                        columnNumber: 29
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, void 0, true, {
-                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                lineNumber: 368,
-                                                                                columnNumber: 27
-                                                                            }, this),
-                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                className: "flex justify-between",
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        children: "Voided Transactions:"
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                                        lineNumber: 373,
-                                                                                        columnNumber: 29
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "font-semibold text-red-600",
-                                                                                        children: reportData.voidedTransactions
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                         lineNumber: 374,
@@ -3667,17 +3647,41 @@ function XReportPage() {
                                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
                                                                                 lineNumber: 372,
                                                                                 columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                className: "flex justify-between",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        children: "Voided Transactions:"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                        lineNumber: 377,
+                                                                                        columnNumber: 29
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                        className: "font-semibold text-red-600",
+                                                                                        children: reportData.voidedTransactions
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                        lineNumber: 378,
+                                                                                        columnNumber: 29
+                                                                                    }, this)
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/app/reports/x-report/page.tsx",
+                                                                                lineNumber: 376,
+                                                                                columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 367,
+                                                                        lineNumber: 371,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 365,
+                                                                lineNumber: 369,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3688,7 +3692,7 @@ function XReportPage() {
                                                                         children: "*** END OF X REPORT ***"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 380,
+                                                                        lineNumber: 384,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3696,13 +3700,13 @@ function XReportPage() {
                                                                         children: "This is an interim report and does not reset counters"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                        lineNumber: 381,
+                                                                        lineNumber: 385,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                                lineNumber: 379,
+                                                                lineNumber: 383,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
@@ -3712,24 +3716,24 @@ function XReportPage() {
                                                             children: "No data available. Select a date range and click Generate."
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/reports/x-report/page.tsx",
-                                                            lineNumber: 386,
+                                                            lineNumber: 390,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                                        lineNumber: 385,
+                                                        lineNumber: 389,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                lineNumber: 184,
+                                                lineNumber: 188,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                        lineNumber: 177,
+                                        lineNumber: 181,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("footer", {
@@ -3741,41 +3745,41 @@ function XReportPage() {
                                                 children: "Sensile Technologies East Africa Ltd"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                                lineNumber: 393,
+                                                lineNumber: 397,
                                                 columnNumber: 28
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/reports/x-report/page.tsx",
-                                        lineNumber: 392,
+                                        lineNumber: 396,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/reports/x-report/page.tsx",
-                                lineNumber: 175,
+                                lineNumber: 179,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/reports/x-report/page.tsx",
-                            lineNumber: 174,
+                            lineNumber: 178,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/reports/x-report/page.tsx",
-                    lineNumber: 171,
+                    lineNumber: 175,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/reports/x-report/page.tsx",
-                lineNumber: 170,
+                lineNumber: 174,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/reports/x-report/page.tsx",
-        lineNumber: 162,
+        lineNumber: 166,
         columnNumber: 5
     }, this);
 }
