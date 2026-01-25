@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
-import { cookies } from "next/headers"
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -8,23 +7,18 @@ const pool = new Pool({
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('user_session')
+    // Use request.cookies instead of cookies() from next/headers for reliability
+    const sessionCookie = request.cookies.get('user_session')
     
-    console.log('[Fiscal Report] Cookie present:', !!sessionCookie)
-    
-    if (!sessionCookie) {
-      console.log('[Fiscal Report] No session cookie found')
-      return NextResponse.json({ error: "Unauthorized", debug: "no_cookie" }, { status: 401 })
+    if (!sessionCookie?.value) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
     
     let session
     try {
       session = JSON.parse(sessionCookie.value)
-      console.log('[Fiscal Report] Session parsed, user:', session?.email || session?.id)
-    } catch (parseError) {
-      console.log('[Fiscal Report] Failed to parse session:', parseError)
-      return NextResponse.json({ error: "Invalid session", debug: "parse_failed" }, { status: 401 })
+    } catch {
+      return NextResponse.json({ error: "Invalid session" }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
