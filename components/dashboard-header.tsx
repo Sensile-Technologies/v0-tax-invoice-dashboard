@@ -354,13 +354,6 @@ export function DashboardHeader({
             </DropdownMenuItem>
             <DropdownMenuItem 
               className="cursor-pointer rounded-lg"
-              onClick={() => window.location.href = 'tel:+254117023859'}
-            >
-              <Phone className="mr-2 h-4 w-4" />
-              Call +254 117 023 859
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              className="cursor-pointer rounded-lg"
               onClick={() => setIsLuluOpen(true)}
             >
               <Sparkles className="mr-2 h-4 w-4" />
