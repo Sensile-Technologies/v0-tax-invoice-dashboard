@@ -38,13 +38,8 @@ function splitIntoAmountDenominations(totalAmount: number): number[] {
   return denominations
 }
 
-function generateInvoiceNumber(branchCode: string, index: number): string {
-  const timestamp = Date.now().toString(36).toUpperCase()
-  return `BLK-${branchCode}-${timestamp}-${String(index).padStart(4, '0')}`
-}
-
-function generateReceiptNumber(): string {
-  return `RCP-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+function generateCIVInvoiceNumber(invoiceNo: number): string {
+  return `CIV-${String(invoiceNo).padStart(6, '0')}`
 }
 
 export async function POST(request: NextRequest) {
@@ -95,10 +90,11 @@ export async function POST(request: NextRequest) {
     }
 
     const branchConfigResult = await client.query(
-      `SELECT bulk_sales_kra_percentage FROM branches WHERE id = $1`,
+      `SELECT bulk_sales_kra_percentage, invoice_number FROM branches WHERE id = $1`,
       [shift.branch_id]
     )
     const intermittencyRate = branchConfigResult.rows[0]?.bulk_sales_kra_percentage ?? 100
+    let currentInvoiceNumber = branchConfigResult.rows[0]?.invoice_number || 0
 
     let nozzleQuery = `
       SELECT 
@@ -128,12 +124,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No nozzle readings found for this shift" }, { status: 400 })
     }
 
-    const branchCode = shift.branch_name.substring(0, 3).toUpperCase().replace(/\s/g, '')
-    
     await client.query('BEGIN')
 
     const salesCreated: any[] = []
-    let invoiceIndex = 1
+    let invoicesGenerated = 0
 
     for (const reading of nozzleReadings) {
       const openingReading = parseFloat(String(reading.opening_reading)) || 0
@@ -157,8 +151,10 @@ export async function POST(request: NextRequest) {
 
       for (const invoiceAmount of amountDenominations) {
         const quantity = parseFloat((invoiceAmount / unitPrice).toFixed(2))
-        const invoiceNumber = generateInvoiceNumber(branchCode, invoiceIndex)
-        const receiptNumber = generateReceiptNumber()
+        
+        currentInvoiceNumber++
+        invoicesGenerated++
+        const invoiceNumber = generateCIVInvoiceNumber(currentInvoiceNumber)
 
         const insertResult = await client.query(
           `INSERT INTO sales (
@@ -179,7 +175,7 @@ export async function POST(request: NextRequest) {
             shift.staff_id,
             reading.nozzle_id,
             invoiceNumber,
-            receiptNumber,
+            invoiceNumber,
             reading.fuel_type,
             quantity,
             unitPrice,
@@ -191,17 +187,24 @@ export async function POST(request: NextRequest) {
         salesCreated.push({
           id: insertResult.rows[0].id,
           invoice_number: insertResult.rows[0].invoice_number,
-          receipt_number: receiptNumber,
+          receipt_number: invoiceNumber,
           fuel_type: reading.fuel_type,
           quantity: quantity,
           unit_price: unitPrice,
           total_amount: invoiceAmount,
           branch_id: shift.branch_id,
-          item_id: reading.item_id
+          item_id: reading.item_id,
+          invcNo: currentInvoiceNumber
         })
-
-        invoiceIndex++
       }
+    }
+
+    // Update the branch invoice_number to reflect all bulk sales generated
+    if (invoicesGenerated > 0) {
+      await client.query(
+        `UPDATE branches SET invoice_number = $1 WHERE id = $2`,
+        [currentInvoiceNumber, shift.branch_id]
+      )
     }
 
     // Commit the transaction FIRST before submitting to KRA
@@ -245,7 +248,8 @@ export async function POST(request: NextRequest) {
           total_amount: sale.total_amount,
           payment_method: 'cash',
           sale_date: new Date().toISOString(),
-          item_id: sale.item_id
+          item_id: sale.item_id,
+          invcNo: sale.invcNo
         }).catch(err => {
           console.error(`[BULK SALES] KRA submission failed for sale ${sale.id}:`, err.message)
         })
