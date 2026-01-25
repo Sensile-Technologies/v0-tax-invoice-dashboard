@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Pool } from "pg"
+import { cookies } from "next/headers"
+
+// Force dynamic rendering to ensure cookies are available
+export const dynamic = 'force-dynamic'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -7,8 +11,9 @@ const pool = new Pool({
 
 export async function GET(request: NextRequest) {
   try {
-    // Use request.cookies instead of cookies() from next/headers for reliability
-    const sessionCookie = request.cookies.get('user_session')
+    // Use cookies() from next/headers with force-dynamic
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get('user_session')
     
     if (!sessionCookie?.value) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })

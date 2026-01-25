@@ -62,12 +62,10 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__ = __turbopack_context__.i("[externals]/pg [external] (pg, esm_import)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/headers.js [app-route] (ecmascript)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__
 ]);
 [__TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
-;
 ;
 ;
 const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
@@ -75,14 +73,11 @@ const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$exter
 });
 async function GET(request) {
     try {
-        const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
-        const sessionCookie = cookieStore.get('user_session');
-        console.log('[Fiscal Report] Cookie present:', !!sessionCookie);
-        if (!sessionCookie) {
-            console.log('[Fiscal Report] No session cookie found');
+        // Use request.cookies instead of cookies() from next/headers for reliability
+        const sessionCookie = request.cookies.get('user_session');
+        if (!sessionCookie?.value) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Unauthorized",
-                debug: "no_cookie"
+                error: "Unauthorized"
             }, {
                 status: 401
             });
@@ -90,12 +85,9 @@ async function GET(request) {
         let session;
         try {
             session = JSON.parse(sessionCookie.value);
-            console.log('[Fiscal Report] Session parsed, user:', session?.email || session?.id);
-        } catch (parseError) {
-            console.log('[Fiscal Report] Failed to parse session:', parseError);
+        } catch  {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "Invalid session",
-                debug: "parse_failed"
+                error: "Invalid session"
             }, {
                 status: 401
             });
