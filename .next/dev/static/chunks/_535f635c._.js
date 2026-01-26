@@ -1389,7 +1389,7 @@ const KNOWLEDGE_BASE = [
             "end shift",
             "close shift"
         ],
-        response: "**Shift Management:**\n\n1. **Start Shift**: Go to Shifts page and click 'Start Shift'. Enter opening meter readings for each pump.\n\n2. **End Shift (Phase 1)**: Click 'End Shift', enter closing meter readings, and assign incoming attendants.\n\n3. **Reconciliation (Phase 2)**: Complete mandatory reconciliation with payment breakdown (cash, mpesa, cards) and banking summary.\n\nTip: Tank opening readings automatically use the previous shift's closing readings."
+        response: "**Shift Management:**\n\n1. **Start Shift**: Use the **Mobile App** to start a shift. Tap the shift button and enter opening meter readings.\n\n2. **End Shift (Phase 1)**: On the web dashboard, go to **Sales Summary → Shift Management**. Enter closing meter readings and assign incoming attendants.\n\n3. **Reconciliation (Phase 2)**: Complete mandatory reconciliation with payment breakdown (Cash, M-Pesa, Cards) and banking summary.\n\nTip: Tank opening readings automatically use the previous shift's closing readings."
     },
     {
         keywords: [
@@ -1399,7 +1399,7 @@ const KNOWLEDGE_BASE = [
             "record sale",
             "invoice"
         ],
-        response: "**Recording Sales:**\n\n1. Open the mobile app or go to Sales page\n2. Select the pump/nozzle\n3. Enter quantity and customer details\n4. Choose payment method (Cash, M-Pesa, Card, Credit)\n5. For KRA compliance, enter customer PIN if required\n6. Submit to generate invoice\n\nAll sales automatically sync with KRA eTIMS for tax compliance."
+        response: "**Recording Sales:**\n\n1. Open the **Mobile App** (primary method for cashiers)\n2. Select the pump/nozzle\n3. Enter quantity and customer details\n4. Choose payment method (Cash, M-Pesa, Card, Credit)\n5. For KRA compliance, enter customer PIN if required\n6. Submit to generate invoice\n\nAll sales automatically sync with KRA eTIMS for tax compliance."
     },
     {
         keywords: [
@@ -1446,7 +1446,7 @@ const KNOWLEDGE_BASE = [
             "stock",
             "level"
         ],
-        response: "**Tank Management:**\n\n- View current tank levels on Dashboard\n- Record dip readings in Tanks page\n- Opening readings auto-populate from previous shift\n- Track stock variance between deliveries\n\nStock is categorized by fuel type and linked to items catalog."
+        response: "**Tank Management:**\n\n- View current tank levels on the **Dashboard** (Tank Stock card)\n- Tank readings are recorded during **End Shift** process\n- Opening readings auto-populate from previous shift's closing\n- Track stock variance between deliveries\n\nStock is categorized by fuel type and linked to items catalog."
     },
     {
         keywords: [
@@ -1492,7 +1492,7 @@ const KNOWLEDGE_BASE = [
             "apk",
             "phone"
         ],
-        response: "**Mobile App (APK):**\n\nThe Expo mobile app is for cashiers and supervisors.\n\n**Features:**\n- Process sales with pump selection\n- View shift status\n- Check customer loyalty points\n- Print/share receipts\n\n**Login**: Use your staff credentials assigned by admin."
+        response: "**Mobile App (APK):**\n\nThe mobile app is the primary tool for cashiers and supervisors.\n\n**Features:**\n- **Start Shifts** with opening meter readings\n- Process sales with pump selection\n- Verify customer loyalty points\n- Print/share receipts\n- View invoices and transaction history\n\n**Login**: Use your staff credentials assigned by admin."
     },
     {
         keywords: [
