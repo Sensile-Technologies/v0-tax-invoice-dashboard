@@ -22,7 +22,7 @@ interface LuluChatProps {
 const KNOWLEDGE_BASE: { keywords: string[], response: string }[] = [
   {
     keywords: ["shift", "start shift", "end shift", "close shift"],
-    response: "**Shift Management:**\n\n1. **Start Shift**: Use the **Mobile App** to start a shift. Tap the shift button and enter opening meter readings.\n\n2. **End Shift (Phase 1)**: On the web dashboard, go to **Sales → Sales Summary** and click 'End Shift'. Enter closing meter readings and assign incoming attendants.\n\n3. **Reconciliation (Phase 2)**: Complete mandatory reconciliation with payment breakdown (Cash, M-Pesa, Cards) and banking summary.\n\nTip: Tank opening readings automatically use the previous shift's closing readings."
+    response: "**Shift Management:**\n\n1. **Start Shift**: Use the **Mobile App** to start a shift. Tap the shift button and enter opening meter readings.\n\n2. **End Shift (Phase 1)**: On the web dashboard, go to **Sales Summary → Shift Management**. Enter closing meter readings and assign incoming attendants.\n\n3. **Reconciliation (Phase 2)**: Complete mandatory reconciliation with payment breakdown (Cash, M-Pesa, Cards) and banking summary.\n\nTip: Tank opening readings automatically use the previous shift's closing readings."
   },
   {
     keywords: ["sale", "create sale", "new sale", "record sale", "invoice"],
