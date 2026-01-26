@@ -692,6 +692,23 @@ async function getItemInfoByFuelType(branchId, fuelType) {
     ]);
     return result.length > 0 ? result[0] : null;
 }
+async function getItemInfoById(branchId, itemId) {
+    const result = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`
+    SELECT i.item_code, i.class_code, i.item_name, i.package_unit, 
+           i.quantity_unit, i.tax_type, 
+           bi.sale_price, 
+           bi.purchase_price
+    FROM items i
+    INNER JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
+    WHERE i.id = $2
+    AND bi.sale_price IS NOT NULL AND bi.sale_price > 0
+    LIMIT 1
+  `, [
+        branchId,
+        itemId
+    ]);
+    return result.length > 0 ? result[0] : null;
+}
 function formatKraDateTime(date = new Date()) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -773,10 +790,18 @@ async function callKraSaveSales(saleData) {
                 error: errorMsg
             };
         }
-        const itemInfo = await getItemInfoByFuelType(saleData.branch_id, saleData.fuel_type);
-        const invcNo = await getNextInvoiceNo(saleData.branch_id);
+        // Prefer item_id lookup over fuel_type name matching for accuracy
+        let itemInfo = null;
+        if (saleData.item_id) {
+            itemInfo = await getItemInfoById(saleData.branch_id, saleData.item_id);
+        }
         if (!itemInfo) {
-            const errorMsg = `No item found for fuel type: ${saleData.fuel_type}`;
+            itemInfo = await getItemInfoByFuelType(saleData.branch_id, saleData.fuel_type);
+        }
+        // Use provided invcNo if passed (e.g., from bulk sales), otherwise get next from sequence
+        const invcNo = saleData.invcNo || await getNextInvoiceNo(saleData.branch_id);
+        if (!itemInfo) {
+            const errorMsg = `No item found for ${saleData.item_id ? 'item_id: ' + saleData.item_id : 'fuel type: ' + saleData.fuel_type}`;
             console.log(`[KRA Sales API] ${errorMsg}`);
             return {
                 success: false,

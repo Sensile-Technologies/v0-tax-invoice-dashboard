@@ -1903,13 +1903,19 @@ async function PATCH(request) {
         ]);
         const newShift = newShiftResult.rows[0];
         await client.query('COMMIT');
-        // Submit bulk sales to KRA with proper status tracking
+        // Submit bulk sales to KRA with parallel processing for speed
         let kraSuccessCount = 0;
         let kraFailCount = 0;
         if (bulkSalesResult.salesForKra.length > 0) {
-            console.log(`[BULK SALES] Submitting ${bulkSalesResult.salesForKra.length} invoices to KRA...`);
-            for (const sale of bulkSalesResult.salesForKra){
-                try {
+            console.log(`[BULK SALES] Submitting ${bulkSalesResult.salesForKra.length} invoices to KRA in parallel...`);
+            const BATCH_SIZE = 5 // Process 5 invoices at a time to avoid overwhelming the KRA server
+            ;
+            const salesBatches = [];
+            for(let i = 0; i < bulkSalesResult.salesForKra.length; i += BATCH_SIZE){
+                salesBatches.push(bulkSalesResult.salesForKra.slice(i, i + BATCH_SIZE));
+            }
+            for (const batch of salesBatches){
+                const batchResults = await Promise.allSettled(batch.map(async (sale)=>{
                     const kraResult = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$kra$2d$sales$2d$api$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["callKraSaveSales"])({
                         branch_id: sale.branch_id,
                         invoice_number: sale.invoice_number,
@@ -1923,26 +1929,50 @@ async function PATCH(request) {
                         item_id: sale.item_id,
                         invcNo: sale.invcNo
                     });
-                    if (kraResult.success && kraResult.kraResponse) {
-                        const sdcId = kraResult.kraResponse.data?.sdcId || '';
-                        const rcptSign = kraResult.kraResponse.data?.rcptSign || '';
-                        const cuInvNo = sdcId && sale.invcNo ? `${sdcId}/${sale.invcNo}` : null;
-                        await pool.query(`UPDATE sales SET 
-                kra_status = 'transmitted',
-                transmission_status = 'sent',
-                kra_scu_id = $2,
-                kra_cu_inv = $3,
-                kra_rcpt_sign = $4,
-                updated_at = NOW()
-              WHERE id = $1`, [
-                            sale.id,
-                            sdcId,
-                            cuInvNo,
-                            rcptSign
-                        ]);
-                        kraSuccessCount++;
+                    return {
+                        sale,
+                        kraResult
+                    };
+                }));
+                // Process batch results and update database
+                for (const result of batchResults){
+                    if (result.status === 'fulfilled') {
+                        const { sale, kraResult } = result.value;
+                        if (kraResult.success && kraResult.kraResponse) {
+                            const sdcId = kraResult.kraResponse.data?.sdcId || '';
+                            const rcptSign = kraResult.kraResponse.data?.rcptSign || '';
+                            const cuInvNo = sdcId && sale.invcNo ? `${sdcId}/${sale.invcNo}` : null;
+                            await pool.query(`UPDATE sales SET 
+                  kra_status = 'transmitted',
+                  transmission_status = 'sent',
+                  kra_scu_id = $2,
+                  kra_cu_inv = $3,
+                  kra_rcpt_sign = $4,
+                  updated_at = NOW()
+                WHERE id = $1`, [
+                                sale.id,
+                                sdcId,
+                                cuInvNo,
+                                rcptSign
+                            ]);
+                            kraSuccessCount++;
+                        } else {
+                            const errorMsg = kraResult.error || kraResult.kraResponse?.resultMsg || 'Unknown error';
+                            await pool.query(`UPDATE sales SET 
+                  kra_status = 'failed',
+                  transmission_status = 'failed',
+                  kra_error = $2,
+                  updated_at = NOW()
+                WHERE id = $1`, [
+                                sale.id,
+                                errorMsg
+                            ]);
+                            kraFailCount++;
+                            console.error(`[BULK SALES] KRA failed for sale ${sale.id}: ${errorMsg}`);
+                        }
                     } else {
-                        const errorMsg = kraResult.error || kraResult.kraResponse?.resultMsg || 'Unknown error';
+                        // Promise was rejected
+                        const sale = batch[batchResults.indexOf(result)];
                         await pool.query(`UPDATE sales SET 
                 kra_status = 'failed',
                 transmission_status = 'failed',
@@ -1950,23 +1980,11 @@ async function PATCH(request) {
                 updated_at = NOW()
               WHERE id = $1`, [
                             sale.id,
-                            errorMsg
+                            result.reason?.message || 'Unknown error'
                         ]);
                         kraFailCount++;
-                        console.error(`[BULK SALES] KRA failed for sale ${sale.id}: ${errorMsg}`);
+                        console.error(`[BULK SALES] KRA error for sale ${sale.id}:`, result.reason?.message);
                     }
-                } catch (err) {
-                    await pool.query(`UPDATE sales SET 
-              kra_status = 'failed',
-              transmission_status = 'failed',
-              kra_error = $2,
-              updated_at = NOW()
-            WHERE id = $1`, [
-                        sale.id,
-                        err.message
-                    ]);
-                    kraFailCount++;
-                    console.error(`[BULK SALES] KRA error for sale ${sale.id}:`, err.message);
                 }
             }
             console.log(`[BULK SALES] KRA transmission complete: ${kraSuccessCount} success, ${kraFailCount} failed`);
