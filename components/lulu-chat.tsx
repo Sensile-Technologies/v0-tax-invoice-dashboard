@@ -21,8 +21,16 @@ interface LuluChatProps {
 
 const KNOWLEDGE_BASE: { keywords: string[], response: string }[] = [
   {
-    keywords: ["shift", "start shift", "end shift", "close shift"],
-    response: "**Shift Management:**\n\n1. **Start Shift**: Use the **Mobile App** to start a shift. Tap the shift button and enter opening meter readings.\n\n2. **End Shift (Phase 1)**: On the web dashboard, go to **Sales Summary → Shift Management**. Enter closing meter readings and assign incoming attendants.\n\n3. **Reconciliation (Phase 2)**: Complete mandatory reconciliation with payment breakdown (Cash, M-Pesa, Cards) and banking summary.\n\nTip: Tank opening readings automatically use the previous shift's closing readings."
+    keywords: ["end shift", "close shift", "ending shift", "closing shift", "finish shift"],
+    response: "**Ending a Shift:**\n\n**Phase 1 - Close Shift:**\n1. Go to **Sales Summary → Shift Management**\n2. Enter closing meter readings for each pump\n3. Assign incoming attendants for the next shift\n4. Click **End Shift**\n\n**Phase 2 - Reconciliation:**\n1. Complete mandatory reconciliation\n2. Break down payments: Cash, M-Pesa, Cards\n3. Record any expenses and banking amounts\n4. Submit to complete the shift\n\nTip: Directors receive WhatsApp DSSR notification when reconciliation is complete."
+  },
+  {
+    keywords: ["start shift", "starting shift", "begin shift", "open shift"],
+    response: "**Starting a Shift:**\n\n1. Open the **Mobile App**\n2. Tap the **Start Shift** button\n3. Enter opening meter readings for each pump\n4. Confirm to begin the shift\n\nTip: Tank opening readings automatically use the previous shift's closing readings."
+  },
+  {
+    keywords: ["shift management", "shifts", "shift overview"],
+    response: "**Shift Management Overview:**\n\n1. **Start Shift**: Use the Mobile App to begin with opening readings\n\n2. **End Shift (Phase 1)**: On web dashboard → Sales Summary → Shift Management. Enter closing readings and assign incoming attendants.\n\n3. **Reconciliation (Phase 2)**: Complete payment breakdown and banking summary.\n\nTip: Tank readings carry over automatically between shifts."
   },
   {
     keywords: ["sale", "create sale", "new sale", "record sale", "invoice"],
