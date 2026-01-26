@@ -1766,7 +1766,7 @@ async function PATCH(request) {
             }
         }
         // Get tank opening readings from shift_readings (recorded at shift start)
-        // Fall back to tanks.current_stock for legacy shifts that started before this fix
+        // NO fallback to current_stock - defaults to 0 if no opening reading exists
         const tankOpeningsResult = await client.query(`SELECT sr.tank_id, sr.opening_reading
        FROM shift_readings sr
        WHERE sr.shift_id = $1 AND sr.reading_type = 'tank' AND sr.tank_id IS NOT NULL`, [
@@ -1776,13 +1776,14 @@ async function PATCH(request) {
         for (const r of tankOpeningsResult.rows){
             tankBaseStocks[r.tank_id] = parseFloat(r.opening_reading) || 0;
         }
-        // For legacy shifts without opening readings, fall back to current_stock
-        const tanksResult = await client.query(`SELECT id, current_stock FROM tanks WHERE branch_id = $1`, [
+        // For tanks without opening readings in shift_readings, default to 0
+        // NO fallback to current_stock - opening must come from shift_readings only
+        const tanksResult = await client.query(`SELECT id FROM tanks WHERE branch_id = $1`, [
             branchId
         ]);
         for (const t of tanksResult.rows){
             if (!tankBaseStocks.hasOwnProperty(t.id)) {
-                tankBaseStocks[t.id] = parseFloat(t.current_stock) || 0;
+                tankBaseStocks[t.id] = 0;
             }
         }
         if (nozzle_readings && nozzle_readings.length > 0) {
