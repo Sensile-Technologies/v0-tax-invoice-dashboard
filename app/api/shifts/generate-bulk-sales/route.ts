@@ -225,36 +225,80 @@ export async function POST(request: NextRequest) {
 
     console.log(`[BULK SALES] Created ${totalSales} invoices. Intermittency rate: ${intermittencyRate}%. Transmitting ${salesToTransmit} to KRA, skipping ${totalSales - salesToTransmit}.`)
 
-    // Mark sales transmitted to KRA
+    // Submit to KRA and update sales with actual response
+    let kraSuccessCount = 0
+    let kraFailCount = 0
+    
     if (kraTransmitIds.length > 0) {
-      await pool.query(
-        `UPDATE sales SET 
-          kra_status = 'transmitted',
-          transmission_status = 'sent',
-          updated_at = NOW()
-        WHERE id = ANY($1)`,
-        [kraTransmitIds]
-      )
-      
-      // Submit to KRA asynchronously (fire and forget for performance)
+      // Process KRA submissions with proper status tracking
       for (const sale of kraTransmitSales) {
-        callKraSaveSales({
-          branch_id: sale.branch_id,
-          invoice_number: sale.invoice_number,
-          receipt_number: sale.receipt_number,
-          fuel_type: sale.fuel_type,
-          quantity: sale.quantity,
-          unit_price: sale.unit_price,
-          total_amount: sale.total_amount,
-          payment_method: 'cash',
-          sale_date: new Date().toISOString(),
-          item_id: sale.item_id,
-          invcNo: sale.invcNo
-        }).catch(err => {
-          console.error(`[BULK SALES] KRA submission failed for sale ${sale.id}:`, err.message)
-        })
+        try {
+          const kraResult = await callKraSaveSales({
+            branch_id: sale.branch_id,
+            invoice_number: sale.invoice_number,
+            receipt_number: sale.receipt_number,
+            fuel_type: sale.fuel_type,
+            quantity: sale.quantity,
+            unit_price: sale.unit_price,
+            total_amount: sale.total_amount,
+            payment_method: 'cash',
+            sale_date: new Date().toISOString(),
+            item_id: sale.item_id,
+            invcNo: sale.invcNo
+          })
+          
+          if (kraResult.success && kraResult.kraResponse) {
+            const sdcId = kraResult.kraResponse.data?.sdcId || ''
+            const rcptSign = kraResult.kraResponse.data?.rcptSign || ''
+            const cuInvNo = sdcId && sale.invcNo ? `${sdcId}/${sale.invcNo}` : null
+            
+            await pool.query(
+              `UPDATE sales SET 
+                kra_status = 'transmitted',
+                transmission_status = 'sent',
+                kra_scu_id = $2,
+                kra_cu_inv = $3,
+                kra_rcpt_sign = $4,
+                updated_at = NOW()
+              WHERE id = $1`,
+              [sale.id, sdcId, cuInvNo, rcptSign]
+            )
+            kraSuccessCount++
+            sale.kra_status = 'transmitted'
+            sale.kra_cu_inv = cuInvNo
+          } else {
+            const errorMsg = kraResult.error || kraResult.kraResponse?.resultMsg || 'Unknown error'
+            await pool.query(
+              `UPDATE sales SET 
+                kra_status = 'failed',
+                transmission_status = 'failed',
+                kra_error = $2,
+                updated_at = NOW()
+              WHERE id = $1`,
+              [sale.id, errorMsg]
+            )
+            kraFailCount++
+            sale.kra_status = 'failed'
+            console.error(`[BULK SALES] KRA submission failed for sale ${sale.id}: ${errorMsg}`)
+          }
+        } catch (err: any) {
+          await pool.query(
+            `UPDATE sales SET 
+              kra_status = 'failed',
+              transmission_status = 'failed',
+              kra_error = $2,
+              updated_at = NOW()
+            WHERE id = $1`,
+            [sale.id, err.message]
+          )
+          kraFailCount++
+          sale.kra_status = 'failed'
+          console.error(`[BULK SALES] KRA submission error for sale ${sale.id}:`, err.message)
+        }
       }
     }
+    
+    console.log(`[BULK SALES] KRA transmission complete: ${kraSuccessCount} success, ${kraFailCount} failed`)
     
     // Mark skipped sales as pending (not transmitted per intermittency rate)
     if (kraSkipIds.length > 0) {
@@ -268,11 +312,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update local sales objects with their status
-    for (const sale of kraTransmitSales) {
-      sale.kra_status = 'transmitted'
-      sale.transmission_status = 'sent'
-    }
+    // Update local sales objects with their status for skipped sales
     for (const sale of kraSkipSales) {
       sale.kra_status = 'pending'
       sale.transmission_status = 'not_sent'
@@ -283,13 +323,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Generated ${salesCreated.length} invoices from meter difference. ${salesToTransmit} transmitted to KRA (${intermittencyRate}% rate).`,
+      message: `Generated ${salesCreated.length} invoices from meter difference. KRA: ${kraSuccessCount} transmitted, ${kraFailCount} failed, ${kraSkipIds.length} skipped (${intermittencyRate}% rate).`,
       summary: {
         total_invoices: salesCreated.length,
         total_quantity: totalQuantity,
         total_amount: totalAmount,
-        kra_transmitted: salesToTransmit,
-        kra_skipped: totalSales - salesToTransmit,
+        kra_transmitted: kraSuccessCount,
+        kra_failed: kraFailCount,
+        kra_skipped: kraSkipIds.length,
         intermittency_rate: intermittencyRate
       },
       sales: salesCreated
