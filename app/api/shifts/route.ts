@@ -44,7 +44,7 @@ interface SaleForKra {
 }
 
 // Background KRA transmission - runs after response is sent to user
-async function processKraTransmissionsInBackground(salesForKra: SaleForKra[]): Promise<void> {
+async function processKraTransmissionsInBackground(salesForKra: SaleForKra[], shiftId?: string, branchId?: string): Promise<void> {
   console.log(`[BULK SALES] Background: Processing ${salesForKra.length} invoices to KRA...`)
   
   let kraSuccessCount = 0
@@ -131,6 +131,27 @@ async function processKraTransmissionsInBackground(salesForKra: SaleForKra[]): P
   }
   
   console.log(`[BULK SALES] Background: KRA transmission complete - ${kraSuccessCount} success, ${kraFailCount} failed`)
+  
+  // Create notification for user
+  if (branchId) {
+    try {
+      const totalAmount = salesForKra.reduce((sum, s) => sum + s.total_amount, 0)
+      const message = kraFailCount === 0
+        ? `All ${kraSuccessCount} bulk sale invoices (KES ${totalAmount.toLocaleString()}) transmitted to KRA successfully.`
+        : `KRA transmission: ${kraSuccessCount} success, ${kraFailCount} failed out of ${salesForKra.length} bulk invoices.`
+      
+      const notificationType = kraFailCount === 0 ? 'kra_transmission_success' : 'kra_transmission_partial'
+      const title = kraFailCount === 0 ? 'KRA Transmission Complete' : 'KRA Transmission: Some Failed'
+      
+      await pool.query(
+        `INSERT INTO notifications (user_id, type, title, message, reference_id)
+         VALUES (NULL, $1, $2, $3, $4)`,
+        [notificationType, title, message, shiftId]
+      )
+    } catch (notifErr) {
+      console.error('[BULK SALES] Failed to create notification:', notifErr)
+    }
+  }
 }
 
 async function generateBulkSalesFromMeterDiff(
@@ -803,7 +824,7 @@ export async function PATCH(request: NextRequest) {
       console.log(`[BULK SALES] Starting background KRA transmission for ${bulkSalesResult.salesForKra.length} invoices...`)
       
       // Fire and forget - don't await, let it run in background
-      processKraTransmissionsInBackground(bulkSalesResult.salesForKra).catch(err => {
+      processKraTransmissionsInBackground(bulkSalesResult.salesForKra, id, branchId).catch(err => {
         console.error('[BULK SALES] Background KRA transmission error:', err)
       })
     }
