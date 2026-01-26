@@ -25,21 +25,21 @@ WITH corrected_readings AS (
     sr.id,
     sr.shift_id,
     sr.tank_id,
-    sr.opening_volume,
-    LAG(sr.closing_volume) OVER (
+    sr.opening_reading,
+    LAG(sr.closing_reading) OVER (
       PARTITION BY sr.tank_id 
       ORDER BY s.start_time
     ) as prev_closing
   FROM shift_readings sr
   JOIN shifts s ON sr.shift_id = s.id
-  WHERE sr.opening_volume IS NOT NULL
+  WHERE sr.opening_reading IS NOT NULL
 )
 UPDATE shift_readings sr
-SET opening_volume = cr.prev_closing
+SET opening_reading = cr.prev_closing
 FROM corrected_readings cr
 WHERE sr.id = cr.id
   AND cr.prev_closing IS NOT NULL
-  AND sr.opening_volume != cr.prev_closing;
+  AND sr.opening_reading != cr.prev_closing;
 
 -- ============================================================
 -- 3. LOYALTY TRANSACTIONS BACKFILL
@@ -99,11 +99,11 @@ WHERE c.id IN (
 -- SELECT COUNT(*) FROM sales WHERE is_automated = true AND item_id IS NOT NULL;
 
 -- Check tank reading continuity:
--- SELECT sr.id, sr.tank_id, sr.opening_volume, 
---        LAG(sr.closing_volume) OVER (PARTITION BY sr.tank_id ORDER BY s.start_time) as prev_closing
+-- SELECT sr.id, sr.tank_id, sr.opening_reading, 
+--        LAG(sr.closing_reading) OVER (PARTITION BY sr.tank_id ORDER BY s.start_time) as prev_closing
 -- FROM shift_readings sr
 -- JOIN shifts s ON sr.shift_id = s.id
--- WHERE sr.opening_volume != LAG(sr.closing_volume) OVER (PARTITION BY sr.tank_id ORDER BY s.start_time);
+-- WHERE sr.opening_reading != LAG(sr.closing_reading) OVER (PARTITION BY sr.tank_id ORDER BY s.start_time);
 
 -- Check loyalty transaction coverage:
 -- SELECT COUNT(*) FROM sales WHERE customer_id IS NOT NULL AND loyalty_points > 0
