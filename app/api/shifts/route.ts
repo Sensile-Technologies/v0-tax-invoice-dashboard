@@ -596,14 +596,15 @@ export async function PATCH(request: NextRequest) {
       tankBaseStocks[r.tank_id] = parseFloat(r.opening_reading) || 0
     }
     
-    // For legacy shifts without opening readings, fall back to current_stock
+    // For tanks without opening readings in shift_readings, default to 0
+    // NO fallback to current_stock - opening must come from shift_readings only
     const tanksResult = await client.query(
-      `SELECT id, current_stock FROM tanks WHERE branch_id = $1`,
+      `SELECT id FROM tanks WHERE branch_id = $1`,
       [branchId]
     )
     for (const t of tanksResult.rows) {
       if (!tankBaseStocks.hasOwnProperty(t.id)) {
-        tankBaseStocks[t.id] = parseFloat(t.current_stock) || 0
+        tankBaseStocks[t.id] = 0
       }
     }
 

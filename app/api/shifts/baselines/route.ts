@@ -51,16 +51,16 @@ export async function GET(request: NextRequest) {
 
     // Get tanks for this branch
     const tanksResult = await pool.query(
-      `SELECT id, current_stock FROM tanks WHERE branch_id = $1`,
+      `SELECT id FROM tanks WHERE branch_id = $1`,
       [branchId]
     )
     
-    // CRITICAL: Tank opening reading = previous shift's CLOSING reading
+    // CRITICAL: Tank opening reading = previous shift's CLOSING reading ONLY
     // This ensures tank continuity: Shift A closing = Shift B opening
-    // Do NOT use tanks.current_stock as it may be modified elsewhere
+    // NO fallback to tanks.current_stock - it must come from shift_readings
     const tankBaselines: Record<string, number> = {}
     
-    // First, get the most recent completed shift's closing readings for each tank
+    // Get the most recent completed shift's closing readings for each tank
     const prevTankReadings = await pool.query(
       `SELECT DISTINCT ON (sr.tank_id) sr.tank_id, sr.closing_reading
        FROM shift_readings sr
@@ -80,14 +80,9 @@ export async function GET(request: NextRequest) {
       prevClosings[r.tank_id] = parseFloat(r.closing_reading) || 0
     }
     
-    // For each tank, use previous closing reading; fallback to current_stock only for tanks with no prior readings
+    // For each tank, use previous closing reading; default to 0 if no prior readings exist
     for (const t of tanksResult.rows) {
-      if (prevClosings.hasOwnProperty(t.id)) {
-        tankBaselines[t.id] = prevClosings[t.id]
-      } else {
-        // No previous shift reading exists - this is a new tank
-        tankBaselines[t.id] = parseFloat(t.current_stock) || 0
-      }
+      tankBaselines[t.id] = prevClosings[t.id] ?? 0
     }
 
     return NextResponse.json({

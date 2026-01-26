@@ -3,6 +3,7 @@
   "/api/branches/list/route": "app/api/branches/list/route.js",
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
   "/api/notifications/route": "app/api/notifications/route.js",
+  "/auth/login/page": "app/auth/login/page.js",
   "/headquarters/page": "app/headquarters/page.js",
   "/page": "app/page.js"
 }
