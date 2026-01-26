@@ -18,7 +18,11 @@ import {
   Activity,
   Sparkles,
   Phone,
+  QrCode,
+  Download,
+  X,
 } from "lucide-react"
+import { QRCodeSVG } from "qrcode.react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -64,6 +68,7 @@ export function DashboardHeader({
   const [userRole, setUserRole] = useState<string>("")
   const [canSwitchBranches, setCanSwitchBranches] = useState(true)
   const [isLuluOpen, setIsLuluOpen] = useState(false)
+  const [showQRCode, setShowQRCode] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const branchIdFromUrl = searchParams.get('branch')
@@ -445,6 +450,11 @@ export function DashboardHeader({
               Logs
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setShowQRCode(true)} className="cursor-pointer rounded-lg">
+              <QrCode className="mr-2 h-4 w-4" />
+              Download Mobile App
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 rounded-lg">
               <LogOut className="mr-2 h-4 w-4" />
               Log out
@@ -454,6 +464,46 @@ export function DashboardHeader({
       </div>
 
       <LuluChat isOpen={isLuluOpen} onClose={() => setIsLuluOpen(false)} />
+
+      {showQRCode && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={() => setShowQRCode(false)}>
+          <div 
+            className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-900">Download Mobile App</h3>
+              <Button variant="ghost" size="icon" onClick={() => setShowQRCode(false)} className="h-8 w-8">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-white p-4 rounded-xl border-2 border-slate-100 mb-4">
+                <QRCodeSVG 
+                  value={typeof window !== 'undefined' ? `${window.location.origin}` : 'https://flow360.app'} 
+                  size={200}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+              <div className="text-center space-y-2">
+                <p className="text-sm text-slate-600">
+                  Scan this QR code with your phone to install the Flow360 app
+                </p>
+                <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
+                  <Download className="h-3 w-3" />
+                  <span>Works on iOS and Android</span>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg w-full">
+                <p className="text-xs text-blue-700 text-center">
+                  <strong>Tip:</strong> After scanning, tap "Add to Home Screen" in your browser menu to install
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
