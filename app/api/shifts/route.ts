@@ -584,7 +584,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Get tank opening readings from shift_readings (recorded at shift start)
-    // Fall back to tanks.current_stock for legacy shifts that started before this fix
+    // NO fallback to current_stock - defaults to 0 if no opening reading exists
     const tankOpeningsResult = await client.query(
       `SELECT sr.tank_id, sr.opening_reading
        FROM shift_readings sr
