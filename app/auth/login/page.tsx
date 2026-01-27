@@ -176,7 +176,11 @@ export default function LoginPage() {
             <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold" style={{ color: theme.primaryColor }}>
               flow360<sup className="text-xs sm:text-sm relative -top-3 sm:-top-5">™</sup>
             </CardTitle>
-          ) : null}
+          ) : (
+            <CardTitle className="text-2xl sm:text-3xl text-center font-extrabold" style={{ color: theme.primaryColor }}>
+              {theme.companyName}
+            </CardTitle>
+          )}
           <p className="text-center text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
