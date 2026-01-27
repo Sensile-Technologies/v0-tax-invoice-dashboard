@@ -145,14 +145,14 @@ export function DashboardSidebar({
           collapsed ? "w-16" : "w-72 lg:w-64",
         )}
       >
-      <div className="flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center">
+      <div className="flex h-16 items-center justify-center px-4">
+        <Link href="/" className="flex items-center justify-center w-full">
           <Image 
             src={theme.logoUrl} 
             alt={`${theme.companyName} Logo`} 
             width={collapsed ? 32 : 48} 
             height={collapsed ? 32 : 48} 
-            className="rounded-lg mx-auto" 
+            className="rounded-lg" 
             unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
           />
         </Link>
