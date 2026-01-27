@@ -146,11 +146,13 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 async function getSessionUser() {
     const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
     const sessionCookie = cookieStore.get('user_session');
+    console.log('[Vendor Settings] Session cookie:', sessionCookie ? 'present' : 'missing');
     if (!sessionCookie?.value) {
         return null;
     }
     try {
         const sessionData = JSON.parse(sessionCookie.value);
+        console.log('[Vendor Settings] Session data id:', sessionData?.id);
         if (!sessionData.id) return null;
         const users = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT u.id, u.email, u.username, 
        COALESCE(s.role, u.role) as role,
@@ -162,8 +164,10 @@ async function getSessionUser() {
        WHERE u.id = $1`, [
             sessionData.id
         ]);
+        console.log('[Vendor Settings] User found:', users[0]?.email, 'role:', users[0]?.role, 'vendor_id:', users[0]?.vendor_id);
         return users[0] || null;
-    } catch  {
+    } catch (err) {
+        console.error('[Vendor Settings] Error:', err);
         return null;
     }
 }
@@ -195,7 +199,7 @@ async function GET(request) {
                 status: 400
             });
         }
-        const vendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["queryOne"])(`SELECT id, name, display_name, logo_url, primary_color, custom_domain
+        const vendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["queryOne"])(`SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
        FROM vendors 
        WHERE id = $1`, [
             user.vendor_id
@@ -248,7 +252,7 @@ async function PUT(request) {
             });
         }
         const body = await request.json();
-        const { display_name, logo_url, primary_color, custom_domain } = body;
+        const { display_name, logo_url, primary_color, secondary_color, custom_domain } = body;
         if (custom_domain) {
             const cleanDomain = custom_domain.replace(/^https?:\/\//, '').split(':')[0].toLowerCase();
             const existingVendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["queryOne"])(`SELECT id FROM vendors WHERE custom_domain = $1 AND id != $2`, [
@@ -267,12 +271,14 @@ async function PUT(request) {
        SET display_name = $1,
            logo_url = $2,
            primary_color = $3,
-           custom_domain = $4,
+           secondary_color = $4,
+           custom_domain = $5,
            updated_at = NOW()
-       WHERE id = $5`, [
+       WHERE id = $6`, [
             display_name || null,
             logo_url || null,
             primary_color || '#3b82f6',
+            secondary_color || '#1e40af',
             custom_domain ? custom_domain.replace(/^https?:\/\//, '').split(':')[0].toLowerCase() : null,
             user.vendor_id
         ]);

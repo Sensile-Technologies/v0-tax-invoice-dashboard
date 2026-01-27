@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const cleanDomain = domain.replace(/^https?:\/\//, '').split(':')[0]
 
     const vendors = await query(
-      `SELECT id, name, display_name, logo_url, primary_color, custom_domain
+      `SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
        FROM vendors 
        WHERE custom_domain = $1 AND status = 'active'
        LIMIT 1`,
@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
       theme: {
         logoUrl: vendor.logo_url || '/flow360-logo.png',
         primaryColor: vendor.primary_color || '#3b82f6',
+        secondaryColor: vendor.secondary_color || '#1e40af',
         companyName: vendor.display_name || vendor.name || 'Flow360',
       }
     })
@@ -56,6 +57,7 @@ function getDefaultTheme() {
   return {
     logoUrl: '/flow360-logo.png',
     primaryColor: '#3b82f6',
+    secondaryColor: '#1e40af',
     companyName: 'Flow360',
   }
 }

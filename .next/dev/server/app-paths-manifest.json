@@ -4,6 +4,8 @@
   "/api/headquarters/stats/route": "app/api/headquarters/stats/route.js",
   "/api/notifications/route": "app/api/notifications/route.js",
   "/api/theme/route": "app/api/theme/route.js",
+  "/api/vendor/settings/route": "app/api/vendor/settings/route.js",
   "/headquarters/page": "app/headquarters/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/vendor/settings/page": "app/vendor/settings/page.js"
 }
