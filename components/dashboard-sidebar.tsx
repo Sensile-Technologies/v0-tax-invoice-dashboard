@@ -138,12 +138,12 @@ export function DashboardSidebar({
       <aside
         className={cn(
           "flex flex-col text-white transition-transform duration-300 ease-in-out min-h-screen",
+          "bg-transparent",
           "fixed lg:relative top-0 left-0 h-full",
           "lg:translate-x-0 z-50",
           mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
           collapsed ? "w-16" : "w-72 lg:w-64",
         )}
-        style={{ backgroundColor: theme.primaryColor }}
       >
       <div className="flex h-20 items-center justify-center px-4 mt-8">
         <Link href="/" className="flex items-center justify-center w-full">
@@ -319,9 +319,8 @@ export function DashboardSidebar({
         })}
         <Link
           href="/loyalty"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-all cursor-pointer"
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md transition-all cursor-pointer"
           title={collapsed ? "Explore Tuzwa" : undefined}
-          style={{ backgroundColor: theme.secondaryColor }}
         >
           <Leaf className="h-5 w-5 flex-shrink-0 text-white" />
           {!collapsed && (

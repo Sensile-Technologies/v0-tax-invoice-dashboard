@@ -7163,12 +7163,6 @@
   }
 
   @media (hover: hover) {
-    .hover\:opacity-90:hover {
-      opacity: .9;
-    }
-  }
-
-  @media (hover: hover) {
     .hover\:opacity-100:hover {
       opacity: 1;
     }

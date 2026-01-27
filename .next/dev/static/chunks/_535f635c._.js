@@ -337,10 +337,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("aside", {
-                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex flex-col text-white transition-transform duration-300 ease-in-out min-h-screen", "fixed lg:relative top-0 left-0 h-full", "lg:translate-x-0 z-50", mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0", collapsed ? "w-16" : "w-72 lg:w-64"),
-                style: {
-                    backgroundColor: theme.primaryColor
-                },
+                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cn"])("flex flex-col text-white transition-transform duration-300 ease-in-out min-h-screen", "bg-transparent", "fixed lg:relative top-0 left-0 h-full", "lg:translate-x-0 z-50", mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0", collapsed ? "w-16" : "w-72 lg:w-64"),
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex h-20 items-center justify-center px-4 mt-8",
@@ -602,17 +599,14 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                             }),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                 href: "/loyalty",
-                                className: "flex items-center gap-3 rounded-xl px-3 py-2.5 hover:opacity-90 transition-all cursor-pointer",
+                                className: "flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-white/30 hover:backdrop-blur-sm hover:shadow-md transition-all cursor-pointer",
                                 title: collapsed ? "Explore Tuzwa" : undefined,
-                                style: {
-                                    backgroundColor: theme.secondaryColor
-                                },
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$leaf$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Leaf$3e$__["Leaf"], {
                                         className: "h-5 w-5 flex-shrink-0 text-white"
                                     }, void 0, false, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 326,
+                                        lineNumber: 325,
                                         columnNumber: 11
                                     }, this),
                                     !collapsed && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -623,7 +617,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                 children: "Explore Tuzwa"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                lineNumber: 329,
+                                                lineNumber: 328,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -631,13 +625,13 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                                                 children: "Loyalty Rewards"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/dashboard-sidebar.tsx",
-                                                lineNumber: 330,
+                                                lineNumber: 329,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                                        lineNumber: 328,
+                                        lineNumber: 327,
                                         columnNumber: 13
                                     }, this)
                                 ]
@@ -661,18 +655,18 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 342,
+                            lineNumber: 341,
                             columnNumber: 22
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$left$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronLeft$3e$__["ChevronLeft"], {
                             className: "h-4 w-4"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 342,
+                            lineNumber: 341,
                             columnNumber: 61
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 336,
+                        lineNumber: 335,
                         columnNumber: 7
                     }, this),
                     mobileOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -684,12 +678,12 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                             className: "h-5 w-5"
                         }, void 0, false, {
                             fileName: "[project]/components/dashboard-sidebar.tsx",
-                            lineNumber: 352,
+                            lineNumber: 351,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/dashboard-sidebar.tsx",
-                        lineNumber: 346,
+                        lineNumber: 345,
                         columnNumber: 9
                     }, this)
                 ]
