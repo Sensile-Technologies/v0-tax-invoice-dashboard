@@ -145,7 +145,7 @@ export function DashboardSidebar({
           collapsed ? "w-16" : "w-72 lg:w-64",
         )}
       >
-      <div className="flex h-16 items-center justify-center px-4">
+      <div className="flex h-20 items-center justify-center px-4 mt-4">
         <Link href="/" className="flex items-center justify-center w-full">
           <Image 
             src={theme.logoUrl} 
@@ -158,7 +158,7 @@ export function DashboardSidebar({
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3 mt-2">
         {navigationItems.map((item) => {
           if (item.hasDropdown && !collapsed) {
             return (

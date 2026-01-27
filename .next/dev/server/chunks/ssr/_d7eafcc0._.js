@@ -2720,7 +2720,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                 className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("flex flex-col text-white transition-transform duration-300 ease-in-out min-h-screen", "bg-transparent", "fixed lg:relative top-0 left-0 h-full", "lg:translate-x-0 z-50", mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0", collapsed ? "w-16" : "w-72 lg:w-64"),
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex h-16 items-center justify-center px-4",
+                        className: "flex h-20 items-center justify-center px-4 mt-4",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                             href: "/",
                             className: "flex items-center justify-center w-full",
@@ -2747,7 +2747,7 @@ function DashboardSidebar({ collapsed, onToggle, isHeadquarters = false, transpa
                         columnNumber: 7
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
-                        className: "flex-1 space-y-1 overflow-y-auto p-3",
+                        className: "flex-1 space-y-1 overflow-y-auto p-3 mt-2",
                         children: [
                             navigationItems.map((item)=>{
                                 if (item.hasDropdown && !collapsed) {
