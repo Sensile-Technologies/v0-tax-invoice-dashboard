@@ -168,10 +168,10 @@ export default function LoginPage() {
             <Image 
               src={theme.logoUrl} 
               alt={`${theme.companyName} Logo`} 
-              width={300} 
-              height={200} 
+              width={400} 
+              height={250} 
               className="object-contain" 
-              style={{ maxHeight: '180px' }}
+              style={{ maxHeight: '220px', minHeight: '150px' }}
               unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
             />
           </div>
