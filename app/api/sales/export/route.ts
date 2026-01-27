@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get('date')
     const dateFrom = searchParams.get('date_from')
     const dateTo = searchParams.get('date_to')
-    const fuelType = searchParams.get('fuel_type')
     const itemId = searchParams.get('item_id')
     const nozzleId = searchParams.get('nozzle_id')
     const paymentMethod = searchParams.get('payment_method')
@@ -45,15 +44,10 @@ export async function GET(request: NextRequest) {
       paramIndex++
     }
 
-    // Prefer item_id filter over fuel_type for proper item-based filtering
+    // Filter by item_id only (no fuel_type fallback)
     if (itemId && itemId !== 'all') {
       whereClause += ` AND item_id = $${paramIndex}`
       params.push(itemId)
-      paramIndex++
-    } else if (fuelType && fuelType !== 'all') {
-      // Fallback to fuel_type for backward compatibility
-      whereClause += ` AND fuel_type = $${paramIndex}`
-      params.push(fuelType)
       paramIndex++
     }
 

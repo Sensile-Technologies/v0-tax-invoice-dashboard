@@ -28,20 +28,11 @@ export async function POST(request: Request) {
       loyalty_customer_pin,
     } = body
 
-    // fuel_type is optional when nozzle_id is provided (item_id is derived from nozzle → tank → item)
-    if (!branch_id || !total_amount) {
-      console.log("[Mobile Create Sale] Missing required fields - branch_id:", branch_id, "total_amount:", total_amount)
+    // nozzle_id is required - item_id is derived from nozzle → tank → item relationship
+    if (!branch_id || !total_amount || !nozzle_id) {
+      console.log("[Mobile Create Sale] Missing required fields - branch_id:", branch_id, "total_amount:", total_amount, "nozzle_id:", nozzle_id)
       return NextResponse.json(
-        { error: `Missing required fields: branch_id=${branch_id}, total_amount=${total_amount}` },
-        { status: 400 }
-      )
-    }
-    
-    // If no nozzle_id, fuel_type is required for backward compatibility
-    if (!nozzle_id && !fuel_type) {
-      console.log("[Mobile Create Sale] Missing fuel_type when no nozzle_id provided")
-      return NextResponse.json(
-        { error: `Either nozzle_id or fuel_type is required` },
+        { error: `Missing required fields: branch_id, total_amount, and nozzle_id are required` },
         { status: 400 }
       )
     }
@@ -102,57 +93,22 @@ export async function POST(request: Request) {
       }
       
       console.log(`[Mobile Create Sale] Derived item_id: ${derivedItemId}, fuel_type: ${derivedFuelType} from nozzle ${nozzle_id}`)
-    } else if (fuel_type) {
-      // No nozzle_id provided - look up item_id from fuel_type for backward compatibility
-      const itemLookup = await client.query(
-        `SELECT i.id as item_id, i.item_name, i.item_code,
-                t.id as tank_id, t.tank_name, COALESCE(t.kra_item_cd, i.item_code) as kra_item_cd
-         FROM items i
-         LEFT JOIN tanks t ON t.item_id = i.id AND t.branch_id = $1 AND t.status = 'active'
-         WHERE UPPER(i.item_name) = UPPER($2)
-         ORDER BY t.current_stock DESC NULLS LAST
-         LIMIT 1`,
-        [branch_id, fuel_type]
-      )
-      
-      if (itemLookup.rows.length > 0) {
-        const item = itemLookup.rows[0]
-        derivedItemId = item.item_id
-        derivedFuelType = item.item_name
-        derivedTankId = item.tank_id || null
-        nozzleInfo = {
-          item_id: item.item_id,
-          item_name: item.item_name,
-          item_code: item.item_code,
-          kra_item_cd: item.kra_item_cd,
-          tank_id: item.tank_id,
-          tank_name: item.tank_name
-        }
-        console.log(`[Mobile Create Sale] Derived item_id: ${derivedItemId} from fuel_type: ${fuel_type}`)
-      } else {
-        client.release()
-        console.log(`[Mobile Create Sale] Item not found for fuel_type: ${fuel_type}`)
-        return NextResponse.json(
-          { error: `Product "${fuel_type}" not found. Please check the product name.` },
-          { status: 400 }
-        )
-      }
     }
     
     try {
-      // Duplicate check uses item_id when available, falls back to fuel_type for backward compatibility
+      // Duplicate check uses item_id only (no fuel_type fallback)
       const duplicateCheck = await client.query(
         `SELECT id, invoice_number, kra_status, kra_cu_inv, kra_rcpt_sign, kra_internal_data,
                 customer_name, customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin
          FROM sales 
          WHERE branch_id = $1 
-           AND (item_id = $2 OR ($2 IS NULL AND fuel_type = $3))
-           AND total_amount = $4 
+           AND item_id = $2
+           AND total_amount = $3 
            AND created_at > NOW() - INTERVAL '60 seconds'
            AND kra_status = 'success'
          ORDER BY created_at DESC 
          LIMIT 1`,
-        [branch_id, derivedItemId, fuel_type, total_amount]
+        [branch_id, derivedItemId, total_amount]
       )
 
       if (duplicateCheck.rows.length > 0) {
