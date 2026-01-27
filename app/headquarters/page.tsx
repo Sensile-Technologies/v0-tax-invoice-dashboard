@@ -23,6 +23,7 @@ import {
   Truck,
   ClipboardList,
   Droplet,
+  Settings,
 } from "lucide-react"
 
 import { useState, useEffect } from "react"
@@ -750,9 +751,9 @@ export default function HeadquartersPage() {
                   <Package className="mr-2 h-4 w-4" />
                   Inventory
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setGlobalUploadsOpen(true)} className="cursor-pointer rounded-lg">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Global Uploads
+                <DropdownMenuItem onSelect={() => router.push("/vendor/settings")} className="cursor-pointer rounded-lg">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Vendor Settings
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
