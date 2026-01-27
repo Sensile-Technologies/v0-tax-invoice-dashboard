@@ -28,22 +28,43 @@ export async function POST(request: Request) {
       loyalty_customer_pin,
     } = body
 
-    if (!branch_id || !fuel_type || !total_amount) {
-      console.log("[Mobile Create Sale] Missing required fields - branch_id:", branch_id, "fuel_type:", fuel_type, "total_amount:", total_amount)
+    // fuel_type is optional when nozzle_id is provided (item_id is derived from nozzle → tank → item)
+    if (!branch_id || !total_amount) {
+      console.log("[Mobile Create Sale] Missing required fields - branch_id:", branch_id, "total_amount:", total_amount)
       return NextResponse.json(
-        { error: `Missing required fields: branch_id=${branch_id}, fuel_type=${fuel_type}, total_amount=${total_amount}` },
+        { error: `Missing required fields: branch_id=${branch_id}, total_amount=${total_amount}` },
+        { status: 400 }
+      )
+    }
+    
+    // If no nozzle_id, fuel_type is required for backward compatibility
+    if (!nozzle_id && !fuel_type) {
+      console.log("[Mobile Create Sale] Missing fuel_type when no nozzle_id provided")
+      return NextResponse.json(
+        { error: `Either nozzle_id or fuel_type is required` },
         { status: 400 }
       )
     }
 
     const client = await pool.connect()
     
+    // Derive item_id from nozzle → tank → item relationship (single source of truth)
+    let derivedItemId: string | null = null
+    let derivedFuelType: string = fuel_type || ''
+    let derivedTankId: string | null = null
+    let nozzleInfo: any = null
+    
     // Validate nozzle has a tank assigned before allowing sale
     if (nozzle_id) {
       const nozzleTankCheck = await client.query(
-        `SELECT n.id, n.tank_id, n.nozzle_number, d.dispenser_number 
+        `SELECT n.id, n.tank_id, n.nozzle_number, n.item_id as nozzle_item_id,
+                d.dispenser_number,
+                t.id as tank_id, t.item_id as tank_item_id, t.tank_name,
+                i.id as item_id, i.item_name, i.item_code, COALESCE(t.kra_item_cd, i.item_code) as kra_item_cd
          FROM nozzles n 
          JOIN dispensers d ON n.dispenser_id = d.id
+         LEFT JOIN tanks t ON n.tank_id = t.id
+         LEFT JOIN items i ON t.item_id = i.id
          WHERE n.id = $1`,
         [nozzle_id]
       )
@@ -56,29 +77,82 @@ export async function POST(request: Request) {
         )
       }
       
-      const nozzle = nozzleTankCheck.rows[0]
-      if (!nozzle.tank_id) {
+      nozzleInfo = nozzleTankCheck.rows[0]
+      if (!nozzleInfo.tank_id) {
         client.release()
-        console.log(`[Mobile Create Sale] Blocked sale - Nozzle D${nozzle.dispenser_number}N${nozzle.nozzle_number} has no tank assigned`)
+        console.log(`[Mobile Create Sale] Blocked sale - Nozzle D${nozzleInfo.dispenser_number}N${nozzleInfo.nozzle_number} has no tank assigned`)
         return NextResponse.json(
-          { error: `Cannot sell from nozzle D${nozzle.dispenser_number}N${nozzle.nozzle_number} - no tank assigned. Please assign a tank in Manage Nozzles.` },
+          { error: `Cannot sell from nozzle D${nozzleInfo.dispenser_number}N${nozzleInfo.nozzle_number} - no tank assigned. Please assign a tank in Manage Nozzles.` },
+          { status: 400 }
+        )
+      }
+      
+      // Derive item_id from nozzle → tank → item chain
+      derivedItemId = nozzleInfo.item_id || nozzleInfo.tank_item_id || nozzleInfo.nozzle_item_id
+      derivedFuelType = nozzleInfo.item_name || fuel_type || ''
+      derivedTankId = nozzleInfo.tank_id
+      
+      if (!derivedItemId) {
+        client.release()
+        console.log(`[Mobile Create Sale] Blocked sale - Tank ${nozzleInfo.tank_name} has no item assigned`)
+        return NextResponse.json(
+          { error: `Tank "${nozzleInfo.tank_name}" is not mapped to a product. Please assign an item to the tank.` },
+          { status: 400 }
+        )
+      }
+      
+      console.log(`[Mobile Create Sale] Derived item_id: ${derivedItemId}, fuel_type: ${derivedFuelType} from nozzle ${nozzle_id}`)
+    } else if (fuel_type) {
+      // No nozzle_id provided - look up item_id from fuel_type for backward compatibility
+      const itemLookup = await client.query(
+        `SELECT i.id as item_id, i.item_name, i.item_code,
+                t.id as tank_id, t.tank_name, COALESCE(t.kra_item_cd, i.item_code) as kra_item_cd
+         FROM items i
+         LEFT JOIN tanks t ON t.item_id = i.id AND t.branch_id = $1 AND t.status = 'active'
+         WHERE UPPER(i.item_name) = UPPER($2)
+         ORDER BY t.current_stock DESC NULLS LAST
+         LIMIT 1`,
+        [branch_id, fuel_type]
+      )
+      
+      if (itemLookup.rows.length > 0) {
+        const item = itemLookup.rows[0]
+        derivedItemId = item.item_id
+        derivedFuelType = item.item_name
+        derivedTankId = item.tank_id || null
+        nozzleInfo = {
+          item_id: item.item_id,
+          item_name: item.item_name,
+          item_code: item.item_code,
+          kra_item_cd: item.kra_item_cd,
+          tank_id: item.tank_id,
+          tank_name: item.tank_name
+        }
+        console.log(`[Mobile Create Sale] Derived item_id: ${derivedItemId} from fuel_type: ${fuel_type}`)
+      } else {
+        client.release()
+        console.log(`[Mobile Create Sale] Item not found for fuel_type: ${fuel_type}`)
+        return NextResponse.json(
+          { error: `Product "${fuel_type}" not found. Please check the product name.` },
           { status: 400 }
         )
       }
     }
+    
     try {
+      // Duplicate check uses item_id when available, falls back to fuel_type for backward compatibility
       const duplicateCheck = await client.query(
         `SELECT id, invoice_number, kra_status, kra_cu_inv, kra_rcpt_sign, kra_internal_data,
                 customer_name, customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin
          FROM sales 
          WHERE branch_id = $1 
-           AND fuel_type = $2 
-           AND total_amount = $3 
+           AND (item_id = $2 OR ($2 IS NULL AND fuel_type = $3))
+           AND total_amount = $4 
            AND created_at > NOW() - INTERVAL '60 seconds'
            AND kra_status = 'success'
          ORDER BY created_at DESC 
          LIMIT 1`,
-        [branch_id, fuel_type, total_amount]
+        [branch_id, derivedItemId, fuel_type, total_amount]
       )
 
       if (duplicateCheck.rows.length > 0) {
@@ -125,33 +199,34 @@ export async function POST(request: Request) {
         })
       }
 
-      const tankCheck = await client.query(
-        `SELECT t.id, t.tank_name, COALESCE(t.kra_item_cd, i.item_code) as kra_item_cd, i.item_name, i.item_code 
-         FROM tanks t
-         JOIN items i ON t.item_id = i.id
-         WHERE t.branch_id = $1 AND UPPER(i.item_name) = UPPER($2) AND t.status = 'active' 
-         ORDER BY t.current_stock DESC LIMIT 1`,
-        [branch_id, fuel_type]
-      )
+      // Use derivedTankId from nozzle if available, otherwise skip tank check
+      // Tank info was already validated in nozzle check above
+      const tankInfo = nozzleInfo ? {
+        id: derivedTankId,
+        tank_name: nozzleInfo.tank_name,
+        kra_item_cd: nozzleInfo.kra_item_cd,
+        item_name: nozzleInfo.item_name,
+        item_code: nozzleInfo.item_code
+      } : null
 
-      if (tankCheck.rows.length > 0 && !tankCheck.rows[0].kra_item_cd && !tankCheck.rows[0].item_code) {
+      if (tankInfo && !tankInfo.kra_item_cd && !tankInfo.item_code) {
         return NextResponse.json(
-          { error: `Tank "${tankCheck.rows[0].tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
+          { error: `Tank "${tankInfo.tank_name}" is not mapped to an item. Please map the tank to an item in the item list before selling.` },
           { status: 400 }
         )
       }
 
-      // Get item price from branch_items (single source of truth)
+      // Get item price from branch_items using item_id (single source of truth)
       const itemPriceResult = await client.query(
         `SELECT bi.sale_price 
-         FROM items i
-         JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-         WHERE bi.is_available = true
+         FROM branch_items bi
+         WHERE bi.branch_id = $1
+           AND bi.item_id = $2
+           AND bi.is_available = true
            AND bi.sale_price IS NOT NULL
            AND bi.sale_price > 0
-           AND (UPPER(i.item_name) = UPPER($2) OR i.item_name ILIKE $3)
-         ORDER BY bi.updated_at DESC NULLS LAST LIMIT 1`,
-        [branch_id, fuel_type, `%${fuel_type}%`]
+         LIMIT 1`,
+        [branch_id, derivedItemId]
       )
 
       const correctUnitPrice = itemPriceResult.rows.length > 0 
@@ -209,17 +284,18 @@ export async function POST(request: Request) {
 
       const saleResult = await client.query(
         `INSERT INTO sales (
-          branch_id, nozzle_id, fuel_type, quantity, 
+          branch_id, nozzle_id, item_id, fuel_type, quantity, 
           unit_price, total_amount, payment_method, customer_name, 
           vehicle_number, invoice_number, receipt_number, sale_date,
           customer_pin, is_loyalty_sale, loyalty_customer_name, loyalty_customer_pin,
           meter_reading_after, shift_id, staff_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), $12, $13, $14, $15, $16, $17, $18)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW(), $13, $14, $15, $16, $17, $18, $19)
         RETURNING *`,
         [
           branch_id,
           nozzle_id || null,
-          fuel_type,
+          derivedItemId,
+          derivedFuelType,
           correctQuantity,
           correctUnitPrice,
           total_amount,
@@ -265,13 +341,12 @@ export async function POST(request: Request) {
         }
       }
 
-      if (tankCheck.rows.length > 0 && correctQuantity > 0) {
-        const tankId = tankCheck.rows[0].id
+      if (derivedTankId && correctQuantity > 0) {
         await client.query(
           `UPDATE tanks SET current_stock = GREATEST(0, current_stock - $1), updated_at = NOW() WHERE id = $2`,
-          [correctQuantity, tankId]
+          [correctQuantity, derivedTankId]
         )
-        console.log(`[Mobile Create Sale] Reduced tank ${tankId} stock by ${correctQuantity} liters`)
+        console.log(`[Mobile Create Sale] Reduced tank ${derivedTankId} stock by ${correctQuantity} liters`)
       }
 
       // Create loyalty_transaction record for loyalty sales
@@ -305,8 +380,8 @@ export async function POST(request: Request) {
         
         await client.query(
           `INSERT INTO loyalty_transactions 
-           (branch_id, sale_id, customer_name, customer_pin, transaction_date, transaction_amount, points_earned, payment_method, fuel_type, quantity)
-           VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8, $9)`,
+           (branch_id, sale_id, customer_name, customer_pin, transaction_date, transaction_amount, points_earned, payment_method, fuel_type, quantity, item_id)
+           VALUES ($1, $2, $3, $4, NOW(), $5, $6, $7, $8, $9, $10)`,
           [
             branch_id,
             sale.id,
@@ -315,8 +390,9 @@ export async function POST(request: Request) {
             total_amount,
             pointsEarned,
             payment_method || 'cash',
-            fuel_type,
-            correctQuantity
+            derivedFuelType,
+            correctQuantity,
+            derivedItemId
           ]
         )
         console.log(`[Mobile Create Sale] Created loyalty_transaction for sale ${sale.id}, points: ${pointsEarned}`)
@@ -330,15 +406,8 @@ export async function POST(request: Request) {
       )
       const branchData = branchResult.rows[0] || {}
 
-      // Get item code from branch_items (for HQ-assigned items) or legacy items table
-      const itemResult = await client.query(
-        `SELECT i.item_code FROM items i
-         LEFT JOIN branch_items bi ON i.id = bi.item_id AND bi.branch_id = $1
-         WHERE (i.branch_id = $1 OR (i.branch_id IS NULL AND bi.branch_id = $1))
-         AND i.item_name ILIKE $2 LIMIT 1`,
-        [branch_id, `%${fuel_type}%`]
-      )
-      const itemCode = itemResult.rows[0]?.item_code || null
+      // Get item code from nozzle info (already retrieved from nozzle → tank → item chain)
+      const itemCode = nozzleInfo?.item_code || nozzleInfo?.kra_item_cd || null
 
       // Check if branch has KRA configured (server_address must be set)
       const kraConfigured = !!(branchData.server_address && branchData.server_address.trim())
@@ -414,7 +483,7 @@ export async function POST(request: Request) {
         branch_id,
         invoice_number: invoiceNumber,
         receipt_number: receiptNumber,
-        fuel_type,
+        fuel_type: derivedFuelType,
         quantity: correctQuantity,
         unit_price: correctUnitPrice,
         total_amount,
@@ -422,7 +491,7 @@ export async function POST(request: Request) {
         customer_name: effectiveCustomerName,
         customer_pin: effectiveCustomerPin,
         sale_date: new Date().toISOString(),
-        tank_id: tankCheck.rows.length > 0 ? tankCheck.rows[0].id : undefined
+        tank_id: derivedTankId || undefined
       })
 
       console.log("[Mobile Create Sale] KRA API Response:", JSON.stringify(kraResult, null, 2))
