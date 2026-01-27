@@ -201,7 +201,7 @@ async function GET(request) {
                 productNozzleTotals.set(data.fuel_type, existing);
             }
         }
-        const productMovement = [];
+        const tankMovement = [];
         const tankQuery = `
       SELECT 
         t.id as tank_id,
@@ -216,8 +216,11 @@ async function GET(request) {
         const tankResult = await pool.query(tankQuery, [
             branchId
         ]);
-        const productTankData = new Map();
         for (const tank of tankResult.rows){
+            let opening = 0;
+            let closing = 0;
+            let offloaded = 0;
+            let pumpSalesForTank = 0;
             if (shiftIds.length > 0) {
                 const tankReadingsQuery = `
           SELECT 
@@ -232,41 +235,39 @@ async function GET(request) {
                     shiftIds,
                     tank.tank_id
                 ]);
-                let opening = 0;
-                let closing = parseFloat(tank.current_stock) || 0;
-                let offloaded = 0;
                 if (tankReadings.rows.length > 0) {
                     opening = parseFloat(tankReadings.rows[0].opening_reading) || 0;
-                    closing = parseFloat(tankReadings.rows[tankReadings.rows.length - 1].closing_reading) || closing;
+                    closing = parseFloat(tankReadings.rows[tankReadings.rows.length - 1].closing_reading) || 0;
                     offloaded = tankReadings.rows.reduce((sum, r)=>sum + (parseFloat(r.stock_received) || 0), 0);
                 }
-                const existing = productTankData.get(tank.fuel_type) || {
-                    opening_stock: 0,
-                    offloaded: 0,
-                    closing_stock: 0
-                };
-                existing.opening_stock += opening;
-                existing.offloaded += offloaded;
-                existing.closing_stock += closing;
-                productTankData.set(tank.fuel_type, existing);
+                const nozzlePumpSalesQuery = `
+          SELECT COALESCE(SUM(
+            COALESCE(sr.closing_reading, 0) - COALESCE(sr.opening_reading, 0) - COALESCE(sr.rtt, 0)
+          ), 0) as pump_sales
+          FROM shift_readings sr
+          JOIN nozzles n ON sr.nozzle_id = n.id
+          WHERE sr.shift_id = ANY($1) 
+            AND sr.reading_type = 'nozzle' 
+            AND n.tank_id = $2
+        `;
+                const pumpSalesResult = await pool.query(nozzlePumpSalesQuery, [
+                    shiftIds,
+                    tank.tank_id
+                ]);
+                pumpSalesForTank = parseFloat(pumpSalesResult.rows[0]?.pump_sales) || 0;
             }
-        }
-        for (const [product, tankData] of productTankData){
-            const nozzleData = productNozzleTotals.get(product) || {
-                throughput: 0,
-                rtt: 0,
-                pump_sales: 0
-            };
-            const tank_sales = tankData.opening_stock + tankData.offloaded - tankData.closing_stock;
-            const variance = nozzleData.pump_sales - tank_sales;
+            const tank_sales = opening + offloaded - closing;
+            const variance = pumpSalesForTank - tank_sales;
             const variance_percent = tank_sales > 0 ? variance / tank_sales * 100 : variance !== 0 ? 100 : 0;
-            productMovement.push({
-                product,
-                opening_stock: tankData.opening_stock,
-                offloaded_volume: tankData.offloaded,
-                closing_stock: tankData.closing_stock,
+            tankMovement.push({
+                tank_id: tank.tank_id,
+                tank_name: tank.tank_name,
+                product: tank.fuel_type,
+                opening_stock: opening,
+                offloaded_volume: offloaded,
+                closing_stock: closing,
                 tank_sales: tank_sales,
-                pump_sales: nozzleData.pump_sales,
+                pump_sales: pumpSalesForTank,
                 variance: variance,
                 variance_percent: variance_percent
             });
@@ -440,7 +441,7 @@ async function GET(request) {
                         product,
                         ...data
                     })),
-                product_movement: productMovement,
+                tank_movement: tankMovement,
                 product_cash_flow: productCashFlow,
                 daily_cash_flow: dailyCashFlow,
                 attendant_collections: attendantCollections,

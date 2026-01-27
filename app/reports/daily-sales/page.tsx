@@ -37,7 +37,9 @@ interface ProductNozzleTotal {
   amount: number
 }
 
-interface ProductMovement {
+interface TankMovement {
+  tank_id: string
+  tank_name: string
   product: string
   opening_stock: number
   offloaded_volume: number
@@ -93,7 +95,7 @@ interface DSSRData {
   shifts: Array<{ id: string; start_time: string; end_time: string | null; cashier_name: string; shift_type: string }>
   nozzle_readings: NozzleReading[]
   product_nozzle_totals: ProductNozzleTotal[]
-  product_movement: ProductMovement[]
+  tank_movement: TankMovement[]
   product_cash_flow: ProductCashFlow[]
   daily_cash_flow: DailyCashFlow
   attendant_collections: AttendantCollection[]
@@ -220,21 +222,22 @@ export default function DSSRPage() {
     if (yPos > 240) { doc.addPage(); yPos = 20 }
     doc.setFontSize(12)
     doc.setFont("helvetica", "bold")
-    doc.text("2. WHITE PRODUCT MOVEMENT", 14, yPos)
+    doc.text("2. TANK MOVEMENT", 14, yPos)
     yPos += 4
 
     autoTable(doc, {
       startY: yPos,
-      head: [['Product', 'Opening', 'Offloaded', 'Closing', 'Tank Sales', 'Pump Sales', 'Variance', 'Var %']],
-      body: data.product_movement.map(p => [
-        p.product,
-        formatNumber(p.opening_stock),
-        formatNumber(p.offloaded_volume),
-        formatNumber(p.closing_stock),
-        formatNumber(p.tank_sales),
-        formatNumber(p.pump_sales),
-        formatNumber(p.variance),
-        `${formatNumber(p.variance_percent)}%`
+      head: [['Tank', 'Product', 'Opening', 'Offloaded', 'Closing', 'Tank Sales', 'Pump Sales', 'Variance', 'Var %']],
+      body: data.tank_movement.map(t => [
+        t.tank_name,
+        t.product,
+        formatNumber(t.opening_stock),
+        formatNumber(t.offloaded_volume),
+        formatNumber(t.closing_stock),
+        formatNumber(t.tank_sales),
+        formatNumber(t.pump_sales),
+        formatNumber(t.variance),
+        `${formatNumber(t.variance_percent)}%`
       ]),
       theme: 'striped',
       headStyles: { fillColor: [41, 128, 185], fontSize: 8 },
@@ -347,15 +350,15 @@ export default function DSSRPage() {
     XLSX.utils.book_append_sheet(wb, ws1, 'Nozzle Sales')
 
     const movementData = [
-      ['2. WHITE PRODUCT MOVEMENT'],
-      ['Product', 'Opening Stock', 'Offloaded', 'Closing Stock', 'Tank Sales', 'Pump Sales', 'Variance', 'Variance %'],
-      ...data.product_movement.map(p => [
-        p.product, p.opening_stock, p.offloaded_volume, p.closing_stock, p.tank_sales, p.pump_sales, p.variance, `${p.variance_percent.toFixed(2)}%`
+      ['2. TANK MOVEMENT'],
+      ['Tank', 'Product', 'Opening Stock', 'Offloaded', 'Closing Stock', 'Tank Sales', 'Pump Sales', 'Variance', 'Variance %'],
+      ...data.tank_movement.map(t => [
+        t.tank_name, t.product, t.opening_stock, t.offloaded_volume, t.closing_stock, t.tank_sales, t.pump_sales, t.variance, `${t.variance_percent.toFixed(2)}%`
       ])
     ]
     const ws2 = XLSX.utils.aoa_to_sheet(movementData)
-    ws2['!cols'] = [{ wch: 15 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }]
-    XLSX.utils.book_append_sheet(wb, ws2, 'Product Movement')
+    ws2['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }]
+    XLSX.utils.book_append_sheet(wb, ws2, 'Tank Movement')
 
     const collectionTotals = data.attendant_collections.reduce((acc, ac) => ({
       cash: acc.cash + ac.cash, card: acc.card + ac.card,
@@ -569,7 +572,7 @@ export default function DSSRPage() {
                   <Card className="rounded-2xl print:rounded-none print:shadow-none print:border">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg font-bold text-slate-800">
-                        WHITE PRODUCT MOVEMENT
+                        TANK MOVEMENT
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
@@ -577,50 +580,52 @@ export default function DSSRPage() {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-slate-100 border-y text-xs">
+                              <th className="text-left py-2 px-3 font-semibold">TANK</th>
                               <th className="text-left py-2 px-3 font-semibold">PRODUCT</th>
                               <th className="text-right py-2 px-3 font-semibold">OPENING STOCK</th>
-                              <th className="text-right py-2 px-3 font-semibold">OFFLOADED VOLUME</th>
+                              <th className="text-right py-2 px-3 font-semibold">OFFLOADED</th>
                               <th className="text-right py-2 px-3 font-semibold">CLOSING STOCK</th>
                               <th className="text-right py-2 px-3 font-semibold">TANK SALES</th>
                               <th className="text-right py-2 px-3 font-semibold">PUMP SALES</th>
                               <th className="text-right py-2 px-3 font-semibold">VARIANCE</th>
-                              <th className="text-right py-2 px-3 font-semibold">DAILY %</th>
+                              <th className="text-right py-2 px-3 font-semibold">%</th>
                               <th className="text-center py-2 px-3 font-semibold">STATUS</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {data.product_movement.map(p => (
-                              <tr key={p.product} className="border-b hover:bg-slate-50">
-                                <td className="py-2 px-3 font-medium">{p.product}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.opening_stock)}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.offloaded_volume)}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.closing_stock)}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.tank_sales)}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(p.pump_sales)}</td>
-                                <td className={`text-right py-2 px-3 font-mono font-semibold ${getVarianceColor(p.variance, p.variance_percent)}`}>
-                                  {formatNumber(p.variance)}
+                            {data.tank_movement.map(t => (
+                              <tr key={t.tank_id} className="border-b hover:bg-slate-50">
+                                <td className="py-2 px-3 font-medium">{t.tank_name}</td>
+                                <td className="py-2 px-3 text-slate-600">{t.product}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(t.opening_stock)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(t.offloaded_volume)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(t.closing_stock)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(t.tank_sales)}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(t.pump_sales)}</td>
+                                <td className={`text-right py-2 px-3 font-mono font-semibold ${getVarianceColor(t.variance, t.variance_percent)}`}>
+                                  {formatNumber(t.variance)}
                                 </td>
-                                <td className={`text-right py-2 px-3 font-mono ${getVarianceColor(p.variance, p.variance_percent)}`}>
-                                  {formatNumber(p.variance_percent)}%
+                                <td className={`text-right py-2 px-3 font-mono ${getVarianceColor(t.variance, t.variance_percent)}`}>
+                                  {formatNumber(t.variance_percent)}%
                                 </td>
                                 <td className="text-center py-2 px-3">
-                                  {Math.abs(p.variance_percent) <= 0.5 ? (
+                                  {Math.abs(t.variance_percent) <= 0.5 ? (
                                     <CheckCircle className="h-5 w-5 text-green-600 inline" />
                                   ) : (
-                                    <AlertTriangle className={`h-5 w-5 inline ${p.variance > 0 ? 'text-amber-600' : 'text-red-600'}`} />
+                                    <AlertTriangle className={`h-5 w-5 inline ${t.variance > 0 ? 'text-amber-600' : 'text-red-600'}`} />
                                   )}
                                 </td>
                               </tr>
                             ))}
-                            {data.product_movement.length > 0 && (
+                            {data.tank_movement.length > 0 && (
                               <tr className="bg-slate-100 font-bold">
-                                <td className="py-2 px-3">TOTAL</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.opening_stock, 0))}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.offloaded_volume, 0))}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.closing_stock, 0))}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.tank_sales, 0))}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.pump_sales, 0))}</td>
-                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.product_movement.reduce((s, p) => s + p.variance, 0))}</td>
+                                <td className="py-2 px-3" colSpan={2}>TOTAL</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.tank_movement.reduce((s, t) => s + t.opening_stock, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.tank_movement.reduce((s, t) => s + t.offloaded_volume, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.tank_movement.reduce((s, t) => s + t.closing_stock, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.tank_movement.reduce((s, t) => s + t.tank_sales, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.tank_movement.reduce((s, t) => s + t.pump_sales, 0))}</td>
+                                <td className="text-right py-2 px-3 font-mono">{formatNumber(data.tank_movement.reduce((s, t) => s + t.variance, 0))}</td>
                                 <td className="text-right py-2 px-3 font-mono">-</td>
                                 <td></td>
                               </tr>
