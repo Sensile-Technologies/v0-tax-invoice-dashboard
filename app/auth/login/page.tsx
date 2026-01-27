@@ -161,7 +161,7 @@ export default function LoginPage() {
 
       <Card className="w-full max-w-[340px] sm:max-w-md relative z-10 shadow-2xl mx-auto">
         <CardHeader className="space-y-3 sm:space-y-4 pb-6 sm:pb-8 px-4 sm:px-6">
-          <div className="flex justify-center">
+          <div className="flex justify-center p-4 rounded-lg" style={{ backgroundColor: theme.primaryColor ? `${theme.primaryColor}10` : 'transparent' }}>
             <Image 
               src={theme.logoUrl} 
               alt={`${theme.companyName} Logo`} 

@@ -137,7 +137,7 @@ const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$exter
 });
 async function POST(request) {
     try {
-        const { email, password, username } = await request.json();
+        const { email, password, username, domain } = await request.json();
         if (!password || !email && !username) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: {
@@ -149,6 +149,16 @@ async function POST(request) {
         }
         const client = await pool.connect();
         try {
+            // Check if this is a custom vendor domain
+            let domainVendorId = null;
+            if (domain) {
+                const vendorResult = await client.query(`SELECT id FROM vendors WHERE custom_domain = $1 AND status = 'active'`, [
+                    domain
+                ]);
+                if (vendorResult.rows.length > 0) {
+                    domainVendorId = vendorResult.rows[0].id;
+                }
+            }
             let user;
             const identifier = email || username;
             if (identifier && identifier.includes("@")) {
@@ -262,6 +272,17 @@ async function POST(request) {
                 return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                     error: {
                         message: "Cashiers can only access the system through the mobile app. Please use the Flow360 mobile application."
+                    }
+                }, {
+                    status: 403
+                });
+            }
+            // Block login from custom vendor domain if user doesn't belong to that vendor
+            // Admin users are exempt from this check
+            if (domainVendorId && user.vendor_id && user.vendor_id !== domainVendorId && user.role !== 'admin') {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: {
+                        message: "Access denied. Your account is not authorized to access this domain. Please use your organization's login portal."
                     }
                 }, {
                     status: 403
