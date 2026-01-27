@@ -337,6 +337,14 @@ export function DashboardHeader({
       </div>
 
       <div className="flex items-center gap-2">
+        <Image 
+          src={theme.logoUrl} 
+          alt={`${theme.companyName} Logo`} 
+          width={32} 
+          height={32} 
+          className="rounded-lg" 
+          unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
+        />
         {canSwitchBranches && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
