@@ -4,16 +4,35 @@ import { cookies } from "next/headers"
 
 async function getSessionUser() {
   const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('session')
+  const sessionCookie = cookieStore.get('user_session')
+  
+  console.log('[Vendor Settings] Session cookie:', sessionCookie ? 'present' : 'missing')
   
   if (!sessionCookie?.value) {
     return null
   }
   
   try {
-    const session = JSON.parse(sessionCookie.value)
-    return session.user || null
-  } catch {
+    const sessionData = JSON.parse(sessionCookie.value)
+    console.log('[Vendor Settings] Session data id:', sessionData?.id)
+    if (!sessionData.id) return null
+    
+    const users = await query(
+      `SELECT u.id, u.email, u.username, 
+       COALESCE(s.role, u.role) as role,
+       COALESCE(v.id, b.vendor_id) as vendor_id
+       FROM users u 
+       LEFT JOIN vendors v ON v.email = u.email 
+       LEFT JOIN staff s ON s.user_id = u.id
+       LEFT JOIN branches b ON b.id = s.branch_id
+       WHERE u.id = $1`,
+      [sessionData.id]
+    )
+    
+    console.log('[Vendor Settings] User found:', users[0]?.email, 'role:', users[0]?.role, 'vendor_id:', users[0]?.vendor_id)
+    return users[0] || null
+  } catch (err) {
+    console.error('[Vendor Settings] Error:', err)
     return null
   }
 }
