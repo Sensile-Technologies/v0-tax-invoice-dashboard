@@ -150,8 +150,8 @@ export function DashboardSidebar({
           <Image 
             src={theme.logoUrl} 
             alt={`${theme.companyName} Logo`} 
-            width={collapsed ? 40 : 120} 
-            height={collapsed ? 40 : 80} 
+            width={collapsed ? 40 : 240} 
+            height={collapsed ? 40 : 100} 
             className="rounded-lg object-contain" 
             unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
           />
