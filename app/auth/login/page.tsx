@@ -166,8 +166,9 @@ export default function LoginPage() {
               src={theme.logoUrl} 
               alt={`${theme.companyName} Logo`} 
               width={300} 
-              height={150} 
-              className="object-contain max-h-36" 
+              height={200} 
+              className="object-contain" 
+              style={{ maxHeight: '180px' }}
               unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
             />
           </div>

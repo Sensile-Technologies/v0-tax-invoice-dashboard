@@ -2007,10 +2007,6 @@
     max-height: calc(var(--spacing) * 32);
   }
 
-  .max-h-36 {
-    max-height: calc(var(--spacing) * 36);
-  }
-
   .max-h-80 {
     max-height: calc(var(--spacing) * 80);
   }
