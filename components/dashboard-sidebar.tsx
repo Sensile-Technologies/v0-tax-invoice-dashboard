@@ -145,7 +145,7 @@ export function DashboardSidebar({
           collapsed ? "w-16" : "w-72 lg:w-64",
         )}
       >
-      <div className="flex h-20 items-center justify-center px-4 mt-4">
+      <div className="flex h-20 items-center justify-center px-4 mt-8">
         <Link href="/" className="flex items-center justify-center w-full">
           <Image 
             src={theme.logoUrl} 
