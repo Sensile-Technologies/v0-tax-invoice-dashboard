@@ -282,6 +282,16 @@ async function PUT(request) {
             custom_domain ? custom_domain.replace(/^https?:\/\//, '').split(':')[0].toLowerCase() : null,
             user.vendor_id
         ]);
+        await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`INSERT INTO admin_notifications (
+        title, message, type, priority, target_audience, vendor_id, is_active, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, true, NOW())`, [
+            'White-Label Settings Updated',
+            `Branding settings were updated by ${user.email}. Changes include display name, logo, colors, and/or custom domain.`,
+            'info',
+            'normal',
+            'vendor',
+            user.vendor_id
+        ]);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true
         });

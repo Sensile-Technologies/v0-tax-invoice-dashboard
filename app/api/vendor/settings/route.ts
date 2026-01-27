@@ -123,6 +123,20 @@ export async function PUT(request: NextRequest) {
         user.vendor_id
       ]
     )
+
+    await query(
+      `INSERT INTO admin_notifications (
+        title, message, type, priority, target_audience, vendor_id, is_active, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, true, NOW())`,
+      [
+        'White-Label Settings Updated',
+        `Branding settings were updated by ${user.email}. Changes include display name, logo, colors, and/or custom domain.`,
+        'info',
+        'normal',
+        'vendor',
+        user.vendor_id
+      ]
+    )
     
     return NextResponse.json({ success: true })
   } catch (error) {
