@@ -32,20 +32,23 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const domain = searchParams.get('domain')
+    const skipSession = searchParams.get('skipSession') === 'true'
     
     let vendor = null
 
-    const sessionVendorId = await getSessionVendorId()
-    if (sessionVendorId) {
-      const vendors = await query(
-        `SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
-         FROM vendors 
-         WHERE id = $1 AND status = 'active'
-         LIMIT 1`,
-        [sessionVendorId]
-      )
-      if (vendors.length > 0) {
-        vendor = vendors[0]
+    if (!skipSession) {
+      const sessionVendorId = await getSessionVendorId()
+      if (sessionVendorId) {
+        const vendors = await query(
+          `SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
+           FROM vendors 
+           WHERE id = $1 AND status = 'active'
+           LIMIT 1`,
+          [sessionVendorId]
+        )
+        if (vendors.length > 0) {
+          vendor = vendors[0]
+        }
       }
     }
 

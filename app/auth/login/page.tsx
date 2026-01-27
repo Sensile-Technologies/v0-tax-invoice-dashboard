@@ -45,7 +45,7 @@ export default function LoginPage() {
     async function fetchTheme() {
       try {
         const domain = window.location.hostname
-        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}&t=${Date.now()}`, {
+        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}&skipSession=true&t=${Date.now()}`, {
           cache: 'no-store',
           headers: { 'Cache-Control': 'no-cache' }
         })
