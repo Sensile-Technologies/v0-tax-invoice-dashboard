@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import React from "react"
+import React, { useState, useEffect } from "react"
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -29,6 +29,20 @@ import {
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import Image from "next/image"
+
+interface VendorTheme {
+  logoUrl: string
+  primaryColor: string
+  secondaryColor: string
+  companyName: string
+}
+
+const defaultTheme: VendorTheme = {
+  logoUrl: '/flow360-logo.png',
+  primaryColor: '#3b82f6',
+  secondaryColor: '#1e40af',
+  companyName: 'Flow360',
+}
 
 interface DashboardSidebarProps {
   collapsed: boolean
@@ -79,7 +93,26 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname()
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({})
+  const [theme, setTheme] = useState<VendorTheme>(defaultTheme)
   const navigationItems = isHeadquarters ? headOfficeNavigationItems : regularNavigationItems
+
+  useEffect(() => {
+    async function fetchTheme() {
+      try {
+        const domain = typeof window !== 'undefined' ? window.location.hostname : ''
+        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}`, { credentials: 'include' })
+        if (response.ok) {
+          const data = await response.json()
+          if (data.theme) {
+            setTheme(data.theme)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch theme:', error)
+      }
+    }
+    fetchTheme()
+  }, [])
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -115,12 +148,26 @@ export function DashboardSidebar({
       <div className="flex h-16 items-center justify-between px-4">
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/flow360-logo.png" alt="Flow360 Logo" width={32} height={32} className="rounded-lg" />
-            <span className="text-lg font-bold">Flow360<sup className="text-[10px] ml-0.5">™</sup></span>
+            <Image 
+              src={theme.logoUrl} 
+              alt={`${theme.companyName} Logo`} 
+              width={32} 
+              height={32} 
+              className="rounded-lg" 
+              unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
+            />
+            <span className="text-lg font-bold">{theme.companyName}<sup className="text-[10px] ml-0.5">™</sup></span>
           </Link>
         )}
         {collapsed && (
-          <Image src="/flow360-logo.png" alt="Flow360 Logo" width={32} height={32} className="rounded-lg mx-auto" />
+          <Image 
+            src={theme.logoUrl} 
+            alt={`${theme.companyName} Logo`} 
+            width={32} 
+            height={32} 
+            className="rounded-lg mx-auto" 
+            unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
+          />
         )}
       </div>
 

@@ -44,12 +44,14 @@ import { LuluChat } from "@/components/lulu-chat"
 interface VendorTheme {
   logoUrl: string
   primaryColor: string
+  secondaryColor: string
   companyName: string
 }
 
 const defaultTheme: VendorTheme = {
   logoUrl: '/flow360-logo.png',
   primaryColor: '#3b82f6',
+  secondaryColor: '#1e40af',
   companyName: 'Flow360',
 }
 
@@ -90,7 +92,7 @@ export function DashboardHeader({
     async function fetchTheme() {
       try {
         const domain = window.location.hostname
-        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}`)
+        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}`, { credentials: 'include' })
         if (response.ok) {
           const data = await response.json()
           if (data.theme) {
@@ -315,7 +317,7 @@ export function DashboardHeader({
             width={28} 
             height={28} 
             className="rounded-lg hidden sm:block" 
-            unoptimized={theme.logoUrl.startsWith('http')}
+            unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
           />
           <div className="flex flex-col">
             <span className="text-xs md:text-sm text-muted-foreground hidden sm:block">Welcome back{userName ? `, ${userName}` : ''}</span>

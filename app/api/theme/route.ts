@@ -1,36 +1,74 @@
 import { NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/db"
+import { query, queryOne } from "@/lib/db"
+import { cookies } from "next/headers"
+
+async function getSessionVendorId(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies()
+    const sessionCookie = cookieStore.get('user_session')
+    
+    if (!sessionCookie?.value) return null
+    
+    const sessionData = JSON.parse(sessionCookie.value)
+    if (!sessionData.id) return null
+    
+    const user = await queryOne<{ vendor_id: string }>(
+      `SELECT COALESCE(v.id, b.vendor_id) as vendor_id
+       FROM users u 
+       LEFT JOIN vendors v ON v.email = u.email 
+       LEFT JOIN staff s ON s.user_id = u.id
+       LEFT JOIN branches b ON b.id = s.branch_id
+       WHERE u.id = $1`,
+      [sessionData.id]
+    )
+    
+    return user?.vendor_id || null
+  } catch {
+    return null
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const domain = searchParams.get('domain')
+    
+    let vendor = null
 
-    if (!domain) {
+    const sessionVendorId = await getSessionVendorId()
+    if (sessionVendorId) {
+      const vendors = await query(
+        `SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
+         FROM vendors 
+         WHERE id = $1 AND status = 'active'
+         LIMIT 1`,
+        [sessionVendorId]
+      )
+      if (vendors.length > 0) {
+        vendor = vendors[0]
+      }
+    }
+
+    if (!vendor && domain) {
+      const cleanDomain = domain.replace(/^https?:\/\//, '').split(':')[0]
+      const vendors = await query(
+        `SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
+         FROM vendors 
+         WHERE custom_domain = $1 AND status = 'active'
+         LIMIT 1`,
+        [cleanDomain]
+      )
+      if (vendors.length > 0) {
+        vendor = vendors[0]
+      }
+    }
+
+    if (!vendor) {
       return NextResponse.json({ 
         vendor: null,
         theme: getDefaultTheme()
       })
     }
-
-    const cleanDomain = domain.replace(/^https?:\/\//, '').split(':')[0]
-
-    const vendors = await query(
-      `SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
-       FROM vendors 
-       WHERE custom_domain = $1 AND status = 'active'
-       LIMIT 1`,
-      [cleanDomain]
-    )
-
-    if (vendors.length === 0) {
-      return NextResponse.json({ 
-        vendor: null,
-        theme: getDefaultTheme()
-      })
-    }
-
-    const vendor = vendors[0]
     
     return NextResponse.json({
       vendor: {
