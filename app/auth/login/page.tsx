@@ -165,16 +165,17 @@ export default function LoginPage() {
             <Image 
               src={theme.logoUrl} 
               alt={`${theme.companyName} Logo`} 
-              width={64} 
-              height={64} 
-              className="rounded-full sm:w-20 sm:h-20" 
-              unoptimized={theme.logoUrl.startsWith('http')}
+              width={180} 
+              height={80} 
+              className="object-contain max-h-20" 
+              unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
             />
           </div>
-          <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold" style={{ color: theme.primaryColor }}>
-            {theme.companyName}
-            {theme.companyName === 'flow360' && <sup className="text-xs sm:text-sm relative -top-3 sm:-top-5">™</sup>}
-          </CardTitle>
+          {theme.companyName === 'flow360' || theme.companyName === 'Flow360' ? (
+            <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold" style={{ color: theme.primaryColor }}>
+              flow360<sup className="text-xs sm:text-sm relative -top-3 sm:-top-5">™</sup>
+            </CardTitle>
+          ) : null}
           <p className="text-center text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
