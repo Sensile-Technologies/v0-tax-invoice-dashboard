@@ -288,7 +288,7 @@ async function PUT(request) {
             'White-Label Settings Updated',
             `Branding settings were updated by ${user.email}. Changes include display name, logo, colors, and/or custom domain.`,
             'info',
-            'normal',
+            1,
             'vendor',
             user.vendor_id
         ]);
