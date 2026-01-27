@@ -38,6 +38,7 @@ async function signUp(email, password, metadata) {
 }
 async function signIn(identifier, password) {
     const isEmail = identifier.includes("@");
+    const currentDomain = ("TURBOPACK compile-time truthy", 1) ? window.location.hostname : "TURBOPACK unreachable";
     const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
@@ -46,7 +47,8 @@ async function signIn(identifier, password) {
         body: JSON.stringify({
             email: isEmail ? identifier : undefined,
             username: isEmail ? undefined : identifier,
-            password
+            password,
+            domain: currentDomain
         })
     });
     const data = await response.json();
