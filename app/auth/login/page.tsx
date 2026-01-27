@@ -168,10 +168,13 @@ export default function LoginPage() {
             <Image 
               src={theme.logoUrl} 
               alt={`${theme.companyName} Logo`} 
-              width={400} 
-              height={250} 
+              width={theme.companyName === 'flow360' || theme.companyName === 'Flow360' ? 400 : 300} 
+              height={theme.companyName === 'flow360' || theme.companyName === 'Flow360' ? 250 : 200} 
               className="object-contain" 
-              style={{ maxHeight: '220px', minHeight: '150px' }}
+              style={{ 
+                maxHeight: theme.companyName === 'flow360' || theme.companyName === 'Flow360' ? '220px' : '180px',
+                minHeight: theme.companyName === 'flow360' || theme.companyName === 'Flow360' ? '150px' : '100px'
+              }}
               unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
             />
           </div>
