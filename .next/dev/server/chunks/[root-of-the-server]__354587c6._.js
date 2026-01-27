@@ -207,6 +207,11 @@ async function GET(request) {
                 secondaryColor: vendor.secondary_color || '#1e40af',
                 companyName: vendor.display_name || vendor.name || 'Flow360'
             }
+        }, {
+            headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate',
+                'Pragma': 'no-cache'
+            }
         });
     } catch (error) {
         console.error("Error fetching theme:", error);

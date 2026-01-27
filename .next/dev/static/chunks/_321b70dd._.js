@@ -674,7 +674,12 @@ function LoginPage() {
             async function fetchTheme() {
                 try {
                     const domain = window.location.hostname;
-                    const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}`);
+                    const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}&t=${Date.now()}`, {
+                        cache: 'no-store',
+                        headers: {
+                            'Cache-Control': 'no-cache'
+                        }
+                    });
                     if (response.ok) {
                         const data = await response.json();
                         if (data.theme) {
@@ -779,20 +784,20 @@ function LoginPage() {
                         priority: true
                     }, void 0, false, {
                         fileName: "[project]/app/auth/login/page.tsx",
-                        lineNumber: 152,
+                        lineNumber: 155,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "absolute inset-0 bg-blue-900/30"
                     }, void 0, false, {
                         fileName: "[project]/app/auth/login/page.tsx",
-                        lineNumber: 159,
+                        lineNumber: 162,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/login/page.tsx",
-                lineNumber: 151,
+                lineNumber: 154,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -818,12 +823,12 @@ function LoginPage() {
                                     unoptimized: theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/login/page.tsx",
-                                    lineNumber: 165,
+                                    lineNumber: 168,
                                     columnNumber: 13
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/login/page.tsx",
-                                lineNumber: 164,
+                                lineNumber: 167,
                                 columnNumber: 11
                             }, this),
                             theme.companyName === 'flow360' || theme.companyName === 'Flow360' ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
@@ -838,13 +843,13 @@ function LoginPage() {
                                         children: "™"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/login/page.tsx",
-                                        lineNumber: 177,
+                                        lineNumber: 180,
                                         columnNumber: 22
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/login/page.tsx",
-                                lineNumber: 176,
+                                lineNumber: 179,
                                 columnNumber: 13
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
                                 className: "text-2xl sm:text-3xl text-center font-extrabold",
@@ -854,7 +859,7 @@ function LoginPage() {
                                 children: theme.companyName
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/login/page.tsx",
-                                lineNumber: 180,
+                                lineNumber: 183,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -862,13 +867,13 @@ function LoginPage() {
                                 children: "Sign in to your account"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/login/page.tsx",
-                                lineNumber: 184,
+                                lineNumber: 187,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/login/page.tsx",
-                        lineNumber: 163,
+                        lineNumber: 166,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -887,7 +892,7 @@ function LoginPage() {
                                                 children: "Email or Username"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/login/page.tsx",
-                                                lineNumber: 189,
+                                                lineNumber: 192,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -902,13 +907,13 @@ function LoginPage() {
                                                 autoCorrect: "off"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/login/page.tsx",
-                                                lineNumber: 190,
+                                                lineNumber: 193,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/login/page.tsx",
-                                        lineNumber: 188,
+                                        lineNumber: 191,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -923,7 +928,7 @@ function LoginPage() {
                                                         children: "Password"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/login/page.tsx",
-                                                        lineNumber: 204,
+                                                        lineNumber: 207,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -932,13 +937,13 @@ function LoginPage() {
                                                         children: "Forgot password?"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/auth/login/page.tsx",
-                                                        lineNumber: 205,
+                                                        lineNumber: 208,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/auth/login/page.tsx",
-                                                lineNumber: 203,
+                                                lineNumber: 206,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -952,13 +957,13 @@ function LoginPage() {
                                                 autoComplete: "current-password"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/auth/login/page.tsx",
-                                                lineNumber: 209,
+                                                lineNumber: 212,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/auth/login/page.tsx",
-                                        lineNumber: 202,
+                                        lineNumber: 205,
                                         columnNumber: 13
                                     }, this),
                                     error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -966,7 +971,7 @@ function LoginPage() {
                                         children: error
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/login/page.tsx",
-                                        lineNumber: 220,
+                                        lineNumber: 223,
                                         columnNumber: 23
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -976,20 +981,20 @@ function LoginPage() {
                                         children: isLoading ? "Signing in..." : "Sign In"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/login/page.tsx",
-                                        lineNumber: 221,
+                                        lineNumber: 224,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/login/page.tsx",
-                                lineNumber: 187,
+                                lineNumber: 190,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Separator"], {
                                 className: "my-5 sm:my-6"
                             }, void 0, false, {
                                 fileName: "[project]/app/auth/login/page.tsx",
-                                lineNumber: 226,
+                                lineNumber: 229,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1003,25 +1008,25 @@ function LoginPage() {
                                         children: "Sign up"
                                     }, void 0, false, {
                                         fileName: "[project]/app/auth/login/page.tsx",
-                                        lineNumber: 230,
+                                        lineNumber: 233,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/auth/login/page.tsx",
-                                lineNumber: 228,
+                                lineNumber: 231,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/auth/login/page.tsx",
-                        lineNumber: 186,
+                        lineNumber: 189,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/auth/login/page.tsx",
-                lineNumber: 162,
+                lineNumber: 165,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -1037,20 +1042,20 @@ function LoginPage() {
                                     children: "Change Your Password"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/login/page.tsx",
-                                    lineNumber: 240,
+                                    lineNumber: 243,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
                                     children: "Your password has been reset. Please create a new password to continue."
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/login/page.tsx",
-                                    lineNumber: 241,
+                                    lineNumber: 244,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/auth/login/page.tsx",
-                            lineNumber: 239,
+                            lineNumber: 242,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -1065,7 +1070,7 @@ function LoginPage() {
                                             children: "New Password"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/login/page.tsx",
-                                            lineNumber: 247,
+                                            lineNumber: 250,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1079,13 +1084,13 @@ function LoginPage() {
                                             minLength: 6
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/login/page.tsx",
-                                            lineNumber: 248,
+                                            lineNumber: 251,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/auth/login/page.tsx",
-                                    lineNumber: 246,
+                                    lineNumber: 249,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1096,7 +1101,7 @@ function LoginPage() {
                                             children: "Confirm Password"
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/login/page.tsx",
-                                            lineNumber: 260,
+                                            lineNumber: 263,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -1110,13 +1115,13 @@ function LoginPage() {
                                             minLength: 6
                                         }, void 0, false, {
                                             fileName: "[project]/app/auth/login/page.tsx",
-                                            lineNumber: 261,
+                                            lineNumber: 264,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/auth/login/page.tsx",
-                                    lineNumber: 259,
+                                    lineNumber: 262,
                                     columnNumber: 13
                                 }, this),
                                 passwordError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1124,7 +1129,7 @@ function LoginPage() {
                                     children: passwordError
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/login/page.tsx",
-                                    lineNumber: 273,
+                                    lineNumber: 276,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1134,30 +1139,30 @@ function LoginPage() {
                                     children: passwordLoading ? "Changing Password..." : "Change Password"
                                 }, void 0, false, {
                                     fileName: "[project]/app/auth/login/page.tsx",
-                                    lineNumber: 275,
+                                    lineNumber: 278,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/auth/login/page.tsx",
-                            lineNumber: 245,
+                            lineNumber: 248,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/auth/login/page.tsx",
-                    lineNumber: 238,
+                    lineNumber: 241,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/auth/login/page.tsx",
-                lineNumber: 237,
+                lineNumber: 240,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/auth/login/page.tsx",
-        lineNumber: 150,
+        lineNumber: 153,
         columnNumber: 5
     }, this);
 }

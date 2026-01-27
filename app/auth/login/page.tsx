@@ -45,7 +45,10 @@ export default function LoginPage() {
     async function fetchTheme() {
       try {
         const domain = window.location.hostname
-        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}`)
+        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}&t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        })
         if (response.ok) {
           const data = await response.json()
           if (data.theme) {
