@@ -5,7 +5,7 @@ import { cookies } from "next/headers"
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('session')
+    const sessionCookie = cookieStore.get('user_session')
     
     let vendorId = null
     let branchId = null
@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
     if (sessionCookie?.value) {
       try {
         const session = JSON.parse(sessionCookie.value)
-        vendorId = session.user?.vendor_id
-        branchId = session.user?.branch_id
+        vendorId = session.vendor_id
+        branchId = session.branch_id
       } catch (e) {}
     }
 
