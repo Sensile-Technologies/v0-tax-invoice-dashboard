@@ -2003,12 +2003,12 @@
     max-height: var(--radix-select-content-available-height);
   }
 
-  .max-h-28 {
-    max-height: calc(var(--spacing) * 28);
-  }
-
   .max-h-32 {
     max-height: calc(var(--spacing) * 32);
+  }
+
+  .max-h-36 {
+    max-height: calc(var(--spacing) * 36);
   }
 
   .max-h-80 {
