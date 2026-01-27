@@ -9,7 +9,7 @@ const pool = new Pool({
 
 export async function POST(request: Request) {
   try {
-    const { email, password, username } = await request.json()
+    const { email, password, username, domain } = await request.json()
 
     if (!password || (!email && !username)) {
       return NextResponse.json(
@@ -21,6 +21,18 @@ export async function POST(request: Request) {
     const client = await pool.connect()
 
     try {
+      // Check if this is a custom vendor domain
+      let domainVendorId: string | null = null
+      if (domain) {
+        const vendorResult = await client.query(
+          `SELECT id FROM vendors WHERE custom_domain = $1 AND status = 'active'`,
+          [domain]
+        )
+        if (vendorResult.rows.length > 0) {
+          domainVendorId = vendorResult.rows[0].id
+        }
+      }
+
       let user
       const identifier = email || username
 
@@ -136,6 +148,15 @@ export async function POST(request: Request) {
       if (user.role && user.role.toLowerCase() === 'cashier') {
         return NextResponse.json(
           { error: { message: "Cashiers can only access the system through the mobile app. Please use the Flow360 mobile application." } },
+          { status: 403 }
+        )
+      }
+
+      // Block login from custom vendor domain if user doesn't belong to that vendor
+      // Admin users are exempt from this check
+      if (domainVendorId && user.vendor_id && user.vendor_id !== domainVendorId && user.role !== 'admin') {
+        return NextResponse.json(
+          { error: { message: "Access denied. Your account is not authorized to access this domain. Please use your organization's login portal." } },
           { status: 403 }
         )
       }

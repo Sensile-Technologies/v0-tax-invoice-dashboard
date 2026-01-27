@@ -17,6 +17,7 @@ export async function signUp(email: string, password: string, metadata: { userna
 
 export async function signIn(identifier: string, password: string) {
   const isEmail = identifier.includes("@")
+  const currentDomain = typeof window !== 'undefined' ? window.location.hostname : ''
 
   const response = await fetch("/api/auth/signin", {
     method: "POST",
@@ -27,6 +28,7 @@ export async function signIn(identifier: string, password: string) {
       email: isEmail ? identifier : undefined,
       username: isEmail ? undefined : identifier,
       password,
+      domain: currentDomain,
     }),
   })
 
