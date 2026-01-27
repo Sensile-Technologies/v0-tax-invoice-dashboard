@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
           `SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
            FROM vendors 
            WHERE id = $1 AND status = 'active'
+           AND custom_domain IS NOT NULL AND custom_domain != ''
            LIMIT 1`,
           [sessionVendorId]
         )

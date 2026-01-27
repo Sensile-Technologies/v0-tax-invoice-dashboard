@@ -165,17 +165,21 @@ async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
         const domain = searchParams.get('domain');
+        const skipSession = searchParams.get('skipSession') === 'true';
         let vendor = null;
-        const sessionVendorId = await getSessionVendorId();
-        if (sessionVendorId) {
-            const vendors = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
-         FROM vendors 
-         WHERE id = $1 AND status = 'active'
-         LIMIT 1`, [
-                sessionVendorId
-            ]);
-            if (vendors.length > 0) {
-                vendor = vendors[0];
+        if (!skipSession) {
+            const sessionVendorId = await getSessionVendorId();
+            if (sessionVendorId) {
+                const vendors = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`SELECT id, name, display_name, logo_url, primary_color, secondary_color, custom_domain
+           FROM vendors 
+           WHERE id = $1 AND status = 'active'
+           AND custom_domain IS NOT NULL AND custom_domain != ''
+           LIMIT 1`, [
+                    sessionVendorId
+                ]);
+                if (vendors.length > 0) {
+                    vendor = vendors[0];
+                }
             }
         }
         if (!vendor && domain) {
