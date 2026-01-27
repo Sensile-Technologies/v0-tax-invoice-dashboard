@@ -27,6 +27,7 @@ Key architectural decisions and features include:
 - **Item Color Codes**: `items` table includes `color_code` for chart visualization in Sales Summary.
 - **Modular API Design**: API routes organized within the `/app` directory, with specific endpoints for mobile and administrative functions.
 - **Security**: Session authentication uses httpOnly JSON cookies. Role-Based Access Control (RBAC) restricts access based on user roles (Cashiers, Supervisors, Managers, Directors, Vendors) with granular control over mobile app, branch access, and HQ dashboard features. HQ API endpoints are protected with server-side session validation and role checks.
+- **White-Label Theming**: Vendors can configure custom domains, logos, colors, and company names. When a user accesses the system via a vendor's custom domain (e.g., `fms.leadwaypetroleum.net`), the login page and dashboard display that vendor's branding instead of the default Flow360 branding. Configuration is done via Vendor Settings page (`/vendor/settings`).
 
 ## External Dependencies
 - **Replit PostgreSQL**: Primary database.

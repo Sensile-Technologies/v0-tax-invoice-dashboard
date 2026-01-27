@@ -12,7 +12,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+
+interface VendorTheme {
+  logoUrl: string
+  primaryColor: string
+  companyName: string
+}
+
+const defaultTheme: VendorTheme = {
+  logoUrl: '/flow360-logo.png',
+  primaryColor: '#3b82f6',
+  companyName: 'flow360',
+}
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("")
@@ -25,7 +37,29 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [pendingUser, setPendingUser] = useState<any>(null)
+  const [theme, setTheme] = useState<VendorTheme>(defaultTheme)
+  const [themeLoaded, setThemeLoaded] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    async function fetchTheme() {
+      try {
+        const domain = window.location.hostname
+        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.theme) {
+            setTheme(data.theme)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch theme:', error)
+      } finally {
+        setThemeLoaded(true)
+      }
+    }
+    fetchTheme()
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -128,9 +162,19 @@ export default function LoginPage() {
       <Card className="w-full max-w-[340px] sm:max-w-md relative z-10 shadow-2xl mx-auto">
         <CardHeader className="space-y-3 sm:space-y-4 pb-6 sm:pb-8 px-4 sm:px-6">
           <div className="flex justify-center">
-            <Image src="/flow360-logo.png" alt="Flow360 Logo" width={64} height={64} className="rounded-full sm:w-20 sm:h-20" />
+            <Image 
+              src={theme.logoUrl} 
+              alt={`${theme.companyName} Logo`} 
+              width={64} 
+              height={64} 
+              className="rounded-full sm:w-20 sm:h-20" 
+              unoptimized={theme.logoUrl.startsWith('http')}
+            />
           </div>
-          <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold text-primary">flow360<sup className="text-xs sm:text-sm relative -top-3 sm:-top-5">™</sup></CardTitle>
+          <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold" style={{ color: theme.primaryColor }}>
+            {theme.companyName}
+            {theme.companyName === 'flow360' && <sup className="text-xs sm:text-sm relative -top-3 sm:-top-5">™</sup>}
+          </CardTitle>
           <p className="text-center text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">

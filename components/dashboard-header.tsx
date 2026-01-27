@@ -41,6 +41,18 @@ import { signOut, getCurrentUser } from "@/lib/auth/client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { LuluChat } from "@/components/lulu-chat"
 
+interface VendorTheme {
+  logoUrl: string
+  primaryColor: string
+  companyName: string
+}
+
+const defaultTheme: VendorTheme = {
+  logoUrl: '/flow360-logo.png',
+  primaryColor: '#3b82f6',
+  companyName: 'Flow360',
+}
+
 interface DashboardHeaderProps {
   currentBranch?: string
   onBranchChange?: (branchId: string) => void
@@ -69,9 +81,28 @@ export function DashboardHeader({
   const [canSwitchBranches, setCanSwitchBranches] = useState(true)
   const [isLuluOpen, setIsLuluOpen] = useState(false)
   const [showQRCode, setShowQRCode] = useState(false)
+  const [theme, setTheme] = useState<VendorTheme>(defaultTheme)
   const router = useRouter()
   const searchParams = useSearchParams()
   const branchIdFromUrl = searchParams.get('branch')
+
+  useEffect(() => {
+    async function fetchTheme() {
+      try {
+        const domain = window.location.hostname
+        const response = await fetch(`/api/theme?domain=${encodeURIComponent(domain)}`)
+        if (response.ok) {
+          const data = await response.json()
+          if (data.theme) {
+            setTheme(data.theme)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch theme:', error)
+      }
+    }
+    fetchTheme()
+  }, [])
 
   useEffect(() => {
     const initSession = async () => {
@@ -278,7 +309,14 @@ export function DashboardHeader({
           </Button>
         )}
         <div className="flex items-center gap-2">
-          <Image src="/flow360-logo.png" alt="Flow360 Logo" width={28} height={28} className="rounded-lg hidden sm:block" />
+          <Image 
+            src={theme.logoUrl} 
+            alt={`${theme.companyName} Logo`} 
+            width={28} 
+            height={28} 
+            className="rounded-lg hidden sm:block" 
+            unoptimized={theme.logoUrl.startsWith('http')}
+          />
           <div className="flex flex-col">
             <span className="text-xs md:text-sm text-muted-foreground hidden sm:block">Welcome back{userName ? `, ${userName}` : ''}</span>
             <span className="text-sm md:text-lg font-bold truncate max-w-[120px] sm:max-w-none">{currentBranchName}</span>
