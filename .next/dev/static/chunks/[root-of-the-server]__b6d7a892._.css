@@ -1693,10 +1693,6 @@
     margin-left: calc(var(--spacing) * -6);
   }
 
-  .ml-0\.5 {
-    margin-left: calc(var(--spacing) * .5);
-  }
-
   .ml-1 {
     margin-left: calc(var(--spacing) * 1);
   }
@@ -5153,10 +5149,6 @@
 
   .text-\[2rem\] {
     font-size: 2rem;
-  }
-
-  .text-\[10px\] {
-    font-size: 10px;
   }
 
   .text-\[80px\] {

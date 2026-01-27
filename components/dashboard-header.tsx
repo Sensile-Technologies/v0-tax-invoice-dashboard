@@ -310,19 +310,9 @@ export function DashboardHeader({
             <Menu className="h-6 w-6 text-slate-700" />
           </Button>
         )}
-        <div className="flex items-center gap-2">
-          <Image 
-            src={theme.logoUrl} 
-            alt={`${theme.companyName} Logo`} 
-            width={28} 
-            height={28} 
-            className="rounded-lg hidden sm:block" 
-            unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
-          />
-          <div className="flex flex-col">
-            <span className="text-xs md:text-sm text-muted-foreground hidden sm:block">Welcome back{userName ? `, ${userName}` : ''}</span>
-            <span className="text-sm md:text-lg font-bold truncate max-w-[120px] sm:max-w-none">{currentBranchName}</span>
-          </div>
+        <div className="flex flex-col">
+          <span className="text-xs md:text-sm text-muted-foreground hidden sm:block">Welcome back{userName ? `, ${userName}` : ''}</span>
+          <span className="text-sm md:text-lg font-bold truncate max-w-[120px] sm:max-w-none">{currentBranchName}</span>
         </div>
         {showSearch && (
           <div className="relative w-full max-w-md">
@@ -337,14 +327,6 @@ export function DashboardHeader({
       </div>
 
       <div className="flex items-center gap-2">
-        <Image 
-          src={theme.logoUrl} 
-          alt={`${theme.companyName} Logo`} 
-          width={32} 
-          height={32} 
-          className="rounded-lg" 
-          unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
-        />
         {canSwitchBranches && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

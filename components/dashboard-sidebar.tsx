@@ -146,29 +146,16 @@ export function DashboardSidebar({
         )}
       >
       <div className="flex h-16 items-center justify-between px-4">
-        {!collapsed && (
-          <Link href="/" className="flex items-center gap-2">
-            <Image 
-              src={theme.logoUrl} 
-              alt={`${theme.companyName} Logo`} 
-              width={32} 
-              height={32} 
-              className="rounded-lg" 
-              unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
-            />
-            <span className="text-lg font-bold">{theme.companyName}<sup className="text-[10px] ml-0.5">™</sup></span>
-          </Link>
-        )}
-        {collapsed && (
+        <Link href="/" className="flex items-center">
           <Image 
             src={theme.logoUrl} 
             alt={`${theme.companyName} Logo`} 
-            width={32} 
-            height={32} 
+            width={collapsed ? 32 : 48} 
+            height={collapsed ? 32 : 48} 
             className="rounded-lg mx-auto" 
             unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
           />
-        )}
+        </Link>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
