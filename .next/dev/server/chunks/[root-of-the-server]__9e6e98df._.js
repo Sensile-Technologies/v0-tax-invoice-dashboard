@@ -110,12 +110,34 @@ async function GET(request) {
                 }
             }
         }
-        const tanksResult = await pool.query(`SELECT id, current_stock FROM tanks WHERE branch_id = $1`, [
+        // Get tanks for this branch
+        const tanksResult = await pool.query(`SELECT id FROM tanks WHERE branch_id = $1`, [
             branchId
         ]);
+        // CRITICAL: Tank opening reading = previous shift's CLOSING reading ONLY
+        // This ensures tank continuity: Shift A closing = Shift B opening
+        // NO fallback to tanks.current_stock - it must come from shift_readings
         const tankBaselines = {};
+        // Get the most recent completed shift's closing readings for each tank
+        const prevTankReadings = await pool.query(`SELECT DISTINCT ON (sr.tank_id) sr.tank_id, sr.closing_reading
+       FROM shift_readings sr
+       JOIN shifts s ON sr.shift_id = s.id
+       WHERE sr.branch_id = $1 
+         AND sr.reading_type = 'tank' 
+         AND sr.tank_id IS NOT NULL
+         AND sr.closing_reading IS NOT NULL
+         AND s.status = 'completed'
+       ORDER BY sr.tank_id, s.end_time DESC NULLS LAST`, [
+            branchId
+        ]);
+        // Build map of previous closing readings
+        const prevClosings = {};
+        for (const r of prevTankReadings.rows){
+            prevClosings[r.tank_id] = parseFloat(r.closing_reading) || 0;
+        }
+        // For each tank, use previous closing reading; default to 0 if no prior readings exist
         for (const t of tanksResult.rows){
-            tankBaselines[t.id] = parseFloat(t.current_stock) || 0;
+            tankBaselines[t.id] = prevClosings[t.id] ?? 0;
         }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             success: true,

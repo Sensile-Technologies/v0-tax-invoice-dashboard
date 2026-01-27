@@ -273,19 +273,10 @@ async function GET(request) {
             });
         }
         const productCashFlow = [];
+        // Use already-fetched prices from productPrices map (built from branch_items by item_id)
         for (const [product, nozzleData] of productNozzleTotals){
-            const priceQuery = `
-        SELECT COALESCE(bi.sale_price, 0) as sale_price
-        FROM items i
-        LEFT JOIN branch_items bi ON bi.item_id = i.id AND bi.branch_id = $1
-        WHERE i.item_name = $2
-        LIMIT 1
-      `;
-            const priceResult = await pool.query(priceQuery, [
-                branchId,
-                product
-            ]);
-            const pump_price = parseFloat(priceResult.rows[0]?.sale_price) || 0;
+            // Price already fetched via branch_items join - no need to re-query
+            const pump_price = nozzleData.price_per_litre || productPrices.get(product) || 0;
             const amount = nozzleData.pump_sales * pump_price;
             productCashFlow.push({
                 product,
