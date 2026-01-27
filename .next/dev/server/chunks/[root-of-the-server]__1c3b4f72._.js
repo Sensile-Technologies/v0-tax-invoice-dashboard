@@ -144,14 +144,14 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 async function GET(request) {
     try {
         const cookieStore = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["cookies"])();
-        const sessionCookie = cookieStore.get('session');
+        const sessionCookie = cookieStore.get('user_session');
         let vendorId = null;
         let branchId = null;
         if (sessionCookie?.value) {
             try {
                 const session = JSON.parse(sessionCookie.value);
-                vendorId = session.user?.vendor_id;
-                branchId = session.user?.branch_id;
+                vendorId = session.vendor_id;
+                branchId = session.branch_id;
             } catch (e) {}
         }
         const notifications = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$db$2f$client$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["query"])(`

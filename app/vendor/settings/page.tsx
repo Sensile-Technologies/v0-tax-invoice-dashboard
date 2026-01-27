@@ -119,6 +119,8 @@ export default function VendorSettingsPage() {
 
       if (response.ok) {
         toast.success('Settings saved successfully')
+        // Trigger notification refresh in header
+        window.dispatchEvent(new Event('refresh-notifications'))
       } else {
         const data = await response.json()
         toast.error(data.error || 'Failed to save settings')

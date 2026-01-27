@@ -227,6 +227,18 @@ export function DashboardHeader({
       }
     }
     fetchNotifications()
+    
+    // Listen for custom event to refresh notifications
+    const handleRefresh = () => fetchNotifications()
+    window.addEventListener('refresh-notifications', handleRefresh)
+    
+    // Also poll every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000)
+    
+    return () => {
+      window.removeEventListener('refresh-notifications', handleRefresh)
+      clearInterval(interval)
+    }
   }, [])
 
   const fetchBranchesWithRole = async (canSwitch: boolean) => {
