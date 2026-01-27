@@ -175,11 +175,7 @@ export default function LoginPage() {
               unoptimized={theme.logoUrl.startsWith('http') || theme.logoUrl.startsWith('/uploads')}
             />
           </div>
-          {theme.companyName === 'flow360' || theme.companyName === 'Flow360' ? (
-            <CardTitle className="text-3xl sm:text-[50px] text-center font-extrabold" style={{ color: theme.primaryColor }}>
-              flow360<sup className="text-xs sm:text-sm relative -top-3 sm:-top-5">™</sup>
-            </CardTitle>
-          ) : (
+          {theme.companyName !== 'flow360' && theme.companyName !== 'Flow360' && (
             <CardTitle className="text-2xl sm:text-3xl text-center font-extrabold" style={{ color: theme.primaryColor }}>
               {theme.companyName}
             </CardTitle>
